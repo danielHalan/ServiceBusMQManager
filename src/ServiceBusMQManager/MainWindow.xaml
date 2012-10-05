@@ -1,0 +1,300 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
+        x:Class="ServiceBusMQManager.MainWindow"
+        Title="Service Bus MQ Manager 1.20 - (c)2012 ITQ.COM, Daniel Halan" 
+    
+        Height="314.55" Width="587.833" 
+        Topmost="True" 
+        
+        Loaded="Window_Loaded" 
+        Closing="Window_Closing" Closed="Window_Closed"
+        
+        WindowStyle="None" 
+        ResizeMode="NoResize"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" LocationChanged="Window_LocationChanged"
+        MinHeight="300"
+        MinWidth="550" IsVisibleChanged="Window_IsVisibleChanged" 
+        >
+    <Window.Resources>
+        <!--<local:QueueItem x:Key="QueueItemDataSource" d:IsDataSource="True"/>-->
+    </Window.Resources>
+
+    <Border BorderBrush="#1581D2"            
+            BorderThickness="1,1,1,1"
+            CornerRadius="0"
+            Background="Transparent">
+
+
+
+        <Grid>
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Name="miToggleOnTop" Header="Always on Top" Click="miToggleAlwaysOnTop_Click" IsChecked="True" />
+                    <Separator />
+                    <MenuItem Header="Exit" Click="miClose_Click"  />
+
+
+                </ContextMenu>
+                
+            </Grid.ContextMenu>
+            <Grid.Resources>
+                <Style x:Key="StyleNoFocusRect">
+                    <Setter Property="Control.Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Control}">
+                                <Canvas/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <Style TargetType="{x:Type ListBox}">
+                    <Setter Property="BorderThickness"  Value="0" />
+                    <Setter Property="BorderBrush"  Value="Transparent" />
+                    <Setter Property="Padding" Value="4" />
+                </Style>
+
+                <!--<DataTemplate DataType="{x:Type local:QueueItem}">
+
+                    <Grid x:Name="panel" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label x:Name="lbName" Content="{Binding Id}" FontSize="12" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,-4,0,4" FontWeight="Bold" />
+                        <Label x:Name="lbQueueName"  Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0"  />
+                        <Image Height="Auto" Width="Auto" Margin="4,5,10,7"/>
+                        <Label x:Name="lbId" Content="lbId" Margin="0,15,8.036,-5" Grid.Column="1" FontSize="9.333" Foreground="#FF7A7A7A" FontStyle="Italic"/>
+                    </Grid>
+
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.Deleted, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                            <Setter Property="Foreground" TargetName="lbName" Value="Gray" />
+                            <Setter Property="Foreground" TargetName="lbQueueName" Value="Gray" />
+                        </DataTrigger>
+
+                    </DataTemplate.Triggers>
+                </DataTemplate>-->
+
+                <Style TargetType="{x:Type ListBoxItem}">
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+
+                                <Grid x:Name="panel" HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="10*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="0,4,4,7"/>
+                                    <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="12" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" />
+                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,12,10,0"  />
+                                    <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" FontSize="9.333" Foreground="#696969" FontStyle="Italic"/>
+                                    <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,40,24" 
+                                               Height="1" StrokeThickness="1" Stroke="Transparent"/>
+                                </Grid>
+
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Deleted}" Value="True">
+                                        <Setter Property="Foreground" TargetName="lbName" Value="Gray" />
+                                        <Setter Property="Foreground" TargetName="lbQueueName" Value="Gray" />
+                                        <Setter Property="Stroke" TargetName="StrikeThrough" Value="Gray"/>
+                                    </DataTrigger>
+
+                                    <Trigger Property="IsSelected" Value="true">
+                                        <Setter Property="Background" TargetName="panel" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                        <Setter Property="Foreground" TargetName="lbName" Value="White"/>
+                                        <Setter Property="Foreground" TargetName="lbId" Value="#DEDEDE"/>
+                                        <Setter Property="Foreground" TargetName="lbQueueName" Value="White"/>
+                                        <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="true"/>
+                                            <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                                        </MultiTrigger.Conditions>
+                                        <!-- NET 4.5 Release later in 2013
+                                        <Setter Property="Background" TargetName="panel" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
+                                        -->
+                                        <Setter Property="Background" TargetName="panel" Value="#DEDEDE"/>
+                                        <Setter Property="Foreground" TargetName="lbName" Value="Black"/>
+                                        <Setter Property="Foreground" TargetName="lbId" Value="#4D4D4D"/>
+                                        <Setter Property="Foreground" TargetName="lbQueueName" Value="Black"/>
+                                    </MultiTrigger>
+                                    <Trigger Property="IsEnabled" Value="false">
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        <Setter Property="Foreground" TargetName="lbName" Value="Black"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+
+                <Style TargetType="{x:Type ToggleButton}">
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="BorderBrush"  Value="Transparent" />
+                    <Setter Property="Padding" Value="4" />
+                    <Setter Property="Background" Value="#EBEBEB" />
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate xmlns:ms="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" 
+                                                TargetType="{x:Type ToggleButton}">
+
+                                <Border Name="btnBorder" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                        BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#EBEBEB" Height="23" Width="{TemplateBinding Width}" >
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Name="btnText" VerticalAlignment="Center" TextAlignment="Center" Width="{TemplateBinding Width}"  Padding="0,0,0,0" Text="{TemplateBinding Content}" />
+                                    </StackPanel>
+                                </Border>
+
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter Property="Background" Value="#0E97FF" TargetName="btnBorder" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="false">
+                                        <Setter Property="Foreground" Value="#ADADAD"/>
+                                    </Trigger>
+                                    
+                                    <!-- Mouse Over -->
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsChecked" Value="False"/>
+                                            <Condition Property="IsMouseOver" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <MultiTrigger.Setters>
+                                            <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
+                                        </MultiTrigger.Setters>
+                                    </MultiTrigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsChecked" Value="True"/>
+                                            <Condition Property="IsMouseOver" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <MultiTrigger.Setters>
+                                            <Setter Property="Background" Value="#45AFFF" TargetName="btnBorder" />
+                                        </MultiTrigger.Setters>
+                                    </MultiTrigger>
+
+
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Cursor" Value="Hand" />
+                                    </Trigger>
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                    <Style.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Background" Value="#0E97FF" />
+                        </Trigger>
+
+                    </Style.Triggers>
+                </Style>
+
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="28"/>
+                <RowDefinition Height="28"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Rectangle
+                    Height="28"
+                    VerticalAlignment="Top"
+                    Fill="White"
+             >
+                
+            </Rectangle>
+            <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png"/>
+            <Label Name="lbTitle" Content="Title" Margin="37,2,0,26" Foreground="#595959" Grid.RowSpan="2" />
+            <Button
+                HorizontalAlignment="Right"
+                Margin="0,6,32,0"
+                VerticalAlignment="Top"
+                Width="13"
+                Style="{StaticResource ChromeButtonStyle}"
+                Click="miToggleAlwaysOnTop_Click"
+                ToolTip="Toggle always on top"
+                >
+                <Image Name="imgAlwaysOnTop" Source="Images/pinned.png" /> 
+            </Button>
+            <Button
+                HorizontalAlignment="Right"
+                Margin="0,6,10,0"
+                Width="18"
+                VerticalAlignment="Top"
+                Style="{StaticResource ChromeButtonStyle}"
+                Click="HandleCloseClick">
+                <Image Source="Images/minimize.png" />
+            </Button>
+
+            <ListBox Margin="0,12.321,0,8.68" x:Name="lbItems" 
+		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="2" SelectedIndex="0">
+
+                <ListBox.Resources>
+                    <!-- override the system brushes so that selected items are transparent
+             whether the ListBox has focus or not -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"      Color="#001C88" />
+                    <!--<SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"        Color="Transparent" />-->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"  Color="Wheat" />
+                </ListBox.Resources>
+
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Copy Message ID" Click="miCopyMessageID_Click" IsEnabled="False" />
+                        <Separator />
+                        <MenuItem Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
+                        <MenuItem Header="Purge All Messages" Click="miDeleteAllMessage_Click" />
+                        <Separator />
+                        <MenuItem Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
+                        <MenuItem Header="Return All Error Messages to Source Queue"  />
+                        <MenuItem Header="Purge All Error Messages" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+
+            </ListBox>
+            <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="98" Unchecked="btn_Unchecked" Tag="0" Grid.Row="1" Checked="btn_Checked" />
+            <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="113,3,0,0" VerticalAlignment="Top" Width="92" Unchecked="btn_Unchecked" Tag="1" Grid.Row="1" Checked="btn_Checked" />
+            <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="210,3,0,0" VerticalAlignment="Top" Width="99" Unchecked="btn_Unchecked" Tag="2" Grid.Row="1" Checked="btn_Checked" />
+            <ToggleButton x:Name="btnError" Content="ERRORS" HorizontalAlignment="Left" Margin="314,3,0,0" VerticalAlignment="Top" Width="88" Unchecked="btn_Unchecked" Tag="3" Grid.Row="1" Checked="btn_Checked"/>
+
+
+            <Button x:Name="btnClearDeleted" Grid.Row="1" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,0,10,0" ToolTip="Remove list items that has been deleted in their Queue" >
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Name="btnBorder" HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Images/Delete.png" />
+                                <TextBlock Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0">Clear Deleted</TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="Button.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,51 @@
+﻿<Window x:Class="ServiceBusMQManager.ContentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sc="clr-namespace:ScintillaNET;assembly=ScintillaNET"
+        Title="ContentWindow" 
+        Height="268.421" Width="635.526" 
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStyle="None" 
+        ResizeMode="NoResize"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove_1"
+        >
+
+
+    <Border BorderBrush="#1581D2"            
+            BorderThickness="1,1,1,1"
+            CornerRadius="0"
+            Background="Transparent">
+        
+        <Grid Margin="0,0,0,0">
+
+
+                <Rectangle
+                    Height="28"
+                    VerticalAlignment="Top"
+                    Fill="White"
+/>
+            <Label Name="lbTitle" Content="TEEEEST" Margin="10,0,0,0" Foreground="DarkGray" />
+                <Button
+                HorizontalAlignment="Right"
+                Margin="500,6,8,0"
+                VerticalAlignment="Top"
+                Style="{StaticResource ChromeButtonStyle}"
+                Click="HandleCloseClick">
+                    <TextBlock
+                    TextWrapping="Wrap"
+                    Text="r"
+                    FontFamily="Webdings"
+                    Foreground="DarkGray"
+                    FontSize="13.333" />
+                </Button>
+
+                    <WindowsFormsHost Name="w32" Margin="0,30,0,0" Background="Transparent"  >
+                        <sc:Scintilla Name="xmlContent" BorderStyle="None"></sc:Scintilla>
+                    </WindowsFormsHost>
+                <!--<TextBox  Name="tbContent" Margin="12,10,8,10" FontFamily="Courier New" FontSize="13" BorderThickness="0"/>-->
+
+
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NServiceBus.ObjectBuilder.CastleWindsor</name>
+    </assembly>
+    <members>
+        <member name="T:NServiceBus.ConfigureWindsorBuilder">
+            <summary>
+            Contains extension methods to NServiceBus.Configure.
+            </summary>
+        </member>
+        <member name="M:NServiceBus.ConfigureWindsorBuilder.CastleWindsorBuilder(NServiceBus.Configure)">
+            <summary>
+            Use the Castle Windsor builder.
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NServiceBus.ConfigureWindsorBuilder.CastleWindsorBuilder(NServiceBus.Configure,Castle.Windsor.IWindsorContainer)">
+            <summary>
+            Use the Castle Windsor builder passing in a preconfigured container to be used by nServiceBus.
+            </summary>
+            <param name="config"></param>
+            <param name="container"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder">
+            <summary>
+            Castle Windsor implementaton of IContainer.
+            </summary>
+        </member>
+        <member name="M:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.#ctor">
+            <summary>
+            Instantites the class with a new WindsorContainer.
+            </summary>
+        </member>
+        <member name="M:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.#ctor(Castle.Windsor.IWindsorContainer)">
+            <summary>
+            Instantiates the class saving the given container.
+            </summary>
+            <param name="container"></param>
+        </member>
+        <member name="M:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.Dispose">
+            <summary>
+            Disposes the container and all resources instantiated by the container.
+            </summary>
+        </member>
+        <member name="M:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.Dispose(System.Boolean)">
+            <summary>
+            Implements dispose
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.BuildChildContainer">
+            <summary>
+            Returns a child instance of the container to facilitate deterministic disposal
+            of all resources built by the child container.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:NServiceBus.ObjectBuilder.CastleWindsor.WindsorObjectBuilder.container">
+            <summary>
+            The container itself.
+            </summary>
+        </member>
+    </members>
+</doc>
