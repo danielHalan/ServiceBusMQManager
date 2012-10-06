@@ -66,6 +66,8 @@ namespace ServiceBusMQ.Manager {
 
 
     event EventHandler<EventArgs> ItemsChanged;
+    event EventHandler<ErrorArgs> ErrorOccured;
+
 
     void ClearDeletedItems();
   }

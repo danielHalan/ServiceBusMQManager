@@ -82,6 +82,9 @@ namespace ServiceBusMQManager {
       var appSett = ConfigurationManager.AppSettings;
 
       _mgr = MessageBusFactory.Create(appSett["messageBus"], appSett["messageBusQueueType"]);
+      _mgr.ErrorOccured += MessageMgr_ErrorOccured;
+      _mgr.ItemsChanged += MessageMgr_ItemsChanged;
+      
       _dlg = new ContentWindow();
       _showOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
       
@@ -96,21 +99,14 @@ namespace ServiceBusMQManager {
       var watchMessageQueues = GetQueueNamesFromConfig("message.queues");
       var watchErrorQueues = GetQueueNamesFromConfig("error.queues");
 
-      if( watchEventQueues.Length == 0 && watchCommandQueues.Length == 0 && watchMessageQueues.Length == 0 ) {
-        MessageBox.Show("No queues has been configured. \n\nPlease add the queues you want to monitor in ServiceBusMQManager.exe.config, and try again.", "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        Application.Current.Shutdown();
-      }
-
-
       _mgr.Init(serverName, watchCommandQueues, watchEventQueues, watchMessageQueues, watchErrorQueues);
-      _mgr.ItemsChanged += MessageMgr_ItemsChanged;
-
       lbItems.ItemsSource = _mgr.Items;
 
       SetupContextMenu();
 
       SetupQueueMonitorTimer(Convert.ToInt32(appSett["interval"] ?? "700"));
     }
+
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
       if( (bool)e.NewValue )
         SetSelectedItem((QueueItem)lbItems.SelectedItem);
@@ -235,6 +231,14 @@ namespace ServiceBusMQManager {
       // Show Window
       if( _showOnNewMessages && !this.IsVisible )
         this.Show();
+    }
+    private void MessageMgr_ErrorOccured(object sender, ErrorArgs e) {
+
+     MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+     if( e.Fatal )
+       Application.Current.Shutdown();
+
     }
     private void timer_Tick(object sender, EventArgs e) {
       _mgr.RefreshQueueItems();

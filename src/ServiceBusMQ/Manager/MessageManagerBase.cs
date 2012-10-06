@@ -22,6 +22,8 @@ using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.Manager {
 
+  //public delegate void Error
+
   public abstract class MessageManagerBase : IMessageManager {
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
@@ -113,6 +115,9 @@ namespace ServiceBusMQ.Manager {
 
     public void RefreshQueueItems() {
 
+      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 )
+        OnError("No queues has been configured. \n\nPlease add the queues you want to monitor in ServiceBusMQManager.exe.config, and try again.", true);
+
       List<QueueItem> items = new List<QueueItem>();
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
@@ -169,6 +174,12 @@ namespace ServiceBusMQ.Manager {
     public abstract string BusName { get; }
     public abstract string BusQueueType { get; }
 
+    public event EventHandler<ErrorArgs> ErrorOccured;
+
+    protected void OnError(string message, bool fatal) {
+      if( ErrorOccured != null )
+        ErrorOccured(this, new ErrorArgs(message, fatal));
+    }
 
   }
 }

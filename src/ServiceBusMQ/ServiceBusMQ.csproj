@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CursorPosition.cs" />
+    <Compile Include="Manager\ErrorArgs.cs" />
     <Compile Include="Manager\IMessageManager.cs" />
     <Compile Include="Manager\MessageBusFactory.cs" />
     <Compile Include="Manager\MessageManagerBase.cs" />
