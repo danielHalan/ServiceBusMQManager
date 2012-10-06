@@ -27,16 +27,15 @@ namespace ServiceBusMQManager {
 
   public class UIStateConfig {
 
-    string _progDir;
     string _fileName;
 
     Dictionary<string, string> _config = new Dictionary<string,string>();
 
 
     public UIStateConfig() {
-      _progDir = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+      var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-      _fileName = _progDir + "\\ServiceBusMQManager.state.config";
+      _fileName = appDataDir + "\\ServiceBusMQManager.state.config";
 
       // Set defaults
       AlwaysOnTop = true;
