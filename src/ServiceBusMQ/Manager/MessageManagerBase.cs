@@ -134,7 +134,7 @@ namespace ServiceBusMQ.Manager {
 
       // Mark removed as deleted messages
       foreach( var itm in _items )
-        if( !items.Any(i2 => i2.Id == itm.Id) ) {
+        if( !items.Any(i2 => i2.Id == itm.Id && !itm.Deleted) ) {
           itm.Deleted = true;
           changed = true;
         }
