@@ -111,16 +111,34 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
 
-    protected string GetMessageNames(string xml) {
+    protected string[] GetMessageNames(string xml, bool includeNamespace) {
+      List<string> r = new List<string>();
+      try {
+        XDocument doc = XDocument.Parse(xml);
+        string ns = string.Empty;
+
+        if( includeNamespace ) {
+          ns = doc.Root.Attribute("xmlns").Value.Remove(0, 19) + ".";
+        }
+
+        foreach( XElement e in doc.Root.Elements() ) {
+          r.Add(ns + e.Name.LocalName);
+        }
+
+      } catch { }
+
+      return r.ToArray();
+    }
+
+    protected string MergeStringArray(string[] arr) {
       StringBuilder sb = new StringBuilder();
-      XDocument doc = XDocument.Parse(xml);
-      foreach( XElement e in doc.Root.Elements() ) {
+      foreach( var str in arr ) {
         if( sb.Length > 0 ) sb.Append(", ");
 
-        sb.Append(e.Name.LocalName);
+        sb.Append(str);
       }
 
-      return sb.ToString();
+      return sb.ToString();    
     }
 
 

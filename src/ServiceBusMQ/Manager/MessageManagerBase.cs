@@ -29,7 +29,7 @@ namespace ServiceBusMQ.Manager {
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
     protected List<QueueItem> _items = new List<QueueItem>();
-    public List<QueueItem> Items { get { return _items; } }    
+    public List<QueueItem> Items { get { return _items; } }
 
     protected string _serverName;
 
@@ -74,7 +74,7 @@ namespace ServiceBusMQ.Manager {
 
     private void UpdateItems(QueueType type, bool value) {
 
-      if( !value ) 
+      if( !value )
         foreach( var itm in _items.Where(i => i.QueueType == type).ToArray() )
           _items.Remove(itm);
     }
@@ -83,26 +83,20 @@ namespace ServiceBusMQ.Manager {
 
 
     IEnumerable<QueueItem> ProcessQueue(QueueType type) {
-      //int iType = (int)type;
 
       if( IsMonitoring(type) ) {
         var fetched = FetchQueueItems(type, _items);
 
-        //string count = string.Format("({0})", fetched.Count());
-        //if( ( btn.Content as string ).Contains(count) )
-        //  btn.Content = string.Concat(BUTTON_LABELS[iType], SPACE_SEPARATOR, count);
-
         return fetched;
 
       } else {
-        //btn.Content = BUTTON_LABELS[iType];
 
         return EMPTY_LIST;
       }
     }
 
     private bool IsMonitoring(QueueType type) {
-      switch(type) {
+      switch( type ) {
         case QueueType.Command: return MonitorCommands;
         case QueueType.Event: return MonitorEvents;
         case QueueType.Message: return MonitorMessages;
@@ -134,18 +128,21 @@ namespace ServiceBusMQ.Manager {
 
       // Mark removed as deleted messages
       foreach( var itm in _items )
-        if( !items.Any(i2 => i2.Id == itm.Id && !itm.Deleted) ) {
-          itm.Deleted = true;
-          changed = true;
+        if( !items.Any(i2 => i2.Id == itm.Id) ) {
+          
+          if( !itm.Deleted ) {
+            itm.Deleted = true;
+            changed = true;
+          }
         }
 
 
-      if( changed ) 
+      if( changed )
         OnItemsChanged();
 
 
     }
-    
+
     public void ClearDeletedItems() {
       foreach( var itm in _items.Where(i => i.Deleted).ToArray() )
         _items.Remove(itm);
@@ -179,6 +176,9 @@ namespace ServiceBusMQ.Manager {
     protected void OnError(string message, bool fatal) {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, fatal));
+    }
+    protected void OnError(string message, Exception e, bool fatal) {
+      OnError(string.Format("{0}, {1} ({2})", message, e.Message, e.GetType().Name), fatal);
     }
 
   }

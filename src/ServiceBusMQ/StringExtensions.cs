@@ -34,6 +34,10 @@ namespace ServiceBusMQ {
         return str.Substring(0, length) + "...";
       } else return str;
     }
+
+    public static string Default(this string str, string def) {
+      return string.IsNullOrEmpty(str) ? def : str; 
+    }
   
   }
 }

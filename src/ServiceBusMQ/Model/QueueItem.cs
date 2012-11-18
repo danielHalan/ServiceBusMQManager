@@ -33,6 +33,7 @@ namespace ServiceBusMQ.Model {
 
     public string Label { get; set; }
 
+    public string[] MessageNames { get; set; }
 
     public DateTime ArrivedTime { get; set; }
 

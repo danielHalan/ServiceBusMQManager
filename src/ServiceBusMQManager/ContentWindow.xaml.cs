@@ -38,10 +38,10 @@ namespace ServiceBusMQManager {
   /// Interaction logic for ContentWindow.xaml
   /// </summary>
   public partial class ContentWindow : Window {
-    
+
     private HwndSource _hwndSource;
-    
-    
+
+
     public ContentWindow() {
       InitializeComponent();
 
@@ -60,18 +60,23 @@ namespace ServiceBusMQManager {
 
     string FormatXml(string xml) {
       XmlDocument doc = new XmlDocument();
-      doc.LoadXml(xml);
+      try {
+        doc.LoadXml(xml);
 
-      StringBuilder sb = new StringBuilder();
-      using( XmlTextWriter wr = new XmlTextWriter(new StringWriter(sb)) ) {
+        StringBuilder sb = new StringBuilder();
+        using( XmlTextWriter wr = new XmlTextWriter(new StringWriter(sb)) ) {
 
-        wr.Indentation = 2;
-        wr.Formatting = Formatting.Indented;
+          wr.Indentation = 2;
+          wr.Formatting = Formatting.Indented;
 
-        doc.Save(wr);
+          doc.Save(wr);
+        }
+
+        return sb.ToString();
+
+      } catch {
+        return xml;
       }
-
-      return sb.ToString();
     }
 
 
@@ -100,7 +105,7 @@ namespace ServiceBusMQManager {
     }
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-      
+
       CursorPosition pos = this.GetCursorPosition();
 
       if( e.LeftButton == MouseButtonState.Pressed ) {
@@ -149,7 +154,7 @@ namespace ServiceBusMQManager {
           Cursor = Cursors.SizeNWSE;
           break;
 
-      default:
+        default:
           Cursor = Cursors.Arrow;
           break;
 

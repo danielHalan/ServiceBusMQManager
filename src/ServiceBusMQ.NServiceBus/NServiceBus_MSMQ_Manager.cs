@@ -58,10 +58,59 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
         }
 
-      } catch {
-        // TODO: Implement Error event, and publish
+      } catch(Exception e) {
+        OnError("Error occured when loading queues", e, true);
       }
 
+    }
+
+    private List<QueueItem> LoadSubscriptionQueues(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
+      if( queues.Count == 0 )
+        return EMPTY_LIST;
+
+      List<QueueItem> r = new List<QueueItem>();
+
+      foreach( var q in queues ) {
+        string qName = q.QueueName.Replace("private$\\", "");
+
+        if( !IsSubscriptionQueue(qName) ) 
+          continue;
+
+        q.MessageReadPropertyFilter.ArrivedTime = true;
+        q.MessageReadPropertyFilter.Label = true;
+        q.MessageReadPropertyFilter.Body = true;
+
+        try {
+          foreach( var msg in q.GetAllMessages() ) {
+
+            QueueItem itm = currentItems.SingleOrDefault(i => i.Id == msg.Id);
+
+            if( itm == null ) {
+              itm = new QueueItem();
+              itm.DisplayName = msg.Label;
+              itm.QueueDisplayName = qName.CutBeginning(44);
+              itm.QueueName = qName;
+              itm.QueueType = type;
+              itm.Label = msg.Label;
+              itm.Id = msg.Id;
+              itm.ArrivedTime = msg.ArrivedTime;
+              itm.Content = ReadMessageStream(msg.BodyStream);
+            }
+
+            if( !IsIgnoredQueueItem(itm) ) {
+
+              itm.MessageNames = GetMessageNames(itm.Content, true);
+              itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label);
+
+              r.Add(itm);
+            }
+          }
+        } catch( Exception e ) {
+          OnError("Error occured when processing subscription queue item", e, true);
+        } 
+      }
+
+      return r;
     }
 
     protected override IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
@@ -100,18 +149,23 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
             if( !IsIgnoredQueueItem(itm) ) {
 
-              itm.DisplayName = GetMessageNames(itm.Content);
+              itm.MessageNames = GetMessageNames(itm.Content, true);
+              itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label);
 
               r.Add(itm);
             }
           }
         } catch( Exception e ) {
-          // TODO: Implement Error event, and publish
+          OnError("Error occured when processing queue item", e, true);
         } 
 
       }
 
       return r;
+    }
+
+    private bool IsSubscriptionQueue(string queueName) {
+      return ( queueName.EndsWith("subscriptions") );
     }
 
 
