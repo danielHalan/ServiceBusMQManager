@@ -214,8 +214,15 @@ namespace ServiceBusMQManager.Controls {
         tb.BorderBrush = BORDER_SELECTED;
         tb.BorderThickness = new Thickness(1, 2, 2, 2);
       } else {
-        tb.BorderThickness = new Thickness(1);
-        tb.BorderBrush = !_isListItem ? BORDER_NORMAL : BORDER_LISTITEM;
+
+        if( !_isListItem ) {
+          tb.BorderThickness = new Thickness(1);
+          tb.BorderBrush = BORDER_NORMAL;
+        
+        } else {
+          tb.BorderThickness = new Thickness(1,1,0,1);
+          tb.BorderBrush = BORDER_LISTITEM;
+        }
       }
     }
 

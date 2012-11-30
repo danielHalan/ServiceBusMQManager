@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="69">
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="169">
     <Grid Name="theGrid" Margin="0,0,0,10">
         <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="40" Click="AddItem_Click" Height="39" Background="Transparent" BorderBrush="Transparent">
            <Image Source="/ServiceBusMQManager;component/Images/add-white.png" Height="34" Width="32" /> 
         </Button>
         <StackPanel Name="theValueStack" Margin="0,62,20,0" Orientation="Vertical" 
-                    Background="Transparent"/>
+                    Background="Transparent">
+        </StackPanel>
         <Label Name="lbCount" Content="0 Items" HorizontalAlignment="Left" Margin="4,30,0,0" VerticalAlignment="Top" FontSize="14" Foreground="#FFDADADA" />
         <Rectangle Name="line" Height="3" VerticalAlignment="Bottom" Fill="#FFC9C9C9"  />
     </Grid>

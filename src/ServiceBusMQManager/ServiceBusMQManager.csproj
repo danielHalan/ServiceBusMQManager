@@ -113,6 +113,9 @@
       <DependentUpon>DateTimeInputControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\IInputControl.cs" />
+    <Compile Include="Controls\RemoveItemButton.xaml.cs">
+      <DependentUpon>RemoveItemButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
     </Compile>
@@ -162,6 +165,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DateTimeInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RemoveItemButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -295,6 +302,7 @@
     <Resource Include="Images\appbar.email-white.png" />
     <Resource Include="Images\appbar.email.hardedge-white.png" />
     <Resource Include="Images\appbar.email.minimal-white.png" />
+    <Resource Include="Images\delete-item-gray.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

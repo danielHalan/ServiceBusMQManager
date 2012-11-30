@@ -141,7 +141,7 @@ namespace ServiceBusMQManager.Controls {
       Array list = Array.CreateInstance(_type, theValueStack.Children.Count);
 
       for(int i = 0; i < theValueStack.Children.Count; i++ ) {
-        IInputControl c = theValueStack.Children[i] as IInputControl;
+        IInputControl c = ((Grid)theValueStack.Children[i]).Children[0] as IInputControl;
         list.SetValue(c.RetrieveValue(), i);
       }
 
@@ -160,38 +160,71 @@ namespace ServiceBusMQManager.Controls {
 
     public void AddListItem(object value) {
       var i = CreateInpuControl();
-      i.Control.Margin = new Thickness(0, 0, 10, 0);
-      
+
       IInputControl inCtl = i.Control as IInputControl;
       inCtl.UpdateValue(value);
-      inCtl.IsListItem = true;
 
-      theValueStack.Children.Add(i.Control);
-
-      this.Height = ( theValueStack.Children.Count * 30 ) + 60 + 10;
+      AddControlToValueStack(i.Control);
     }
+
+    const float LISTITEM_HEIGHT = 30;
+
+    private void AddControlToValueStack(Control control) {
+      Grid g = new Grid();
+      g.Height = LISTITEM_HEIGHT;
+      
+      control.Margin = new Thickness(0, 0, 35, 0);
+      //control.Height = Double.NaN; //40;
+
+      //control.Width = Double.NaN;
+      //control.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+
+      IInputControl inCtl = control as IInputControl;
+      inCtl.IsListItem = true;
+      g.Children.Add(control);
+
+      var btn = new RemoveItemButton();
+      //btn.Width = 35;
+      btn.Tag = g;
+      btn.Click += btnRemove_Click;
+      btn.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+      g.Children.Add(btn);
+
+      theValueStack.Children.Add(g);
+
+      RecalcSize();
+    }
+
+    void btnRemove_Click(object sender, RoutedEventArgs e) {
+      var s = sender as RemoveItemButton;
+
+      theValueStack.Children.Remove(s.Tag as Grid);
+      
+      RecalcSize();
+    }
+
+    private void RecalcSize() {
+      this.Height = ( theValueStack.Children.Count * LISTITEM_HEIGHT ) + 60 + 15;
+    }
+
 
     private void AddItem_Click(object sender, RoutedEventArgs e) {
 
 
       theGrid.Children.Remove(_currCtl.Control);
-
-      _currCtl.Control.Width = theValueStack.Width;
-      _currCtl.Control.Margin = new Thickness(0, 0, 10, 0);
-      (_currCtl.Control as IInputControl).IsListItem = true;
       
-      theValueStack.Children.Add(_currCtl.Control);
-
+      AddControlToValueStack(_currCtl.Control);
 
       _currCtl = CreateInpuControl(); 
       theGrid.Children.Add(_currCtl.Control);
 
-      this.Height = (theValueStack.Children.Count * 30) + 60 + 10;
 
       UpdateCountLabel();
 
       OnValueChanged();
     }
+
 
     public event EventHandler<EventArgs> ValueChanged;
     void OnValueChanged() {
