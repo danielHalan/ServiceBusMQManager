@@ -34,12 +34,12 @@ namespace ServiceBusMQ {
 
       if( x < THRESHOLD && y < THRESHOLD )
         pos = CursorPosition.TopLeft;
-      else if( x < THRESHOLD && y > window.Width - THRESHOLD )
+      else if( x < THRESHOLD && y > window.Height - THRESHOLD )
         pos = CursorPosition.TopRight;
 
-      else if( x > THRESHOLD && y > window.Width - THRESHOLD )
+      else if( x < THRESHOLD && y > window.Height - THRESHOLD )
         pos = CursorPosition.BottomLeft;
-      else if( x < window.Height - THRESHOLD && y > window.Width - THRESHOLD )
+      else if( x > window.Width - THRESHOLD && y > window.Height - THRESHOLD )
         pos = CursorPosition.BottomRight;
 
       else if( x < THRESHOLD )
@@ -52,6 +52,40 @@ namespace ServiceBusMQ {
         pos = CursorPosition.Bottom;
 
       return pos;
+    }
+
+    public static Cursor GetBorderCursor(this Window window) {
+
+      switch( window.GetCursorPosition() ) {
+        case CursorPosition.Top:
+          return Cursors.SizeNS;
+
+        case CursorPosition.Bottom:
+          return Cursors.SizeNS;
+
+        case CursorPosition.Left:
+          return Cursors.SizeWE;
+
+        case CursorPosition.Right:
+          return Cursors.SizeWE;
+
+        case CursorPosition.TopLeft:
+          return Cursors.SizeNWSE;
+
+        case CursorPosition.TopRight:
+          return Cursors.SizeNESW;
+
+        case CursorPosition.BottomLeft:
+          return Cursors.SizeNESW;
+
+        case CursorPosition.BottomRight:
+          return Cursors.SizeNWSE;
+
+        default:
+          return Cursors.Arrow;
+
+      }
+
     }
 
   }

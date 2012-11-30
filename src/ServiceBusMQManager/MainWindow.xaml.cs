@@ -390,38 +390,7 @@ namespace ServiceBusMQManager {
 
     }
     private void Window_MouseMove(object sender, MouseEventArgs e) {
-
-      switch( this.GetCursorPosition() ) {
-        case CursorPosition.Top:
-          Cursor = Cursors.SizeNS;
-          break;
-        case CursorPosition.Bottom:
-          Cursor = Cursors.SizeNS;
-          break;
-        case CursorPosition.Left:
-          Cursor = Cursors.SizeWE;
-          break;
-        case CursorPosition.Right:
-          Cursor = Cursors.SizeWE;
-          break;
-        case CursorPosition.TopLeft:
-          Cursor = Cursors.SizeNWSE;
-          break;
-        case CursorPosition.TopRight:
-          Cursor = Cursors.SizeNESW;
-          break;
-        case CursorPosition.BottomLeft:
-          Cursor = Cursors.SizeNESW;
-          break;
-        case CursorPosition.BottomRight:
-          Cursor = Cursors.SizeNWSE;
-          break;
-
-        default:
-          Cursor = Cursors.Arrow;
-          break;
-      }
-
+      Cursor = this.GetBorderCursor();
     }
     private void Window_LocationChanged(object sender, EventArgs e) {
 

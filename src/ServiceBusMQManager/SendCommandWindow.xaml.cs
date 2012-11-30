@@ -25,6 +25,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -41,6 +42,8 @@ namespace ServiceBusMQManager {
       public Type Type { get; set; }
       public string Name { get; set; }
     }
+
+    private HwndSource _hwndSource;
 
     string[] _asmPath;
 
@@ -75,6 +78,11 @@ namespace ServiceBusMQManager {
 
     }
 
+
+    private void Window_SourceInitialized_1(object sender, EventArgs e) {
+      _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+    }
+
     private void cbCommands_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       var cmd = cbCommands.SelectedItem as CommandItem;
 
@@ -95,13 +103,49 @@ namespace ServiceBusMQManager {
     private void btnCancel_Click(object sender, RoutedEventArgs e) {
       Close();
     }
+    private void HandleCloseClick(Object sender, RoutedEventArgs e) {
+      Close();
+    }
+
 
     private void Button_Click_1(object sender, RoutedEventArgs e) {
       // TODO:
     }
 
 
+    private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 
+      CursorPosition pos = this.GetCursorPosition();
+
+      if( e.LeftButton == MouseButtonState.Pressed ) {
+        if( pos == CursorPosition.Body )
+          DragMove();
+        else ResizeWindow(pos);
+      }
+
+    }
+
+    private void ResizeWindow(CursorPosition pos) {
+      Native.SendMessage(_hwndSource.Handle, Native.WM_SYSCOMMAND,
+          (IntPtr)( 61440 + pos ), IntPtr.Zero);
+    }
+
+
+    private void Window_MouseMove(object sender, MouseEventArgs e) {
+      var pos = this.GetCursorPosition();
+
+      if( pos != CursorPosition.Left && pos != CursorPosition.Right )
+        Cursor = this.GetBorderCursor();
+      else Cursor = Cursors.Arrow;
+
+    }
+
+    private void HandleMaximizeClick(object sender, RoutedEventArgs e) {
+      var s = WpfScreen.GetScreenFrom(this);
+
+      this.Top = s.WorkingArea.Top;
+      this.Height = s.WorkingArea.Height;
+    }
 
 
 
