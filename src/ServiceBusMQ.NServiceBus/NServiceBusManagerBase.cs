@@ -224,26 +224,10 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
       // .ToList();
       //assemblies.Add(GetType().Assembly);
 
-      //_bus = Configure.With(assemblies)
-      //          .DefineEndpointName("SBMQM_NSB")
-      //          .DefaultBuilder()
-      //  //.MsmqSubscriptionStorage()
-      //    .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.Contains(".Commands"))
-      //    .DefiningEventsAs(t => t.Namespace != null && t.Namespace.Contains(".Events"))
-      //  //.Log4Net()
-      //          .XmlSerializer()
-      //  //.PurgeOnStartup(true)
-      //  //.IsTransactional(true) // false before
-      //          .MsmqTransport()
-      //          .UnicastBus()
-      //  //.ImpersonateSender(false)
 
-      // // .AutofacBuilder()
-      //  .SendOnly();
-
-
-
-      _bus.Send(dest, message);
+      if( message != null )
+        _bus.Send(dest, message);
+      else OnError("Can not send an incomplete message", false);
 
     }
 

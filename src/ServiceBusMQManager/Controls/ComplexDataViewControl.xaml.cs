@@ -165,7 +165,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void BindDataPanel(StackPanel p, Type t, object value) {
-      foreach( var prop in t.GetProperties() ) {
+      foreach( var prop in t.GetProperties().OrderBy( pr => pr.Name ) ) {
 
         var ctl = new AttributeControl(prop.Name, prop.PropertyType, value != null ? prop.GetValue(value, null) : null);
         ctl.DefineComplextType += ctl_DefineComplextType;
@@ -279,44 +279,8 @@ namespace ServiceBusMQManager.Controls {
       }
 
       Type type = ( panel.Tag as PanelInfo ).DataType;
-      object i = null;
 
-      try {
-        i = Activator.CreateInstance(type);
-
-      } catch( MissingMethodException e ) {
-        // try match parameters
-
-        foreach( var construct in type.GetConstructors().OrderBy(c => c.GetParameters().Length) ) {
-
-          try {
-            var dict = construct.GetParameters().Select(c => c.Name).ToDictionary<string, string, object>(d => d, x => null);
-
-            for( int n = 0; n < dict.Count; n++ ) {
-              var element = dict.ElementAt(n);
-              dict[element.Key] = values.SingleOrDefault(ke => string.Compare(ke.Key, element.Key, true) == 0).Value;
-            }
-
-            i = Activator.CreateInstance(type, dict.Select(d => d.Value).ToArray());
-
-            if( i != null )
-              break;
-
-          } catch {
-            continue;
-          }
-
-        }
-      }
-
-      foreach( var v in values ) {
-        try {
-          type.GetProperty(v.Key).SetValue(i, v.Value, null);
-        } catch { }
-      }
-
-
-      return i;
+      return Tools.CreateInstance(type, values);
     }
 
 

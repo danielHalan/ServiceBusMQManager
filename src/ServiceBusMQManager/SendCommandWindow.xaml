@@ -9,7 +9,7 @@
             MinHeight="500"
                 WindowStyle="None" 
      ResizeMode="NoResize"
-        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized_1"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized_1" Icon="Images/main32ico.png"
 
     >
     <Window.Resources>

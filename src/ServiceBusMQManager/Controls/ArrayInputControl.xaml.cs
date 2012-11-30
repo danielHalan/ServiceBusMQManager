@@ -119,10 +119,10 @@ namespace ServiceBusMQManager.Controls {
             AddListItem(obj);
           }
         }
-
       }
 
       UpdateCountLabel();
+      RecalcSize();
     }
 
 
