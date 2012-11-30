@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="ServiceBusMQManager.Controls.TextInputControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="30" d:DesignWidth="300">
+    <Grid Name="theGrid">
+        <TextBox Name="tb" BorderBrush="Gray" BorderThickness="2" Margin="0,0,0,0" FontSize="15.5" Tag="Hej" VerticalContentAlignment="Center" TextChanged="tb_TextChanged" PreviewTextInput="tb_PreviewTextInput" LostFocus="tb_LostFocus" GotFocus="tb_GotFocus" FontFamily="Calibri">
+        </TextBox>
+        <Button x:Name="btn" Visibility="Hidden" Width="80" HorizontalAlignment="Right" Margin="0,0,0,0">
+            <Button.Template>
+                <ControlTemplate>
+                    <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
+                        <DockPanel Margin="0,0,0,0" HorizontalAlignment="Stretch">
+                            <TextBlock Name="lbText" VerticalAlignment="Center" Padding="10,0,6,0" Foreground="White" FontSize="12" FontFamily="Segoe UI">
+                               <ContentPresenter Content="{Binding Path=Content, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}"></ContentPresenter>
+                            </TextBlock>
+                        </DockPanel>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="Button.IsPressed" Value="True">
+                            <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</UserControl>

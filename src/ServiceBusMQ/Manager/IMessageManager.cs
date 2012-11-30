@@ -68,7 +68,12 @@ namespace ServiceBusMQ.Manager {
     event EventHandler<EventArgs> ItemsChanged;
     event EventHandler<ErrorArgs> ErrorOccured;
 
-
     void ClearDeletedItems();
+
+    Type[] GetAvailableCommands(string[] asmPaths);
+
+    void SetupBus(string[] assemblyPaths);
+    void SendCommand(string destinationServer, string destinationQueue, object message);
+
   }
 }

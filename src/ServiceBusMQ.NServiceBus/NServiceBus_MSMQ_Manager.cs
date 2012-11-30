@@ -229,5 +229,6 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     public override string BusQueueType { get { return "MSMQ"; } }
 
 
+
   }
 }

@@ -19,6 +19,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Messaging;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -52,13 +53,13 @@ namespace ServiceBusMQManager {
     private static readonly char SPACE_SEPARATOR = ' ';
     private static readonly List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
+    private SbmqSystem _sys;
     private IMessageManager _mgr;
     private UIStateConfig _uiCfg = new UIStateConfig();
 
     private HwndSource _hwndSource;
     private System.Windows.Forms.NotifyIcon _notifyIcon;
 
-    private bool _showOnNewMessages = true;
 
     private ContentWindow _dlg;
     private bool _dlgShown = false;
@@ -79,42 +80,34 @@ namespace ServiceBusMQManager {
       _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
     }
     private void Window_Loaded(object sender, RoutedEventArgs e) {
-      var appSett = ConfigurationManager.AppSettings;
 
-      _mgr = MessageBusFactory.Create(appSett["messageBus"], appSett["messageBusQueueType"]);
-      _mgr.ErrorOccured += MessageMgr_ErrorOccured;
-      _mgr.ItemsChanged += MessageMgr_ItemsChanged;
+      _sys = new SbmqSystem();
+      _sys.ItemsChanged += MessageMgr_ItemsChanged;
+      
+      _sys.Init();
+
+      _mgr = _sys.Manager;
       
       _dlg = new ContentWindow();
-      _showOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
       
       RestoreUIState();
 
       this.Icon = BitmapFrame.Create(_GetImageResourceStream("main.ico"));
 
 
-      var serverName = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
-      var watchEventQueues = GetQueueNamesFromConfig("event.queues");
-      var watchCommandQueues = GetQueueNamesFromConfig("command.queues");
-      var watchMessageQueues = GetQueueNamesFromConfig("message.queues");
-      var watchErrorQueues = GetQueueNamesFromConfig("error.queues");
-
-      _mgr.Init(serverName, watchCommandQueues, watchEventQueues, watchMessageQueues, watchErrorQueues);
       lbItems.ItemsSource = _mgr.Items;
+
 
       SetupContextMenu();
 
-      SetupQueueMonitorTimer(Convert.ToInt32(appSett["interval"] ?? "700"));
+      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
     }
+
+
 
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
       if( (bool)e.NewValue )
         SetSelectedItem((QueueItem)lbItems.SelectedItem);
-    }
-
-
-    private string[] GetQueueNamesFromConfig(string name) {
-      return ConfigurationManager.AppSettings[name].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
 
@@ -202,7 +195,7 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _mgr.Items.Count( i => i.QueueType == type && !i.Deleted );
+        int iCount = _sys.Manager.Items.Count( i => i.QueueType == type && !i.Deleted );
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
@@ -229,19 +222,11 @@ namespace ServiceBusMQManager {
       ShowActivityTrayIcon();
 
       // Show Window
-      if( _showOnNewMessages && !this.IsVisible )
+      if( _sys.Config.ShowOnNewMessages && !this.IsVisible )
         this.Show();
     }
-    private void MessageMgr_ErrorOccured(object sender, ErrorArgs e) {
-
-     MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-     if( e.Fatal )
-       Application.Current.Shutdown();
-
-    }
     private void timer_Tick(object sender, EventArgs e) {
-      _mgr.RefreshQueueItems();
+      _sys.Manager.RefreshQueueItems();
     }
 
 
@@ -595,6 +580,12 @@ namespace ServiceBusMQManager {
       ChangedMonitorFlag(type, true);
 
       UpdateButtonLabel(btn);
+    }
+
+    private void btnSendCommand_Click(object sender, RoutedEventArgs e) {
+      var dlg = new SendCommandWindow(_sys);
+
+      dlg.Show();
     }
 
 

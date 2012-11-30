@@ -47,10 +47,14 @@
       <HintPath>bin\Interop.MSMQ.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="PresentationFramework.Classic" />
     <Reference Include="PresentationFramework.Luna" />
     <Reference Include="ScintillaNET">
-      <HintPath>..\..\packages\ScintillaNET-v2.5.2\ScintillaNET.dll</HintPath>
+      <HintPath>..\packages\ScintillaNET-v2.5.2\ScintillaNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -78,12 +82,94 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ArrayInputControl.xaml.cs">
+      <DependentUpon>ArrayInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AttributeControl.xaml.cs">
+      <DependentUpon>AttributeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ContentWindow.xaml.cs">
       <DependentUpon>ContentWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CheckBoxInputControl.xaml.cs">
+      <DependentUpon>CheckBoxInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComboBoxInputControl.xaml.cs">
+      <DependentUpon>ComboBoxInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComplexDataInputControl.xaml.cs">
+      <DependentUpon>ComplexDataInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComplexDataTemplateControl.xaml.cs">
+      <DependentUpon>ComplexDataTemplateControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComplexDataTitleControl.xaml.cs">
+      <DependentUpon>ComplexDataTitleControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComplexDataViewControl.xaml.cs">
+      <DependentUpon>ComplexDataViewControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DateTimeInputControl.xaml.cs">
+      <DependentUpon>DateTimeInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\IInputControl.cs" />
+    <Compile Include="Controls\TextInputControl.xaml.cs">
+      <DependentUpon>TextInputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\CreateTemplateDialog.xaml.cs">
+      <DependentUpon>CreateTemplateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SendCommandWindow.xaml.cs">
+      <DependentUpon>SendCommandWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TriggerTracing.cs" />
+    <Compile Include="UIControlFactory.cs" />
     <Compile Include="UIStateConfig.cs" />
+    <Page Include="Controls\ArrayInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\AttributeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ContentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\CheckBoxInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComboBoxInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComplexDataInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComplexDataTemplateControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComplexDataTitleControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComplexDataViewControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\DateTimeInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TextInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\CreateTemplateDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -99,6 +185,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SendCommandWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -122,6 +212,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -191,6 +282,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\back.png" />
+    <Resource Include="Images\Command-Send.png" />
+    <Resource Include="Images\next-white.png" />
+    <Resource Include="Images\add.png" />
+    <Resource Include="Images\delete-item.png" />
+    <Resource Include="Images\delete-item2.png" />
+    <Resource Include="Images\back-white.png" />
+    <Resource Include="Images\delete-item-white.png" />
+    <Resource Include="Images\add-white.png" />
+    <Resource Include="Images\edit-white.png" />
+    <Resource Include="Images\appbar.email-white.png" />
+    <Resource Include="Images\appbar.email.hardedge-white.png" />
+    <Resource Include="Images\appbar.email.minimal-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

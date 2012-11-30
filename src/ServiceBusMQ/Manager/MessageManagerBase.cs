@@ -181,5 +181,10 @@ namespace ServiceBusMQ.Manager {
       OnError(string.Format("{0}, {1} ({2})", message, e.Message, e.GetType().Name), fatal);
     }
 
+    public abstract Type[] GetAvailableCommands(string[] asmPaths);
+    public abstract void SetupBus(string[] asmPaths);
+    public abstract void SendCommand(string destinationServer, string destinationQueue, object message);
+
+
   }
 }

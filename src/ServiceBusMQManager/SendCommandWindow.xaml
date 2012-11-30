@@ -1,0 +1,108 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls" x:Class="ServiceBusMQManager.SendCommandWindow"
+        Title="SendCommandWindow" Height="594" Width="653" WindowStartupLocation="CenterScreen"
+    
+            WindowStyle="None" 
+     ResizeMode="CanResize"
+
+    >
+    <Window.Resources>
+        <Style x:Name="Label" TargetType="Label" >
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+
+    </Window.Resources>
+
+    <Border BorderBrush="#1581D2"            
+            BorderThickness="1,1,1,1"
+            CornerRadius="0"
+            Background="Transparent">
+
+        <Grid Background="#333333" Margin="1,1,-1,-1">
+
+            <Button x:Name="btnSend" Margin="0,0,17,10" HorizontalAlignment="Right" Width="91" Height="29" VerticalAlignment="Bottom" Click="btnSend_Click" FontFamily="Segoe UI">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="15,0,0,0">SEND</TextBlock>
+                                <Image Source="Images/appbar.email.minimal-white.png" Height="50" Margin="-1,-10,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="Button.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+
+            <Button x:Name="btnCancel" HorizontalAlignment="Left" Margin="10,0,0,7" VerticalAlignment="Bottom" Width="75" Height="29" IsCancel="True" Click="btnCancel_Click" FontFamily="Segoe UI">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="15,0,0,0">CANCEL</TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="Button.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+
+            <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" Margin="10,98,0,0" VerticalAlignment="Top" FontSize="20"/>
+            <ComboBox Name="cbRecent" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top" Width="551" FontSize="16"/>
+            <Label Content="select command" HorizontalAlignment="Left" Margin="8,5,0,0" VerticalAlignment="Top" FontSize="20" Foreground="White"/>
+            <ComboBox x:Name="cbCommands" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="10,38,0,0" VerticalAlignment="Top" Width="551" SelectionChanged="cbCommands_SelectionChanged" FontSize="16"/>
+            <Label Content="Can not find your command? " HorizontalAlignment="Left" Margin="13,68,0,0" VerticalAlignment="Top" Foreground="#FFBBBBBB" FontSize="14"/>
+            <Button Margin="207,72,208,0" Content="Add assembly path..." Cursor="Hand" Click="Button_Click_1" FontSize="14" Height="15" VerticalAlignment="Top">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock>
+                <ContentPresenter />
+                        </TextBlock>
+                    </ControlTemplate>
+                </Button.Template>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Foreground" Value="#FF8D8DFF" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Foreground" Value="#FFFFA7A7" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Grid Margin="0,182,0,64" Background="#575757">
+                <Controls:ComplexDataViewControl x:Name="cmdAttrib" Margin="29,0,0,0"  HorizontalAlignment="Left" Width="576"/>
+            </Grid>
+            <TextBox Name="tbServer" HorizontalAlignment="Right" Height="29" Margin="0,0,310,10" VerticalContentAlignment="Center" BorderBrush="Gray" BorderThickness="1" TextWrapping="Wrap" Text="localhost" VerticalAlignment="Bottom" Width="99" FontFamily="Segoe UI" FontSize="13" />
+            <ComboBox Name="cbQueue" HorizontalAlignment="Right" Margin="0,0,122,10" VerticalAlignment="Bottom" Width="183"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" />
+            <Label Content="Server:" HorizontalAlignment="Right" Margin="0,0,362,35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14"/>
+            <Label Content="Queue:" HorizontalAlignment="Right" Margin="0,0,257,29" Height="35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14"/>
+            <Image HorizontalAlignment="Left" Height="38" Margin="570,128,0,0" VerticalAlignment="Top" Width="45" Source="Images/edit-white.png"/>
+        </Grid>
+    </Border>
+</Window>

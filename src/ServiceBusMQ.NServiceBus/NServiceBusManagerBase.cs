@@ -26,6 +26,7 @@ using ServiceBusMQ.Model;
 using NServiceBus;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
+using System.Reflection;
 
 namespace ServiceBusMQManager.MessageBus.NServiceBus {
   public abstract class NServiceBusManagerBase : MessageManagerBase {
@@ -96,7 +97,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
       if( type == QueueType.Command )
         return DoFetchQueueItems(_cmdQueues, type, currentItems);
-      
+
       else if( type == QueueType.Event )
         return DoFetchQueueItems(_eventQueues, type, currentItems);
 
@@ -138,9 +139,113 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
         sb.Append(str);
       }
 
-      return sb.ToString();    
+      return sb.ToString();
     }
 
+
+    public override Type[] GetAvailableCommands(string[] asmPaths) {
+      List<Type> arr = new List<Type>();
+
+      foreach( var path in asmPaths )
+        foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
+
+          try {
+            var asm = Assembly.LoadFrom(dll);
+
+            foreach( Type t in asm.GetTypes() ) {
+
+              if( typeof(ICommand).IsAssignableFrom(t) ) {
+                arr.Add(t);
+
+              } else if( t.AssemblyQualifiedName.Contains("Commands") ) {
+
+                arr.Add(t);
+              }
+
+            }
+
+          } catch { }
+
+        }
+
+      return arr.ToArray();
+    }
+
+    IBus _bus;
+
+    public override void SetupBus(string[] assemblyPaths) {
+
+      List<Assembly> asms = new List<Assembly>();
+
+      foreach( string path in assemblyPaths ) {
+
+        foreach( string file in Directory.GetFiles(path, "*.dll") ) {
+          try {
+            asms.Add(Assembly.LoadFrom(file));
+          } catch { }
+        }
+
+      }
+
+
+
+      _bus = Configure.With(asms)
+                .DefineEndpointName("SBMQM_NSB")
+                .DefaultBuilder()
+        //.MsmqSubscriptionStorage()
+          .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.Contains(".Commands"))
+          .DefiningEventsAs(t => t.Namespace != null && t.Namespace.Contains(".Events"))
+        //.Log4Net()
+                .XmlSerializer()
+        //.PurgeOnStartup(true)
+        //.IsTransactional(true) // false before
+                .MsmqTransport()
+                .UnicastBus()
+        //.ImpersonateSender(false)
+
+       // .AutofacBuilder()
+        .SendOnly();
+      //.CreateBus()
+      //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+
+    }
+
+    public override void SendCommand(string destinationServer, string destinationQueue, object message) {
+
+      if( string.Compare(destinationServer,"localhost", true) == 0 || destinationServer == "127.0.0.1" )
+        destinationServer = null;
+
+      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationServer + "@" + destinationQueue : destinationQueue;
+
+
+      //var assemblies = message.GetType().Assembly
+      // .GetReferencedAssemblies()
+      // .Select(n => Assembly.Load(n))
+      // .ToList();
+      //assemblies.Add(GetType().Assembly);
+
+      //_bus = Configure.With(assemblies)
+      //          .DefineEndpointName("SBMQM_NSB")
+      //          .DefaultBuilder()
+      //  //.MsmqSubscriptionStorage()
+      //    .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.Contains(".Commands"))
+      //    .DefiningEventsAs(t => t.Namespace != null && t.Namespace.Contains(".Events"))
+      //  //.Log4Net()
+      //          .XmlSerializer()
+      //  //.PurgeOnStartup(true)
+      //  //.IsTransactional(true) // false before
+      //          .MsmqTransport()
+      //          .UnicastBus()
+      //  //.ImpersonateSender(false)
+
+      // // .AutofacBuilder()
+      //  .SendOnly();
+
+
+
+      _bus.Send(dest, message);
+
+    }
 
 
   }
