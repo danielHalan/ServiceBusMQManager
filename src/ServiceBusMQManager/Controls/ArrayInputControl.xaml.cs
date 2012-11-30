@@ -202,6 +202,7 @@ namespace ServiceBusMQManager.Controls {
       theValueStack.Children.Remove(s.Tag as Grid);
       
       RecalcSize();
+      UpdateCountLabel();
     }
 
     private void RecalcSize() {

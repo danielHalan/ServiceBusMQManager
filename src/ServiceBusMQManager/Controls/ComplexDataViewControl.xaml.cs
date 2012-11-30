@@ -102,10 +102,11 @@ namespace ServiceBusMQManager.Controls {
 
       ScrollViewer scroller = new ScrollViewer();
       scroller.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-      scroller.CanContentScroll = true;
+      scroller.CanContentScroll = false;
       scroller.Width = CONTROL_WIDTH; // 500
       scroller.Margin = new Thickness(0,0,0,0);
       scroller.Height = this.ActualHeight - h;
+      scroller.Style = FindResource("FavsScrollViewer") as Style;
 
       // Stack Panel for Input Controls
       StackPanel p = new StackPanel();
