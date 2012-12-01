@@ -25,7 +25,7 @@ using ServiceBusMQManager.Controls;
 
 namespace ServiceBusMQManager {
 
-  public enum DataType { String, Int, Decimal, Double, Guid, Enum, Bool, Date, Array, Complex }
+  public enum DataType { String, Int, Decimal, Double, Single, Guid, Enum, Bool, Date, Array, Complex }
 
   public static class UIControlFactory {
   
@@ -49,15 +49,15 @@ namespace ServiceBusMQManager {
 
       if( t == typeof(string) ) {
         res.IsNullable = true;
-        res.Control = new TextInputControl(value, DataType.String, res.IsNullable);
+        res.Control = new TextInputControl(value, t, res.IsNullable);
         res.DataType = DataType.String;
 
       } else if( IsInteger(t) ) {
-        res.Control = new TextInputControl(value, DataType.Int, res.IsNullable);
+        res.Control = new TextInputControl(value, t, res.IsNullable);
         res.DataType = DataType.Int;
 
       } else if( IsDecimal(t) ) {
-        res.Control = new TextInputControl(value, DataType.Decimal, res.IsNullable);
+        res.Control = new TextInputControl(value, t, res.IsNullable);
         res.DataType = DataType.Decimal;
 
       } else if( t.IsEnum ) {
@@ -74,7 +74,7 @@ namespace ServiceBusMQManager {
         res.DataType = DataType.Date;
 
       } else if( IsGuid(t) ) {
-        res.Control = new TextInputControl(value, DataType.Guid, res.IsNullable);
+        res.Control = new TextInputControl(value, t, res.IsNullable);
         res.DataType = DataType.Guid;
 
       } else if( t.IsArray ) {

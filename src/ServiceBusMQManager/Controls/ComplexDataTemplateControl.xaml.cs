@@ -71,6 +71,8 @@ namespace ServiceBusMQManager.Controls {
 
     Type _type;
     private ServiceBusMQ.DataTemplateManager _tempMgr;
+    
+    bool _updating = false;
 
     ObservableCollection<DataTemplateManager.DataTemplate> _items;
 
@@ -90,19 +92,26 @@ namespace ServiceBusMQManager.Controls {
 
     private void BindItems() {
 
-      _items = new ObservableCollection<DataTemplateManager.DataTemplate>();
-      var nullItem = new DataTemplateManager.DataTemplate() { Name = "<< none >>", Object = null };
-      _items.Add(nullItem);
+      _updating = true; 
 
-      foreach( var a in _tempMgr.Templates.Where(t => t.TypeName == _type.FullName) )
-        _items.Add(a);
+      try {
+        _items = new ObservableCollection<DataTemplateManager.DataTemplate>();
+        var nullItem = new DataTemplateManager.DataTemplate() { Name = "<< none >>", Object = null };
+        _items.Add(nullItem);
 
-      cbTemps.ItemsSource = _items;
-      cbTemps.DisplayMemberPath = "Name";
-      cbTemps.SelectedValuePath = "Object";
-      cbTemps.SelectedValue = nullItem;
+        foreach( var a in _tempMgr.Templates.Where(t => t.TypeName == _type.FullName) )
+          _items.Add(a);
 
-      cbTemps.SelectedIndex = 0;
+        cbTemps.ItemsSource = _items;
+        cbTemps.DisplayMemberPath = "Name";
+        cbTemps.SelectedValuePath = "Object";
+        cbTemps.SelectedValue = nullItem;
+
+        cbTemps.SelectedIndex = 0;
+      
+      } finally {
+        _updating = false;
+      }
     }
 
     private void CreateTemplate_Click(object sender, RoutedEventArgs e) {
@@ -157,28 +166,37 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void cbTemps_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var item = ( (DataTemplateManager.DataTemplate)cbTemps.SelectedItem );
+      
+      if( !_updating ) {
+        var item = ( (DataTemplateManager.DataTemplate)cbTemps.SelectedItem );
 
-      if( item != null )
-        OnTemplateSelected(item.Name, item.Object);
-      else OnTemplateSelected(null, null);
+        if( item != null )
+          OnTemplateSelected(item.Name, item.Object);
+        else OnTemplateSelected(null, null);
+      }
     }
 
+
     internal void SelectTemplate(object value) {
-      var co = new CompareObjects();
+      _updating = true; 
+
+        try {
+        var co = new CompareObjects();
 
 
-      if( value != null ) {
-        foreach( var itm in _items.Where(i => i.Object != null) ) {
+        if( value != null ) {
+          foreach( var itm in _items.Where(i => i.Object != null) ) {
 
-          if( co.Compare(itm.Object, value) )
-            cbTemps.SelectedValue = itm.Object;
+            if( co.Compare(itm.Object, value) )
+              cbTemps.SelectedValue = itm.Object;
 
-        }
+          }
 
-      } else cbTemps.SelectedIndex = 0;
+        } else cbTemps.SelectedIndex = 0;
 
-
+      } finally {
+        _updating = false;
+      }
     }
 
     private void Button_Click_1(object sender, RoutedEventArgs e) {

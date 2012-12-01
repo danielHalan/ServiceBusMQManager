@@ -57,6 +57,83 @@ namespace ServiceBusMQ {
 
     }
 
+    public static object Convert(object obj, Type type) {
+      bool isNullable = type.IsNullableValueType();
+
+      if( isNullable ) {
+        type = Nullable.GetUnderlyingType(type);
+      }
+
+      object res = null;
+
+
+      if( obj == null && isNullable )
+        return ChangeType(obj, type);
+
+
+      else if( type == typeof(string) )
+        res = obj.ToString();
+
+      else if( type == typeof(Int16) )
+        res = System.Convert.ToInt16(obj);
+
+      else if( type == typeof(Int32) )
+        res = System.Convert.ToInt32(obj);
+
+      else if( type == typeof(Int64) )
+        res = System.Convert.ToInt64(obj);
+
+      else if( type == typeof(UInt16) )
+        res = System.Convert.ToUInt16(obj);
+
+      else if( type == typeof(UInt32) )
+        res = System.Convert.ToUInt32(obj);
+
+      else if( type == typeof(UInt64) )
+        res = System.Convert.ToUInt64(obj);
+
+      else if( type == typeof(SByte) )
+        res = System.Convert.ToSByte(obj);
+
+      else if( type == typeof(Byte) )
+        res = System.Convert.ToByte(obj);
+
+      else if( type == typeof(Single) )
+        res = System.Convert.ToSingle(obj);
+
+      else if( type == typeof(Double) )
+        res = System.Convert.ToDouble(obj);
+
+      else if( type == typeof(double) )
+        res = (double)System.Convert.ToDouble(obj);
+
+      else if( type == typeof(Decimal) )
+        res = System.Convert.ToDecimal(obj);
+
+      else if( type == typeof(Guid) ) {
+
+        if( obj.GetType() == typeof(string) )
+          res = new Guid((string)obj);
+        else if( obj.GetType() == typeof(byte[]) )
+          res = new Guid((byte[])obj);
+      }
+
+      else if( type == typeof(DateTime) )
+        res = System.Convert.ToDateTime(obj);
+
+      else if( type == typeof(Boolean) )
+        res = System.Convert.ToBoolean(obj);
+
+      else if( type == typeof(Char) )
+        res = System.Convert.ToChar(obj);
+
+      else throw new NotSupportedException("Unhandled data type, Tools.Convert::" + type.ToString());
+
+      return isNullable ? CreateNullable(type, res) : res;
+      
+
+    }
+
     public static object CreateInstance(Type type, Dictionary<string, object> attributes) {
       object i = null;
       

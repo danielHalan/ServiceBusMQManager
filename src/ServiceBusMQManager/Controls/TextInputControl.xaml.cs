@@ -57,7 +57,7 @@ namespace ServiceBusMQManager.Controls {
 
 
 
-    DataType _dataType;
+    Type _dataType;
     private bool _isListItem;
     bool _isNullable;
 
@@ -67,7 +67,7 @@ namespace ServiceBusMQManager.Controls {
     bool _updating;
 
 
-    public TextInputControl(object value, DataType dataType, bool isNullable) {
+    public TextInputControl(object value, Type dataType, bool isNullable) {
       InitializeComponent();
 
       tb.Height = 30;
@@ -95,7 +95,7 @@ namespace ServiceBusMQManager.Controls {
       tb.Tag = "TEXT";
 
 
-      if( _dataType == DataType.Guid ) {
+      if( _dataType.IsGuid() ) {
 
         tb.Margin = new Thickness(0, 0, 80, 0);
 
@@ -129,24 +129,18 @@ namespace ServiceBusMQManager.Controls {
 
     bool UpdateValueFromControl() {
 
-      if( _dataType == DataType.String ) {
-        _value = tb.Text;
-        return true;
+      try { 
+        _value = Tools.Convert(tb.Text, _dataType);
+      
+      } catch(NotSupportedException e) {
+        throw e;
 
-      } else if( _dataType == DataType.Int ) {
-        return tb.Text.TryParseToInt32(ref _value);
-
-      } else if( _dataType == DataType.Decimal ) {
-        return tb.Text.TryParseToDecimal(ref _value);
-
-      } else if( _dataType == DataType.Double ) {
-        return tb.Text.TryParseToDouble(ref _value);
-
-      } else if( _dataType == DataType.Guid ) {
-        return tb.Text.TryParseToGuid(ref _value);
+      } catch {
+        return false;
       }
 
-      return false;
+
+      return true;
     }
 
 
@@ -229,16 +223,17 @@ namespace ServiceBusMQManager.Controls {
     private void tb_PreviewTextInput(object sender, TextCompositionEventArgs e) {
 
       
-      if( _dataType == DataType.Int ) {
+      if( _dataType.IsInteger() ) {
         if( !e.Text.IsInt32() )
           e.Handled = true;
 
-      } else if( _dataType == DataType.Double ) {
-        if( !e.Text.IsDouble() )
+
+      } else if( _dataType.IsDecimal() )  {
+        if( !e.Text.IsDecimal() )
           e.Handled = true;
 
-      } else if( _dataType == DataType.Decimal ) {
-        if( !e.Text.IsDecimal() )
+      } else if( _dataType.IsAnyFloatType() ) {
+        if( !e.Text.IsDouble() )
           e.Handled = true;
       }
 

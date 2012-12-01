@@ -71,9 +71,11 @@ namespace ServiceBusMQManager.Controls {
     public object Value {
       get { return _value; }
       set {
-        _value = value;
+        if( _value != value ) {
+          _value = value;
 
-        ValueHasChanged();
+          ValueHasChanged();
+        }
       }
     }
 
