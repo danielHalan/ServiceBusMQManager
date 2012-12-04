@@ -454,15 +454,18 @@ namespace ServiceBusMQManager {
 
     private void StoreUIState() {
 
-      _uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
-      
-      _uiCfg.UpdateMainWindowState(this);
-      _uiCfg.UpdateContentWindowState(_dlg);
-      
-      _uiCfg.UpdateAlwaysOnTop(Topmost);
-      
-      _uiCfg.Save();
+      if( _uiCfg != null ) {
 
+        _uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
+      
+        _uiCfg.UpdateMainWindowState(this);
+        _uiCfg.UpdateContentWindowState(_dlg);
+      
+        _uiCfg.UpdateAlwaysOnTop(Topmost);
+      
+        _uiCfg.Save();
+
+      }
     }
     private void RestoreUIState() {
 

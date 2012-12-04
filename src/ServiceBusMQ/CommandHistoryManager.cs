@@ -63,7 +63,7 @@ namespace ServiceBusMQ {
 
     }
 
-    public SavedCommand CommandSent(object command, string serviceBus, string transport, string server, string queue) {
+    public SavedCommand AddCommand(object command, string serviceBus, string transport, string server, string queue) {
       SavedCommand cmd = null;
 
       var co = new CompareObjects();

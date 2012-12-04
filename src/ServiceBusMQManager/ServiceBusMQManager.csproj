@@ -327,6 +327,12 @@
     <Resource Include="Images\Settings.selected.png" />
     <Resource Include="Images\save-white.png" />
     <Resource Include="Images\save.png" />
+    <Resource Include="Images\info1-white.png" />
+    <Resource Include="Images\info1.png" />
+    <Resource Include="Images\info-white.png" />
+    <Resource Include="Images\info.circle-white.png" />
+    <Resource Include="Images\info.circle.png" />
+    <Resource Include="Images\info.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

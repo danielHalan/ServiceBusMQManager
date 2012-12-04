@@ -24,6 +24,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -32,7 +33,7 @@ using ServiceBusMQ;
 namespace ServiceBusMQManager.Controls {
 
   public class SavedCommandSelectedEventArgs : EventArgs {
-  
+
     public SavedCommandSelectedEventArgs(SavedCommand cmd) {
       Command = cmd;
     }
@@ -45,7 +46,7 @@ namespace ServiceBusMQManager.Controls {
   /// Interaction logic for SavedCommandsControl.xaml
   /// </summary>
   public partial class SavedCommandsControl : UserControl {
-    
+
     CommandHistoryManager _mgr;
 
     ObservableCollection<SavedCommand> _recent = new ObservableCollection<SavedCommand>();
@@ -67,9 +68,9 @@ namespace ServiceBusMQManager.Controls {
       BindRecent();
     }
 
-    public SavedCommand SelectedItem { 
-      get { return cbRecent.SelectedItem as SavedCommand; } 
-      set { cbRecent.SelectedItem = value; } 
+    public SavedCommand SelectedItem {
+      get { return cbRecent.SelectedItem as SavedCommand; }
+      set { cbRecent.SelectedItem = value; }
     }
 
     private void BindRecent() {
@@ -87,10 +88,30 @@ namespace ServiceBusMQManager.Controls {
     public static readonly RoutedEvent SavedCommandSelectedEvent = EventManager.RegisterRoutedEvent("SavedCommandSelected",
       RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(SavedCommandsControl));
 
+
     public event RoutedEventHandler SavedCommandSelected {
       add { AddHandler(SavedCommandSelectedEvent, value); }
       remove { RemoveHandler(SavedCommandSelectedEvent, value); }
     }
+
+
+    public static readonly RoutedEvent EnterEditModeEvent = EventManager.RegisterRoutedEvent("EnterEditMode",
+      RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(SavedCommandsControl));
+
+    public event RoutedEventHandler EnterEditMode {
+      add { AddHandler(EnterEditModeEvent, value); }
+      remove { RemoveHandler(EnterEditModeEvent, value); }
+    }
+
+    public static readonly RoutedEvent ExitEditModeEvent = EventManager.RegisterRoutedEvent("ExitEditMode",
+      RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(SavedCommandsControl));
+
+    public event RoutedEventHandler ExitEditMode {
+      add { AddHandler(ExitEditModeEvent, value); }
+      remove { RemoveHandler(ExitEditModeEvent, value); }
+    }
+
+
 
 
     private bool _editMode;
@@ -110,6 +131,12 @@ namespace ServiceBusMQManager.Controls {
 
     private void UpdateView(bool editMode) {
       _editMode = editMode;
+
+      if( _editMode )
+        RaiseEvent(new RoutedEventArgs(EnterEditModeEvent));
+      else
+        RaiseEvent(new RoutedEventArgs(ExitEditModeEvent));
+
 
       if( _editMode ) {
         selectGrid.Visibility = System.Windows.Visibility.Hidden;
@@ -131,11 +158,153 @@ namespace ServiceBusMQManager.Controls {
         UpdateView(true);
 
         tbName.FocusTextBox();
+
+        Expand();
       }
     }
+
+
+    private void Expand() {
+
+      GetExpandParentGridStoryboard().Begin();
+      GetExpandControlStoryboard().Begin();
+
+    }
+
+
+    Storyboard _storyExpandParentGrid;
+    Storyboard _storyExpandControl;
+
+    Storyboard GetExpandParentGridStoryboard() {
+
+      if( _storyExpandParentGrid == null ) {
+        _storyExpandParentGrid = new Storyboard();
+
+        DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
+
+        EasingDoubleKeyFrame key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+        key.Value = 220;
+        anim.KeyFrames.Add(key);
+
+        key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400));
+        key.Value = 290; ;
+        anim.KeyFrames.Add(key);
+
+        _storyExpandParentGrid.Children.Add(anim);
+
+        Storyboard.SetTarget(anim, this);
+        Storyboard.SetTargetProperty(anim, new PropertyPath(SavedCommandsControl.GridHeightProperty));
+      }
+
+      return _storyExpandParentGrid;
+    }
+    Storyboard GetExpandControlStoryboard() {
+
+      if( _storyExpandControl == null ) {
+        _storyExpandControl = new Storyboard();
+
+        DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
+
+        EasingDoubleKeyFrame key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+        key.Value = 76;
+        anim.KeyFrames.Add(key);
+
+        key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400));
+        key.Value = 145;
+        anim.KeyFrames.Add(key);
+
+        _storyExpandControl.Children.Add(anim);
+
+        Storyboard.SetTarget(anim, this);
+        Storyboard.SetTargetProperty(anim, new PropertyPath(UserControl.HeightProperty));
+      }
+
+      return _storyExpandControl;
+    }
+
+    Storyboard _storyCollapseParentGrid;
+    Storyboard _storyCollapseControl;
+
+    Storyboard GetCollapseParentGridStoryboard() {
+
+      if( _storyCollapseParentGrid == null ) {
+        _storyCollapseParentGrid = new Storyboard();
+
+        DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
+
+        EasingDoubleKeyFrame key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+        key.Value = 290;
+        anim.KeyFrames.Add(key);
+
+        key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400));
+        key.Value = 220; ;
+        anim.KeyFrames.Add(key);
+
+        _storyCollapseParentGrid.Children.Add(anim);
+
+        Storyboard.SetTarget(anim, this);
+        Storyboard.SetTargetProperty(anim, new PropertyPath(SavedCommandsControl.GridHeightProperty));
+      }
+
+      return _storyCollapseParentGrid;
+    }
+
+    Storyboard GetCollapseControlStoryboard() {
+      if( _storyCollapseControl == null ) {
+        _storyCollapseControl = new Storyboard();
+        //sb.Duration = new Duration(TimeSpan.FromSeconds(5));
+
+        DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
+        //anim.Duration = new Duration(TimeSpan.FromMilliseconds(400));
+
+        EasingDoubleKeyFrame key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+        key.Value = 145;
+        anim.KeyFrames.Add(key);
+
+        key = new EasingDoubleKeyFrame();
+        key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400));
+        key.Value = 76;
+        anim.KeyFrames.Add(key);
+
+        _storyCollapseControl.Children.Add(anim);
+
+        Storyboard.SetTarget(anim, this);
+        Storyboard.SetTargetProperty(anim, new PropertyPath(UserControl.HeightProperty));
+
+        _storyCollapseControl.Completed += (a, b) => { UpdateView(false); };
+      }
+
+      return _storyCollapseControl;
+    }
+
+    private void Collapse() {
+      GetCollapseParentGridStoryboard().Begin();
+      GetCollapseControlStoryboard().Begin();
+    }
+
+
+    public static readonly DependencyProperty GridHeightProperty = DependencyProperty.Register(
+             "GridHeight", typeof(double), typeof(SavedCommandsControl), new PropertyMetadata(0.0));
+
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
+      base.OnPropertyChanged(e);
+
+      if( ReferenceEquals(e.Property, GridHeightProperty) ) {
+        Grid g = this.Parent as Grid;
+        g.RowDefinitions[0].Height = new GridLength((double)e.NewValue);
+      }
+    }
+
     private void btnSave_Click(object sender, RoutedEventArgs e) {
       var recent = cbRecent.SelectedItem as SavedCommand;
-      
+
       Updating = true;
       try {
         recent.DisplayName = tbName.RetrieveValue() as string;
@@ -143,14 +312,14 @@ namespace ServiceBusMQManager.Controls {
 
         cbRecent.SelectedIndex = -1;
         CollectionViewSource.GetDefaultView(cbRecent.ItemsSource).Refresh();
+        cbRecent.SelectedValue = recent.Command;
 
-        UpdateView(false);
-      
+        Collapse();
+
       } finally {
         Updating = false;
       }
-      
-      cbRecent.SelectedValue = recent.Command;
+
     }
     private void btnDelete_Click(object sender, RoutedEventArgs e) {
       var recent = cbRecent.SelectedItem as SavedCommand;
@@ -162,7 +331,7 @@ namespace ServiceBusMQManager.Controls {
 
         CollectionViewSource.GetDefaultView(cbRecent.ItemsSource).Refresh();
 
-        UpdateView(false);
+        Collapse();
       } finally {
         Updating = false;
       }
@@ -176,7 +345,7 @@ namespace ServiceBusMQManager.Controls {
     public bool Updating { get; set; }
 
     public SavedCommand CommandSent(object command, string serviceBus, string transport, string server, string queue) {
-      var sentCmd = _mgr.CommandSent(command, serviceBus, transport, server, queue);
+      var sentCmd = _mgr.AddCommand(command, serviceBus, transport, server, queue);
 
       int pos = _recent.IndexOf(sentCmd);
       if( pos == -1 ) {

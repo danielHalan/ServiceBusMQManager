@@ -31,6 +31,30 @@ namespace ServiceBusMQManager {
 
     protected override void OnStartup(StartupEventArgs e) {
 
+      if( e.Args.Length >= 2 ) {
+        
+        if( e.Args[0] == "--send" || e.Args[0] == "-s" ) {
+          string cmdName = e.Args[1];
+          
+          ServiceBusMQ.SbmqSystem sys = new ServiceBusMQ.SbmqSystem();
+          sys.Init();
+
+          var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
+
+          if( cmd != null ) {
+            Console.WriteLine(string.Format("Sending Command '{0}'...", cmdName));
+            sys.Manager.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
+          
+          } else {
+            Console.WriteLine(string.Format("No Command with name '{0}' found, exiting...", cmdName));
+          }
+
+          Application.Current.Shutdown();
+          return;
+        }
+      
+      }
+
       // Check if we are already running...
       Process proc = Process.GetCurrentProcess();
       if( Process.GetProcessesByName(proc.ProcessName).Length > 1 ) {

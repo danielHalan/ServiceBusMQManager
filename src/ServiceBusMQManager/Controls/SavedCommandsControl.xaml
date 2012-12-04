@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ServiceBusMQManager.Controls" x:Class="ServiceBusMQManager.Controls.SavedCommandsControl" 
-             mc:Ignorable="d" Height="77.872" Width="554.043">
-    <Grid>
+             mc:Ignorable="d" d:DesignHeight="145" d:DesignWidth="554.043">
+    <Grid Name="theGrid">
         <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20"/>
         
         <Grid Name="selectGrid" Visibility="Hidden">
@@ -18,7 +18,9 @@
             <local:RoundMetroButton x:Name="btnSave" HorizontalAlignment="Right" Margin="0,32,50,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/save-white.png" Click="btnSave_Click"/>
             <local:RoundMetroButton x:Name="btnDelete" HorizontalAlignment="Right" Margin="0,32,0,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Click="btnDelete_Click"/>
             <local:TextInputControl x:Name="tbName" Margin="10,38,95,0" VerticalAlignment="Top"/>
-
+            <Rectangle Fill="#FFFFFFA2" HorizontalAlignment="Left" Height="60" Margin="10,83,0,0" Stroke="White" VerticalAlignment="Top" Width="408" StrokeThickness="3"/>
+<TextBlock Text="You can send commands from Command Prompt using, ServiceBusMQManager.exe --send [recentCommandName]" Margin="65,95,148,3" TextWrapping="WrapWithOverflow" FontFamily="Calibri" FontSize="14" Foreground="#FF7D8049" FontStyle="Italic" />
+            <Image HorizontalAlignment="Left" Height="49" Margin="13,86,0,0" VerticalAlignment="Top" Width="51" Source="/ServiceBusMQManager;component/Images/info1.png"/>
         </Grid>
     </Grid>
 </UserControl>

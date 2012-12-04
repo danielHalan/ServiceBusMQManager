@@ -86,7 +86,7 @@ namespace ServiceBusMQ {
 
     public IMessageManager Manager { get { return _mgr; } }
     public SystemConfig Config { get; private set; }
-    public CommandHistoryManager HistoryManager { get { return _history; } }
+    public CommandHistoryManager SavedCommands { get { return _history; } }
     public UIStateConfig UIState { get { return _uiState; } }
 
     static string _appDataPath = null;

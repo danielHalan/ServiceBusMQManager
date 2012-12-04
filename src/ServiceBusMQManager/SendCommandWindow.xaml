@@ -24,18 +24,23 @@
             CornerRadius="0"
             Background="Transparent">
 
-        <Grid Background="#333333" Margin="0,0,0,0">
+        <Grid Background="#333333" Margin="0,0,0,0" Name="mainGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="217"/>
+                <RowDefinition Height="531*"/>
+            </Grid.RowDefinitions>
 
             <Rectangle
                     Height="28"
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Name="lbTitle" Margin="10,0,0,0" Foreground="LightGray" FontFamily="Segoe UI Light" FontSize="20" >
+            <Label Name="lbTitle" Margin="10,0,0,0" Foreground="LightGray" FontFamily="Segoe UI Light" FontSize="20" Grid.RowSpan="2" >
+            Send Command
             </Label>
             <Button
                 HorizontalAlignment="Right"
-                Margin="500,6,8,0"
+                Margin="0,6,8,0"
                 VerticalAlignment="Top"
                 Style="{StaticResource ChromeButtonStyle}"
                 Click="HandleCloseClick">
@@ -49,7 +54,7 @@
 
             <Button
                 HorizontalAlignment="Right"
-                Margin="500,6,28,0"
+                Margin="0,6,28,0"
                 VerticalAlignment="Top"
                 Style="{StaticResource ChromeButtonStyle}"
                 Click="HandleMaximizeClick">
@@ -62,7 +67,7 @@
             </Button>
 
 
-            <Button x:Name="btnSend" Margin="0,0,17,10" HorizontalAlignment="Right" Width="91" Height="29" VerticalAlignment="Bottom" Click="btnSend_Click" FontFamily="Segoe UI">
+            <Button x:Name="btnSend" Margin="0,0,17,10" HorizontalAlignment="Right" Width="91" Height="29" VerticalAlignment="Bottom" Click="btnSend_Click" FontFamily="Segoe UI" Grid.Row="1">
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -87,7 +92,7 @@
             </Button>
 
 
-            <Button x:Name="btnCancel" HorizontalAlignment="Left" Margin="10,0,0,7" VerticalAlignment="Bottom" Width="75" Height="29" IsCancel="True" Click="btnCancel_Click" FontFamily="Segoe UI">
+            <Button x:Name="btnCancel" HorizontalAlignment="Left" Margin="10,0,0,7" VerticalAlignment="Bottom" Width="75" Height="29" IsCancel="True" Click="btnCancel_Click" FontFamily="Segoe UI" Grid.Row="1">
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -131,14 +136,14 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Grid Margin="0,218,0,64" Background="#575757">
+            <Grid Margin="0,1,0,64" Background="#575757" Grid.Row="1">
                 <Controls:ComplexDataViewControl x:Name="cmdAttrib" Margin="29,0,0,0"  HorizontalAlignment="Left" Width="576"/>
             </Grid>
-            <TextBox Name="tbServer" HorizontalAlignment="Right" Height="29" Margin="0,0,310,10" VerticalContentAlignment="Center" BorderBrush="Gray" BorderThickness="1" TextWrapping="Wrap" Text="localhost" VerticalAlignment="Bottom" Width="99" FontFamily="Segoe UI" FontSize="13" />
-            <ComboBox Name="cbQueue" HorizontalAlignment="Right" Margin="0,0,122,10" VerticalAlignment="Bottom" Width="183"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" />
-            <Label Content="Server:" HorizontalAlignment="Right" Margin="0,0,362,35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14"/>
-            <Label Content="Queue:" HorizontalAlignment="Right" Margin="0,0,257,29" Height="35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14"/>
-            <Controls:SavedCommandsControl x:Name="savedCommands" HorizontalAlignment="Left" Margin="27,127,0,0" VerticalAlignment="Top" Height="78" Width="607" SavedCommandSelected="savedCommands_SavedCommandSelected"/>
+            <TextBox Name="tbServer" HorizontalAlignment="Right" Height="29" Margin="0,0,310,10" VerticalContentAlignment="Center" BorderBrush="Gray" BorderThickness="1" TextWrapping="Wrap" Text="localhost" VerticalAlignment="Bottom" Width="99" FontFamily="Segoe UI" FontSize="13" Grid.Row="1" />
+            <ComboBox Name="cbQueue" HorizontalAlignment="Right" Margin="0,0,122,10" VerticalAlignment="Bottom" Width="183"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" />
+            <Label Content="Server:" HorizontalAlignment="Right" Margin="0,0,362,35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1"/>
+            <Label Content="Queue:" HorizontalAlignment="Right" Margin="0,0,257,29" Height="35" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1"/>
+            <Controls:SavedCommandsControl x:Name="savedCommands" HorizontalAlignment="Left" Margin="27,127,0,0" VerticalAlignment="Top" Height="78" Width="607" SavedCommandSelected="savedCommands_SavedCommandSelected" EnterEditMode="savedCommands_EnterEditMode" ExitEditMode="savedCommands_ExitEditMode"/>
         </Grid>
     </Border>
 </Window>

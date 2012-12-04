@@ -15,7 +15,7 @@
 
     </Window.Resources>
     <Grid>
-        <Label Content="Service Bus" HorizontalAlignment="Left" Margin="24,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
+        <Label Content="Service Bus" HorizontalAlignment="Left" Margin="25,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
         <ComboBox HorizontalAlignment="Left" Margin="24,85,0,0" VerticalAlignment="Top" Width="120"/>
         <Label Content="Transportation: " HorizontalAlignment="Left" Margin="182,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
         <ComboBox HorizontalAlignment="Left" Margin="182,85,0,0" VerticalAlignment="Top" Width="120"/>
@@ -25,7 +25,7 @@
         <TextBox HorizontalAlignment="Left" Height="23" Margin="241,150,0,0" TextWrapping="Wrap" Text="800" VerticalAlignment="Top" Width="113"/>
         <CheckBox Content="Popup when new messages arrive" HorizontalAlignment="Left" Margin="22,193,0,0" VerticalAlignment="Top"/>
         <Label Content="Command queues:" HorizontalAlignment="Left" Margin="17,292,0,0" VerticalAlignment="Top"/>
-        <ListBox HorizontalAlignment="Left" Height="92" Margin="17,319,0,0" VerticalAlignment="Top" Width="458"/>
+        <ListBox HorizontalAlignment="Left" Height="57" Margin="17,319,0,0" VerticalAlignment="Top" Width="458"/>
         <Button Content="Add" HorizontalAlignment="Left" Margin="480,319,0,0" VerticalAlignment="Top" Width="75"/>
         <Button Content="Delete" HorizontalAlignment="Left" Margin="480,344,0,0" VerticalAlignment="Top" Width="75"/>
         <Label Content="Configuration" HorizontalAlignment="Left" Margin="16,0,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24"/>

@@ -68,7 +68,7 @@ namespace ServiceBusMQManager {
       BindCommands();
 
 
-      savedCommands.Init(system.HistoryManager);
+      savedCommands.Init(system.SavedCommands);
 
       //BindRecent();
 
@@ -205,6 +205,16 @@ namespace ServiceBusMQManager {
 
       this.Top = s.WorkingArea.Top;
       this.Height = s.WorkingArea.Height;
+    }
+
+    private void savedCommands_EnterEditMode(object sender, RoutedEventArgs e) {
+      cbCommands.IsEnabled = false;
+      btnSend.IsEnabled = false;
+    }
+
+    private void savedCommands_ExitEditMode(object sender, RoutedEventArgs e) {
+      cbCommands.IsEnabled = true;
+      btnSend.IsEnabled = true;
     }
 
 

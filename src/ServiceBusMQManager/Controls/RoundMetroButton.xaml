@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <Button x:Name="btn" Margin="0,0,0,0" ToolTip="" Click="btn_Click" Tag="/ServiceBusMQManager;component/Images/delete-item-white.png">
+        <Button x:Name="btn" Margin="0,0,0,0"  Click="btn_Click">
             <Button.Template>
                 <ControlTemplate>
                     <Image Name="img" HorizontalAlignment="Left"  Source="{Binding Source, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,-1,0,1" />
