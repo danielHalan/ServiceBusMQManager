@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQ
+  File:    JsonFile.cs
+  Created: 2012-12-04
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

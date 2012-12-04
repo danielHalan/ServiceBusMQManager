@@ -110,7 +110,7 @@
                 </Button.Template>
             </Button>
             <Label Content="select command" HorizontalAlignment="Left" Margin="22,37,0,0" VerticalAlignment="Top" FontSize="20" Foreground="White"/>
-            <ComboBox x:Name="cbCommands" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="24,70,0,0" VerticalAlignment="Top" Width="551" SelectionChanged="cbCommands_SelectionChanged" FontSize="16"/>
+            <ComboBox x:Name="cbCommands" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="24,70,0,0" VerticalAlignment="Top" Width="551" SelectionChanged="cbCommands_SelectionChanged" FontSize="16" FontFamily="Calibri"/>
             <Label Content="Can not find your command? " HorizontalAlignment="Left" Margin="27,100,0,0" VerticalAlignment="Top" Foreground="#FFBBBBBB" FontSize="14"/>
             <Button Margin="221,104,194,0" Content="Add assembly path..." Cursor="Hand" Click="Button_Click_1" FontSize="14" Height="15" VerticalAlignment="Top">
                 <Button.Template>

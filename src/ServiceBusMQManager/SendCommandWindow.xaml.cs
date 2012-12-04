@@ -118,6 +118,8 @@ namespace ServiceBusMQManager {
         var cmd = cbCommands.SelectedItem as CommandItem;
 
         cmdAttrib.SetDataType(cmd.Type, null);
+
+        savedCommands.SelectedItem = null;
       }
     }
 
@@ -134,7 +136,7 @@ namespace ServiceBusMQManager {
             cmdAttrib.SetDataType(t, recent.Command);
             cbCommands.SelectedValue = t.FullName;
 
-          } else cmdAttrib.SetDataType(typeof(object), null);
+          } 
 
         }
       } finally {
