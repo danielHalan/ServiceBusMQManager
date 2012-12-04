@@ -26,12 +26,15 @@ using ServiceBusMQ.Manager;
 namespace ServiceBusMQ {
   public class SbmqSystem {
 
-    private IMessageManager _mgr;
+    IMessageManager _mgr;
+    CommandHistoryManager _history;
 
     public SbmqSystem() {
     }
 
     public void Init() {
+      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+      
       Config = new SystemConfig();
       Config.Load();
 
@@ -41,8 +44,8 @@ namespace ServiceBusMQ {
       
       _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues);
 
+      _history = new CommandHistoryManager();
 
-      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
     }
 
 
@@ -80,15 +83,32 @@ namespace ServiceBusMQ {
     }
 
 
-
     public IMessageManager Manager { get { return _mgr; } }
     public SystemConfig Config { get; private set; }
+    public CommandHistoryManager HistoryManager { get { return _history; } }
+
+    static string _appDataPath = null;
+    public static string AppDataPath {
+      get {
+        if( _appDataPath == null ) {
+          _appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\SBMQM\";
+
+          if( !Directory.Exists(_appDataPath) )
+            Directory.CreateDirectory(_appDataPath);
+        }
+
+        return _appDataPath;
+      }
+
+    }
+
 
     public event EventHandler<EventArgs> ItemsChanged;
     protected void OnItemsChanged() {
       if( ItemsChanged != null )
         ItemsChanged(this, EventArgs.Empty);
     }
+
 
   }
 

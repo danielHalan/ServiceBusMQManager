@@ -39,7 +39,8 @@ namespace ServiceBusMQManager.Controls {
   /// </summary>
   public partial class ComplexDataViewControl : UserControl {
 
-    int CONTROL_WIDTH = 500;
+    const int CONTROL_WIDTH = 610;
+    const int SCROLLTO_CONTROL_SPEED = 400; // ms
 
     DataTemplateManager _tempMgr = new DataTemplateManager();
 
@@ -61,7 +62,6 @@ namespace ServiceBusMQManager.Controls {
     public ComplexDataViewControl() {
       InitializeComponent();
 
-      CONTROL_WIDTH = 610;
     }
 
 
@@ -114,7 +114,7 @@ namespace ServiceBusMQManager.Controls {
       //p.Margin = new Thickness(0,0,0,0);
       p.Background = Brushes.Transparent;
       p.Tag = new PanelInfo() { DataType = type, AttributeName = attribute, ChildControl = mainPanel };
-      p.Width = CONTROL_WIDTH - 30; // 480;
+      p.Width = CONTROL_WIDTH - 30; // remove space for the scrollbar;
 
       scroller.Content = p;
 
@@ -133,7 +133,7 @@ namespace ServiceBusMQManager.Controls {
       var p = _panels.Peek() as StackPanel;
       PanelInfo pi = p.Tag as PanelInfo;
 
-      object instance = GetTypeInstance(p);
+      object instance = CreateTypeInstance(p);
       _tempMgr.Delete(e.Name, pi.DataType);
 
     }
@@ -147,7 +147,7 @@ namespace ServiceBusMQManager.Controls {
       var p = _panels.Peek() as StackPanel;
       PanelInfo pi = p.Tag as PanelInfo;
 
-      object instance = GetTypeInstance(p);
+      object instance = CreateTypeInstance(p);
       _tempMgr.Store(e.Name, pi.DataType, instance);
 
       e.Value = instance;
@@ -198,64 +198,59 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-
-
-
     void ctl_DefineComplextType(object sender, ComplexTypeEventArgs e) {
-
-      ComplexDataInputControl btn = sender as ComplexDataInputControl;
-      btn.IsListItem = true;
-
       var p = CreateDataPanel(e.Type, e.AttributeName, e.Value);
 
       BindDataPanel(p, e.Type, e.Value);
 
-      //this.Width = _panels.Count+1 * CONTROL_WIDTH;
+      ScrollToNextControl(sender as ComplexDataInputControl);
+    }
 
-      //Vector offset = VisualTreeHelper.GetOffset(theGrid);
+    void titleControl_BackClick(object sender, EventArgs e) {
+      var p = _panels.Pop() as StackPanel;
+      PanelInfo pi = p.Tag as PanelInfo;
+
+      object instance = CreateTypeInstance(p);
+
+      var currPanel = _panels.Peek() as StackPanel;
+
+      SetAttributeValue(currPanel, pi.AttributeName, instance);
+
+      ScrollBackToPreviousControl(pi);
+    }
+
+    private void ScrollToNextControl(ComplexDataInputControl btn) {
+      btn.IsIgnoringClicks = true;
 
       // Show next Control
       DoubleAnimation anim = new DoubleAnimation();
       anim.From = ( _panels.Count - 2 ) * -CONTROL_WIDTH;
       anim.To = anim.From - CONTROL_WIDTH;
-      anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 400));
+      anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, SCROLLTO_CONTROL_SPEED));
       anim.RepeatBehavior = new RepeatBehavior(1);
-      anim.Completed += (s2, e2) => { btn.IsListItem = false; };
+      anim.Completed += (s2, e2) => { btn.IsIgnoringClicks = false; };
+      anim.AccelerationRatio = 1;
 
       TranslateTransform trans = new TranslateTransform();
 
       theStack.RenderTransform = trans;
       trans.BeginAnimation(TranslateTransform.XProperty, anim);
-
     }
 
-    void titleControl_BackClick(object sender, EventArgs e) {
-      // Setup new AttirbPane;l
-      var p = _panels.Pop() as StackPanel;
-      PanelInfo pi = p.Tag as PanelInfo;
+    private void ScrollBackToPreviousControl(PanelInfo pi) {
 
-      object instance = GetTypeInstance(p);
-
-      var currPanel = _panels.Peek() as StackPanel;
-
-
-      SetAttributeValue(currPanel, pi.AttributeName, instance);
-
-      Vector offset = VisualTreeHelper.GetOffset(theGrid);
-
-      // Show next Control
       DoubleAnimation anim = new DoubleAnimation();
       anim.From = ( _panels.Count ) * -CONTROL_WIDTH;
       anim.To = anim.From + CONTROL_WIDTH;
-      anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 400));
+      anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, SCROLLTO_CONTROL_SPEED));
       anim.RepeatBehavior = new RepeatBehavior(1);
       anim.Completed += (s2, e2) => { theStack.Children.Remove(pi.ChildControl); };
+      anim.AccelerationRatio = 0.5;
+      anim.DecelerationRatio = 0.5;
       TranslateTransform trans = new TranslateTransform();
 
       theStack.RenderTransform = trans;
       trans.BeginAnimation(TranslateTransform.XProperty, anim);
-
-      //this.Width = _panels.Count * CONTROL_WIDTH;
     }
 
     private void SetAttributeValue(StackPanel panel, string name, object value) {
@@ -270,9 +265,9 @@ namespace ServiceBusMQManager.Controls {
 
 
     public object CreateObject() { 
-      return GetTypeInstance(_mainPanel);
+      return CreateTypeInstance(_mainPanel);
     }
-    private object GetTypeInstance(StackPanel panel) {
+    private object CreateTypeInstance(StackPanel panel) {
       Dictionary<string, object> values = new Dictionary<string, object>();
 
       foreach( AttributeControl atr in panel.Children.OfType<AttributeControl>() ) {

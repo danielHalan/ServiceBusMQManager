@@ -25,7 +25,6 @@ using Newtonsoft.Json;
 namespace ServiceBusMQ {
   public class DataTemplateManager {
 
-    string _appDataDir;
     string _templateFile;
 
     public class DataTemplate {
@@ -41,43 +40,23 @@ namespace ServiceBusMQ {
     public List<DataTemplate> Templates { get { return _templates; } }
 
     public DataTemplateManager() {
-      _appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-      _templateFile = _appDataDir + @"\Templates.dat";
+      _templateFile =  SbmqSystem.AppDataPath + @"\templates.dat";
 
       LoadFromDisk();
     }
 
 
     void WriteToDisk() {
-      try {
-        var s = new JsonSerializerSettings {
-          TypeNameHandling = TypeNameHandling.All,
-          TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple
-        };
-
-
-        File.WriteAllText(_templateFile, JsonConvert.SerializeObject(_templates, Formatting.Indented, s));
-      } catch { }
+      JsonFile.Write(_templateFile, _templates);
     }
 
     void LoadFromDisk() {
-      if( File.Exists(_templateFile) ) {
-        try {
-          var s = new JsonSerializerSettings {
-            TypeNameHandling = TypeNameHandling.All,
-            TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple
-            
-          };
 
-          //AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+      _templates = JsonFile.Read<List<DataTemplate>>(_templateFile);
 
-          //AppDomain.CurrentDomain.Load(asm.
-          _templates = (List<DataTemplate>)JsonConvert.DeserializeObject(File.ReadAllText(_templateFile), typeof(List<DataTemplate>), s);
-        } catch(Exception e) {  
-          Console.Write(e.Message);
-        }
-      }
+      if( _templates == null )
+        _templates = new List<DataTemplate>();
     }
 
 

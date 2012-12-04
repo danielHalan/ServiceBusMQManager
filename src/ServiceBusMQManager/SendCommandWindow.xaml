@@ -111,7 +111,7 @@
 
 
             <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" Margin="31,130,0,0" VerticalAlignment="Top" FontSize="20"/>
-            <ComboBox Name="cbRecent" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="38,165,0,0" VerticalAlignment="Top" Width="537" FontSize="16"/>
+            <ComboBox Name="cbRecent" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="38,165,0,0" VerticalAlignment="Top" Width="537" FontSize="16" SelectionChanged="cbRecent_SelectionChanged"/>
             <Label Content="select command" HorizontalAlignment="Left" Margin="22,37,0,0" VerticalAlignment="Top" FontSize="20" Foreground="White"/>
             <ComboBox x:Name="cbCommands" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="24,70,0,0" VerticalAlignment="Top" Width="551" SelectionChanged="cbCommands_SelectionChanged" FontSize="16"/>
             <Label Content="Can not find your command? " HorizontalAlignment="Left" Margin="27,100,0,0" VerticalAlignment="Top" Foreground="#FFBBBBBB" FontSize="14"/>

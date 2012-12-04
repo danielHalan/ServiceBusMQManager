@@ -59,6 +59,8 @@
     <Compile Include="CompareObjects.cs" />
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
+    <Compile Include="CommandHistoryManager.cs" />
+    <Compile Include="JsonFile.cs" />
     <Compile Include="Manager\ErrorArgs.cs" />
     <Compile Include="Manager\IMessageManager.cs" />
     <Compile Include="Manager\MessageBusFactory.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Model\QueueItem.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SavedCommand.cs" />
     <Compile Include="SbmqSystem.cs" />
     <Compile Include="Screen.cs" />
     <Compile Include="StringExtensions.cs" />

@@ -22,6 +22,7 @@ using System.Text;
 namespace ServiceBusMQ {
   public static class Tools {
 
+
     public static object GetDefault(Type type) {
       if( type.IsValueType ) { 
         

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -48,16 +49,43 @@ namespace ServiceBusMQManager {
     string[] _asmPath;
 
     IMessageManager _mgr;
+    CommandHistoryManager _history;
 
     List<CommandItem> _commands = new List<CommandItem>();
+
+    ObservableCollection<SavedCommand> _recent = new ObservableCollection<SavedCommand>();
 
     public SendCommandWindow(SbmqSystem system) {
       InitializeComponent();
 
       _mgr = system.Manager;
+      _history = system.HistoryManager;
 
       _asmPath = system.Config.CommandsAssemblyPaths;
 
+
+      BindCommands();
+
+      BindRecent();
+
+
+      cbQueue.ItemsSource = system.Config.WatchCommandQueues;
+      cbQueue.SelectedIndex = 0;
+
+    }
+
+    private void BindRecent() {
+      foreach( var cmd in _history.Items ) 
+        _recent.Add(cmd);
+
+      cbRecent.ItemsSource = _recent;
+      cbRecent.DisplayMemberPath = "DisplayName";
+      cbRecent.SelectedValuePath = "Command";
+      
+      cbRecent.SelectedValue = null;
+    }
+
+    private void BindCommands() {
       var cmdTypes = _mgr.GetAvailableCommands(_asmPath);
 
       foreach( Type t in cmdTypes ) {
@@ -67,15 +95,11 @@ namespace ServiceBusMQManager {
 
         _commands.Add(cmd);
       }
-      
+
       cbCommands.ItemsSource = _commands;
       cbCommands.DisplayMemberPath = "Name";
       cbCommands.SelectedValuePath = "Name";
       cbCommands.SelectedValue = null;
-
-      cbQueue.ItemsSource = system.Config.WatchCommandQueues;
-      cbQueue.SelectedIndex = 0;
-
     }
 
 
@@ -88,6 +112,11 @@ namespace ServiceBusMQManager {
 
       cmdAttrib.SetDataType(cmd.Type, null);
     }
+    private void cbRecent_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      var recent = cbRecent.SelectedItem as SavedCommand;
+
+      cmdAttrib.SetDataType(recent.Command.GetType(), recent.Command);
+    }
 
 
     bool _isBusStarted = false;
@@ -97,7 +126,24 @@ namespace ServiceBusMQManager {
       if( !_isBusStarted )
         _mgr.SetupBus(_asmPath);
 
-      _mgr.SendCommand(tbServer.Text, (string)cbQueue.SelectedItem, cmdAttrib.CreateObject());
+      var cmd = cmdAttrib.CreateObject();
+      var queue = (string)cbQueue.SelectedItem;
+
+      _mgr.SendCommand(tbServer.Text, queue, cmd);
+
+      var sentCmd = _history.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+
+      int pos = _recent.IndexOf(sentCmd);
+      if( pos == -1 ) {
+        _recent.Insert(0, sentCmd);
+      
+        if( cbRecent.SelectedItem != sentCmd )
+          cbRecent.SelectedValue = sentCmd.Command;
+      
+      } else if( pos != 0 ) { 
+        _recent.Move(_recent.IndexOf(sentCmd), 0);
+      }
+
     }
 
     private void btnCancel_Click(object sender, RoutedEventArgs e) {
@@ -146,6 +192,7 @@ namespace ServiceBusMQManager {
       this.Top = s.WorkingArea.Top;
       this.Height = s.WorkingArea.Height;
     }
+
 
 
 

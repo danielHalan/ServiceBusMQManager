@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
+using ServiceBusMQ;
 
 namespace ServiceBusMQManager {
 
@@ -33,9 +34,8 @@ namespace ServiceBusMQManager {
 
 
     public UIStateConfig() {
-      var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-      _fileName = appDataDir + "\\ServiceBusMQManager.state.config";
+      _fileName = SbmqSystem.AppDataPath + "\\ui.state";
 
       // Set defaults
       AlwaysOnTop = true;

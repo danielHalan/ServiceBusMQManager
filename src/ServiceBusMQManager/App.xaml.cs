@@ -44,8 +44,10 @@ namespace ServiceBusMQManager {
 
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
+#if !DEBUG
       MessageBox.Show(e.Exception.Message, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
       e.Handled = true;
+#endif
 
     }
 

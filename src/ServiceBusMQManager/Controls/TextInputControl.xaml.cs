@@ -77,13 +77,7 @@ namespace ServiceBusMQManager.Controls {
       _value = value;
 
 
-      if( value != null ) {
-
-        if( value is string )
-          tb.Text = (string)value;
-
-        else tb.Text = value.ToString();
-      }
+      SetTextBoxValue(value);
 
       BindDataType();
 
@@ -113,12 +107,29 @@ namespace ServiceBusMQManager.Controls {
       tb.Text = Guid.NewGuid().ToString().ToUpper();
     }
 
+
+    void SetTextBoxValue(object value) {
+      
+      if( value != null ) {
+
+        if( value is string )
+          tb.Text = (string)value;
+
+        else if( value is Guid )
+          tb.Text = value.ToString().ToUpper();
+
+        else tb.Text = value.ToString();
+      
+      } else tb.Text = string.Empty; 
+
+    }
+
     public void UpdateValue(object value) {
       _updating = true;
       try {
         _value = value;
 
-        tb.Text = value != null ? value.ToString() : (string)null;
+        SetTextBoxValue(value);
 
       } finally {
         _updating = false;

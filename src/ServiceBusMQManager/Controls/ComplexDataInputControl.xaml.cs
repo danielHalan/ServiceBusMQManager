@@ -40,6 +40,8 @@ namespace ServiceBusMQManager.Controls {
     Type _type;
     string _attributeName;
 
+    private bool _isIgnoringClicks;
+
     public ComplexDataInputControl(string attributeName, Type type, object value) {
       InitializeComponent();
 
@@ -49,7 +51,7 @@ namespace ServiceBusMQManager.Controls {
       _type = type;
       Value = value;
 
-      btn.Content = type.Name;
+      btn.Content = type.GetDisplayName(_value).CutEnd(80);
     }
 
     public event EventHandler<ComplexTypeEventArgs> DefineComplextType;
@@ -61,7 +63,8 @@ namespace ServiceBusMQManager.Controls {
 
     private void Button_Click_1(object sender, RoutedEventArgs e) {
 
-      OnDefineComplextType(_attributeName, _type, Value);
+      if( !_isIgnoringClicks )
+        OnDefineComplextType(_attributeName, _type, Value);
     }
 
 
@@ -79,50 +82,20 @@ namespace ServiceBusMQManager.Controls {
       }
     }
 
+    public bool IsIgnoringClicks {
+      get { return _isIgnoringClicks; }
+      set { _isIgnoringClicks = value; OnIsIgnoringClicksChanged(); }
+    }
+
+    private void OnIsIgnoringClicksChanged() {
+
+    }
 
     private void ValueHasChanged() {
 
-      if( _value == null ) {
-
-        btn.Content = string.Format("{0} (Undefined)", _type.Name);
-
-        //rStatus.Fill = new SolidColorBrush(Color.FromRgb(219, 88, 88));
-      } else {
-
-        var props = _type.GetProperties().Aggregate(new StringBuilder(),
-                      (sb, p) => sb.Length > 0 ? sb.Append(", " + GetAttribValue(p, _value)) : sb.Append(GetAttribValue(p, _value)));
-
-
-        btn.Content = string.Format("{0} ({1})", _type.Name, props.ToString().CutEnd(80));
-
-        //rStatus.Fill = new SolidColorBrush(Color.FromRgb(92, 219, 88));
-      }
+      btn.Content = _type.GetDisplayName(_value).CutEnd(80);
 
       OnValueChanged();
-    }
-
-    private string GetAttribValue(System.Reflection.PropertyInfo p, object obj) {
-      object value = p.GetValue(obj, null);
-      
-      string res = string.Empty;
-
-      Type t = p.PropertyType;
-      
-      if( t == typeof(string) )
-        res = (string)value;
-
-      else if( t.IsClass && !t.IsPrimitive ) {
-
-        if( value == null )
-          res = string.Format("{0}(null)", t.Name);
-        else res = t.Name;
-      
-
-      } else if( value != null ) 
-        res = value.ToString();
-
-
-      return res.CutEnd(16);
     }
 
     public void UpdateValue(object value) {

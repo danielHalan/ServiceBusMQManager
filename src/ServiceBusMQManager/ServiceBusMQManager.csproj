@@ -119,6 +119,9 @@
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ConfigWindow.xaml.cs">
+      <DependentUpon>ConfigWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\CreateTemplateDialog.xaml.cs">
       <DependentUpon>CreateTemplateDialog.xaml</DependentUpon>
     </Compile>
@@ -173,6 +176,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TextInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -303,6 +310,8 @@
     <Resource Include="Images\appbar.email.hardedge-white.png" />
     <Resource Include="Images\appbar.email.minimal-white.png" />
     <Resource Include="Images\delete-item-gray.png" />
+    <Resource Include="Images\Settings.png" />
+    <Resource Include="Images\Settings.selected.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

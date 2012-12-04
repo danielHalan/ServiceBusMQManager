@@ -205,9 +205,9 @@
 
             </Grid.Resources>
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="42"/>
-                <RowDefinition Height="27"/>
+                <RowDefinition Height="28"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="30"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
@@ -272,10 +272,35 @@
             <ToggleButton x:Name="btnError" Content="ERRORS" HorizontalAlignment="Left" Margin="314,3,0,0" VerticalAlignment="Top" Width="88" Unchecked="btn_Unchecked" Tag="3" Grid.Row="2" Checked="btn_Checked" Height="23"/>
 
 
-            <Button x:Name="btnClearDeleted" Grid.Row="1" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,0,32,8" ToolTip="Remove list items that has been deleted in their Queue" Width="119" Grid.RowSpan="1" >
+
+            <Button x:Name="btnSettings" Grid.Row="1" Click="btnSettings_Click" HorizontalAlignment="Right" Margin="0,0,10,8" ToolTip="Remove list items that has been deleted in their Queue" Width="35" Grid.RowSpan="1" >
                 <Button.Template>
                     <ControlTemplate>
-                        <Border Name="btnBorder" HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" >
+                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Images/Settings.png" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="Button.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+
+            <Button x:Name="btnClearDeleted" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,26,60,10" ToolTip="Remove list items that has been deleted in their Queue" Width="119" Grid.RowSpan="2" >
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,-6,0" >
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="Images/Delete.png" />
                                 <TextBlock Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0">Clear Processed</TextBlock>

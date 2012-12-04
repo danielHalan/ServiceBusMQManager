@@ -41,6 +41,7 @@ using System.Xml.XPath;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
+using ServiceBusMQManager.Dialogs;
 
 namespace ServiceBusMQManager {
 
@@ -358,6 +359,11 @@ namespace ServiceBusMQManager {
       _mgr.ClearDeletedItems();
 
       lbItems.Items.Refresh();
+    }
+
+    private void btnSettings_Click(object sender, RoutedEventArgs e) {
+      ConfigWindow dlg = new ConfigWindow();
+      dlg.ShowDialog();
     }
 
     private void SnapWindowToEdge() {

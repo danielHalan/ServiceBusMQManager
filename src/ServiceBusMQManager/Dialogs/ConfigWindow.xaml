@@ -1,0 +1,46 @@
+﻿<Window x:Class="ServiceBusMQManager.Dialogs.ConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ConfigWindow" Height="1005" Width="600" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="{x:Type Label}">
+            <Setter Property="FontFamily" Value="Calibri" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="FontFamily" Value="Calibri" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+
+    </Window.Resources>
+    <Grid>
+        <Label Content="Service Bus" HorizontalAlignment="Left" Margin="24,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
+        <ComboBox HorizontalAlignment="Left" Margin="24,85,0,0" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Transportation: " HorizontalAlignment="Left" Margin="182,62,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
+        <ComboBox HorizontalAlignment="Left" Margin="182,85,0,0" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Server:" HorizontalAlignment="Left" Margin="22,127,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="24,150,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="192"/>
+        <Label Content="Refresh Intervall:" HorizontalAlignment="Left" Margin="241,127,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="241,150,0,0" TextWrapping="Wrap" Text="800" VerticalAlignment="Top" Width="113"/>
+        <CheckBox Content="Popup when new messages arrive" HorizontalAlignment="Left" Margin="22,193,0,0" VerticalAlignment="Top"/>
+        <Label Content="Command queues:" HorizontalAlignment="Left" Margin="17,292,0,0" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Left" Height="92" Margin="17,319,0,0" VerticalAlignment="Top" Width="458"/>
+        <Button Content="Add" HorizontalAlignment="Left" Margin="480,319,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button Content="Delete" HorizontalAlignment="Left" Margin="480,344,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label Content="Configuration" HorizontalAlignment="Left" Margin="16,0,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24"/>
+        <Label Content="Queues" HorizontalAlignment="Left" Margin="17,245,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24"/>
+        <Label Content="Send Command" HorizontalAlignment="Left" Margin="17,489,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24"/>
+        <Label Content="Assembly paths" HorizontalAlignment="Left" Margin="24,549,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235"/>
+        <ListBox HorizontalAlignment="Left" Height="92" Margin="17,577,0,0" VerticalAlignment="Top" Width="458"/>
+        <Button Content="Add" HorizontalAlignment="Left" Margin="480,579,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button Content="Delete" HorizontalAlignment="Left" Margin="480,604,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label Content="command definition" HorizontalAlignment="Left" Margin="24,728,0,0" VerticalAlignment="Top" Width="218" FontSize="16"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="70,782,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="298"/>
+        <Button Content="...." HorizontalAlignment="Left" Margin="368,782,0,0" VerticalAlignment="Top" Width="50"/>
+        <Label Content="Inherits:" HorizontalAlignment="Left" Margin="68,759,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="70,864,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="298"/>
+        <Label Content="Namespace contains:" HorizontalAlignment="Left" Margin="68,841,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
