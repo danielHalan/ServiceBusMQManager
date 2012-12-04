@@ -67,10 +67,23 @@ namespace ServiceBusMQManager.Controls {
     bool _updating;
 
 
+    public TextInputControl() {
+      InitializeComponent();
+      
+      tb.Height = 30;
+    }
+
+
     public TextInputControl(object value, Type dataType, bool isNullable) {
       InitializeComponent();
 
       tb.Height = 30;
+
+      Init(value, dataType, isNullable);
+    }
+
+
+    public void Init(object value, Type dataType, bool isNullable) {
 
       _isNullable = isNullable;
       _dataType = dataType;
@@ -83,6 +96,7 @@ namespace ServiceBusMQManager.Controls {
 
       UpdateBorder();
     }
+
 
     private void BindDataType() {
 
@@ -256,8 +270,19 @@ namespace ServiceBusMQManager.Controls {
 
     private void tb_GotFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
+      
+      if( SelectAllTextOnFocus )
+        tb.SelectAll();
     }
 
+    public bool SelectAllTextOnFocus { get; set; }
 
+    internal void SelectAll() {
+      tb.SelectAll();
+    }
+
+    internal void FocusTextBox() {
+      tb.Focus();
+    }
   }
 }

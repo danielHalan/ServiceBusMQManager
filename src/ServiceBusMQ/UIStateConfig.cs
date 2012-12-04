@@ -22,9 +22,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
-using ServiceBusMQ;
 
-namespace ServiceBusMQManager {
+namespace ServiceBusMQ {
 
   public class UIStateConfig {
 
@@ -44,20 +43,20 @@ namespace ServiceBusMQManager {
       SelectedQueues = "commands;events";
     }
 
-    public void UpdateButtonState(MainWindow window) {
+    public void UpdateButtonState(bool? commands, bool? events, bool? messages, bool? errors) {
 
       // Save pressed buttons
       List<string> q = new List<string>();
-      if( (bool)window.btnCmd.IsChecked )
+      if( (bool)commands )
         q.Add("commands");
 
-      if( (bool)window.btnEvent.IsChecked )
+      if( (bool)events )
         q.Add("events");
 
-      if( (bool)window.btnMsg.IsChecked )
+      if( (bool)messages )
         q.Add("messages");
 
-      if( (bool)window.btnError.IsChecked )
+      if( (bool)errors )
         q.Add("errors");
 
       SelectedQueues = string.Join(";", q.ToArray());

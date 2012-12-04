@@ -42,9 +42,7 @@ namespace ServiceBusMQManager.Controls {
     const int CONTROL_WIDTH = 610;
     const int SCROLLTO_CONTROL_SPEED = 400; // ms
 
-    DataTemplateManager _tempMgr = new DataTemplateManager();
-
-    //Type _dataType;
+    DataTemplateManager _tempMgr;
 
     Stack _panels = new Stack();
 
@@ -75,7 +73,7 @@ namespace ServiceBusMQManager.Controls {
 
       // Add Template bar
       if( _panels.Count > 0 ) {
-        var tempControl = new ComplexDataTemplateControl(type, _tempMgr);
+        var tempControl = new ComplexDataTemplateControl(type, GetTempManager());
         tempControl.CreateTemplate += tempControl_CreateTemplate;
         tempControl.DeleteTemplate += tempControl_DeleteTemplate;
         tempControl.TemplateSelected += tempControl_TemplateSelected;
@@ -83,6 +81,14 @@ namespace ServiceBusMQManager.Controls {
         p.Children.Add(tempControl);
       }
 
+    }
+
+    private DataTemplateManager GetTempManager() {
+      if( _tempMgr == null ) {
+        _tempMgr = new DataTemplateManager();
+      }
+
+      return _tempMgr;
     }
 
     private StackPanel CreateDataPanel(Type type, string attribute, object value) {

@@ -116,6 +116,12 @@
     <Compile Include="Controls\RemoveItemButton.xaml.cs">
       <DependentUpon>RemoveItemButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\RoundMetroButton.xaml.cs">
+      <DependentUpon>RoundMetroButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SavedCommandsControl.xaml.cs">
+      <DependentUpon>SavedCommandsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
     </Compile>
@@ -130,7 +136,6 @@
     </Compile>
     <Compile Include="TriggerTracing.cs" />
     <Compile Include="UIControlFactory.cs" />
-    <Compile Include="UIStateConfig.cs" />
     <Page Include="Controls\ArrayInputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -172,6 +177,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\RemoveItemButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RoundMetroButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SavedCommandsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -312,6 +325,8 @@
     <Resource Include="Images\delete-item-gray.png" />
     <Resource Include="Images\Settings.png" />
     <Resource Include="Images\Settings.selected.png" />
+    <Resource Include="Images\save-white.png" />
+    <Resource Include="Images\save.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

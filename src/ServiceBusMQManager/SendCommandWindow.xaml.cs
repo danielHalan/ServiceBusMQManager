@@ -39,9 +39,11 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class SendCommandWindow : Window {
 
-    class CommandItem { 
+    class CommandItem {
       public Type Type { get; set; }
-      public string Name { get; set; }
+      public string DisplayName { get; set; }
+
+      public string FullName { get; set; }
     }
 
     private HwndSource _hwndSource;
@@ -49,7 +51,6 @@ namespace ServiceBusMQManager {
     string[] _asmPath;
 
     IMessageManager _mgr;
-    CommandHistoryManager _history;
 
     List<CommandItem> _commands = new List<CommandItem>();
 
@@ -59,14 +60,17 @@ namespace ServiceBusMQManager {
       InitializeComponent();
 
       _mgr = system.Manager;
-      _history = system.HistoryManager;
 
       _asmPath = system.Config.CommandsAssemblyPaths;
 
+      Topmost = system.UIState.AlwaysOnTop;
 
       BindCommands();
 
-      BindRecent();
+
+      savedCommands.Init(system.HistoryManager);
+
+      //BindRecent();
 
 
       cbQueue.ItemsSource = system.Config.WatchCommandQueues;
@@ -74,16 +78,16 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void BindRecent() {
-      foreach( var cmd in _history.Items ) 
-        _recent.Add(cmd);
+    //private void BindRecent() {
+    //  foreach( var cmd in _history.Items ) 
+    //    _recent.Add(cmd);
 
-      cbRecent.ItemsSource = _recent;
-      cbRecent.DisplayMemberPath = "DisplayName";
-      cbRecent.SelectedValuePath = "Command";
-      
-      cbRecent.SelectedValue = null;
-    }
+    //  cbRecent.ItemsSource = _recent;
+    //  cbRecent.DisplayMemberPath = "DisplayName";
+    //  cbRecent.SelectedValuePath = "Command";
+
+    //  cbRecent.SelectedValue = null;
+    //}
 
     private void BindCommands() {
       var cmdTypes = _mgr.GetAvailableCommands(_asmPath);
@@ -91,14 +95,15 @@ namespace ServiceBusMQManager {
       foreach( Type t in cmdTypes ) {
         var cmd = new CommandItem();
         cmd.Type = t;
-        cmd.Name = string.Format("{0} ({1})", t.Name, t.Namespace);
+        cmd.DisplayName = string.Format("{0} ({1})", t.Name, t.Namespace);
+        cmd.FullName = t.FullName;
 
         _commands.Add(cmd);
       }
 
       cbCommands.ItemsSource = _commands;
-      cbCommands.DisplayMemberPath = "Name";
-      cbCommands.SelectedValuePath = "Name";
+      cbCommands.DisplayMemberPath = "DisplayName";
+      cbCommands.SelectedValuePath = "FullName";
       cbCommands.SelectedValue = null;
     }
 
@@ -108,14 +113,33 @@ namespace ServiceBusMQManager {
     }
 
     private void cbCommands_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var cmd = cbCommands.SelectedItem as CommandItem;
+      
+      if( !_recentUpdating ) {
+        var cmd = cbCommands.SelectedItem as CommandItem;
 
-      cmdAttrib.SetDataType(cmd.Type, null);
+        cmdAttrib.SetDataType(cmd.Type, null);
+      }
     }
-    private void cbRecent_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommand;
 
-      cmdAttrib.SetDataType(recent.Command.GetType(), recent.Command);
+    bool _recentUpdating = false;
+    private void savedCommands_SavedCommandSelected(object sender, RoutedEventArgs e) {
+      var recent = savedCommands.SelectedItem;
+
+      _recentUpdating = true;
+      try {
+        if( !savedCommands.Updating ) {
+
+          if( recent != null ) {
+            var t = recent.Command.GetType();
+            cmdAttrib.SetDataType(t, recent.Command);
+            cbCommands.SelectedValue = t.FullName;
+
+          } else cmdAttrib.SetDataType(typeof(object), null);
+
+        }
+      } finally {
+        _recentUpdating = false;
+      }
     }
 
 
@@ -131,19 +155,7 @@ namespace ServiceBusMQManager {
 
       _mgr.SendCommand(tbServer.Text, queue, cmd);
 
-      var sentCmd = _history.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
-
-      int pos = _recent.IndexOf(sentCmd);
-      if( pos == -1 ) {
-        _recent.Insert(0, sentCmd);
-      
-        if( cbRecent.SelectedItem != sentCmd )
-          cbRecent.SelectedValue = sentCmd.Command;
-      
-      } else if( pos != 0 ) { 
-        _recent.Move(_recent.IndexOf(sentCmd), 0);
-      }
-
+      savedCommands.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
     }
 
     private void btnCancel_Click(object sender, RoutedEventArgs e) {
@@ -192,6 +204,7 @@ namespace ServiceBusMQManager {
       this.Top = s.WorkingArea.Top;
       this.Height = s.WorkingArea.Height;
     }
+
 
 
 

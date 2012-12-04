@@ -76,6 +76,7 @@
     <Compile Include="SystemConfig.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="TypeExtensions.cs" />
+    <Compile Include="UIStateConfig.cs" />
     <Compile Include="WindowTools.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

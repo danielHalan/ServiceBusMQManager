@@ -1,0 +1,24 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ServiceBusMQManager.Controls" x:Class="ServiceBusMQManager.Controls.SavedCommandsControl" 
+             mc:Ignorable="d" Height="77.872" Width="554.043">
+    <Grid>
+        <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20"/>
+        
+        <Grid Name="selectGrid" Visibility="Hidden">
+            <ComboBox x:Name="cbRecent" Style="{DynamicResource ComboBoxStyle1}" Margin="10,39,50,0" VerticalAlignment="Top" FontSize="16" SelectionChanged="cbRecent_SelectionChanged" />
+            <local:RoundMetroButton x:Name="btnEdit" HorizontalAlignment="Right" Margin="0,32,0,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/edit-white.png" Click="btnEdit_Click"/>
+        </Grid>
+
+        <Grid Name="editGrid" Visibility="Visible">
+
+            <local:RoundMetroButton x:Name="btnSave" HorizontalAlignment="Right" Margin="0,32,50,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/save-white.png" Click="btnSave_Click"/>
+            <local:RoundMetroButton x:Name="btnDelete" HorizontalAlignment="Right" Margin="0,32,0,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Click="btnDelete_Click"/>
+            <local:TextInputControl x:Name="tbName" Margin="10,38,95,0" VerticalAlignment="Top"/>
+
+        </Grid>
+    </Grid>
+</UserControl>

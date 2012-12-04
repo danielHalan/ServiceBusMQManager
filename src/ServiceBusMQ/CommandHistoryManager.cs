@@ -27,7 +27,8 @@ namespace ServiceBusMQ {
       if( _items == null )
         _items = new List<SavedCommand>();
     }
-    private void Save() {
+
+    public void Save() {
       JsonFile.Write(_itemsFile, _items);
     }
 
@@ -81,8 +82,10 @@ namespace ServiceBusMQ {
       return cmd;
     }
 
-
-
-
+    public void Remove(SavedCommand item) {
+      _items.Remove(item);
+      
+      Save();
+    }
   }
 }

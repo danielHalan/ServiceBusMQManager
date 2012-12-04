@@ -56,7 +56,7 @@ namespace ServiceBusMQManager {
 
     private SbmqSystem _sys;
     private IMessageManager _mgr;
-    private UIStateConfig _uiCfg = new UIStateConfig();
+    private UIStateConfig _uiCfg;
 
     private HwndSource _hwndSource;
     private System.Windows.Forms.NotifyIcon _notifyIcon;
@@ -89,6 +89,8 @@ namespace ServiceBusMQManager {
 
       _mgr = _sys.Manager;
       
+      _uiCfg = _sys.UIState;
+
       _dlg = new ContentWindow();
       
       RestoreUIState();
@@ -452,7 +454,7 @@ namespace ServiceBusMQManager {
 
     private void StoreUIState() {
 
-      _uiCfg.UpdateButtonState(this);
+      _uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
       
       _uiCfg.UpdateMainWindowState(this);
       _uiCfg.UpdateContentWindowState(_dlg);
@@ -497,8 +499,10 @@ namespace ServiceBusMQManager {
     }
 
     private void miToggleAlwaysOnTop_Click(object sender, RoutedEventArgs e) {
-    
-      SetAlwaysOnTop(!Topmost);
+
+      _uiCfg.AlwaysOnTop = !Topmost;
+
+      SetAlwaysOnTop(_uiCfg.AlwaysOnTop);
     }
 
 
