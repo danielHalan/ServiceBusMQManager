@@ -293,8 +293,10 @@ namespace ServiceBusMQManager {
           _dlg = new ContentWindow();
           _dlg.Topmost = Topmost;
 
-          _dlg.Width = _uiCfg.ContentWindowRect.Width;
-          _dlg.Height = _uiCfg.ContentWindowRect.Height;
+          if( !_uiCfg.ContentWindowRect.IsEmpty ) {
+            _dlg.Width = _uiCfg.ContentWindowRect.Width;
+            _dlg.Height = _uiCfg.ContentWindowRect.Height;
+          }
         }
 
         _dlg.SetContent(_mgr.LoadMessageContent(itm));
