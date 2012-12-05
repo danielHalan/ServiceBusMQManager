@@ -1,18 +1,4 @@
 #region File Information
-/********************************************************************
-  Project: ServiceBusMQ
-  File:    CompareObjects.cs
-  Created: 2012-11-27
-
-  Author(s):
-    Daniel Halan
-
- (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
-     all rights reserved
-
-********************************************************************/
-#endregion
-
 //VERSION 1.5.0.0
 //http://comparenetobjects.codeplex.com/
 
@@ -21,6 +7,7 @@
 
 //Uncomment to use settings from the app.config
 //#define USE_SETTINGS
+#endregion
 
 #region Includes
 using System;

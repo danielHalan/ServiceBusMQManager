@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQManager
+  File:    SelectDataTypeDialog.xaml.cs
+  Created: 2012-12-05
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
