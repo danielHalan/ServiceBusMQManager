@@ -170,6 +170,12 @@ namespace ServiceBusMQManager.Controls {
 
       BindDataPanel(p, t, value);
     }
+    internal void Clear() {
+      theStack.Children.Clear();
+      _panels.Clear();
+
+      _mainPanel = null;
+    }
 
     private void BindDataPanel(StackPanel p, Type t, object value) {
       foreach( var prop in t.GetProperties().OrderBy( pr => pr.Name ) ) {
@@ -287,7 +293,6 @@ namespace ServiceBusMQManager.Controls {
 
 
     public bool IsListItem { get; set; }
-
 
   }
 }

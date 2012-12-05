@@ -30,41 +30,59 @@ namespace ServiceBusMQ {
     CommandHistoryManager _history;
     UIStateConfig _uiState = new UIStateConfig();
 
-    public SbmqSystem() {
+    private SbmqSystem() {
     }
 
-    public void Init() {
+    private void Init() {
       AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-      
-      Config = new SystemConfig();
-      Config.Load();
+
+      Config = SystemConfig.Load();
 
       _mgr = MessageBusFactory.Create(Config.MessageBus, Config.MessageBusQueueType);
       _mgr.ErrorOccured += MessageMgr_ErrorOccured;
       _mgr.ItemsChanged += _mgr_ItemsChanged;
-      
-      _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues);
+
+      _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues, 
+                                Config.CommandDefinition);
 
       _history = new CommandHistoryManager();
+    }
 
+    static SbmqSystem _instance;
+    public static SbmqSystem Instance {
+      get {
+        if( _instance == null ) {
+          _instance = new SbmqSystem();
+          _instance.Init();
+        }
+
+        return _instance;
+      }
     }
 
 
     Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
       string asmName = args.Name.Split(',')[0];
 
-      foreach( var path in Config.CommandsAssemblyPaths ) {
-        var fileName = string.Format("{0}\\{1}.dll", path, asmName);
+      if( Config != null ) {
+        foreach( var path in Config.CommandsAssemblyPaths ) {
+          var fileName = string.Format("{0}\\{1}.dll", path, asmName);
 
-        try {
+          try {
 
-          if( File.Exists(fileName) ) {
-            return Assembly.LoadFrom(fileName);
-          }
+            if( File.Exists(fileName) ) {
+              return Assembly.LoadFrom(fileName);
+            }
 
-        } catch { }
-
+          } catch { }
+        }
       }
+
+      var fn = string.Format("{0}\\{1}.dll", Assembly.GetExecutingAssembly().Location, asmName);
+      if( File.Exists(fn) ) {
+        return Assembly.LoadFrom(fn);
+      }
+       
 
       throw new ApplicationException("Failed resolving assembly, " + args.Name);
     }
@@ -85,7 +103,7 @@ namespace ServiceBusMQ {
 
 
     public IMessageManager Manager { get { return _mgr; } }
-    public SystemConfig Config { get; private set; }
+    public SystemConfig1 Config { get; private set; }
     public CommandHistoryManager SavedCommands { get { return _history; } }
     public UIStateConfig UIState { get { return _uiState; } }
 

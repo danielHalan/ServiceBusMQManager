@@ -30,7 +30,13 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     public NServiceBus_MSMQ_Manager() {
     }
-    
+
+
+    public override string[] GetAllAvailableQueueNames() {
+      return MessageQueue.GetPrivateQueuesByMachine(_serverName).Where( q => !IsIgnoredQueue(q.QueueName) ).
+          Select( q => q.QueueName.Replace("private$\\", "") ).ToArray();
+    }
+
     protected override void LoadQueues() {
       try {
         _eventQueues.Clear();
@@ -227,8 +233,6 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     public override string BusName { get { return "NServiceBus"; } }
     public override string BusQueueType { get { return "MSMQ"; } }
-
-
 
   }
 }

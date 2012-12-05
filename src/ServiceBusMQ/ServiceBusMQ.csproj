@@ -56,6 +56,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Screen.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="SystemConfig.cs" />
+    <Compile Include="SystemConfig1.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="UIStateConfig.cs" />

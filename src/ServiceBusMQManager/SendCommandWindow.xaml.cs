@@ -32,6 +32,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
+using ServiceBusMQManager.Dialogs;
 
 namespace ServiceBusMQManager {
   /// <summary>
@@ -46,19 +47,21 @@ namespace ServiceBusMQManager {
       public string FullName { get; set; }
     }
 
-    private HwndSource _hwndSource;
+    //private HwndSource _hwndSource;
 
     string[] _asmPath;
 
     IMessageManager _mgr;
+    SbmqSystem _sys;
 
-    List<CommandItem> _commands = new List<CommandItem>();
+    ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
 
     ObservableCollection<SavedCommand> _recent = new ObservableCollection<SavedCommand>();
 
     public SendCommandWindow(SbmqSystem system) {
       InitializeComponent();
 
+      _sys = system;
       _mgr = system.Manager;
 
       _asmPath = system.Config.CommandsAssemblyPaths;
@@ -92,6 +95,8 @@ namespace ServiceBusMQManager {
     private void BindCommands() {
       var cmdTypes = _mgr.GetAvailableCommands(_asmPath);
 
+      _commands.Clear();
+
       foreach( Type t in cmdTypes ) {
         var cmd = new CommandItem();
         cmd.Type = t;
@@ -109,7 +114,7 @@ namespace ServiceBusMQManager {
 
 
     private void Window_SourceInitialized_1(object sender, EventArgs e) {
-      _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+      //_hwndSource = (HwndSource)PresentationSource.FromVisual(this);
     }
 
     private void cbCommands_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -117,7 +122,9 @@ namespace ServiceBusMQManager {
       if( !_recentUpdating ) {
         var cmd = cbCommands.SelectedItem as CommandItem;
 
-        cmdAttrib.SetDataType(cmd.Type, null);
+        if( cmd != null ) {
+          cmdAttrib.SetDataType(cmd.Type, null);
+        } else cmdAttrib.Clear();
 
         savedCommands.SelectedItem = null;
       }
@@ -169,25 +176,19 @@ namespace ServiceBusMQManager {
 
 
     private void Button_Click_1(object sender, RoutedEventArgs e) {
-      // TODO:
+      ConfigWindow dlg = new ConfigWindow(_sys.Config);
+      dlg.Owner = this;
+
+      if( dlg.ShowDialog() == true ) {
+
+        BindCommands();
+
+      }
     }
 
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-
-      CursorPosition pos = this.GetCursorPosition();
-
-      if( e.LeftButton == MouseButtonState.Pressed ) {
-        if( pos == CursorPosition.Body )
-          DragMove();
-        else ResizeWindow(pos);
-      }
-
-    }
-
-    private void ResizeWindow(CursorPosition pos) {
-      Native.SendMessage(_hwndSource.Handle, Native.WM_SYSCOMMAND,
-          (IntPtr)( 61440 + pos ), IntPtr.Zero);
+      this.MoveOrResizeWindow(e);
     }
 
 
@@ -197,7 +198,6 @@ namespace ServiceBusMQManager {
       if( pos != CursorPosition.Left && pos != CursorPosition.Right )
         Cursor = this.GetBorderCursor();
       else Cursor = Cursors.Arrow;
-
     }
 
     private void HandleMaximizeClick(object sender, RoutedEventArgs e) {

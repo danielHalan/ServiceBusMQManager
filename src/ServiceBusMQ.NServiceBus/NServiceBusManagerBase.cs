@@ -27,6 +27,7 @@ using NServiceBus;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using System.Reflection;
+using ServiceBusMQ;
 
 namespace ServiceBusMQManager.MessageBus.NServiceBus {
   public abstract class NServiceBusManagerBase : MessageManagerBase {
@@ -44,8 +45,10 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     }
 
     public override void Init(string serverName, string[] commandQueues, string[] eventQueues,
-                      string[] messageQueues, string[] errorQueues) {
-      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues);
+                      string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
+      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
+
+
 
       _ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CheckMessage.xml")).ReadToEnd();
     }
@@ -57,7 +60,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
       return string.Compare(itm.Content, _ignoreMessageBody) == 0;
     }
     public override bool IsIgnoredQueue(string queueName) {
-      return ( queueName.EndsWith("subscriptions") );
+      return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
     public override void MoveErrorItemToOriginQueue(QueueItem itm) {
@@ -154,13 +157,16 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
             foreach( Type t in asm.GetTypes() ) {
 
-              if( typeof(ICommand).IsAssignableFrom(t) ) {
+              if( _commandDef.IsCommand(t) ) 
                 arr.Add(t);
 
-              } else if( t.AssemblyQualifiedName.Contains("Commands") ) {
+              //if( typeof(ICommand).IsAssignableFrom(t) ) {
+              //  arr.Add(t);
 
-                arr.Add(t);
-              }
+              //} else if( t.AssemblyQualifiedName.Contains("Commands") ) {
+
+              //  arr.Add(t);
+              //}
 
             }
 
@@ -193,20 +199,11 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
                 .DefineEndpointName("SBMQM_NSB")
                 .DefaultBuilder()
         //.MsmqSubscriptionStorage()
-          .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.Contains(".Commands"))
-          .DefiningEventsAs(t => t.Namespace != null && t.Namespace.Contains(".Events"))
-        //.Log4Net()
+          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
                 .XmlSerializer()
-        //.PurgeOnStartup(true)
-        //.IsTransactional(true) // false before
                 .MsmqTransport()
                 .UnicastBus()
-        //.ImpersonateSender(false)
-
-       // .AutofacBuilder()
-        .SendOnly();
-      //.CreateBus()
-      //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+            .SendOnly();
 
     }
 

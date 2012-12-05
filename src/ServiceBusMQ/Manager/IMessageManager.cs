@@ -25,7 +25,7 @@ namespace ServiceBusMQ.Manager {
 
 
     void Init(string serverName, string[] commandQueues, string[] eventQueues,
-                      string[] messageQueues, string[] errorQueues);
+                      string[] messageQueues, string[] errorQueues, CommandDefinition commandDef);
 
 
     bool IsIgnoredQueueItem(QueueItem itm);
@@ -36,6 +36,8 @@ namespace ServiceBusMQ.Manager {
     bool IsIgnoredQueue(string queueName);
 
     string LoadMessageContent(QueueItem itm);
+
+    string[] GetAllAvailableQueueNames();
 
     void RefreshQueueItems();
 

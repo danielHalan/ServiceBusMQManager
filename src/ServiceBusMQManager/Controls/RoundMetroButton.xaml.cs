@@ -82,11 +82,7 @@ namespace ServiceBusMQManager.Controls {
 
     public string Source {
       get { return (string)GetValue(SourceProperty); }
-      set {
-        btn.Tag = value;
-        
-        SetValue(SourceProperty, value);
-      }
+      set { SetValue(SourceProperty, value); }
     }
   }
 }

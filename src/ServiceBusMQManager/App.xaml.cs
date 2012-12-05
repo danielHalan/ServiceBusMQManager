@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using ServiceBusMQ;
 
 namespace ServiceBusMQManager {
   /// <summary>
@@ -36,8 +37,7 @@ namespace ServiceBusMQManager {
         if( e.Args[0] == "--send" || e.Args[0] == "-s" ) {
           string cmdName = e.Args[1];
           
-          ServiceBusMQ.SbmqSystem sys = new ServiceBusMQ.SbmqSystem();
-          sys.Init();
+          var sys = SbmqSystem.Instance;
 
           var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
 

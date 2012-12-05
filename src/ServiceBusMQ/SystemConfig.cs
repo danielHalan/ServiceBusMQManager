@@ -16,55 +16,65 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ {
-  public class SystemConfig {
-
-    public string ServerName { get; set; }
-    public string[] WatchEventQueues { get; set; }
-    public string[] WatchCommandQueues { get; set; }
-    public string[] WatchMessageQueues { get; set; }
-    public string[] WatchErrorQueues { get; set; }
-
-    public string MessageBus { get; set; }
-    public string MessageBusQueueType { get; set; }
-
-    public bool ShowOnNewMessages { get; set; }
-    public int MonitorInterval { get; set; }
-
-    public string[] CommandsAssemblyPaths { get; set; }
-
-    public SystemConfig() {
-
+  public abstract class SystemConfig {
+    private static string _configFile;
     
+    private static string _configFileV1;
+
+    static SystemConfig() {
+      _configFile = _configFileV1 = SbmqSystem.AppDataPath + @"\config1.dat";
     }
 
-    public void Load() {
-      var appSett = ConfigurationManager.AppSettings;
+    protected abstract void FillDefaulValues();
 
-      MessageBus = appSett["messageBus"];
-      MessageBusQueueType = appSett["messageBusQueueType"];
+    public static SystemConfig1 Load() {
+      SystemConfig1 cfg = null; 
+
+      if( File.Exists(_configFileV1) ) {
+        cfg = JsonFile.Read<SystemConfig1>(_configFileV1);
+      
+      } else { // Old config file fallback
+
+        SystemConfig1 c = new SystemConfig1();
+
+        var appSett = ConfigurationManager.AppSettings;
+
+        c.MessageBus = appSett["messageBus"];
+        c.MessageBusQueueType = appSett["messageBusQueueType"];
 
 
-      ServerName = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
-      WatchEventQueues = ParseStringList("event.queues");
-      WatchCommandQueues = ParseStringList("command.queues");
-      WatchMessageQueues = ParseStringList("message.queues");
-      WatchErrorQueues = ParseStringList("error.queues");
+        c.ServerName = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
+        c.WatchEventQueues = ParseStringList("event.queues");
+        c.WatchCommandQueues = ParseStringList("command.queues");
+        c.WatchMessageQueues = ParseStringList("message.queues");
+        c.WatchErrorQueues = ParseStringList("error.queues");
 
-      ShowOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
+        c.ShowOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
 
-      MonitorInterval = Convert.ToInt32(appSett["interval"] ?? "700");
+        c.MonitorInterval = Convert.ToInt32(appSett["interval"] ?? "700");
 
-      CommandsAssemblyPaths = ParseStringList("commandsAssemblyPath");
+        c.CommandsAssemblyPaths = ParseStringList("commandsAssemblyPath");
+
+        cfg = c;
+      }
+
+      cfg.FillDefaulValues();
+
+      return cfg;
     }
 
 
-    private string[] ParseStringList(string name) {
+    private static string[] ParseStringList(string name) {
       return ConfigurationManager.AppSettings[name].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
     }
 
+    public void Save() {
+      JsonFile.Write(_configFile, this);
+    }
   }
 }

@@ -50,6 +50,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Ookii.Dialogs.Wpf">
+      <HintPath>..\packages\Ookii.Dialogs.Wpf\Ookii.Dialogs.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="PresentationFramework.Classic" />
     <Reference Include="PresentationFramework.Luna" />
@@ -122,6 +125,12 @@
     <Compile Include="Controls\SavedCommandsControl.xaml.cs">
       <DependentUpon>SavedCommandsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\StringListControl.xaml.cs">
+      <DependentUpon>StringListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextBoxControl.xaml.cs">
+      <DependentUpon>TextBoxControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
     </Compile>
@@ -130,6 +139,9 @@
     </Compile>
     <Compile Include="Dialogs\CreateTemplateDialog.xaml.cs">
       <DependentUpon>CreateTemplateDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SelectQueueDialog.xaml.cs">
+      <DependentUpon>SelectQueueDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="SendCommandWindow.xaml.cs">
       <DependentUpon>SendCommandWindow.xaml</DependentUpon>
@@ -188,6 +200,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\StringListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TextBoxControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\TextInputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -197,6 +217,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\CreateTemplateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SelectQueueDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

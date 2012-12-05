@@ -22,9 +22,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceBusMQ.Manager {
-  
+ 
   public class MessageBusFactory {
-  
+ 
+    public class ServiceBusManagerType { 
+      public string Name { get; private set; }
+      public List<string> QueueTypes { get; private set; }
+
+      public ServiceBusManagerType(string name, string queueType) {
+        Name = name;
+        QueueTypes = new List<string>();
+        QueueTypes.Add(queueType);
+      }
+
+    }
+ 
+
     static Assembly[] GetAssemblies() {
 
       List<Assembly> result = new List<Assembly>();
@@ -35,6 +48,26 @@ namespace ServiceBusMQ.Manager {
     
       return result.ToArray();
     }
+
+    public static ServiceBusManagerType[] AvailableServiceBusManagers() {
+      Type mgrInterface = typeof(IMessageManager);
+
+      List<ServiceBusManagerType> r = new List<ServiceBusManagerType>();
+
+      foreach( Assembly asm in GetAssemblies() )
+        foreach( var tMgr in asm.GetTypes().Where(t => mgrInterface.IsAssignableFrom(t) && !t.IsAbstract) ) {
+          IMessageManager mgr = (IMessageManager)Activator.CreateInstance(tMgr);
+
+          ServiceBusManagerType t = r.SingleOrDefault( sb => sb.Name == mgr.BusName );
+
+          if( t == null )
+            r.Add( new ServiceBusManagerType(mgr.BusName, mgr.BusQueueType) );
+          else t.QueueTypes.Add( mgr.BusQueueType);
+        }
+
+      return r.ToArray();
+    }
+
 
 
     public static IMessageManager Create(string name, string queueType) {

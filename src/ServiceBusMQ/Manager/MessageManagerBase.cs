@@ -44,6 +44,8 @@ namespace ServiceBusMQ.Manager {
     public string[] MessageQueues { get { return _watchMessageQueues; } }
     public string[] ErrorQueues { get { return _watchErrorQueues; } }
 
+    protected CommandDefinition _commandDef;
+
 
     bool _monitorCommands, _monitorEvents, _monitorMessages, _monitorErrors;
 
@@ -60,13 +62,15 @@ namespace ServiceBusMQ.Manager {
     }
 
 
-    public virtual void Init(string serverName, string[] watchCommandQueues, string[] watchEventQueues, string[] watchMessageQueues, string[] watchErrorQueues) {
+    public virtual void Init(string serverName, string[] watchCommandQueues, string[] watchEventQueues, string[] watchMessageQueues, string[] watchErrorQueues, CommandDefinition commandDef) {
 
       _serverName = serverName;
       _watchCommandQueues = watchCommandQueues;
       _watchEventQueues = watchEventQueues;
       _watchMessageQueues = watchMessageQueues;
       _watchErrorQueues = watchErrorQueues;
+
+      _commandDef = commandDef;
 
       LoadQueues();
     }
@@ -80,6 +84,8 @@ namespace ServiceBusMQ.Manager {
     }
 
     protected abstract void LoadQueues();
+
+    public abstract string[] GetAllAvailableQueueNames();
 
 
     IEnumerable<QueueItem> ProcessQueue(QueueType type) {

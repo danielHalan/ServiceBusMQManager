@@ -113,6 +113,9 @@ namespace ServiceBusMQ {
             out ret);
     }
 
+    public static bool IsValid(this string str) {
+      return !string.IsNullOrEmpty(str);
+    }
 
     public static bool TryParseToInt32(this string str, ref object value) {
       int r = 0;

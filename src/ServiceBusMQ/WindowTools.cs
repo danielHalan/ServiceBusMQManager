@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace ServiceBusMQ {
 
@@ -87,6 +88,34 @@ namespace ServiceBusMQ {
       }
 
     }
+
+    public static void MoveOrResizeWindow(this Window window, MouseButtonEventArgs e) {
+      CursorPosition pos = window.GetCursorPosition();
+
+      if( e.LeftButton == MouseButtonState.Pressed ) {
+        if( pos == CursorPosition.Body )
+          window.DragMove();
+        else ResizeWindow(window, pos);
+      }
+
+    }
+
+    static Dictionary<Window, IntPtr> _winHandles = new Dictionary<Window,IntPtr>();
+
+    private static void ResizeWindow(Window window, CursorPosition pos) {
+      IntPtr handle;
+      
+      if( _winHandles.ContainsKey(window) ) 
+        handle = _winHandles[window];
+      else {
+        HwndSource hs = (HwndSource)PresentationSource.FromVisual(window);
+        _winHandles.Add(window, handle = hs.Handle);
+      }
+
+      Native.SendMessage(handle, Native.WM_SYSCOMMAND,
+          (IntPtr)( 61440 + pos ), IntPtr.Zero);
+    }
+
 
   }
 }

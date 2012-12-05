@@ -58,7 +58,6 @@ namespace ServiceBusMQManager {
     private IMessageManager _mgr;
     private UIStateConfig _uiCfg;
 
-    private HwndSource _hwndSource;
     private System.Windows.Forms.NotifyIcon _notifyIcon;
 
 
@@ -78,14 +77,12 @@ namespace ServiceBusMQManager {
 
       lbTitle.Content = Title;
 
-      _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
     }
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
-      _sys = new SbmqSystem();
+      _sys = SbmqSystem.Instance;
       _sys.ItemsChanged += MessageMgr_ItemsChanged;
       
-      _sys.Init();
 
       _mgr = _sys.Manager;
       
@@ -366,7 +363,7 @@ namespace ServiceBusMQManager {
     }
 
     private void btnSettings_Click(object sender, RoutedEventArgs e) {
-      ConfigWindow dlg = new ConfigWindow();
+      ConfigWindow dlg = new ConfigWindow(_sys.Config);
       dlg.ShowDialog();
     }
 
@@ -427,16 +424,9 @@ namespace ServiceBusMQManager {
     
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 
-      CursorPosition pos = this.GetCursorPosition();
+      this.MoveOrResizeWindow(e);
 
-      if( e.LeftButton == MouseButtonState.Pressed ) {
-        if( pos == CursorPosition.Body )
-          DragMove();
-        else ResizeWindow(pos);
-      }
-    }
-    private void ResizeWindow(CursorPosition pos) {
-      Native.SendMessage(_hwndSource.Handle, Native.WM_SYSCOMMAND, (IntPtr)( 61440 + pos ), IntPtr.Zero);
+
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
