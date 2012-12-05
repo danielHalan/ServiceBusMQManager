@@ -67,7 +67,7 @@
             </Button>
 
 
-            <ScrollViewer Margin="0,54,0,70" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Margin="0,54,5,70" VerticalScrollBarVisibility="Auto">
 
                 <Grid Background="#575757">
                     <Grid.RowDefinitions>

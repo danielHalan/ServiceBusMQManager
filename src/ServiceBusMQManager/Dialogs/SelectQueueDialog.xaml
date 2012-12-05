@@ -55,7 +55,7 @@
 
 
 
-            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,56" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick"/>
+            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,56" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged"/>
 
             <Button HorizontalAlignment="Left" Margin="11,0,0,10" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
                 <Button.Template>
@@ -80,7 +80,7 @@
 
 
 
-            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" >
+            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="False" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -91,6 +91,9 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
                                 <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#B6B6B6" TargetName="btnBorder" />
                             </Trigger>
                             <Trigger Property="ButtonBase.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />

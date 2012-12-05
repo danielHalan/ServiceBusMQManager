@@ -104,11 +104,15 @@ namespace ServiceBusMQManager.Dialogs {
       Close();
     }
 
+
+    string[] _allQueueNames = SbmqSystem.Instance.Manager.GetAllAvailableQueueNames();
+
     private void StringListControl_AddItem_1(object sender, AddItemRoutedEventArgs e) {
       StringListControl s = sender as StringListControl;
-      
 
-      SelectQueueDialog dlg = new SelectQueueDialog(SbmqSystem.Instance.Manager.GetAllAvailableQueueNames());
+
+
+      SelectQueueDialog dlg = new SelectQueueDialog(_allQueueNames.Except( s.GetItems().ToList() ).ToArray() );
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length-1);
       dlg.Owner = this;
 

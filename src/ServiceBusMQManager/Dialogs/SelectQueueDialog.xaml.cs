@@ -63,6 +63,12 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
+    private void lbQueues_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
+      btnOK.IsEnabled = lbQueues.SelectedItem != null;
+
+    }
+
 
   }
 }
