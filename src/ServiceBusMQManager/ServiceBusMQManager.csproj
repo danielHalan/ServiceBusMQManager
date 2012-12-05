@@ -140,6 +140,9 @@
     <Compile Include="Dialogs\CreateTemplateDialog.xaml.cs">
       <DependentUpon>CreateTemplateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SelectDataTypeDialog.xaml.cs">
+      <DependentUpon>SelectDataTypeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SelectQueueDialog.xaml.cs">
       <DependentUpon>SelectQueueDialog.xaml</DependentUpon>
     </Compile>
@@ -217,6 +220,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\CreateTemplateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SelectDataTypeDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -357,6 +364,10 @@
     <Resource Include="Images\info.circle-white.png" />
     <Resource Include="Images\info.circle.png" />
     <Resource Include="Images\info.png" />
+    <Resource Include="Images\search-white.png" />
+    <Resource Include="Images\search.png" />
+    <Resource Include="Images\search-item-gray.png" />
+    <Resource Include="Images\search-item-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

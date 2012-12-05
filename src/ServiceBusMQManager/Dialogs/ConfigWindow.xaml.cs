@@ -58,6 +58,7 @@ namespace ServiceBusMQManager.Dialogs {
       cbTransport.ItemsSource = _managerTypes[0].QueueTypes;
       cbTransport.SelectedIndex = 0;
 
+      cShowOnNewMessages.IsChecked = _config.ShowOnNewMessages;
       
       queueCommands.BindItems(_config.WatchCommandQueues);
       queueEvents.BindItems(_config.WatchEventQueues);
@@ -189,6 +190,8 @@ namespace ServiceBusMQManager.Dialogs {
       _config.ServerName = tbServer.RetrieveValue() as string;
       _config.MonitorInterval = (int)tbInterval.RetrieveValue();
 
+      _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
+
       _config.WatchCommandQueues = queueCommands.GetItems();
       _config.WatchEventQueues = queueEvents.GetItems();
       _config.WatchMessageQueues = queueMessages.GetItems();
@@ -200,6 +203,17 @@ namespace ServiceBusMQManager.Dialogs {
       _config.CommandsAssemblyPaths = asmPaths.GetItems();
 
       _config.Save();
+
+    }
+
+    private void Button_Click_1(object sender, RoutedEventArgs e) {
+      SelectDataTypeDialog dlg = new SelectDataTypeDialog(asmPaths.GetItems());
+      dlg.Owner = this;
+
+      if( dlg.ShowDialog() == true ) {
+        
+        tbCmdInherits.Text = dlg.SelectedType.QualifiedName;
+      }
 
     }
   }
