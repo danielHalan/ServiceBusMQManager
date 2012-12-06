@@ -77,5 +77,9 @@ namespace ServiceBusMQ.Manager {
     void SetupBus(string[] assemblyPaths);
     void SendCommand(string destinationServer, string destinationQueue, object message);
 
+
+
+    MessageSubscription[] GetMessageSubscriptions();
+
   }
 }

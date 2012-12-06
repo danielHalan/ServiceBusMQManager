@@ -556,6 +556,12 @@ namespace ServiceBusMQManager {
       dlg.Show();
     }
 
+    private void btnViewSubscriptions_Click(object sender, RoutedEventArgs e) {
+      var dlg = new ViewSubscriptionsWindow();
+
+      dlg.Show();
+    }
+
 
 
 

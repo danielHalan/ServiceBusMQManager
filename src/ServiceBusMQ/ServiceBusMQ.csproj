@@ -67,6 +67,7 @@
     <Compile Include="Manager\MessageBusFactory.cs" />
     <Compile Include="Manager\MessageManagerBase.cs" />
     <Compile Include="Manager\NoMessageBusManagerFound.cs" />
+    <Compile Include="MessageSubscription.cs" />
     <Compile Include="Model\QueueItem.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

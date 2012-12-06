@@ -344,6 +344,31 @@
                 </Button.Template>
             </Button>
 
+            <Button x:Name="btnViewSubscriptions" Grid.Row="1" HorizontalAlignment="Left" Margin="162,0,0,8" Width="148" Grid.RowSpan="1" Click="btnViewSubscriptions_Click" >
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border x:Name="btnBorder" Margin="0,0,-8,0" BorderBrush="#1B22E0" BorderThickness="2,0,0,0" Background="#f4f4f6" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Images/Event.png" Margin="5,5,5,5" />
+                                <TextBlock x:Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0"><Run Text="View Subscriptions"/></TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="ButtonBase.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+
 
         </Grid>
     </Border>

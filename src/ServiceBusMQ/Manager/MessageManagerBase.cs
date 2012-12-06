@@ -192,5 +192,7 @@ namespace ServiceBusMQ.Manager {
     public abstract void SendCommand(string destinationServer, string destinationQueue, object message);
 
 
+    public abstract MessageSubscription[] GetMessageSubscriptions();
+
   }
 }

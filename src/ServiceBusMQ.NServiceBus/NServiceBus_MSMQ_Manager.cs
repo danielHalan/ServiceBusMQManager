@@ -202,6 +202,55 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     }
 
 
+    public override MessageSubscription[] GetMessageSubscriptions() {
+      
+      List<MessageSubscription> r = new List<MessageSubscription>();
+      
+      foreach( var q in MessageQueue.GetPrivateQueuesByMachine(_serverName).
+                                            Where(q => q.QueueName.EndsWith(".subscriptions" ) ) ) {
+
+        q.MessageReadPropertyFilter.Label = true;
+        q.MessageReadPropertyFilter.Body = true;
+
+        try {
+          var publisher = q.QueueName.Replace(".subscriptions", string.Empty).Replace("private$\\", string.Empty);
+
+          foreach( var msg in q.GetAllMessages() ) {
+
+            var itm = new MessageSubscription();
+            itm.FullName = GetSubscriptionType(ReadMessageStream(msg.BodyStream));
+            itm.Name = ParseClassName(itm.FullName);
+            itm.Subscriber = msg.Label;
+            itm.Publisher = publisher;
+
+            r.Add(itm);
+          }
+        } catch( Exception e ) {
+          OnError("Error occured when processing queue item", e, true);
+        } 
+      
+      }
+    
+      return r.ToArray();
+    }
+
+    private string ParseClassName(string asmName) {
+      
+      if( asmName.IsValid() ) {
+      
+        int iEnd = asmName.IndexOf(',');
+        int iStart = asmName.LastIndexOf('.', iEnd);
+
+        if( iEnd > -1 && iStart > -1 ) {
+          iStart++;
+          return asmName.Substring(iStart, iEnd - iStart);
+        }
+
+      }
+
+      return asmName;
+    }
+
     public override void PurgeErrorMessages(string queueName) {
       string name = "private$\\" + queueName;
 

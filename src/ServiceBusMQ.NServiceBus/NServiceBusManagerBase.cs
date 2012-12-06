@@ -115,6 +115,22 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
 
+
+    protected string GetSubscriptionType(string xml) {
+      List<string> r = new List<string>();
+      try {
+        XDocument doc = XDocument.Parse(xml);
+
+        var e = doc.Root as XElement;
+        return e.Value;
+
+
+      } catch { }
+
+      return string.Empty;
+    }
+
+
     protected string[] GetMessageNames(string xml, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
@@ -206,7 +222,6 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
             .SendOnly();
 
     }
-
     public override void SendCommand(string destinationServer, string destinationQueue, object message) {
 
 

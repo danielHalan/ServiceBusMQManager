@@ -1,0 +1,192 @@
+﻿<Window xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ServiceBusMQManager="clr-namespace:ServiceBusMQManager"  
+        xmlns:local="clr-namespace:ServiceBusMQManager.Dialogs" x:Name="frmViewSubscriptions"  
+        x:Class="ServiceBusMQManager.Dialogs.ViewSubscriptionsWindow"
+        
+        Title="View Subscriptions" Height="555.17" Width="660.213" WindowStartupLocation="CenterScreen"
+        
+                        WindowStyle="None" 
+     ResizeMode="NoResize"
+        
+        MouseDown="Grid_MouseLeftButtonDown" 
+        MouseMove="Window_MouseMove" 
+        Icon="../Images/main32ico.png" Loaded="frmViewSubscriptions_Loaded" Closing="frmViewSubscriptions_Closing"
+        
+        >
+
+    <Window.Resources>
+
+        <Style x:Key="GridViewColumnHeaderGripper" TargetType="Thumb">
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Background" Value="Silver"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <Rectangle HorizontalAlignment="Center" Width="1" Fill="{TemplateBinding Background}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <Style x:Key="{x:Type GridViewColumnHeader}" TargetType="GridViewColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Grid>
+                            <Border Name="HeaderBorder" Padding="5,0,0,0" BorderThickness="0,1,0,1" BorderBrush="#333333" Background="#333333">
+                                <ContentPresenter Name="HeaderContent" Margin="0,0,0,1"  
+                                                  VerticalAlignment="Center" 
+                                                  HorizontalAlignment="Left" 
+                                                  RecognizesAccessKey="True" 
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </Border>
+                            <Thumb x:Name="PART_HeaderGripper" HorizontalAlignment="Right" Margin="0,0,-9,0" Style="{StaticResource GridViewColumnHeaderGripper}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="#333333"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="#555555"/>
+                                <Setter TargetName="HeaderContent" Property="Margin" Value="1,1,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Role" Value="Floating">
+                    <Setter Property="Opacity" Value="0.7"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="GridViewColumnHeader">
+                                <Canvas Name="PART_FloatingHeaderCanvas">
+                                    <Rectangle Fill="#60000000" Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding ActualHeight}"/>
+                                </Canvas>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Role" Value="Padding">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="GridViewColumnHeader">
+                                <Border Name="HeaderBorder" BorderThickness="0,1,0,1" BorderBrush="#333333" Background="#555555"/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <Border BorderBrush="#1581D2"            
+            BorderThickness="1,1,1,1"
+            CornerRadius="0"
+            Background="Transparent">
+
+        <Grid>
+
+
+            <Rectangle
+    			Height="28"
+    			VerticalAlignment="Top"
+    			Fill="Transparent"
+/>
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" x:Name="lbTitle" Margin="10,0,0,0" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" Height="51" VerticalAlignment="Top" />
+            <Button
+    			HorizontalAlignment="Right"
+    			Margin="0,6,8,0"
+    			VerticalAlignment="Top"
+    			Style="{StaticResource ChromeButtonStyle}"
+    			Click="HandleCloseClick">
+                <TextBlock
+    				TextWrapping="Wrap"
+    				Text="r"
+    				FontFamily="Webdings"
+    				Foreground="DarkGray"
+    				FontSize="13.333" />
+            </Button>
+
+            <Button
+    			HorizontalAlignment="Right"
+    			Margin="0,6,28,0"
+    			VerticalAlignment="Top"
+    			Style="{StaticResource ChromeButtonStyle}"
+    			Click="HandleMaximizeClick">
+                <TextBlock
+    				TextWrapping="Wrap"
+    				Text="1"
+    				FontFamily="Webdings"
+    				Foreground="DarkGray"
+    				FontSize="13.333" />
+            </Button>
+
+
+
+            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="True" >
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" Margin="0,1,0,-1" >
+                            <TextBlock x:Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0" HorizontalAlignment="Center"><Run Text="CLOSE"/></TextBlock>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#B6B6B6" TargetName="btnBorder" />
+                            </Trigger>
+                            <Trigger Property="ButtonBase.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" FontFamily="Calibri" FontSize="15" >
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Publisher" DisplayMemberBinding="{Binding Publisher}"/>
+                        <GridViewColumn Header="Subscriber" DisplayMemberBinding="{Binding Subscriber}"/>
+                    </GridView>
+                </ListView.View>
+                <ListView.DataContext>
+                    <local:DataTypeItem/>
+                </ListView.DataContext>
+            </ListView>
+            <TextBox x:Name="tbFilter" VerticalContentAlignment="Center" BorderThickness="1.01" Height="29" Margin="11,56,15,0" TextWrapping="Wrap" VerticalAlignment="Top" TextChanged="TextBox_TextChanged_1" FontFamily="Calibri" FontSize="16">
+                <TextBox.Style>
+                    <Style  TargetType="{x:Type TextBox}">
+                        <Setter Property="BorderBrush"  Value="Gray" />
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush"  Value="#4EA6EA" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <Image Height="35" Margin="0,52,12,0" VerticalAlignment="Top" Source="/ServiceBusMQManager;component/Images/search.png" HorizontalAlignment="Right" Width="37"/>
+
+        </Grid>
+    </Border>
+</Window>
