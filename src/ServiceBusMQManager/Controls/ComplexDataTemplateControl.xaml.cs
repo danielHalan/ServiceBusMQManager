@@ -116,7 +116,7 @@ namespace ServiceBusMQManager.Controls {
 
     private void CreateTemplate_Click(object sender, RoutedEventArgs e) {
 
-      CreateTemplateDialog dlg = new CreateTemplateDialog();
+      CreateTemplateDialog dlg = new CreateTemplateDialog( _tempMgr.Templates.Select( s => s.Name ).ToArray() );
       dlg.Owner = Application.Current.Windows.OfType<SendCommandWindow>().Single();
 
       if( dlg.ShowDialog() == true ) {

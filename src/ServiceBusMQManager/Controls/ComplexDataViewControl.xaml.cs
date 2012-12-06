@@ -285,7 +285,6 @@ namespace ServiceBusMQManager.Controls {
         anim.RepeatBehavior = new RepeatBehavior(1);
         anim.Completed += (s2, e2) => { _SetDataType(t, value); };
         anim.AccelerationRatio = 0.5;
-        //anim.DecelerationRatio = 0.5;
         TranslateTransform trans = new TranslateTransform();
 
         theStack.RenderTransform = trans;
