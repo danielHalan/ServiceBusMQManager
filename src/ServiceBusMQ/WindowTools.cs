@@ -15,10 +15,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -114,6 +117,22 @@ namespace ServiceBusMQ {
 
       Native.SendMessage(handle, Native.WM_SYSCOMMAND,
           (IntPtr)( 61440 + pos ), IntPtr.Zero);
+    }
+
+
+    static string _sortColumn;
+    static ListSortDirection _sortDir;
+
+    public static void SetSortColumn(ItemsControl list, string column) {
+      _sortDir = column != _sortColumn ? ListSortDirection.Ascending : ( _sortDir == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending );
+      ICollectionView dataView = CollectionViewSource.GetDefaultView(list.ItemsSource);
+
+      dataView.SortDescriptions.Clear();
+      SortDescription sd = new SortDescription(column, _sortDir);
+      dataView.SortDescriptions.Add(sd);
+      dataView.Refresh();
+
+      _sortColumn = column;
     }
 
 

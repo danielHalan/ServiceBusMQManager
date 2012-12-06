@@ -179,10 +179,12 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" SelectionChanged="lvTypes_SelectionChanged" FontFamily="Calibri" FontSize="15" MouseDoubleClick="lvTypes_MouseDoubleClick">
+            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" 
+                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
+                      SelectionChanged="lvTypes_SelectionChanged" FontFamily="Calibri" FontSize="15" MouseDoubleClick="lvTypes_MouseDoubleClick">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"  />
                         <GridViewColumn Header="Namespace" DisplayMemberBinding="{Binding Namespace}"/>
                     </GridView>
                 </ListView.View>

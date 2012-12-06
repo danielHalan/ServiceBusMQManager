@@ -1,6 +1,22 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQManager
+  File:    ViewSubscriptionsWindow.xaml.cs
+  Created: 2012-12-06
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -18,9 +34,9 @@ namespace ServiceBusMQManager.Dialogs {
   /// Interaction logic for ViewSubscriptionsWindow.xaml
   /// </summary>
   public partial class ViewSubscriptionsWindow : Window {
-    
+
     SbmqSystem _sys = SbmqSystem.Instance;
-    
+
     Dictionary<string, MessageSubscription> _allItems = new Dictionary<string, MessageSubscription>();
 
     ObservableCollection<MessageSubscription> _items = new ObservableCollection<MessageSubscription>();
@@ -36,15 +52,25 @@ namespace ServiceBusMQManager.Dialogs {
 
       lvTypes.ItemsSource = _items;
 
+      WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
     private void LoadSubscriptionTypes() {
 
       foreach( var ms in _sys.Manager.GetMessageSubscriptions() ) {
-      
-        _allItems.Add( ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
-        
+
+        _allItems.Add(ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
+
         _items.Add(ms);
+      }
+
+    }
+
+    void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e) {
+      GridViewColumnHeader h = e.OriginalSource as GridViewColumnHeader;
+
+      if( (h != null) && (h.Role != GridViewColumnHeaderRole.Padding)) {
+        WindowTools.SetSortColumn(lvTypes, (h.Column.DisplayMemberBinding as Binding).Path.Path );
       }
 
     }

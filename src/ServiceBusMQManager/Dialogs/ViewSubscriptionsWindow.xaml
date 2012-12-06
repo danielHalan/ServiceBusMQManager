@@ -161,7 +161,8 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" FontFamily="Calibri" FontSize="15" >
+            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" FontFamily="Calibri" FontSize="15"
+                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Name}" />

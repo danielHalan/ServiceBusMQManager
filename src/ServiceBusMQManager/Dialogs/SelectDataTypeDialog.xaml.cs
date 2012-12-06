@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -78,8 +79,21 @@ namespace ServiceBusMQManager.Dialogs {
 
       lvTypes.ItemsSource = _types;
 
+      WindowTools.SetSortColumn(lvTypes, "Name");
+
       tbFilter.Focus();
     }
+
+
+    void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e) {
+      GridViewColumnHeader h = e.OriginalSource as GridViewColumnHeader;
+
+      if( ( h != null ) && ( h.Role != GridViewColumnHeaderRole.Padding ) ) {
+        WindowTools.SetSortColumn(lvTypes, ( h.Column.DisplayMemberBinding as Binding ).Path.Path);
+      }
+
+    }
+
 
     private void LoadTypes() {
       _types.Clear();
