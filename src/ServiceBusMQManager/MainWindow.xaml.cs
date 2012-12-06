@@ -56,7 +56,7 @@ namespace ServiceBusMQManager {
 
     private SbmqSystem _sys;
     private IMessageManager _mgr;
-    private UIStateConfig _uiCfg;
+    private UIStateConfig _uiState;
 
     private System.Windows.Forms.NotifyIcon _notifyIcon;
 
@@ -86,7 +86,7 @@ namespace ServiceBusMQManager {
 
       _mgr = _sys.Manager;
       
-      _uiCfg = _sys.UIState;
+      _uiState = _sys.UIState;
 
       _dlg = new ContentWindow();
       
@@ -290,10 +290,7 @@ namespace ServiceBusMQManager {
           _dlg = new ContentWindow();
           _dlg.Topmost = Topmost;
 
-          if( !_uiCfg.ContentWindowRect.IsEmpty ) {
-            _dlg.Width = _uiCfg.ContentWindowRect.Width;
-            _dlg.Height = _uiCfg.ContentWindowRect.Height;
-          }
+          _uiState.RestoreWindowState(_dlg);
         }
 
         _dlg.SetContent(_mgr.LoadMessageContent(itm));
@@ -446,47 +443,44 @@ namespace ServiceBusMQManager {
 
     private void StoreUIState() {
 
-      if( _uiCfg != null ) {
+      if( _uiState != null ) {
 
-        _uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
+        _uiState.StoreControlState(btnCmd);
+        _uiState.StoreControlState(btnEvent);
+        _uiState.StoreControlState(btnMsg);
+        _uiState.StoreControlState(btnError);
+
+        //_uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
       
-        _uiCfg.UpdateMainWindowState(this);
-        _uiCfg.UpdateContentWindowState(_dlg);
+        _uiState.StoreWindowState(this);
+        _uiState.StoreWindowState(_dlg);
       
-        _uiCfg.UpdateAlwaysOnTop(Topmost);
+        _uiState.AlwaysOnTop = Topmost;
       
-        _uiCfg.Save();
+        _uiState.Save();
 
       }
     }
     private void RestoreUIState() {
 
-      _uiCfg.Load();
+      SetAlwaysOnTop(_uiState.AlwaysOnTop);
 
-      SetAlwaysOnTop(_uiCfg.AlwaysOnTop);
+      if( !_uiState.RestoreWindowState(this) )
+        SetDefaultWindowPosition();
 
-      if( !_uiCfg.MainWindowRect.IsEmpty ) {
+      _uiState.RestoreWindowState(_dlg);
 
-        this.Left = _uiCfg.MainWindowRect.Left;
-        this.Top = _uiCfg.MainWindowRect.Top;
-        this.Width = _uiCfg.MainWindowRect.Width;
-        this.Height = _uiCfg.MainWindowRect.Height;
-      
-      } else SetDefaultWindowPosition();
+      //string selected = _uiCfg.SelectedQueues;
 
-      if( !_uiCfg.ContentWindowRect.IsEmpty ) {
+      _uiState.RestoreControlState(btnCmd, true);
+      _uiState.RestoreControlState(btnEvent, true);
+      _uiState.RestoreControlState(btnMsg, false);
+      _uiState.RestoreControlState(btnError, false);
 
-        _dlg.Width = _uiCfg.ContentWindowRect.Width;
-        _dlg.Height = _uiCfg.ContentWindowRect.Height;
-      } 
-
-
-      string selected = _uiCfg.SelectedQueues;
-
-      btnCmd.IsChecked = selected.Contains("commands");
-      btnEvent.IsChecked = selected.Contains("events");
-      btnMsg.IsChecked = selected.Contains("messages");
-      btnError.IsChecked = selected.Contains("errors");
+      //btnCmd.IsChecked = selected.Contains("commands");
+      //btnEvent.IsChecked = selected.Contains("events");
+      //btnMsg.IsChecked = selected.Contains("messages");
+      //btnError.IsChecked = selected.Contains("errors");
     }
 
     private void miClose_Click(object sender, EventArgs e) {
@@ -495,9 +489,9 @@ namespace ServiceBusMQManager {
 
     private void miToggleAlwaysOnTop_Click(object sender, RoutedEventArgs e) {
 
-      _uiCfg.AlwaysOnTop = !Topmost;
+      _uiState.AlwaysOnTop = !Topmost;
 
-      SetAlwaysOnTop(_uiCfg.AlwaysOnTop);
+      SetAlwaysOnTop(_uiState.AlwaysOnTop);
     }
 
 

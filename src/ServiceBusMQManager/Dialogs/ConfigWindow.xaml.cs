@@ -77,6 +77,10 @@ namespace ServiceBusMQManager.Dialogs {
       HandleHeight();
 
     }
+    
+    private void frmConfig_Loaded(object sender, RoutedEventArgs e) {
+      SbmqSystem.Instance.UIState.RestoreWindowState(this);
+    }
 
     private void HandleHeight() {
       var s = WpfScreen.GetScreenFrom(this);
@@ -216,5 +220,10 @@ namespace ServiceBusMQManager.Dialogs {
       }
 
     }
+
+    private void frmConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+      SbmqSystem.Instance.UIState.StoreWindowState(this);
+    }
+
   }
 }

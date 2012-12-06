@@ -146,9 +146,6 @@
     <Compile Include="Dialogs\SelectQueueDialog.xaml.cs">
       <DependentUpon>SelectQueueDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\Window1.xaml.cs">
-      <DependentUpon>Window1.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SendCommandWindow.xaml.cs">
       <DependentUpon>SendCommandWindow.xaml</DependentUpon>
     </Compile>
@@ -231,10 +228,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\SelectQueueDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\Window1.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

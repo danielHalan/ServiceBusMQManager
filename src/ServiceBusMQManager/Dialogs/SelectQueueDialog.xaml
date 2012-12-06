@@ -1,4 +1,4 @@
-﻿<Window x:Class="ServiceBusMQManager.Dialogs.SelectQueueDialog"
+﻿<Window x:Name="frmSelectQueue" x:Class="ServiceBusMQManager.Dialogs.SelectQueueDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Select Queue..." Height="377" Width="416" WindowStartupLocation="CenterOwner"

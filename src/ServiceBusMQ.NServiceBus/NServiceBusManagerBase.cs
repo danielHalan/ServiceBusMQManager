@@ -209,7 +209,11 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     public override void SendCommand(string destinationServer, string destinationQueue, object message) {
 
-      if( string.Compare(destinationServer,"localhost", true) == 0 || destinationServer == "127.0.0.1" )
+
+      
+      if( string.Compare(destinationServer,"localhost", true) == 0 ||
+          string.Compare(destinationServer, Environment.MachineName, true) == 0 ||
+           destinationServer == "127.0.0.1"  )
         destinationServer = null;
 
       string dest = !string.IsNullOrEmpty(destinationServer) ? destinationServer + "@" + destinationQueue : destinationQueue;

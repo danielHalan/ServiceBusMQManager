@@ -47,7 +47,7 @@ namespace ServiceBusMQManager.Controls {
     Stack _panels = new Stack();
 
     StackPanel _mainPanel;
-    
+
     private bool _isListItem;
 
     class PanelInfo {
@@ -63,8 +63,8 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-    private void CreateTitlePart(StackPanel p, Type type, string attribute, object value) {    
-      
+    private void CreateTitlePart(StackPanel p, Type type, string attribute, object value) {
+
       // Add Title
       var titleControl = new ComplexDataTitleControl(type.Name, _panels.Count > 0);
       titleControl.BackClick += titleControl_BackClick;
@@ -103,14 +103,14 @@ namespace ServiceBusMQManager.Controls {
       CreateTitlePart(mainPanel, type, attribute, value);
 
       double h = 0;
-      foreach(UserControl c in mainPanel.Children )
-        h+= c.Height;
+      foreach( UserControl c in mainPanel.Children )
+        h += c.Height;
 
       ScrollViewer scroller = new ScrollViewer();
       scroller.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
       scroller.CanContentScroll = false;
       scroller.Width = CONTROL_WIDTH; // 500
-      scroller.Margin = new Thickness(0,0,0,0);
+      scroller.Margin = new Thickness(0, 0, 0, 0);
       scroller.Height = this.ActualHeight - h;
       scroller.Style = FindResource("FavsScrollViewer") as Style;
 
@@ -161,6 +161,14 @@ namespace ServiceBusMQManager.Controls {
 
 
     public void SetDataType(Type t, object value) {
+
+      if( !ScrollToMainPanel(t, value) )
+        _SetDataType(t, value);
+
+    }
+
+    public void _SetDataType(Type t, object value) {
+
       theStack.Children.Clear();
       _panels.Clear();
 
@@ -170,6 +178,7 @@ namespace ServiceBusMQManager.Controls {
 
       BindDataPanel(p, t, value);
     }
+
     internal void Clear() {
       theStack.Children.Clear();
       _panels.Clear();
@@ -178,7 +187,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void BindDataPanel(StackPanel p, Type t, object value) {
-      foreach( var prop in t.GetProperties().OrderBy( pr => pr.Name ) ) {
+      foreach( var prop in t.GetProperties().OrderBy(pr => pr.Name) ) {
 
         var ctl = new AttributeControl(prop.Name, prop.PropertyType, value != null ? prop.GetValue(value, null) : null);
         ctl.DefineComplextType += ctl_DefineComplextType;
@@ -265,18 +274,42 @@ namespace ServiceBusMQManager.Controls {
       trans.BeginAnimation(TranslateTransform.XProperty, anim);
     }
 
+    private bool ScrollToMainPanel(Type t, object value) {
+
+      if( _panels.Count > 1 ) {
+
+        DoubleAnimation anim = new DoubleAnimation();
+        anim.From = ( _panels.Count ) * -CONTROL_WIDTH;
+        anim.To = 0;
+        anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 0));
+        anim.RepeatBehavior = new RepeatBehavior(1);
+        anim.Completed += (s2, e2) => { _SetDataType(t, value); };
+        anim.AccelerationRatio = 0.5;
+        //anim.DecelerationRatio = 0.5;
+        TranslateTransform trans = new TranslateTransform();
+
+        theStack.RenderTransform = trans;
+        trans.BeginAnimation(TranslateTransform.XProperty, anim);
+
+        return true;
+      
+      
+      } else return false;
+    }
+
+
     private void SetAttributeValue(StackPanel panel, string name, object value) {
       PanelInfo pi = panel.Tag as PanelInfo;
 
       AttributeControl ac = panel.Children.OfType<AttributeControl>().Where(c => c.DisplayName == name).FirstOrDefault();
-      if( ac != null )      
+      if( ac != null )
         ac.Value = value;
 
 
     }
 
 
-    public object CreateObject() { 
+    public object CreateObject() {
       return CreateTypeInstance(_mainPanel);
     }
     private object CreateTypeInstance(StackPanel panel) {

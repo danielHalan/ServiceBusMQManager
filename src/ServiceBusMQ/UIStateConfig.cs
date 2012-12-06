@@ -21,139 +21,171 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace ServiceBusMQ {
 
   public class UIStateConfig {
+    
+    private static readonly string KEY_ALWAYSONTOP = "_ALWAYSONTOP";
+    private static readonly string KEY_CONTROL = "_CTL";
+
+    public class UIWindowState {
+      public double Left { get; set; }
+      public double Top { get; set; }
+      public double Height { get; set; }
+      public double Width { get; set; }
+
+      [JsonIgnore]
+      public bool IsEmpty { get { return Left + Top + Height + Width == 0; } }
+
+      public UIWindowState() {
+      }
+
+      public UIWindowState(double left, double top, double width, double height) {
+        Left = left;
+        Top = top;
+        Width = width;
+        Height = height;
+      }
+
+    }
+
+    public class UIStateData {
+      public Dictionary<string, UIWindowState> WindowStates { get; set; }
+      public Dictionary<string, object> Values { get; set; }
+
+      public UIStateData() {
+        WindowStates = new Dictionary<string, UIWindowState>();
+        Values = new Dictionary<string, object>();
+      }
+    }
+
 
     string _fileName;
 
-    Dictionary<string, string> _config = new Dictionary<string,string>();
+    //Dictionary<string, string> _config = new Dictionary<string, string>();
 
+    UIStateData _data;
 
     public UIStateConfig() {
 
-      _fileName = SbmqSystem.AppDataPath + "\\ui.state";
+      _fileName = SbmqSystem.AppDataPath + "\\ui.state.dat";
 
-      // Set defaults
-      AlwaysOnTop = true;
-      ContentWindowRect = Rect.Empty;
-      MainWindowRect = Rect.Empty;
-      SelectedQueues = "commands;events";
+      Load();
     }
 
-    public void UpdateButtonState(bool? commands, bool? events, bool? messages, bool? errors) {
 
-      // Save pressed buttons
-      List<string> q = new List<string>();
-      if( (bool)commands )
-        q.Add("commands");
+    public void StoreWindowState(Window window) {
+      var r = new UIWindowState(window.Left, window.Top, window.Width, window.Height);
 
-      if( (bool)events )
-        q.Add("events");
+      if( !_data.WindowStates.ContainsKey(window.Name) )
+        _data.WindowStates.Add(window.Name, r);
+      else _data.WindowStates[window.Name] = r;
 
-      if( (bool)messages )
-        q.Add("messages");
-
-      if( (bool)errors )
-        q.Add("errors");
-
-      SelectedQueues = string.Join(";", q.ToArray());
-    }
-    public void UpdateMainWindowState(Window window) {
-      MainWindowRect = new Rect(new Point(window.Left, window.Top), new Size(window.Width, window.Height));
-    }
-    public void UpdateContentWindowState(Window window) {
-      ContentWindowRect = new Rect(new Point(window.Left, window.Top), new Size(window.Width, window.Height));
+      Save();
     }
 
-    public void UpdateAlwaysOnTop(bool value) {
-      AlwaysOnTop = value;
+    public void StoreControlState(Control control) {
+      object value = null;
+
+      if( control is CheckBox ) {
+        value = ( control as CheckBox ).IsChecked;
+
+      } else if( control is ToggleButton ) {
+        value = ( control as ToggleButton ).IsChecked;
+
+      } else if( control is TextBox ) {
+        value = ( control as TextBox ).Text;
+
+      } else if( control is ComboBox ) {
+        value = ( control as ComboBox ).SelectedValue;
+
+      } else return;
+
+      UpdateValue(KEY_CONTROL + control.Name, value);
+    }
+    public void RestoreControlState(Control control, object def) {
+      object value = null;
+
+      if( !GetValue(KEY_CONTROL + control.Name, out value) )
+        value = def;
+
+      if( control is CheckBox ) {
+        ( control as CheckBox ).IsChecked = (bool?)value;
+      
+      } else if( control is ToggleButton ) {
+        ( control as ToggleButton ).IsChecked = (bool?)value;
+
+      } else if( control is TextBox ) {
+        ( control as TextBox ).Text = (string)value;
+
+      } else if( control is ComboBox ) {
+        ( control as ComboBox ).SelectedValue = value;
+
+      } else return;
+
     }
 
-    public string SelectedQueues { get; private set; }
-    public Rect MainWindowRect { get; private set; }
-    public Rect ContentWindowRect { get; private set; }
-    public Boolean AlwaysOnTop { get;  set; }
+    private bool GetValue(string key, out object value) {
+      if( _data.Values.ContainsKey(key) ) {
+        value = _data.Values[key];
+        return true;
+
+      } else {
+        value = null;
+        return false;
+      }
+    }
+    private void UpdateValue(string key, object value) {
+      if( _data.Values.ContainsKey(key) )
+        _data.Values[key] = value;
+      else _data.Values.Add(key, value);
+    }
+
+    public bool RestoreWindowState(Window window) {
+
+      if( _data.WindowStates.ContainsKey(window.Name) ) {
+        var r = _data.WindowStates[window.Name];
+
+        window.Left = r.Left;
+        window.Top = r.Top;
+        window.Width = r.Width;
+        window.Height = r.Height;
+
+        return true;
+
+      } else return false;
+
+    }
+
+    private void UpdateAlwaysOnTop(bool value) {
+      UpdateValue(KEY_ALWAYSONTOP, value);
+    }
+    private bool GetAlwaysOnTop() {
+      object v;
+      if( !GetValue(KEY_ALWAYSONTOP, out v) )
+        return true; // default true
+
+      return (bool)v;
+    }
+
+    //public string SelectedQueues { get; private set; }
+    public Boolean AlwaysOnTop { get { return GetAlwaysOnTop(); } set { UpdateAlwaysOnTop(value); } }
 
     public void Save() {
-      XDocument doc = File.Exists(_fileName) ? XDocument.Load(_fileName) : new XDocument( new XElement("settings") );
-    
-      foreach( var prop in this.GetType().GetProperties() ) {
-        SetConfigValue(doc, prop.Name, GetStringValue(prop.GetValue(this, null)) );
-      }
-
-      //foreach( var k in _config)
-      //  SetConfigValue(doc, k.Key, k.Value);
-    
-      doc.Save(_fileName);
+      JsonFile.Write(_fileName, _data);
     }
+    private void Load() {
 
-    public void Load() {
-
-      XDocument doc = File.Exists(_fileName) ? XDocument.Load(_fileName) : new XDocument(new XElement("settings"));
-
-      var props = this.GetType().GetProperties().ToArray();
-      foreach( XElement e in doc.Root.Elements() ) {
-        var pr = props.Single( p => p.Name == e.Name );
-        
-        pr.SetValue(this, GetObjectValue(e.Value, pr.PropertyType), null);
-      }
-      
-
-      //foreach( var k in _config)
-      //  SetConfigValue(doc, k.Key, k.Value);
-
-      doc.Save(_fileName);
-    
-    }
-
-    private object GetObjectValue(string str, Type type) {
-      if( type == typeof(Rect) ) {
-        int[] arr = str.Split(';').Select( i => Convert.ToInt32(i) ).ToArray();
-
-        return new Rect(arr[0], arr[1], arr[2], arr[3]);
-
-
-      } else if( type == typeof(bool) )
-        return Convert.ToBoolean(str);
-        
-      else if( type == typeof(string) ) 
-        return str;
-
-      else throw new NotSupportedException("Not supported config type = " + type.ToString());
+      if( File.Exists(_fileName) )
+        _data = JsonFile.Read<UIStateData>(_fileName);
+      else _data = new UIStateData();
 
     }
 
-    private string GetStringValue(object obj) {
-      if( obj is Rect ) {
-        var r = (Rect)obj;
-        return string.Concat(Convert.ToInt32(r.Left), ';',  
-                             Convert.ToInt32(r.Top), ';', 
-                             Convert.ToInt32(r.Width), ';', 
-                             Convert.ToInt32(r.Height) );
-      
-      } else if( obj is string )
-        return (string)obj;
-      
-      else if( obj != null ) 
-        return obj.ToString();
-
-      else return string.Empty;
-    }
-
-    void SetConfigValue(string name, string value) {
-      if( _config.ContainsKey(name) )
-        _config[name] = value;
-      else _config.Add(name, value);
-    }
-
-    void SetConfigValue(XDocument doc, string name, string value) {
-      if( doc.Root.Element(name) == null )
-        doc.Root.Add(new XElement(name));
-
-      doc.Root.Element(name).Value = value;
-    }
   }
 }

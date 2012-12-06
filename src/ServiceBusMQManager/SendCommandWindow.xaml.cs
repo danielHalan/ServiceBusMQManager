@@ -47,7 +47,6 @@ namespace ServiceBusMQManager {
       public string FullName { get; set; }
     }
 
-    //private HwndSource _hwndSource;
 
     string[] _asmPath;
 
@@ -56,7 +55,6 @@ namespace ServiceBusMQManager {
 
     ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
 
-    ObservableCollection<SavedCommand> _recent = new ObservableCollection<SavedCommand>();
 
     public SendCommandWindow(SbmqSystem system) {
       InitializeComponent();
@@ -70,10 +68,7 @@ namespace ServiceBusMQManager {
 
       BindCommands();
 
-
       savedCommands.Init(system.SavedCommands);
-
-      //BindRecent();
 
 
       cbQueue.ItemsSource = system.Config.WatchCommandQueues;
@@ -81,16 +76,23 @@ namespace ServiceBusMQManager {
 
     }
 
-    //private void BindRecent() {
-    //  foreach( var cmd in _history.Items ) 
-    //    _recent.Add(cmd);
 
-    //  cbRecent.ItemsSource = _recent;
-    //  cbRecent.DisplayMemberPath = "DisplayName";
-    //  cbRecent.SelectedValuePath = "Command";
+    private void frmSendCommand_Loaded(object sender, RoutedEventArgs e) {
 
-    //  cbRecent.SelectedValue = null;
-    //}
+      _sys.UIState.RestoreControlState(tbServer, _sys.Config.ServerName);
+      _sys.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
+      
+      _sys.UIState.RestoreWindowState(this);
+
+    }
+
+    private void frmSendCommand_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+      _sys.UIState.StoreControlState(tbServer);
+      _sys.UIState.StoreControlState(cbQueue);
+
+      _sys.UIState.StoreWindowState(this);
+    }
+
 
     private void BindCommands() {
       var cmdTypes = _mgr.GetAvailableCommands(_asmPath);
@@ -175,14 +177,13 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void Button_Click_1(object sender, RoutedEventArgs e) {
+    private void btnOpenConfig_Click(object sender, RoutedEventArgs e) {
       ConfigWindow dlg = new ConfigWindow(_sys.Config);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
 
         BindCommands();
-
       }
     }
 
@@ -190,7 +191,6 @@ namespace ServiceBusMQManager {
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
       this.MoveOrResizeWindow(e);
     }
-
 
     private void Window_MouseMove(object sender, MouseEventArgs e) {
       var pos = this.GetCursorPosition();
@@ -211,13 +211,10 @@ namespace ServiceBusMQManager {
       cbCommands.IsEnabled = false;
       btnSend.IsEnabled = false;
     }
-
     private void savedCommands_ExitEditMode(object sender, RoutedEventArgs e) {
       cbCommands.IsEnabled = true;
       btnSend.IsEnabled = true;
     }
-
-
 
 
 
