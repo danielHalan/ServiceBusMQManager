@@ -36,6 +36,14 @@ namespace ServiceBusMQ.Model {
     public string[] MessageNames { get; set; }
 
     public DateTime ArrivedTime { get; set; }
+    public string ArrivedTimeString { 
+    
+      get { 
+        if( ArrivedTime.Date == DateTime.Today.Date ) {
+          return ArrivedTime.ToShortTimeString();
+        } else return string.Format("{0}/{1} {2}", ArrivedTime.Month, ArrivedTime.Day, ArrivedTime.ToShortTimeString());
+      }
+    }
 
     public string Id { get; set; }
 

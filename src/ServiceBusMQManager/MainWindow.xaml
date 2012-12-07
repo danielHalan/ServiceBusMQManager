@@ -92,6 +92,7 @@
                                     </Grid.ColumnDefinitions>
                                     <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="0,4,4,7"/>
                                     <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="12" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" />
+                                    <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,-4,10,0"  />
                                     <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,12,10,0"  />
                                     <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" FontSize="9.333" Foreground="#696969" FontStyle="Italic"/>
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,40,24" 
@@ -242,7 +243,7 @@
             </Button>
 
             <ListBox Margin="0,12,0,9" x:Name="lbItems" 
-		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0" MouseDoubleClick="lbItems_MouseDoubleClick">
+		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0">
 
                 <ListBox.Resources>
                     <!-- override the system brushes so that selected items are transparent
