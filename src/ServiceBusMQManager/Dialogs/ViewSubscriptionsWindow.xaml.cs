@@ -49,6 +49,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       Topmost = _sys.UIState.AlwaysOnTop;
 
+      tbServer.Init(_sys.Config.ServerName, typeof(string), false);
 
       LoadSubscriptionTypes();
 
@@ -65,8 +66,11 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void LoadSubscriptionTypes() {
+      var subs = _sys.Manager.GetMessageSubscriptions(tbServer.RetrieveValue<string>());
 
-      foreach( var ms in _sys.Manager.GetMessageSubscriptions() ) {
+      _allItems.Clear();
+      _items.Clear();
+      foreach( var ms in subs ) {
 
         _allItems.Add(ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
 
@@ -125,6 +129,19 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void frmViewSubscriptions_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       _sys.UIState.StoreWindowState(this);
+    }
+
+    private void TextInputControl_LostFocus_1(object sender, RoutedEventArgs e) {
+
+      try {
+        LoadSubscriptionTypes();
+        lbInfo.Content = string.Empty;
+
+      } catch { 
+        lbInfo.Content = "Could not access server";
+        tbServer.UpdateValue(_sys.Config.ServerName);
+      }
+
     }
 
 

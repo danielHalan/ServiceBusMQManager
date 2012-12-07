@@ -140,7 +140,7 @@
 
 
 
-            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="True" >
+            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,15,15" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="True" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" Margin="0,1,0,-1" >
@@ -189,6 +189,8 @@
                 </TextBox.Style>
             </TextBox>
             <Image Height="35" Margin="0,52,12,0" VerticalAlignment="Top" Source="/ServiceBusMQManager;component/Images/search.png" HorizontalAlignment="Right" Width="37"/>
+            <Controls:TextInputControl x:Name="tbServer" HorizontalAlignment="Left" Margin="18,0,0,15" LostFocus="TextInputControl_LostFocus_1" VerticalAlignment="Bottom" Width="255"/>
+            <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="278,0,0,15" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" Width="253"/>
 
         </Grid>
     </Border>

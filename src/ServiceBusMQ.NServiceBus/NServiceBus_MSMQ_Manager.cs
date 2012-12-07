@@ -211,11 +211,11 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     }
 
 
-    public override MessageSubscription[] GetMessageSubscriptions() {
+    public override MessageSubscription[] GetMessageSubscriptions(string server) {
       
       List<MessageSubscription> r = new List<MessageSubscription>();
-      
-      foreach( var q in MessageQueue.GetPrivateQueuesByMachine(_serverName).
+
+      foreach( var q in MessageQueue.GetPrivateQueuesByMachine(server).
                                             Where(q => q.QueueName.EndsWith(".subscriptions" ) ) ) {
 
         q.MessageReadPropertyFilter.Label = true;

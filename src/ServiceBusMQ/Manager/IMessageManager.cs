@@ -80,7 +80,7 @@ namespace ServiceBusMQ.Manager {
 
 
 
-    MessageSubscription[] GetMessageSubscriptions();
+    MessageSubscription[] GetMessageSubscriptions(string server);
 
   }
 }
