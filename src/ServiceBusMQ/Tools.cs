@@ -29,6 +29,12 @@ namespace ServiceBusMQ {
         if( type == typeof(DateTime) )
           return DateTime.Now;
         
+        else if( type == typeof(Guid) )
+          return Guid.Empty;
+
+        else if( type == typeof(string) )
+          return string.Empty;
+
         return Activator.CreateInstance(type);
       }
       
@@ -54,8 +60,11 @@ namespace ServiceBusMQ {
           
         else return null;
       
-      } else return System.Convert.ChangeType(obj, type);
-
+      } else {
+        if( obj != null )
+          return System.Convert.ChangeType(obj, type);
+        else return GetDefault(type);
+      }
     }
 
     public static object Convert(object obj, Type type) {

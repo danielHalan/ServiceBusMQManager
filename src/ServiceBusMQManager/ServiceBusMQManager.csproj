@@ -47,9 +47,6 @@
       <HintPath>bin\Interop.MSMQ.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Ookii.Dialogs.Wpf">
       <HintPath>..\packages\Ookii.Dialogs.Wpf\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
@@ -337,6 +334,10 @@
     <EmbeddedResource Include="Images\unpinned.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Newtonsoft.Json\Newtonsoft.Json.csproj">
+      <Project>{a9ae40ff-1a21-414a-9fe7-3be13644cc6d}</Project>
+      <Name>Newtonsoft.Json</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj">
       <Project>{621b324b-dd0a-4485-b98b-04f4b5aa40a5}</Project>
       <Name>ServiceBusMQ.NServiceBus</Name>

@@ -40,14 +40,30 @@ namespace ServiceBusMQ {
       if( File.Exists(fileName) ) {
         var s = new JsonSerializerSettings {
           TypeNameHandling = TypeNameHandling.All,
-          TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple
-
+          TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+          ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
+
+        s.ConstructorHandlingFallback = ConstFallBack;
+        
 
         return (T)JsonConvert.DeserializeObject(File.ReadAllText(fileName), typeof(T), s);
       }
 
       return default(T);
+    }
+
+    private static void ConstFallBack(object sender, ConstructorHandlingFallbackEventArgs e) {
+    
+      Dictionary<string, object> props = new Dictionary<string,object>();
+      foreach( var p in e.ObjectContract.Properties ) {
+        props.Add(p.PropertyName, Tools.GetDefault(p.PropertyType));
+      }
+
+      e.Object = Tools.CreateInstance(e.ObjectContract.UnderlyingType, props);
+ 
+      e.Handled = true;
+    
     }
 
 
