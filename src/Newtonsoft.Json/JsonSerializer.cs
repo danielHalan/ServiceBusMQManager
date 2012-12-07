@@ -36,6 +36,22 @@ using ErrorEventArgs=Newtonsoft.Json.Serialization.ErrorEventArgs;
 
 namespace Newtonsoft.Json
 {
+
+
+  public class ConstructorHandlingFallbackEventArgs : EventArgs {
+    private JsonObjectContract _objectContract;
+
+    public ConstructorHandlingFallbackEventArgs(JsonObjectContract objectContract) {
+      _objectContract = objectContract;
+    }
+
+    public JsonObjectContract ObjectContract { get { return _objectContract; } }
+
+    public object Object { get; set; }
+    public bool Handled { get; set; }
+  }
+
+
   /// <summary>
   /// Serializes and deserializes objects into and from the JSON format.
   /// The <see cref="JsonSerializer"/> enables you to control how objects are encoded into JSON.
@@ -71,6 +87,20 @@ namespace Newtonsoft.Json
     /// Occurs when the <see cref="JsonSerializer"/> errors during serialization and deserialization.
     /// </summary>
     public virtual event EventHandler<ErrorEventArgs> Error;
+
+    public virtual event EventHandler<ConstructorHandlingFallbackEventArgs> ConstructorHandlingFallback;
+
+    internal object OnConstructorHandlingFallback(JsonObjectContract objectContract) {
+      var arg = new ConstructorHandlingFallbackEventArgs(objectContract);
+      
+      if( ConstructorHandlingFallback != null )
+        ConstructorHandlingFallback(this, arg);
+
+      if( arg.Handled )
+        return arg.Object;
+      else return null;
+    }
+
 
     /// <summary>
     /// Gets or sets the <see cref="IReferenceResolver"/> used by the serializer when resolving references.
@@ -443,6 +473,9 @@ namespace Newtonsoft.Json
         if (settings.Error != null)
           jsonSerializer.Error += settings.Error;
 
+        if(settings.ConstructorHandlingFallback != null )
+          jsonSerializer.ConstructorHandlingFallback += settings.ConstructorHandlingFallback;
+
         if (settings.ContractResolver != null)
           jsonSerializer.ContractResolver = settings.ContractResolver;
         if (settings.ReferenceResolver != null)
@@ -666,5 +699,6 @@ namespace Newtonsoft.Json
       if (error != null)
         error(this, e);
     }
+
   }
 }
