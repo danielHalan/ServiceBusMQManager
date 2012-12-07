@@ -68,12 +68,12 @@ namespace ServiceBusMQManager.Dialogs {
 
     string[] _asmPaths;
 
-    public SelectDataTypeDialog(string[] asmPaths) {
+    public SelectDataTypeDialog(SbmqSystem system, string[] asmPaths) {
       InitializeComponent();
 
       _asmPaths = asmPaths;
 
-      Topmost = SbmqSystem.Instance.UIState.AlwaysOnTop;
+      Topmost = system.UIState.AlwaysOnTop;
 
       LoadTypes();
 

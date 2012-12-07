@@ -37,7 +37,8 @@ namespace ServiceBusMQ.Manager {
 
     string LoadMessageContent(QueueItem itm);
 
-    string[] GetAllAvailableQueueNames();
+    string[] GetAllAvailableQueueNames(string server);
+    bool CanAccessQueue(string server, string queueName);
 
     void RefreshQueueItems();
 

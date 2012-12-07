@@ -183,7 +183,7 @@ namespace ServiceBusMQManager {
 
 
     private void btnOpenConfig_Click(object sender, RoutedEventArgs e) {
-      ConfigWindow dlg = new ConfigWindow(_sys.Config);
+      ConfigWindow dlg = new ConfigWindow(_sys);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {

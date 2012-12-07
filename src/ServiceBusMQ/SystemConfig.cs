@@ -44,8 +44,8 @@ namespace ServiceBusMQ {
 
         var appSett = ConfigurationManager.AppSettings;
 
-        c.MessageBus = appSett["messageBus"];
-        c.MessageBusQueueType = appSett["messageBusQueueType"];
+        c.MessageBus = appSett["messageBus"] ?? "NServiceBus";
+        c.MessageBusQueueType = appSett["messageBusQueueType"] ?? "MSMQ";
 
 
         c.ServerName = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
@@ -70,7 +70,8 @@ namespace ServiceBusMQ {
 
 
     private static string[] ParseStringList(string name) {
-      return ConfigurationManager.AppSettings[name].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+      var c = ConfigurationManager.AppSettings[name];
+      return c.IsValid() ? c.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
     }
 
     public void Save() {

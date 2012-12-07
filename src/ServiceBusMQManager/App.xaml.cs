@@ -37,7 +37,7 @@ namespace ServiceBusMQManager {
         if( e.Args[0] == "--send" || e.Args[0] == "-s" ) {
           string cmdName = e.Args[1];
           
-          var sys = SbmqSystem.Instance;
+          var sys = SbmqSystem.Create();
 
           var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
 

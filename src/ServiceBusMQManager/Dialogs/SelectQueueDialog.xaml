@@ -25,7 +25,7 @@
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,0" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" Grid.RowSpan="2" />
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,319" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,8,0"
@@ -56,9 +56,9 @@
 
 
 
-            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,56" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged"/>
+            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,76" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged"/>
 
-            <Button HorizontalAlignment="Left" Margin="11,0,0,10" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
+            <Button HorizontalAlignment="Left" Margin="11,0,0,14" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -81,7 +81,7 @@
 
 
 
-            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="False" >
+            <Button x:Name="btnOK" Content="SELECT" HorizontalAlignment="Right" Margin="0,0,10,14" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="False" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -104,6 +104,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
+            <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="19,299,0,0" VerticalAlignment="Top" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" Width="370"/>
 
         </Grid>
     </Border>

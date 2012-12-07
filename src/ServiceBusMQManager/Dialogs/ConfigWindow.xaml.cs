@@ -36,16 +36,21 @@ namespace ServiceBusMQManager.Dialogs {
   /// </summary>
   public partial class ConfigWindow : Window {
 
-
+    SbmqSystem _sys;
     SystemConfig1 _config;
     MessageBusFactory.ServiceBusManagerType[] _managerTypes;
+    string[] _allQueueNames;
 
-    public ConfigWindow(SystemConfig1 config) {
+
+    public ConfigWindow(SbmqSystem system) {
       InitializeComponent();
 
-      Topmost = SbmqSystem.Instance.UIState.AlwaysOnTop;
+      Topmost = system.UIState.AlwaysOnTop;
 
-      _config = config;
+      _sys = system;
+      _config = system.Config;
+
+      _allQueueNames = _sys.Manager.GetAllAvailableQueueNames(_config.ServerName);
 
       _managerTypes = MessageBusFactory.AvailableServiceBusManagers();
 
@@ -79,7 +84,7 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void frmConfig_SourceInitialized(object sender, EventArgs e) {
-      SbmqSystem.Instance.UIState.RestoreWindowState(this);
+      _sys.UIState.RestoreWindowState(this);
     }
 
 
@@ -111,14 +116,12 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    string[] _allQueueNames = SbmqSystem.Instance.Manager.GetAllAvailableQueueNames();
-
     private void StringListControl_AddItem_1(object sender, AddItemRoutedEventArgs e) {
       StringListControl s = sender as StringListControl;
 
 
 
-      SelectQueueDialog dlg = new SelectQueueDialog(_allQueueNames.Except( s.GetItems().ToList() ).ToArray() );
+      SelectQueueDialog dlg = new SelectQueueDialog(_sys, _allQueueNames.Except( s.GetItems().ToList() ).ToArray() );
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length-1);
       dlg.Owner = this;
 
@@ -212,7 +215,7 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void Button_Click_1(object sender, RoutedEventArgs e) {
-      SelectDataTypeDialog dlg = new SelectDataTypeDialog(asmPaths.GetItems());
+      SelectDataTypeDialog dlg = new SelectDataTypeDialog(_sys, asmPaths.GetItems());
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
@@ -223,7 +226,19 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void frmConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-      SbmqSystem.Instance.UIState.StoreWindowState(this);
+      _sys.UIState.StoreWindowState(this);
+    }
+
+    private void tbServer_LostFocus_1(object sender, RoutedEventArgs e) {
+      var name = tbServer.RetrieveValue() as string;
+      try {
+        _allQueueNames = _sys.Manager.GetAllAvailableQueueNames(name);
+
+      } catch { 
+        MessageBox.Show("Can not access Message Queues at Server " + name, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        tbServer.UpdateValue(_sys.Config.ServerName);
+      }
+
     }
 
 

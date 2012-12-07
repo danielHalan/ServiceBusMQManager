@@ -81,17 +81,28 @@ namespace ServiceBusMQManager {
     }
     
     private void Window_Loaded(object sender, RoutedEventArgs e) {
+      
+      if( _mgr.EventQueues.Length == 0 && _mgr.CommandQueues.Length == 0 && _mgr.MessageQueues.Length == 0 && _mgr.ErrorQueues.Length == 0 ) {
+        
+        ShowConfigDialog();        
+      }
 
+    }
 
+    private void ShowConfigDialog() {
+      ConfigWindow dlg = new ConfigWindow(_sys);
+      
+      if( dlg.ShowDialog() == true ) { 
+        RestartSystem();
+      }
     }
 
 
     private void InitSystem() {
-      _sys = SbmqSystem.Instance;
+      _sys = SbmqSystem.Create();
       _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
       _mgr = _sys.Manager;
-
       _uiState = _sys.UIState;
 
       _dlg = new ContentWindow();
@@ -100,13 +111,25 @@ namespace ServiceBusMQManager {
 
       this.Icon = BitmapFrame.Create(_GetImageResourceStream("main.ico"));
 
-
       lbItems.ItemsSource = _mgr.Items;
-
 
       SetupContextMenu();
 
       SetupQueueMonitorTimer(_sys.Config.MonitorInterval);    
+    }
+
+    private void RestartSystem() {
+      _timer.Stop();
+
+      _sys = SbmqSystem.Create();
+      _sys.ItemsChanged += MessageMgr_ItemsChanged;
+
+      _mgr = _sys.Manager;
+      _uiState = _sys.UIState;
+
+      lbItems.ItemsSource = _mgr.Items;
+
+      _timer.Start();
     }
 
 
@@ -157,6 +180,7 @@ namespace ServiceBusMQManager {
     }
 
     bool _showingActivityTrayIcon;
+    private DispatcherTimer _timer;
     void ShowActivityTrayIcon() {
       
       if( !_showingActivityTrayIcon ) {     
@@ -187,11 +211,11 @@ namespace ServiceBusMQManager {
 
 
     private void SetupQueueMonitorTimer(int ms) {
-      var timer = new DispatcherTimer();
-      timer.Interval = TimeSpan.FromMilliseconds(ms);
-      timer.Tick += timer_Tick;
+      _timer = new DispatcherTimer();
+      _timer.Interval = TimeSpan.FromMilliseconds(ms);
+      _timer.Tick += timer_Tick;
 
-      timer.Start();
+      _timer.Start();
     }
 
     private void UpdateButtonLabel(ToggleButton btn) {
@@ -375,8 +399,7 @@ namespace ServiceBusMQManager {
     }
 
     private void btnSettings_Click(object sender, RoutedEventArgs e) {
-      ConfigWindow dlg = new ConfigWindow(_sys.Config);
-      dlg.ShowDialog();
+      ShowConfigDialog();
     }
 
     private void SnapWindowToEdge() {
@@ -569,7 +592,7 @@ namespace ServiceBusMQManager {
     }
 
     private void btnViewSubscriptions_Click(object sender, RoutedEventArgs e) {
-      var dlg = new ViewSubscriptionsWindow();
+      var dlg = new ViewSubscriptionsWindow(_sys);
 
       dlg.Show();
     }

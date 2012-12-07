@@ -85,7 +85,8 @@ namespace ServiceBusMQ.Manager {
 
     protected abstract void LoadQueues();
 
-    public abstract string[] GetAllAvailableQueueNames();
+    public abstract string[] GetAllAvailableQueueNames(string server);
+    public abstract bool CanAccessQueue(string server, string queueName);
 
 
     IEnumerable<QueueItem> ProcessQueue(QueueType type) {
@@ -115,8 +116,8 @@ namespace ServiceBusMQ.Manager {
 
     public void RefreshQueueItems() {
 
-      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 )
-        OnError("No queues has been configured. \n\nPlease add the queues you want to monitor in ServiceBusMQManager.exe.config, and try again.", true);
+      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 && _watchErrorQueues.Length == 0 )
+        return;
 
       List<QueueItem> items = new List<QueueItem>();
 
@@ -193,6 +194,6 @@ namespace ServiceBusMQ.Manager {
 
 
     public abstract MessageSubscription[] GetMessageSubscriptions();
-
   }
+
 }

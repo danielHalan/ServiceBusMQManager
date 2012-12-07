@@ -42,22 +42,18 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += MessageMgr_ErrorOccured;
       _mgr.ItemsChanged += _mgr_ItemsChanged;
 
-      _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues, 
+      _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues,
                                 Config.CommandDefinition);
 
       _history = new CommandHistoryManager();
     }
 
     static SbmqSystem _instance;
-    public static SbmqSystem Instance {
-      get {
-        if( _instance == null ) {
-          _instance = new SbmqSystem();
-          _instance.Init();
-        }
+    public static SbmqSystem Create() {
+      _instance = new SbmqSystem();
+      _instance.Init();
 
-        return _instance;
-      }
+      return _instance;
     }
 
 
@@ -82,7 +78,7 @@ namespace ServiceBusMQ {
       if( File.Exists(fn) ) {
         return Assembly.LoadFrom(fn);
       }
-       
+
 
       throw new ApplicationException("Failed resolving assembly, " + args.Name);
     }

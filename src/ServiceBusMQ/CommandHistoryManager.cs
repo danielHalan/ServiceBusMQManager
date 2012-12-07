@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using KellermanSoftware.CompareNetObjects;
@@ -23,28 +24,52 @@ namespace ServiceBusMQ {
   public class CommandHistoryManager {
 
 
-    string _itemsFile;
+    string _itemsFolder;
 
-    List<SavedCommand> _items;
+    List<SavedCommand> _items = new List<SavedCommand>();
 
     public IEnumerable<SavedCommand> Items { get { return _items.OrderByDescending( i => i.LastSent ); } }
 
     public CommandHistoryManager() {
 
-      _itemsFile = SbmqSystem.AppDataPath + @"\commands.dat";
+      _itemsFolder = SbmqSystem.AppDataPath + @"\savedCommands\";
+
+      if( !Directory.Exists(_itemsFolder) )
+        Directory.CreateDirectory(_itemsFolder);
 
       Load();
     }
 
     private void Load() {
-      _items = JsonFile.Read<List<SavedCommand>>(_itemsFile);
 
-      if( _items == null )
-        _items = new List<SavedCommand>();
+      foreach( var file in Directory.GetFiles(_itemsFolder, "*.cmd") ) {
+        try {
+          _items.Add( JsonFile.Read<SavedCommand>(file) );
+        } catch { }
+      }
+
     }
 
     public void Save() {
-      JsonFile.Write(_itemsFile, _items);
+
+      foreach( var cmd in _items ) {
+        if( !cmd.FileName.IsValid() )
+          cmd.FileName = GetAvailableFileName();
+
+        JsonFile.Write(cmd.FileName, cmd);
+      }
+
+    }
+
+    private string GetAvailableFileName() {
+      string fileName;
+      
+      int i = 0;
+      do {
+        fileName = string.Format("{0}{1}.cmd", _itemsFolder, ++i);
+      } while( File.Exists( fileName ) );
+      
+      return string.Format("{0}.cmd", i);
     }
 
     public void RenameCommand(string displayName, object command) {

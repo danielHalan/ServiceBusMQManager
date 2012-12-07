@@ -22,6 +22,7 @@ namespace ServiceBusMQ {
   public class SavedCommand {
 
     public string DisplayName { get; set; }
+    public string FileName { get; set; }
 
     public object Command { get; set; }
 

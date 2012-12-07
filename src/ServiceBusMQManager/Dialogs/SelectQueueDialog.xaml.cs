@@ -34,10 +34,14 @@ namespace ServiceBusMQManager.Dialogs {
   /// </summary>
   public partial class SelectQueueDialog : Window {
     
-    public SelectQueueDialog(string[] queueNames) {
+    SbmqSystem _sys;
+
+    public SelectQueueDialog(SbmqSystem system, string[] queueNames) {
       InitializeComponent();
 
-      Topmost = SbmqSystem.Instance.UIState.AlwaysOnTop;
+      _sys = system;
+
+      Topmost = system.UIState.AlwaysOnTop;
 
       lbQueues.ItemsSource = queueNames;
     }
@@ -71,7 +75,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void lbQueues_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
 
-      if( lbQueues.SelectedIndex > -1 ) {
+      if( btnOK.IsEnabled ) {
         SelectedQueueName = lbQueues.SelectedItem as string;
         DialogResult = true;
       }
@@ -79,7 +83,21 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void lbQueues_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      btnOK.IsEnabled = lbQueues.SelectedItem != null;
+    
+      if( lbQueues.SelectedItem != null ) {
+        if( !_sys.Manager.CanAccessQueue(_sys.Config.ServerName, lbQueues.SelectedItem as string ) ) {
+          lbInfo.Content = "You don't have read access to queue " + lbQueues.SelectedItem;
+          btnOK.IsEnabled = false;
+
+        } else { 
+          btnOK.IsEnabled = true;
+          lbInfo.Content = string.Empty;
+        }
+
+      } else { 
+        btnOK.IsEnabled = false;
+        lbInfo.Content = string.Empty;
+      }
     }
 
 

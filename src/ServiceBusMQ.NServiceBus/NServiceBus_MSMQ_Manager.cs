@@ -32,10 +32,20 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     }
 
 
-    public override string[] GetAllAvailableQueueNames() {
-      return MessageQueue.GetPrivateQueuesByMachine(_serverName).Where( q => !IsIgnoredQueue(q.QueueName) ).
+    public override string[] GetAllAvailableQueueNames(string server) {
+      return MessageQueue.GetPrivateQueuesByMachine(server).Where( q => !IsIgnoredQueue(q.QueueName) ).
           Select( q => q.QueueName.Replace("private$\\", "") ).ToArray();
     }
+    public override bool CanAccessQueue(string server, string queueName) {
+      if( !queueName.StartsWith("private$\\") )
+        queueName = "private$\\" + queueName;
+
+      var queue = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName == queueName).FirstOrDefault();
+
+      return queue != null ? queue.CanRead : false;
+    }
+
+
 
     protected override void LoadQueues() {
       try {
@@ -131,7 +141,6 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
         if( IsIgnoredQueue(qName) )
           continue;
 
-
         q.MessageReadPropertyFilter.ArrivedTime = true;
         q.MessageReadPropertyFilter.Label = true;
         q.MessageReadPropertyFilter.Body = true;
@@ -162,7 +171,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
             }
           }
         } catch( Exception e ) {
-          OnError("Error occured when processing queue item", e, true);
+          OnError("Error occured when processing queue " + qName + ", " + e.Message, e, false);
         } 
 
       }
@@ -282,6 +291,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     public override string BusName { get { return "NServiceBus"; } }
     public override string BusQueueType { get { return "MSMQ"; } }
+
 
   }
 }

@@ -46,8 +46,7 @@ namespace ServiceBusMQ {
 
         s.ConstructorHandlingFallback = ConstFallBack;
         
-
-        return (T)JsonConvert.DeserializeObject(File.ReadAllText(fileName), typeof(T), s);
+          return (T)JsonConvert.DeserializeObject(File.ReadAllText(fileName), typeof(T), s);
       }
 
       return default(T);

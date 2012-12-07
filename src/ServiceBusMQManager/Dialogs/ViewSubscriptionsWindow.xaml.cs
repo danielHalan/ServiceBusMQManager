@@ -35,15 +35,17 @@ namespace ServiceBusMQManager.Dialogs {
   /// </summary>
   public partial class ViewSubscriptionsWindow : Window {
 
-    SbmqSystem _sys = SbmqSystem.Instance;
+    SbmqSystem _sys;
 
     Dictionary<string, MessageSubscription> _allItems = new Dictionary<string, MessageSubscription>();
 
     ObservableCollection<MessageSubscription> _items = new ObservableCollection<MessageSubscription>();
 
 
-    public ViewSubscriptionsWindow() {
+    public ViewSubscriptionsWindow(SbmqSystem system) {
       InitializeComponent();
+
+      _sys = system;
 
       Topmost = _sys.UIState.AlwaysOnTop;
 

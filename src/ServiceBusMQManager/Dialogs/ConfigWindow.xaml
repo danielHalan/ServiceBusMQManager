@@ -92,7 +92,7 @@
                     <Label Content="Transportation: " HorizontalAlignment="Left" Margin="182,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107"/>
                     <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="182,31,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" Width="132" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28"/>
                     <Label Content="Server:" HorizontalAlignment="Left" Margin="335,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="53" Grid.Column="0" Grid.ColumnSpan="2"/>
-                    <Controls:TextInputControl x:Name="tbServer" Margin="335,33,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" Grid.Row="1" Height="30" Grid.Column="0" HorizontalAlignment="Left" Width="187" />
+                    <Controls:TextInputControl x:Name="tbServer" Margin="335,33,0,0" LostFocus="tbServer_LostFocus_1" Grid.ColumnSpan="2" VerticalAlignment="Top" Grid.Row="1" Height="30" Grid.Column="0" HorizontalAlignment="Left" Width="187" />
                     <Label Content="Refresh Intervall:" HorizontalAlignment="Left" Margin="25,70,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
                     <Controls:TextInputControl x:Name="tbInterval" HorizontalAlignment="Left" Margin="25,98,0,0" VerticalAlignment="Top" Width="113" Grid.Row="1" Height="30"/>
                    
