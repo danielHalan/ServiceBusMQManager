@@ -1,3 +1,17 @@
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    CollectionUtils.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
 #region License
 // Copyright (c) 2007 James Newton-King
 //
@@ -312,7 +326,7 @@ namespace Newtonsoft.Json.Utilities
     /// <param name="list">A sequence in which to locate a value.</param>
     /// <param name="value">The object to locate in the sequence</param>
     /// <param name="comparer">An equality comparer to compare values.</param>
-    /// <returns>The zero-based index of the first occurrence of value within the entire sequence, if found; otherwise, –1.</returns>
+    /// <returns>The zero-based index of the first occurrence of value within the entire sequence, if found; otherwise, ï¿½1.</returns>
     public static int IndexOf<TSource>(this IEnumerable<TSource> list, TSource value, IEqualityComparer<TSource> comparer)
     {
       int index = 0;

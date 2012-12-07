@@ -1,4 +1,18 @@
-﻿#if !(SILVERLIGHT || PORTABLE || NETFX_CORE)
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    DiagnosticsTraceWriter.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
+#if !(SILVERLIGHT || PORTABLE || NETFX_CORE)
 using System;
 using System.Diagnostics;
 using DiagnosticsTrace = System.Diagnostics.Trace;

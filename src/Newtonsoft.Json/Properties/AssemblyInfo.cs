@@ -1,3 +1,17 @@
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    AssemblyInfo.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
 #region License
 // Copyright (c) 2007 James Newton-King
 //
@@ -65,7 +79,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Newtonsoft")]
 [assembly: AssemblyProduct("Json.NET")]
-[assembly: AssemblyCopyright("Copyright © James Newton-King 2008")]
+[assembly: AssemblyCopyright("Copyright ï¿½ James Newton-King 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

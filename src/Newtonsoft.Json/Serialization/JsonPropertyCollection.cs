@@ -1,3 +1,17 @@
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    JsonPropertyCollection.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
 #region License
 // Copyright (c) 2007 James Newton-King
 //

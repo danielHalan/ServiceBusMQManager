@@ -1,4 +1,18 @@
-﻿#if (NETFX_CORE || SILVERLIGHT || PORTABLE)
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    TraceLevel.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
+#if (NETFX_CORE || SILVERLIGHT || PORTABLE)
 using Newtonsoft.Json.Serialization;
 
 namespace Newtonsoft.Json

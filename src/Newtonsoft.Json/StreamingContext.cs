@@ -1,4 +1,18 @@
-﻿#if PocketPC
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    StreamingContext.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
+#if PocketPC
 #pragma warning disable 1591
 
 // This class is... borrowed from .NET and Microsoft for a short time.

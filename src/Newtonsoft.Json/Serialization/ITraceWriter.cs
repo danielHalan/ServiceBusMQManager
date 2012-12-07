@@ -1,4 +1,18 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: Newtonsoft.Json
+  File:    ITraceWriter.cs
+  Created: 2012-11-20
+
+  Author(s):
+    James Newton-King
+
+ (C) Copyright 2007 James Newton-King
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 namespace Newtonsoft.Json.Serialization
