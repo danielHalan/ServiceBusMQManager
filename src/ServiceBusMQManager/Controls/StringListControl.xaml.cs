@@ -89,6 +89,7 @@ namespace ServiceBusMQManager.Controls {
 
       Grid g = new Grid();
       g.Background = Brushes.Gray;
+      g.Margin = new Thickness(10,1,0,1);
 
       TextBlock tb = new TextBlock();
       tb.FontSize = 18;

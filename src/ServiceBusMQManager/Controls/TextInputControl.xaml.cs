@@ -52,7 +52,7 @@ namespace ServiceBusMQManager.Controls {
   public partial class TextInputControl : UserControl, IInputControl {
 
     readonly SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Color.FromRgb(78, 166, 234));
-    readonly SolidColorBrush BORDER_NORMAL = new SolidColorBrush(Colors.Black);
+    readonly SolidColorBrush BORDER_NORMAL = new SolidColorBrush(Colors.DarkGray);
     readonly SolidColorBrush BORDER_LISTITEM = new SolidColorBrush(Color.FromRgb(201,201,201));
 
 
@@ -170,10 +170,14 @@ namespace ServiceBusMQManager.Controls {
 
 
     public object RetrieveValue() {
-
       UpdateValueFromControl();
 
       return _value;
+    }
+    public T RetrieveValue<T>() {
+      UpdateValueFromControl();
+
+      return (T)_value;
     }
 
     public bool IsListItem {
@@ -231,11 +235,11 @@ namespace ServiceBusMQManager.Controls {
 
       } else if( tb.IsFocused ) {
         tb.BorderBrush = BORDER_SELECTED;
-        tb.BorderThickness = new Thickness(1, 2, 2, 2);
+        tb.BorderThickness = new Thickness(1.01, 2, 2, 2);
       } else {
 
         if( !_isListItem ) {
-          tb.BorderThickness = new Thickness(1);
+          tb.BorderThickness = new Thickness(1.01);
           tb.BorderBrush = BORDER_NORMAL;
         
         } else {
@@ -263,6 +267,29 @@ namespace ServiceBusMQManager.Controls {
       }
 
     }
+    private void tb_PreviewKeyDown_1(object sender, KeyEventArgs e) {
+
+      if( e.Key == Key.Up ) {
+
+        if( _dataType.IsInteger() ) {
+          UpdateValue( (int)_value + 1 );
+
+        } else if( _dataType.IsAnyFloatType() ) {
+          UpdateValue((int)_value + 0.5);
+        }
+      
+      } else if( e.Key == Key.Down ) {
+        
+        if( _dataType.IsInteger() ) {
+          UpdateValue((int)_value - 1);
+
+        } else if( _dataType.IsAnyFloatType() ) {
+          UpdateValue((int)_value - 0.5);
+        }
+      
+      }
+
+    }
 
     private void tb_LostFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
@@ -284,5 +311,6 @@ namespace ServiceBusMQManager.Controls {
     internal void FocusTextBox() {
       tb.Focus();
     }
+
   }
 }

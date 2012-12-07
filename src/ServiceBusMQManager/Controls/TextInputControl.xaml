@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="300">
     <Grid Name="theGrid">
-        <TextBox Name="tb" BorderBrush="Gray" BorderThickness="2" Margin="0,0,0,0" FontSize="16"  VerticalContentAlignment="Center" TextChanged="tb_TextChanged" PreviewTextInput="tb_PreviewTextInput" LostFocus="tb_LostFocus" GotFocus="tb_GotFocus" FontFamily="Calibri">
+        <TextBox Name="tb" BorderBrush="Gray" PreviewKeyDown="tb_PreviewKeyDown_1" BorderThickness="1.01" Margin="0,0,0,0" FontSize="16"  VerticalContentAlignment="Center" TextChanged="tb_TextChanged" PreviewTextInput="tb_PreviewTextInput" LostFocus="tb_LostFocus" GotFocus="tb_GotFocus" FontFamily="Calibri">
         </TextBox>
         <Button x:Name="btn" Visibility="Hidden" Width="80" HorizontalAlignment="Right" Margin="0,0,0,0">
             <Button.Template>
