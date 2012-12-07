@@ -242,7 +242,7 @@
             </Button>
 
             <ListBox Margin="0,12,0,9" x:Name="lbItems" 
-		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0">
+		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0" MouseDoubleClick="lbItems_MouseDoubleClick">
 
                 <ListBox.Resources>
                     <!-- override the system brushes so that selected items are transparent

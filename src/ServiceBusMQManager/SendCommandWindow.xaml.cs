@@ -55,7 +55,10 @@ namespace ServiceBusMQManager {
 
     ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
 
-
+    bool _recentUpdating = false;
+    bool _isBusStarted = false;
+    
+    
     public SendCommandWindow(SbmqSystem system) {
       InitializeComponent();
 
@@ -77,15 +80,12 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void frmSendCommand_Loaded(object sender, RoutedEventArgs e) {
-
+    private void Window_SourceInitialized(object sender, EventArgs e) {
       _sys.UIState.RestoreControlState(tbServer, _sys.Config.ServerName);
       _sys.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
-      
+
       _sys.UIState.RestoreWindowState(this);
-
     }
-
     private void frmSendCommand_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       _sys.UIState.StoreControlState(tbServer);
       _sys.UIState.StoreControlState(cbQueue);
@@ -113,11 +113,11 @@ namespace ServiceBusMQManager {
       cbCommands.SelectedValuePath = "FullName";
       cbCommands.SelectedValue = null;
     }
-
-
-    private void Window_SourceInitialized_1(object sender, EventArgs e) {
-      //_hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+    private void UpdateSendButton() {
+      btnSend.IsEnabled = cmdAttrib.IsValid;
     }
+
+
 
     private void cbCommands_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       
@@ -129,10 +129,10 @@ namespace ServiceBusMQManager {
         } else cmdAttrib.Clear();
 
         savedCommands.SelectedItem = null;
+
+        UpdateSendButton();
       }
     }
-
-    bool _recentUpdating = false;
     private void savedCommands_SavedCommandSelected(object sender, RoutedEventArgs e) {
       var recent = savedCommands.SelectedItem;
 
@@ -150,25 +150,30 @@ namespace ServiceBusMQManager {
         }
       } finally {
         _recentUpdating = false;
+        
+        UpdateSendButton();
       }
     }
 
 
-    bool _isBusStarted = false;
-
     private void btnSend_Click(object sender, RoutedEventArgs e) {
+      
+      if( btnSend.IsEnabled ) {
+        btnSend.IsEnabled = false;
 
-      if( !_isBusStarted )
-        _mgr.SetupBus(_asmPath);
+        if( !_isBusStarted )
+          _mgr.SetupBus(_asmPath);
 
-      var cmd = cmdAttrib.CreateObject();
-      var queue = (string)cbQueue.SelectedItem;
+        var cmd = cmdAttrib.CreateObject();
+        var queue = (string)cbQueue.SelectedItem;
 
-      _mgr.SendCommand(tbServer.Text, queue, cmd);
+        _mgr.SendCommand(tbServer.Text, queue, cmd);
 
-      savedCommands.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+        savedCommands.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+
+        Close();
+      }
     }
-
     private void btnCancel_Click(object sender, RoutedEventArgs e) {
       Close();
     }
@@ -191,7 +196,6 @@ namespace ServiceBusMQManager {
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
       this.MoveOrResizeWindow(e);
     }
-
     private void Window_MouseMove(object sender, MouseEventArgs e) {
       var pos = this.GetCursorPosition();
 
@@ -199,7 +203,6 @@ namespace ServiceBusMQManager {
         Cursor = this.GetBorderCursor();
       else Cursor = Cursors.Arrow;
     }
-
     private void HandleMaximizeClick(object sender, RoutedEventArgs e) {
       var s = WpfScreen.GetScreenFrom(this);
 

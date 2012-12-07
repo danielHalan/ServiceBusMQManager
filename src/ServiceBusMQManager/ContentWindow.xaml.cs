@@ -54,7 +54,7 @@ namespace ServiceBusMQManager {
     }
 
     void ContentWindow_SourceInitialized(object sender, EventArgs e) {
-      _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+
     }
 
 
@@ -100,25 +100,10 @@ namespace ServiceBusMQManager {
       Scintilla t = w32.Child as Scintilla;
 
       t.Text = FormatXml(xml);
-
-      //tbContent.Text = xml;
     }
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-
-      CursorPosition pos = this.GetCursorPosition();
-
-      if( e.LeftButton == MouseButtonState.Pressed ) {
-        if( pos == CursorPosition.Body )
-          DragMove();
-        else ResizeWindow(pos);
-      }
-
-    }
-
-    private void ResizeWindow(CursorPosition pos) {
-      Native.SendMessage(_hwndSource.Handle, Native.WM_SYSCOMMAND,
-          (IntPtr)( 61440 + pos ), IntPtr.Zero);
+      this.MoveOrResizeWindow(e);
     }
 
     private void HandleCloseClick(Object sender, RoutedEventArgs e) {

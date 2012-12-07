@@ -9,7 +9,7 @@
             MinHeight="500"
                 WindowStyle="None" 
      ResizeMode="NoResize"
-        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized_1" Icon="Images/main32ico.png" Loaded="frmSendCommand_Loaded" Closing="frmSendCommand_Closing"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized" Icon="Images/main32ico.png"  Closing="frmSendCommand_Closing"
 
     >
     <Window.Resources>
@@ -67,12 +67,12 @@
             </Button>
 
 
-            <Button x:Name="btnSend" Margin="0,0,17,17" HorizontalAlignment="Right" Width="91" Height="29" VerticalAlignment="Bottom" Click="btnSend_Click" FontFamily="Segoe UI" Grid.Row="1">
+            <Button x:Name="btnSend" Margin="0,0,17,17" Tag="SEND" IsEnabled="False" HorizontalAlignment="Right" Width="91" Height="29" VerticalAlignment="Bottom" Click="btnSend_Click" FontFamily="Segoe UI" Grid.Row="1">
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="15,0,0,0">SEND</TextBlock>
+                                <TextBlock Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="15,0,0,0" Text="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}" />
                                 <Image Source="Images/appbar.email.minimal-white.png" Height="50" Margin="-1,-10,0,0" />
                             </StackPanel>
                         </Border>
@@ -84,6 +84,9 @@
                             </Trigger>
                             <Trigger Property="Button.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#B6B6B6" TargetName="btnBorder" />
                             </Trigger>
                         </ControlTemplate.Triggers>
 

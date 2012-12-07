@@ -5,7 +5,7 @@
         MinWidth="600"
         WindowStyle="None" 
         ResizeMode="NoResize"
-        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove"  Icon="../Images/main32ico.png" Closing="frmConfig_Closing" Loaded="frmConfig_Loaded"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove"  Icon="../Images/main32ico.png" Closing="frmConfig_Closing" SourceInitialized="frmConfig_SourceInitialized"
         >
 
     <Window.Resources>

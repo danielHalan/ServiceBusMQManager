@@ -77,19 +77,25 @@ namespace ServiceBusMQManager {
 
       lbTitle.Content = Title;
 
+      InitSystem();
     }
+    
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
+
+    }
+
+
+    private void InitSystem() {
       _sys = SbmqSystem.Instance;
       _sys.ItemsChanged += MessageMgr_ItemsChanged;
-      
 
       _mgr = _sys.Manager;
-      
+
       _uiState = _sys.UIState;
 
       _dlg = new ContentWindow();
-      
+
       RestoreUIState();
 
       this.Icon = BitmapFrame.Create(_GetImageResourceStream("main.ico"));
@@ -100,9 +106,8 @@ namespace ServiceBusMQManager {
 
       SetupContextMenu();
 
-      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
+      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);    
     }
-
 
 
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
@@ -352,6 +357,16 @@ namespace ServiceBusMQManager {
       SetSelectedItem(itm);
     }
 
+    private void lbItems_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+      var itm = ( lbItems.SelectedItem as QueueItem );
+
+      if( itm != null && _dlg != null && !_dlg.IsVisible && _dlgShown ) {
+        SetSelectedItem(itm);
+      }
+
+    }
+
+
     private void btnClearDeleted_Click(object sender, RoutedEventArgs e) {
 
       _mgr.ClearDeletedItems();
@@ -420,10 +435,7 @@ namespace ServiceBusMQManager {
     }
     
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-
       this.MoveOrResizeWindow(e);
-
-
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {

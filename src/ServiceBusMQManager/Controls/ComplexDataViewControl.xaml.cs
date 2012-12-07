@@ -57,6 +57,10 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
+    public bool IsValid {
+      get { return _panels.Count > 0 && _mainPanel != null; }
+    }
+
     public ComplexDataViewControl() {
       InitializeComponent();
 
@@ -309,7 +313,7 @@ namespace ServiceBusMQManager.Controls {
 
 
     public object CreateObject() {
-      return CreateTypeInstance(_mainPanel);
+      return IsValid ? CreateTypeInstance(_mainPanel) : null;
     }
     private object CreateTypeInstance(StackPanel panel) {
       Dictionary<string, object> values = new Dictionary<string, object>();

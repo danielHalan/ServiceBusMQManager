@@ -12,7 +12,9 @@
         
         MouseDown="Grid_MouseLeftButtonDown" 
         MouseMove="Window_MouseMove" 
-        Icon="../Images/main32ico.png" Loaded="frmViewSubscriptions_Loaded" Closing="frmViewSubscriptions_Closing"
+        Icon="../Images/main32ico.png"
+        Closing="frmViewSubscriptions_Closing" 
+        SourceInitialized="frmViewSubscriptions_SourceInitialized"
         
         >
 

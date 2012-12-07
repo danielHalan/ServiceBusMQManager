@@ -55,6 +55,13 @@ namespace ServiceBusMQManager.Dialogs {
       WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
+
+    private void frmViewSubscriptions_SourceInitialized(object sender, EventArgs e) {
+      _sys.UIState.RestoreWindowState(this);
+
+      tbFilter.Focus();
+    }
+
     private void LoadSubscriptionTypes() {
 
       foreach( var ms in _sys.Manager.GetMessageSubscriptions() ) {
@@ -112,10 +119,6 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {
       Close();
-    }
-
-    private void frmViewSubscriptions_Loaded(object sender, RoutedEventArgs e) {
-      _sys.UIState.RestoreWindowState(this);
     }
 
     private void frmViewSubscriptions_Closing(object sender, System.ComponentModel.CancelEventArgs e) {

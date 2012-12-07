@@ -33,7 +33,13 @@ namespace ServiceBusMQ {
     private static readonly string KEY_ALWAYSONTOP = "_ALWAYSONTOP";
     private static readonly string KEY_CONTROL = "_CTL";
 
+
+    public enum WindowPositionType { Custom, TopLeft, BottomLeft, TopRight, BottomRight }
+
     public class UIWindowState {
+
+      public WindowPositionType WindowPosition { get; set; }
+      
       public double Left { get; set; }
       public double Top { get; set; }
       public double Height { get; set; }
@@ -43,9 +49,16 @@ namespace ServiceBusMQ {
       public bool IsEmpty { get { return Left + Top + Height + Width == 0; } }
 
       public UIWindowState() {
+        WindowPosition = WindowPositionType.Custom;
+      }
+
+      public UIWindowState(WindowPositionType winPos) {
+        WindowPosition = winPos;
       }
 
       public UIWindowState(double left, double top, double width, double height) {
+        WindowPosition = WindowPositionType.Custom;
+
         Left = left;
         Top = top;
         Width = width;
@@ -67,8 +80,6 @@ namespace ServiceBusMQ {
 
     string _fileName;
 
-    //Dictionary<string, string> _config = new Dictionary<string, string>();
-
     UIStateData _data;
 
     public UIStateConfig() {
@@ -80,7 +91,12 @@ namespace ServiceBusMQ {
 
 
     public void StoreWindowState(Window window) {
-      var r = new UIWindowState(window.Left, window.Top, window.Width, window.Height);
+      WindowPositionType winPos = GetWindowPosition(window);
+
+
+      var r = winPos == WindowPositionType.Custom ? 
+        new UIWindowState(window.Left, window.Top, window.Width, window.Height) : 
+        new UIWindowState(winPos);
 
       if( !_data.WindowStates.ContainsKey(window.Name) )
         _data.WindowStates.Add(window.Name, r);
@@ -88,6 +104,69 @@ namespace ServiceBusMQ {
 
       Save();
     }
+
+    private WindowPositionType GetWindowPosition(Window w) {
+      var s = WpfScreen.GetScreenFrom(w).WorkingArea;
+      
+      if( (w.Left + w.Width) == s.Width ) {
+
+        if( w.Top == 0 )
+          return WindowPositionType.TopRight;
+
+        else if( w.Top + w.Height == s.Height )
+          return WindowPositionType.BottomRight;
+
+      } else if( w.Left == 0 ) {
+      
+        if( w.Top == 0 )
+          return WindowPositionType.TopLeft;
+
+        else if( w.Top + w.Height == s.Height )
+          return WindowPositionType.BottomLeft;
+      
+      }
+
+      return WindowPositionType.Custom;
+    }
+    private void SetWindowPosition(Window w, WindowPositionType winPos) {
+      var s = WpfScreen.GetScreenFrom(w).WorkingArea;
+
+      switch(winPos) {
+
+        case WindowPositionType.BottomRight:
+          w.Top = s.Height - w.Height;
+          w.Left = s.Width - w.Width;
+          break;
+
+        case WindowPositionType.TopLeft:
+          w.Top = 0;
+          w.Left = 0;
+          break;
+
+        case WindowPositionType.BottomLeft:
+          w.Top = s.Height - w.Height;
+          w.Left = 0;
+          break;
+
+        case WindowPositionType.TopRight:
+          w.Top = 0;
+          w.Left = s.Width - w.Width;
+          break;
+
+      }
+    }
+    private void MakeSureVisibility(Window w) {
+      var s = WpfScreen.GetScreenFrom(w).WorkingArea;
+      
+      if( w.Left + w.Width > s.Width )
+        w.Left = s.Width - w.Width;
+
+      if( w.Top + w.Height > s.Height )
+        w.Top = s.Height - w.Height;
+
+    }
+
+
 
     public void StoreControlState(Control control) {
       object value = null;
@@ -151,16 +230,24 @@ namespace ServiceBusMQ {
       if( _data.WindowStates.ContainsKey(window.Name) ) {
         var r = _data.WindowStates[window.Name];
 
-        window.Left = r.Left;
-        window.Top = r.Top;
-        window.Width = r.Width;
-        window.Height = r.Height;
+        if( r.WindowPosition == WindowPositionType.Custom ) {
+
+          window.Left = r.Left;
+          window.Top = r.Top;
+          window.Width = r.Width;
+          window.Height = r.Height;
+
+          MakeSureVisibility(window);
+
+        } else SetWindowPosition(window, r.WindowPosition);
+
 
         return true;
 
       } else return false;
 
     }
+
 
     private void UpdateAlwaysOnTop(bool value) {
       UpdateValue(KEY_ALWAYSONTOP, value);
@@ -173,7 +260,6 @@ namespace ServiceBusMQ {
       return (bool)v;
     }
 
-    //public string SelectedQueues { get; private set; }
     public Boolean AlwaysOnTop { get { return GetAlwaysOnTop(); } set { UpdateAlwaysOnTop(value); } }
 
     public void Save() {
