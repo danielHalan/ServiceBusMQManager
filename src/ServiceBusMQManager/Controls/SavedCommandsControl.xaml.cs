@@ -125,6 +125,8 @@ namespace ServiceBusMQManager.Controls {
     private void cbRecent_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       var recent = cbRecent.SelectedItem as SavedCommand;
 
+      btnEdit.IsEnabled = recent != null;
+
       OnSavedCommandSelected(recent);
     }
 

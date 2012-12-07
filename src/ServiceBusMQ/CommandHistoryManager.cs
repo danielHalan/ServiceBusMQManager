@@ -56,7 +56,7 @@ namespace ServiceBusMQ {
         if( !cmd.FileName.IsValid() )
           cmd.FileName = GetAvailableFileName();
 
-        JsonFile.Write(cmd.FileName, cmd);
+        JsonFile.Write( _itemsFolder + cmd.FileName, cmd);
       }
 
     }
