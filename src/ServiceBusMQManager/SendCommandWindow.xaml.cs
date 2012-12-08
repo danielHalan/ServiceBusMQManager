@@ -16,11 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -155,25 +157,45 @@ namespace ServiceBusMQManager {
       }
     }
 
+    void DoSetupBus(object sender, DoWorkEventArgs e) {
+
+      if( !_isBusStarted )
+        _mgr.SetupBus(_asmPath);
+
+    }
+    void DoSendCommand(object sender, RunWorkerCompletedEventArgs e) {
+
+      var queue = cbQueue.SelectedItem as string;
+      _mgr.SendCommand(tbServer.Text, queue, _cmd);
+
+      savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+      
+      Close();
+    }
+
+    object _cmd;
 
     private void btnSend_Click(object sender, RoutedEventArgs e) {
       
+
+
       if( btnSend.IsEnabled ) {
         btnSend.IsEnabled = false;
 
-        if( !_isBusStarted )
-          _mgr.SetupBus(_asmPath);
+        _cmd = cmdAttrib.CreateObject();
 
-        var cmd = cmdAttrib.CreateObject();
-        var queue = (string)cbQueue.SelectedItem;
-
-        _mgr.SendCommand(tbServer.Text, queue, cmd);
-
-        savedCommands.CommandSent(cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
-
-        Close();
+        var thread = new BackgroundWorker();
+        thread.DoWork += DoSetupBus;
+        thread.RunWorkerCompleted += DoSendCommand;
+        
+        thread.RunWorkerAsync(cbQueue.SelectedItem);
+        
       }
     }
+
+
+
+
     private void btnCancel_Click(object sender, RoutedEventArgs e) {
       Close();
     }

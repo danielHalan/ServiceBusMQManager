@@ -17,13 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace ServiceBusMQ {
 
@@ -133,6 +136,35 @@ namespace ServiceBusMQ {
       dataView.Refresh();
 
       _sortColumn = column;
+    }
+
+
+    /// <summary>
+    /// Sleeps for the specified milisecs.
+    /// </summary>
+    /// <param name="milisec">The milisec.</param>
+    public static void Sleep(int milisec) {
+
+      for( int i = 0; i < ( milisec / 10 ); i++ ) {
+        Thread.Sleep(10);
+        DoEvents();
+      }
+    }
+
+    /// <summary>
+    /// Do the windows events.
+    /// </summary>
+    [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
+    public static void DoEvents() {
+      DispatcherFrame frame = new DispatcherFrame();
+      Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background,
+          new DispatcherOperationCallback(ExitFrame), frame);
+      Dispatcher.PushFrame(frame);
+    }
+    static object ExitFrame(object f) {
+      ( (DispatcherFrame)f ).Continue = false;
+
+      return null;
     }
 
 

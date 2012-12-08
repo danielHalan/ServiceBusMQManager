@@ -166,7 +166,7 @@ namespace ServiceBusMQManager.Controls {
 
     public void SetDataType(Type t, object value) {
 
-      if( !ScrollToMainPanel(t, value) )
+      if( !ScrollToMainPanel( () => _SetDataType(t, value), 0) )
         _SetDataType(t, value);
 
     }
@@ -278,16 +278,16 @@ namespace ServiceBusMQManager.Controls {
       trans.BeginAnimation(TranslateTransform.XProperty, anim);
     }
 
-    private bool ScrollToMainPanel(Type t, object value) {
+    private bool ScrollToMainPanel(Action onCompleted, int scrollTime) {
 
       if( _panels.Count > 1 ) {
 
         DoubleAnimation anim = new DoubleAnimation();
         anim.From = ( _panels.Count ) * -CONTROL_WIDTH;
         anim.To = 0;
-        anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 0));
+        anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, scrollTime));
         anim.RepeatBehavior = new RepeatBehavior(1);
-        anim.Completed += (s2, e2) => { _SetDataType(t, value); };
+        anim.Completed += (s2, e2) => { onCompleted();  };
         anim.AccelerationRatio = 0.5;
         TranslateTransform trans = new TranslateTransform();
 
@@ -313,7 +313,25 @@ namespace ServiceBusMQManager.Controls {
 
 
     public object CreateObject() {
-      return IsValid ? CreateTypeInstance(_mainPanel) : null;
+      if( IsValid ) {
+      
+        if( _panels.Count > 1 )
+          ScrollToMainPanel(Tools.NOOP, 500);
+
+        while( _panels.Count > 1 ) {
+          var p = _panels.Pop() as StackPanel;
+          PanelInfo pi = p.Tag as PanelInfo;
+
+          object instance = CreateTypeInstance(p);
+
+          var currPanel = _panels.Peek() as StackPanel;
+
+          SetAttributeValue(currPanel, pi.AttributeName, instance);
+        }
+
+        return CreateTypeInstance(_mainPanel);
+      } else return null;
+    
     }
     private object CreateTypeInstance(StackPanel panel) {
       Dictionary<string, object> values = new Dictionary<string, object>();
