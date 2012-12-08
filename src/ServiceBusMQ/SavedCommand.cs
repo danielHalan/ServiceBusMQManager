@@ -17,11 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace ServiceBusMQ {
   public class SavedCommand {
 
     public string DisplayName { get; set; }
+    
+    [JsonIgnore]
     public string FileName { get; set; }
 
     public object Command { get; set; }

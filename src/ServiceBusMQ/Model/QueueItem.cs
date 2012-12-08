@@ -41,7 +41,7 @@ namespace ServiceBusMQ.Model {
       get { 
         if( ArrivedTime.Date == DateTime.Today.Date ) {
           return ArrivedTime.ToShortTimeString();
-        } else return string.Format("{0}/{1} {2}", ArrivedTime.Month, ArrivedTime.Day, ArrivedTime.ToShortTimeString());
+        } else return string.Format("{1}/{0} {2}", ArrivedTime.Month, ArrivedTime.Day, ArrivedTime.ToShortTimeString());
       }
     }
 

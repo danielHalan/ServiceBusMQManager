@@ -44,7 +44,10 @@ namespace ServiceBusMQ {
 
       foreach( var file in Directory.GetFiles(_itemsFolder, "*.cmd") ) {
         try {
-          _items.Add( JsonFile.Read<SavedCommand>(file) );
+          var cmd = JsonFile.Read<SavedCommand>(file);
+          cmd.FileName = file;
+
+          _items.Add( cmd );
         } catch { }
       }
 
@@ -56,7 +59,7 @@ namespace ServiceBusMQ {
         if( !cmd.FileName.IsValid() )
           cmd.FileName = GetAvailableFileName();
 
-        JsonFile.Write( _itemsFolder + cmd.FileName, cmd);
+        JsonFile.Write( cmd.FileName, cmd);
       }
 
     }
@@ -68,8 +71,8 @@ namespace ServiceBusMQ {
       do {
         fileName = string.Format("{0}{1}.cmd", _itemsFolder, ++i);
       } while( File.Exists( fileName ) );
-      
-      return string.Format("{0}.cmd", i);
+
+      return fileName;
     }
 
     public void RenameCommand(string displayName, object command) {

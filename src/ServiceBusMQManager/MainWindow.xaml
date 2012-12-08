@@ -92,8 +92,8 @@
                                     </Grid.ColumnDefinitions>
                                     <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="0,4,4,7"/>
                                     <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="12" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" />
-                                    <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,-4,10,0"  />
-                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,12,10,0"  />
+                                    <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0"  />
+                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0"  />
                                     <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" FontSize="9.333" Foreground="#696969" FontStyle="Italic"/>
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,40,24" 
                                                Height="1" StrokeThickness="1" Stroke="Transparent"/>
@@ -103,6 +103,7 @@
                                     <DataTrigger Binding="{Binding Deleted}" Value="True">
                                         <Setter Property="Foreground" TargetName="lbName" Value="Gray" />
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="Gray" />
+                                        <Setter Property="Foreground" TargetName="lbDate" Value="Gray" />
                                         <Setter Property="Stroke" TargetName="StrikeThrough" Value="Gray"/>
                                     </DataTrigger>
 
@@ -111,6 +112,7 @@
                                         <Setter Property="Foreground" TargetName="lbName" Value="White"/>
                                         <Setter Property="Foreground" TargetName="lbId" Value="#DEDEDE"/>
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="White"/>
+                                        <Setter Property="Foreground" TargetName="lbDate" Value="White"/>
                                         <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
                                     </Trigger>
                                     <MultiTrigger>
@@ -118,7 +120,7 @@
                                             <Condition Property="IsSelected" Value="true"/>
                                             <Condition Property="Selector.IsSelectionActive" Value="false"/>
                                         </MultiTrigger.Conditions>
-                                        <!-- NET 4.5 Release later in 2013
+                                        <!-- NET 4.5 Feature, Release later in 2013
                                         <Setter Property="Background" TargetName="panel" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
                                         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
                                         -->
@@ -126,6 +128,7 @@
                                         <Setter Property="Foreground" TargetName="lbName" Value="Black"/>
                                         <Setter Property="Foreground" TargetName="lbId" Value="#4D4D4D"/>
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="Black"/>
+                                        <Setter Property="Foreground" TargetName="lbDate" Value="#4D4D4D"/>
                                     </MultiTrigger>
                                     <Trigger Property="IsEnabled" Value="false">
                                         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
