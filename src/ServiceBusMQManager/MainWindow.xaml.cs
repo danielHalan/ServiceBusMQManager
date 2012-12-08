@@ -127,9 +127,18 @@ namespace ServiceBusMQManager {
       _mgr = _sys.Manager;
       _uiState = _sys.UIState;
 
+      RestoreMonitorQueueState();
+
       lbItems.ItemsSource = _mgr.Items;
 
       _timer.Start();
+    }
+
+    private void RestoreMonitorQueueState() {
+      _mgr.MonitorCommands = btnCmd.IsChecked == true;
+      _mgr.MonitorEvents = btnEvent.IsChecked == true;
+      _mgr.MonitorMessages = btnMsg.IsChecked == true;
+      _mgr.MonitorErrors = btnError.IsChecked == true;
     }
 
 
@@ -315,23 +324,28 @@ namespace ServiceBusMQManager {
 
       if( itm != null && itm.Content != null ) {
 
-        if( !_dlg.IsVisible && _dlgShown ) {
+        if( _dlgShown && !_dlg.IsVisible ) {
           _dlg = new ContentWindow();
           _dlg.Topmost = Topmost;
 
           _uiState.RestoreWindowState(_dlg);
+
+          _dlgShown = false;
+          UpdateContentWindow();
         }
 
         _dlg.SetContent(_mgr.LoadMessageContent(itm));
 
-        _dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
-        _dlg.Top = this.Top - _dlg.Height;
+        //_dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
+        //_dlg.Top = this.Top - _dlg.Height;
         _dlg.SetTitle(itm.Id);
 
 
-        _dlg.Show();
+        if( !_dlgShown ) {
+          _dlg.Show();
 
-        _dlgShown = true;
+          _dlgShown = true;
+        }
 
         UpdateContextMenu(itm);
       } else {
@@ -505,17 +519,10 @@ namespace ServiceBusMQManager {
 
       _uiState.RestoreWindowState(_dlg);
 
-      //string selected = _uiCfg.SelectedQueues;
-
       _uiState.RestoreControlState(btnCmd, true);
       _uiState.RestoreControlState(btnEvent, true);
       _uiState.RestoreControlState(btnMsg, false);
       _uiState.RestoreControlState(btnError, false);
-
-      //btnCmd.IsChecked = selected.Contains("commands");
-      //btnEvent.IsChecked = selected.Contains("events");
-      //btnMsg.IsChecked = selected.Contains("messages");
-      //btnError.IsChecked = selected.Contains("errors");
     }
 
     private void miClose_Click(object sender, EventArgs e) {

@@ -140,7 +140,7 @@
                     <Label Content="Inherits:" HorizontalAlignment="Left" Margin="77,60,0,0" VerticalAlignment="Top" Grid.Row="7" Height="28" Width="61" FontSize="16"/>
 
                     <Controls:TextInputControl x:Name="tbNamespace" HorizontalAlignment="Left" Height="27" Margin="77,157,0,0" VerticalAlignment="Top" Width="347" Grid.Row="7" FontFamily="Calibri" FontSize="16" Grid.ColumnSpan="2" />
-                    <Label Content="Namespace contains:" HorizontalAlignment="Left" Margin="74,131,0,0" VerticalAlignment="Top" Grid.Row="7" Height="28" Width="157" FontSize="16"/>
+                    <Label Content="Namespace contains" HorizontalAlignment="Left" Margin="74,131,0,0" VerticalAlignment="Top" Grid.Row="7" Height="28" Width="157" FontSize="16"/>
 
                     <Controls:StringListControl Grid.Row="3" x:Name="queueCommands"  Title="Command queues"  VerticalAlignment="Top" Margin="20,0,18,0"  AddItem="StringListControl_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" />
                     <Controls:StringListControl Grid.Row="3" x:Name="queueEvents" Title="Event queues" VerticalAlignment="Top" Margin="16,0,20,0"  AddItem="StringListControl_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.Column="1"/>

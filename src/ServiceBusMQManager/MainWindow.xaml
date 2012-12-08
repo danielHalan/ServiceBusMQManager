@@ -29,7 +29,7 @@
 
 
 
-        <Grid Margin="0,0,0,-60">
+        <Grid Margin="0,0,0,0">
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Name="miToggleOnTop" Header="Always on Top" Click="miToggleAlwaysOnTop_Click" IsChecked="True" />
@@ -353,7 +353,7 @@
                     <ControlTemplate>
                         <Border x:Name="btnBorder" Margin="0,0,-8,0" BorderBrush="#1B22E0" BorderThickness="2,0,0,0" Background="#f4f4f6" >
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="Images/Event.png" Margin="5,5,5,5" />
+                                <Image Source="Images/viewSubs.png" Margin="5,5,5,5" />
                                 <TextBlock x:Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0"><Run Text="View Subscriptions"/></TextBlock>
                             </StackPanel>
                         </Border>

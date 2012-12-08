@@ -376,6 +376,10 @@
     <Resource Include="Images\search.png" />
     <Resource Include="Images\search-item-gray.png" />
     <Resource Include="Images\search-item-white.png" />
+    <Resource Include="Images\lightbulb.png" />
+    <Resource Include="Images\lightbulb2.png" />
+    <Resource Include="Images\lightbulb-gray.png" />
+    <Resource Include="Images\viewSubs.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
