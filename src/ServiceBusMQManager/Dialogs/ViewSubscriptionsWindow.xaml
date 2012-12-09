@@ -109,7 +109,8 @@
     			VerticalAlignment="Top"
     			Fill="Transparent"
 />
-            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" x:Name="lbTitle" Margin="10,0,0,0" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" Height="51" VerticalAlignment="Top" />
+            <Image Source="/ServiceBusMQManager;component/Images/viewSubs.png"  Width="40" Height="40" Margin="10,4,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" x:Name="lbTitle" Margin="55,4,0,0" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" Height="47" VerticalAlignment="Top" />
             <Button
     			HorizontalAlignment="Right"
     			Margin="0,6,8,0"

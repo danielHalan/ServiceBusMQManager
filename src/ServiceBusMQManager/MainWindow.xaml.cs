@@ -130,6 +130,7 @@ namespace ServiceBusMQManager {
 
       lbItems.ItemsSource = _mgr.Items;
 
+      _timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
       _timer.Start();
     }
 
@@ -315,6 +316,7 @@ namespace ServiceBusMQManager {
 
     private void MessageMgr_ItemsChanged(object sender, EventArgs e) {
 
+      Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
       // Update button labels
       UpdateButtonLabel(btnCmd);
@@ -330,6 +332,8 @@ namespace ServiceBusMQManager {
       // Show Window
       if( _sys.Config.ShowOnNewMessages && !this.IsVisible )
         this.Show();
+
+      }));
     }
     private void timer_Tick(object sender, EventArgs e) {
       _sys.Manager.RefreshQueueItems();
@@ -555,6 +559,8 @@ namespace ServiceBusMQManager {
       _notifyIcon.Visible = false;
 
       StoreUIState();
+
+      _sys.Manager.Dispose();
     }
 
 

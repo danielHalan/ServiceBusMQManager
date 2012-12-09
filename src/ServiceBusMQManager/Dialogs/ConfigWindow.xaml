@@ -92,15 +92,15 @@
                     <Label Content="Transportation " HorizontalAlignment="Left" Margin="182,3,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107"/>
                     <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="182,31,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" Width="132" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28"/>
                     <Label Content="Server" HorizontalAlignment="Left" Margin="334,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="53" Grid.Column="0" Grid.ColumnSpan="2"/>
-                    <Controls:TextInputControl x:Name="tbServer" Margin="3,31,0,0" LostFocus="tbServer_LostFocus_1" VerticalAlignment="Top" Grid.Row="1" Height="30" Grid.Column="1" HorizontalAlignment="Left" Width="271" />
+                    <Controls:TextInputControl x:Name="tbServer" Margin="335,31,0,0" LostFocus="tbServer_LostFocus_1" VerticalAlignment="Top" Grid.Row="1" Height="30" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="271" />
                     <Label Content="Refresh Intervall" HorizontalAlignment="Left" Margin="25,70,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
                     <Controls:TextInputControl x:Name="tbInterval" HorizontalAlignment="Left" Margin="25,98,0,0" VerticalAlignment="Top" Width="113" Grid.Row="1" Height="30"/>
                    
                     
                     <CheckBox Name="cShowOnNewMessages" Content="Popup when new messages arrive" 
-                              HorizontalAlignment="Left" Margin="34,84,0,0" 
+                              HorizontalAlignment="Left" Margin="366,84,0,0" 
                               VerticalAlignment="Top" 
-                              FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF555555" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
+                              FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF555555" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="0" Grid.ColumnSpan="2">
                         <CheckBox.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="1.22" ScaleY="1.22"/>
@@ -152,9 +152,9 @@
                     <Label Content="or" HorizontalAlignment="Left" Margin="32,101,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="7" Height="42" Width="37"/>
                     <Label Content="ms" HorizontalAlignment="Left" Margin="143,98,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="40" FontSize="18"/>
                     <CheckBox x:Name="cCheckForNewVer" Content="Check for new versions" 
-                    	HorizontalAlignment="Left" Margin="34,114,0,0" 
+                    	HorizontalAlignment="Left" Margin="366,114,0,0" 
                     	VerticalAlignment="Top" 
-                    	FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF555555" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
+                    	FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF555555" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="0" Grid.ColumnSpan="2" >
                         <CheckBox.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="1.22" ScaleY="1.22"/>

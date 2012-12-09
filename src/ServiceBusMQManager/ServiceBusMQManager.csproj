@@ -387,6 +387,7 @@
     <Resource Include="Images\lightbulb2.png" />
     <Resource Include="Images\lightbulb-gray.png" />
     <Resource Include="Images\viewSubs.png" />
+    <Resource Include="Images\Command-send-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

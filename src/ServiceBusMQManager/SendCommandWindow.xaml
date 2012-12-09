@@ -35,7 +35,10 @@
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Name="lbTitle" Margin="10,0,0,0" Foreground="LightGray" FontFamily="Segoe UI Light" FontSize="20" Grid.RowSpan="2" >
+
+            <Image Source="Images/Command-send-white.png"  Width="40" Height="40" Margin="10,4,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+
+            <Label Name="lbTitle" Margin="55,2,0,0" Height="40" VerticalAlignment="Top" Foreground="LightGray" FontFamily="Segoe UI Light" FontSize="20" >
             Send Command
             </Label>
             <Button

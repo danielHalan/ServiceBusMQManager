@@ -98,22 +98,26 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
 
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
-      if( type == QueueType.Command )
-        return DoFetchQueueItems(_cmdQueues, type, currentItems);
-
-      else if( type == QueueType.Event )
-        return DoFetchQueueItems(_eventQueues, type, currentItems);
-
-      else if( type == QueueType.Message )
-        return DoFetchQueueItems(_msgQueues, type, currentItems);
-
-      else if( type == QueueType.Error )
-        return DoFetchQueueItems(_errorQueues, type, currentItems);
-
-      else return EMPTY_LIST;
-    }
+      return DoFetchQueueItems(GetQueueListByType(type), type, currentItems);
+   }
     protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
+    protected List<MessageQueue> GetQueueListByType(QueueType type) {
+
+      if( type == QueueType.Command )
+        return _cmdQueues;
+
+      else if( type == QueueType.Event )
+        return _eventQueues;
+
+      else if( type == QueueType.Message )
+        return _msgQueues;
+
+      else if( type == QueueType.Error )
+        return _errorQueues;
+
+      return null;
+    }
 
 
     protected string GetSubscriptionType(string xml) {

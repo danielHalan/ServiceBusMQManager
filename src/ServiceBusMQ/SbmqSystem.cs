@@ -19,8 +19,10 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Threading;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ {
@@ -85,7 +87,8 @@ namespace ServiceBusMQ {
 
 
     void _mgr_ItemsChanged(object sender, EventArgs e) {
-      OnItemsChanged();
+      _itemsChanged.Invoke(sender, e);
+      //Dispatcher.CurrentDispatcher.BeginInvoke( _itemsChanged );
     }
 
     private void MessageMgr_ErrorOccured(object sender, ErrorArgs e) {
@@ -119,11 +122,24 @@ namespace ServiceBusMQ {
     }
 
 
-    public event EventHandler<EventArgs> ItemsChanged;
-    protected void OnItemsChanged() {
-      if( ItemsChanged != null )
-        ItemsChanged(this, EventArgs.Empty);
+    protected EventHandler _itemsChanged;
+
+    public event EventHandler ItemsChanged {
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      add {
+        _itemsChanged = (EventHandler)Delegate.Combine(_itemsChanged, value);
+      }
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      remove {
+        _itemsChanged = (EventHandler)Delegate.Remove(_itemsChanged, value);
+      }
     }
+
+    //public event EventHandler<EventArgs> ItemsChanged;
+    //protected void OnItemsChanged() {
+    //  if( ItemsChanged != null )
+    //    ItemsChanged(this, EventArgs.Empty);
+    //}
 
 
   }

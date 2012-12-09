@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.Manager {
-  public interface IMessageManager {
+  public interface IMessageManager : IDisposable {
 
 
     void Init(string serverName, string[] commandQueues, string[] eventQueues,
@@ -68,7 +68,7 @@ namespace ServiceBusMQ.Manager {
     List<QueueItem> Items { get; }
 
 
-    event EventHandler<EventArgs> ItemsChanged;
+    event EventHandler ItemsChanged;
     event EventHandler<ErrorArgs> ErrorOccured;
 
     void ClearDeletedItems();

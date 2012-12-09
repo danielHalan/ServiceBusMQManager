@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ServiceBusMQ.Model;
@@ -28,7 +29,9 @@ namespace ServiceBusMQ.Manager {
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
-    protected List<QueueItem> _items = new List<QueueItem>();
+    protected volatile object _itemsLock = new object();
+    protected volatile List<QueueItem> _items = new List<QueueItem>();
+
     public List<QueueItem> Items { get { return _items; } }
 
     protected string _serverName;
@@ -55,10 +58,22 @@ namespace ServiceBusMQ.Manager {
     public bool MonitorErrors { get { return _monitorErrors; } set { _monitorErrors = value; UpdateItems(QueueType.Error, value); } }
 
 
-    public event EventHandler<EventArgs> ItemsChanged;
+    protected EventHandler _itemsChanged;
+
+    public event EventHandler ItemsChanged {
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      add {
+        _itemsChanged = (EventHandler)Delegate.Combine(_itemsChanged, value);
+      }
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      remove {
+        _itemsChanged = (EventHandler)Delegate.Remove(_itemsChanged, value);
+      }
+    }
+
     protected void OnItemsChanged() {
-      if( ItemsChanged != null )
-        ItemsChanged(this, EventArgs.Empty);
+      if( _itemsChanged != null )
+        _itemsChanged(this, EventArgs.Empty);
     }
 
 
@@ -74,6 +89,7 @@ namespace ServiceBusMQ.Manager {
 
       LoadQueues();
     }
+    public virtual void Dispose() { }
 
 
     private void UpdateItems(QueueType type, bool value) {
@@ -102,7 +118,7 @@ namespace ServiceBusMQ.Manager {
       }
     }
 
-    private bool IsMonitoring(QueueType type) {
+    protected bool IsMonitoring(QueueType type) {
       switch( type ) {
         case QueueType.Command: return MonitorCommands;
         case QueueType.Event: return MonitorEvents;
@@ -121,28 +137,31 @@ namespace ServiceBusMQ.Manager {
 
       List<QueueItem> items = new List<QueueItem>();
 
+
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         items.AddRange(ProcessQueue(t));
 
-
-      // Add new items
       bool changed = false;
-      foreach( var itm in items )
-        if( !_items.Any(i => i.Id == itm.Id) ) {
-          _items.Insert(0, itm);
-          changed = true;
-        }
+      lock( _itemsLock ) {
 
-      // Mark removed as deleted messages
-      foreach( var itm in _items )
-        if( !items.Any(i2 => i2.Id == itm.Id) ) {
-          
-          if( !itm.Deleted ) {
-            itm.Deleted = true;
+        // Add new items
+        foreach( var itm in items )
+          if( !_items.Any(i => i.Id == itm.Id) ) {
+            _items.Insert(0, itm);
             changed = true;
           }
-        }
 
+        // Mark removed as deleted messages
+        foreach( var itm in _items )
+          if( !items.Any(i2 => i2.Id == itm.Id) ) {
+
+            if( !itm.Deleted ) {
+              itm.Deleted = true;
+              changed = true;
+            }
+          }
+
+      }
 
       if( changed )
         OnItemsChanged();
@@ -194,6 +213,7 @@ namespace ServiceBusMQ.Manager {
 
 
     public abstract MessageSubscription[] GetMessageSubscriptions(string server);
+
   }
 
 }
