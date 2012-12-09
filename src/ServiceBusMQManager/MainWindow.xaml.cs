@@ -15,29 +15,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Messaging;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
-using System.Xml.XPath;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
@@ -78,6 +67,15 @@ namespace ServiceBusMQManager {
       lbTitle.Content = Title;
 
       InitSystem();
+
+
+      if( _sys.Config.VersionCheck.Enabled ) {
+      
+        if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
+          CheckIfLatestVersion(false);
+      
+      }
+
     }
     
     private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -115,7 +113,8 @@ namespace ServiceBusMQManager {
 
       SetupContextMenu();
 
-      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);    
+      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
+
     }
 
     private void RestartSystem() {
@@ -139,6 +138,75 @@ namespace ServiceBusMQManager {
       _mgr.MonitorEvents = btnEvent.IsChecked == true;
       _mgr.MonitorMessages = btnMsg.IsChecked == true;
       _mgr.MonitorErrors = btnError.IsChecked == true;
+    }
+
+
+
+    void CheckIfLatestVersion(bool startedByUser) {
+      CheckVersionThread cvt = new CheckVersionThread();
+
+      //if( startedByUser )
+        //cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
+      //else 
+      cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_HiddenRunWorkerCompleted);
+
+      List<CheckVersionObject> list = new List<CheckVersionObject>();
+
+      list.Add(
+        new CheckVersionObject() {
+          ProductName = App.Info.Name,
+          CurrentVersion = App.Info.Version
+        });
+
+
+      cvt.RunWorkerAsync(list);
+    }
+
+    void cvt_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+
+      /*
+      if( e.Error == null ) {
+        List<HalanVersionInfo> inf = (List<HalanVersionInfo>)e.Result;
+
+        if( inf.Any(v => v.Status == VersionStatus.Old) ) {
+
+          ShowNewerVersionDialog(inf);
+
+        } else if( inf.All(v => v.Status == VersionStatus.Latest) ) {
+          lbVersionInfo.Text = "You have the latest version";
+          lbVersionInfo.Visible = true;
+
+        } else if( inf.Any(v => v.Status == VersionStatus.NoConnection) ) {
+          lbVersionInfo.Text = "Could not connect to Server";
+          lbVersionInfo.Visible = true;
+        }
+
+      } else LogError(("Failed to retrieve latest version information from server", e.Error));
+
+
+      if( !btnCheckUpdate.Enabled ) {
+        btnCheckUpdate.Text = CHECK_UPDATES_LABEL;
+        btnCheckUpdate.Enabled = true;
+      }
+     */
+    }
+    void cvt_HiddenRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+
+      if( e.Error == null ) {
+        List<HalanVersionInfo> inf = (List<HalanVersionInfo>)e.Result;
+
+        if( inf.Any(v => v.Status == VersionStatus.Old) ) {
+          ShowNewerVersionDialog(inf);
+        }
+
+        _sys.Config.VersionCheck.LastCheck = DateTime.Today;
+        _sys.Config.Save();
+      }
+    }
+
+    private void ShowNewerVersionDialog(List<HalanVersionInfo> inf) {
+      NewVersionDialog dlg = new NewVersionDialog(inf);
+      dlg.ShowDialog();
     }
 
 

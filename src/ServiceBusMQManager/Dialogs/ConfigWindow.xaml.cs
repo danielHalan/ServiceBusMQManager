@@ -64,6 +64,7 @@ namespace ServiceBusMQManager.Dialogs {
       cbTransport.SelectedIndex = 0;
 
       cShowOnNewMessages.IsChecked = _config.ShowOnNewMessages;
+      cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
       
       queueCommands.BindItems(_config.WatchCommandQueues);
       queueEvents.BindItems(_config.WatchEventQueues);
@@ -199,6 +200,7 @@ namespace ServiceBusMQManager.Dialogs {
       _config.MonitorInterval = (int)tbInterval.RetrieveValue();
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
+      _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
 
       _config.WatchCommandQueues = queueCommands.GetItems();
       _config.WatchEventQueues = queueEvents.GetItems();

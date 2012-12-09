@@ -137,6 +137,9 @@
     <Compile Include="Dialogs\CreateTemplateDialog.xaml.cs">
       <DependentUpon>CreateTemplateDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\NewVersionDialog.xaml.cs">
+      <DependentUpon>NewVersionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SelectDataTypeDialog.xaml.cs">
       <DependentUpon>SelectDataTypeDialog.xaml</DependentUpon>
     </Compile>
@@ -220,6 +223,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\CreateTemplateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\NewVersionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

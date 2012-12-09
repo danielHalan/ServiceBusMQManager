@@ -19,6 +19,13 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ {
+
+  public class VersionCheck {
+    public bool Enabled = true;
+    public DateTime LastCheck = DateTime.MinValue;
+  }
+
+  
   public class SystemConfig1 : SystemConfig {
 
     public string ServerName { get; set; }
@@ -37,8 +44,13 @@ namespace ServiceBusMQ {
 
     public CommandDefinition CommandDefinition { get; set; }
 
+    public VersionCheck VersionCheck { get; set; }
 
     protected override void FillDefaulValues() {
+
+      if( VersionCheck == null ) 
+        VersionCheck = new VersionCheck();
+
 
       if( CommandDefinition == null ) {
       

@@ -4,13 +4,12 @@
         xmlns:ServiceBusMQManager="clr-namespace:ServiceBusMQManager"  xmlns:local="clr-namespace:ServiceBusMQManager.Dialogs" x:Name="frmSelectDataType"  x:Class="ServiceBusMQManager.Dialogs.SelectDataTypeDialog"
         Title="Select Command Base Type..." Height="439" Width="530" WindowStartupLocation="CenterOwner"
         
-                        WindowStyle="None" 
-     ResizeMode="NoResize"
+        WindowStyle="None" 
+        ResizeMode="NoResize"
         
         MouseDown="Grid_MouseLeftButtonDown" 
         MouseMove="Window_MouseMove" 
         Icon="../Images/main32ico.png"
-        
         >
     
     <Window.Resources>

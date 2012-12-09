@@ -41,7 +41,11 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -54,11 +58,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="CheckVersionThread.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="CommandHistoryManager.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="HalanServices.cs" />
+    <Compile Include="HalanVersionInfo.cs" />
     <Compile Include="JsonFile.cs" />
     <Compile Include="Manager\ErrorArgs.cs" />
     <Compile Include="Manager\IMessageManager.cs" />
@@ -78,6 +92,11 @@
     <Compile Include="Tools.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="UIStateConfig.cs" />
+    <Compile Include="Web References\HalanService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="WindowTools.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +104,61 @@
       <Project>{a9ae40ff-1a21-414a-9fe7-3be13644cc6d}</Project>
       <Name>Newtonsoft.Json</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\HalanService\ErrorReportResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\HalanService\LatestVersionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\HalanService\ProductManager.wsdl" />
+    <None Include="Web References\HalanService\ProductManager.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\HalanService\ProductManager0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\HalanService\ProductManager1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\HalanService\ProductManager2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\HalanService\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\HalanService\ReportAttachmentResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://www.halan.se/service/ProductManager.svc">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\HalanService\</RelPath>
+      <UpdateFromURL>http://www.halan.se/service/ProductManager.svc</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>ServiceBusMQ_HalanService_ProductManager</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\HalanService\ProductManager.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

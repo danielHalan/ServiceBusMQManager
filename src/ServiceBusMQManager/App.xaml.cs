@@ -19,6 +19,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -33,10 +34,10 @@ namespace ServiceBusMQManager {
     protected override void OnStartup(StartupEventArgs e) {
 
       if( e.Args.Length >= 2 ) {
-        
+
         if( e.Args[0] == "--send" || e.Args[0] == "-s" ) {
           string cmdName = e.Args[1];
-          
+
           var sys = SbmqSystem.Create();
 
           var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
@@ -44,7 +45,7 @@ namespace ServiceBusMQManager {
           if( cmd != null ) {
             Console.WriteLine(string.Format("Sending Command '{0}'...", cmdName));
             sys.Manager.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
-          
+
           } else {
             Console.WriteLine(string.Format("No Command with name '{0}' found, exiting...", cmdName));
           }
@@ -52,7 +53,7 @@ namespace ServiceBusMQManager {
           Application.Current.Shutdown();
           return;
         }
-      
+
       }
 
       // Check if we are already running...
@@ -61,8 +62,20 @@ namespace ServiceBusMQManager {
         Application.Current.Shutdown();
         return;
       }
-      
+
       base.OnStartup(e);
+    }
+
+
+
+    static AssemblyName _info;
+    public static AssemblyName Info {
+      get {
+        if( _info == null )
+          _info = Assembly.GetExecutingAssembly().GetName();
+
+        return _info;
+      }
     }
 
 
@@ -74,6 +87,7 @@ namespace ServiceBusMQManager {
 #endif
 
     }
+
 
 
   }

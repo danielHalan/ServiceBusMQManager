@@ -4,6 +4,7 @@
              xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic" x:Class="ServiceBusMQManager.App"
              StartupUri="MainWindow.xaml"
              DispatcherUnhandledException="Application_DispatcherUnhandledException"
+   
              >
     <Application.Resources>
         <ResourceDictionary>
