@@ -159,8 +159,11 @@ namespace ServiceBusMQManager {
 
     void DoSetupBus(object sender, DoWorkEventArgs e) {
 
-      if( !_isBusStarted )
+      if( !_isBusStarted ) {
         _mgr.SetupBus(_asmPath);
+
+        _isBusStarted = true;
+      }
 
     }
     void DoSendCommand(object sender, RunWorkerCompletedEventArgs e) {

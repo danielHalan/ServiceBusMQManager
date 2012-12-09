@@ -102,7 +102,9 @@ namespace ServiceBusMQManager.Controls {
       mainPanel.Margin = new Thickness(0, 0, 0, 0);
       mainPanel.Background = Brushes.Transparent;
       mainPanel.Width = CONTROL_WIDTH; // 480;
-      //mainPanel.Tag = new PanelInfo() { DataType = type, AttributeName = attribute, ChildControl = mainPanel };
+      
+      var panelInfo = new PanelInfo() { DataType = type, AttributeName = attribute, ChildControl = mainPanel };
+      mainPanel.Tag = panelInfo;
 
       CreateTitlePart(mainPanel, type, attribute, value);
 
@@ -123,7 +125,7 @@ namespace ServiceBusMQManager.Controls {
       p.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
       //p.Margin = new Thickness(0,0,0,0);
       p.Background = Brushes.Transparent;
-      p.Tag = new PanelInfo() { DataType = type, AttributeName = attribute, ChildControl = mainPanel };
+      p.Tag = panelInfo;
       p.Width = CONTROL_WIDTH - 30; // remove space for the scrollbar;
 
       scroller.Content = p;
@@ -315,10 +317,15 @@ namespace ServiceBusMQManager.Controls {
     public object CreateObject() {
       if( IsValid ) {
       
-        if( _panels.Count > 1 )
-          ScrollToMainPanel(Tools.NOOP, 500);
+        if( _panels.Count > 1 ) { // Scroll back to Main Panel
+          var scrollTime = _panels.Count * 120;
+          ScrollToMainPanel(() => { theStack.Children.OfType<StackPanel>().
+            Where(s => s.Tag != _mainPanel.Tag).
+            ForEach(s => s.Visibility = Visibility.Hidden ); }, scrollTime);
+          WindowTools.Sleep(scrollTime);
+        }
 
-        while( _panels.Count > 1 ) {
+        while( _panels.Count > 1 ) { // Save all sub objects
           var p = _panels.Pop() as StackPanel;
           PanelInfo pi = p.Tag as PanelInfo;
 

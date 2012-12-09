@@ -53,6 +53,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="CursorPosition.cs" />
