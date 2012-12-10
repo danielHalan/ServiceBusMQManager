@@ -55,6 +55,13 @@ namespace ServiceBusMQManager.Controls {
       
       foreach(var itm in items) 
         AddListItem(itm);
+
+
+      UpdateEmptyLabel();
+    }
+
+    private void UpdateEmptyLabel() {
+      lbEmpty.Visibility = _items.Count == 0 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
     }
 
     public string[] GetItems() {
@@ -112,10 +119,11 @@ namespace ServiceBusMQManager.Controls {
       theStack.Children.Add(g);
 
       RecalcControlSize();
+      UpdateEmptyLabel();
     }
 
     private void RecalcControlSize() {
-      this.Height = 50 + (40 * _items.Count) + 10;
+      this.Height = 70 + (40 * _items.Count);
     }
 
     void btnDelete_Click(object sender, RoutedEventArgs e) {
@@ -123,8 +131,9 @@ namespace ServiceBusMQManager.Controls {
       _items.Remove( Convert.ToInt32(btn.Tag));
 
       theStack.Children.Remove( btn.Parent as UIElement );
-      
+
       RecalcControlSize();
+      UpdateEmptyLabel();
     }
 
 

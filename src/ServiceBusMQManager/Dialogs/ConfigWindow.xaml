@@ -75,8 +75,8 @@
                         <RowDefinition Height="161"/>
                         <RowDefinition Height="60"/>
                         <RowDefinition Height="89"/>
-                        <RowDefinition Height="94"/>
-                        <RowDefinition Height="60" />
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="66" />
                         <RowDefinition Height="69"/>
                         <RowDefinition Height="210"/>
                     </Grid.RowDefinitions>
@@ -112,7 +112,7 @@
                     </CheckBox>
 
                     <Label Content="Queues" HorizontalAlignment="Left" Margin="20,14,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="2" Height="42" Width="87"/>
-                    <Label Content="Send Command" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="5" Height="42" Width="173"/>
+                    <Label Content="Send Command" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="5" Height="42" Width="173"/>
                     <Label Content="Command definition" HorizontalAlignment="Left" Margin="53,10,0,0" VerticalAlignment="Top" Width="218" FontSize="20" Grid.Row="7" Height="35" FontFamily="Segoe UI"/>
                     <TextBox x:Name="tbCmdInherits" Foreground="Black"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" BorderBrush="Gray" Height="27" Margin="75,84,0,0" TextWrapping="Wrap" Width="349" Grid.Row="7" IsEnabled="False" FontSize="16" Grid.ColumnSpan="2"/>
        
@@ -146,7 +146,7 @@
                     <Controls:StringListControl Grid.Row="3" x:Name="queueEvents" Title="Event queues" VerticalAlignment="Top" Margin="16,0,20,0"  AddItem="StringListControl_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.Column="1"/>
 
 
-                    <Controls:StringListControl x:Name="asmPaths" Title="Assembly paths" Margin="20,0,20,0" VerticalAlignment="Top" Grid.Row="6" Height="50" SizeChanged="asmPaths_SizeChanged" AddItem="asmPaths_AddItem" Grid.ColumnSpan="2"/>
+                    <Controls:StringListControl x:Name="asmPaths" Title="Assembly paths" Margin="20,0,20,0" VerticalAlignment="Top" Grid.Row="6" Height="70" SizeChanged="asmPaths_SizeChanged" AddItem="asmPaths_AddItem" Grid.ColumnSpan="2"/>
                     <Controls:StringListControl Grid.Row="4" x:Name="queueMessages"  Title="Messages queues"  VerticalAlignment="Top" Margin="20,10,18,0"  AddItem="StringListControl_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" />
                     <Controls:StringListControl Grid.Row="4" x:Name="queueErrors" Title="Error queues" VerticalAlignment="Top" Margin="16,10,20,0"  AddItem="StringListControl_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.Column="1"/>
                     <Label Content="or" HorizontalAlignment="Left" Margin="32,101,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="7" Height="42" Width="37"/>
