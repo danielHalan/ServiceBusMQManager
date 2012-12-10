@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -83,9 +84,24 @@ namespace ServiceBusMQManager.Controls {
         tempControl.TemplateSelected += tempControl_TemplateSelected;
         tempControl.SelectTemplate(value);
         p.Children.Add(tempControl);
+
+        var img = new Image();
+        img.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+        img.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        img.Height = 20;
+        img.Width = 10;
+        img.Margin = new Thickness(0, -15, 0, 0);
+        img.Source = BitmapFrame.Create(_GetImageResourceStream("template-fold.png"));
+
+        p.Children.Add(img);
       }
 
     }
+
+    private Stream _GetImageResourceStream(string name) {
+      return this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQManager.Images." + name);
+    }  
+
 
     private DataTemplateManager GetTempManager() {
       if( _tempMgr == null ) {
@@ -109,7 +125,7 @@ namespace ServiceBusMQManager.Controls {
       CreateTitlePart(mainPanel, type, attribute, value);
 
       double h = 0;
-      foreach( UserControl c in mainPanel.Children )
+      foreach( UserControl c in mainPanel.Children.OfType<UserControl>() )
         h += c.Height;
 
       ScrollViewer scroller = new ScrollViewer();

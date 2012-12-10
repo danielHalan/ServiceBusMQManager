@@ -38,6 +38,7 @@ namespace ServiceBusMQManager.Controls {
 
     ServiceBusMQManager.UIControlFactory.InputControl _currCtl;
     private bool _isListItem;
+    private bool _isNull = false;
 
     public ArrayInputControl(Type type, object value, string attributeName) {
       InitializeComponent();
@@ -104,14 +105,16 @@ namespace ServiceBusMQManager.Controls {
         }
       
 
-      } else (_currCtl.Control as IInputControl).UpdateValue(value);
+      } else Nullify();
  
     }
 
     public void LoadArray(object value) {
       theValueStack.Children.Clear();
 
-      if( value != null ) {
+      _isNull = (value == null);
+
+      if( !_isNull ) {
 
         if( value.GetType().IsArray ) {
 
@@ -125,27 +128,33 @@ namespace ServiceBusMQManager.Controls {
       RecalcSize();
     }
 
+    public void Nullify() {
+      theValueStack.Children.Clear();
+      
+      _isNull = true;
+      
+      UpdateCountLabel();
+      RecalcSize();
+    }
+
 
     private void UpdateCountLabel() {
-      lbCount.Content = string.Format("{0} Items", theValueStack.Children.Count);
+      lbCount.Content = !_isNull ? string.Format("{0} Items", theValueStack.Children.Count) : "<< NULL >>";
     }
 
 
     public object RetrieveValue() {
 
-      //Type tp = typeof(List<>).MakeGenericType(itemType);
+      if( !_isNull ) {
+        Array list = Array.CreateInstance(_type, theValueStack.Children.Count);
 
-      //IList list = (IList)Activator.CreateInstance(tp);
-      //IList list = (IList)Activator.CreateInstance("System.Collections.Generic", "List<" + _type.Name + ">");
+        for(int i = 0; i < theValueStack.Children.Count; i++ ) {
+          IInputControl c = ((Grid)theValueStack.Children[i]).Children[0] as IInputControl;
+          list.SetValue(c.RetrieveValue(), i);
+        }
 
-      Array list = Array.CreateInstance(_type, theValueStack.Children.Count);
-
-      for(int i = 0; i < theValueStack.Children.Count; i++ ) {
-        IInputControl c = ((Grid)theValueStack.Children[i]).Children[0] as IInputControl;
-        list.SetValue(c.RetrieveValue(), i);
-      }
-
-      return list;
+        return list;
+      } else return null;
     
     }
 
@@ -174,11 +183,6 @@ namespace ServiceBusMQManager.Controls {
       g.Height = LISTITEM_HEIGHT;
       
       control.Margin = new Thickness(0, 0, 35, 0);
-      //control.Height = Double.NaN; //40;
-
-      //control.Width = Double.NaN;
-      //control.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-
 
       IInputControl inCtl = control as IInputControl;
       inCtl.IsListItem = true;
@@ -192,6 +196,9 @@ namespace ServiceBusMQManager.Controls {
       g.Children.Add(btn);
 
       theValueStack.Children.Add(g);
+
+      if( _isNull )
+        _isNull = false;
 
       RecalcSize();
     }

@@ -54,7 +54,7 @@
                 <Style TargetType="{x:Type ListBox}">
                     <Setter Property="BorderThickness"  Value="0" />
                     <Setter Property="BorderBrush"  Value="Transparent" />
-                    <Setter Property="Padding" Value="4" />
+                    <Setter Property="Padding" Value="0" />
                 </Style>
 
                 <!--<DataTemplate DataType="{x:Type local:QueueItem}">
@@ -87,15 +87,15 @@
 
                                 <Grid x:Name="panel" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="49"/>
                                         <ColumnDefinition Width="10*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="0,4,4,7"/>
+                                    <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="10,4,4,7"/>
                                     <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="13" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" FontFamily="Segoe UI" />
                                     <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" FontFamily="Calibri" FontSize="13"  />
                                     <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
                                     <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" Foreground="#696969" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
-                                    <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,40,24" 
+                                    <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,120,24" 
                                                Height="1" StrokeThickness="1" Stroke="Transparent"/>
                                 </Grid>
 
@@ -115,6 +115,7 @@
                                         <Setter Property="Foreground" TargetName="lbDate" Value="White"/>
                                         <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
                                     </Trigger>
+                                    
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
                                             <Condition Property="IsSelected" Value="true"/>
@@ -245,7 +246,7 @@
                 <Image Source="Images/minimize.png" />
             </Button>
 
-            <ListBox Margin="0,12,0,9" x:Name="lbItems" 
+            <ListBox Margin="0,10,0,10" x:Name="lbItems" 
 		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0">
 
                 <ListBox.Resources>

@@ -6,6 +6,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="400">
     <Grid>
-        <ComboBox Name="cb" SelectionChanged="cb_SelectionChanged" Style="{DynamicResource ComboBoxStyle1}" />    
+        <ComboBox Name="cb" SelectionChanged="cb_SelectionChanged" Style="{DynamicResource ComboBoxStyle1}" FontSize="16" FontFamily="Calibri" />    
     </Grid>
 </UserControl>
