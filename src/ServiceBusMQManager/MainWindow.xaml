@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
         x:Class="ServiceBusMQManager.MainWindow"
-        Title="Service Bus MQ Manager 2.0A - (c)2012 ITQ.COM, Daniel Halan" 
+        Title="Service Bus MQ Manager 2.00 - (c)2012 ITQ.COM, Daniel Halan" 
         x:Name="frmMain"
         Height="314.55" Width="587.833" 
         Topmost="True" 
@@ -91,10 +91,10 @@
                                         <ColumnDefinition Width="10*"/>
                                     </Grid.ColumnDefinitions>
                                     <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="0,4,4,7"/>
-                                    <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="12" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" />
-                                    <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0"  />
-                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0"  />
-                                    <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" FontSize="9.333" Foreground="#696969" FontStyle="Italic"/>
+                                    <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="13" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" FontFamily="Segoe UI" />
+                                    <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" FontFamily="Calibri" FontSize="13"  />
+                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
+                                    <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,8.036,-5" Grid.Column="1" Foreground="#696969" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Stretch" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,40,24" 
                                                Height="1" StrokeThickness="1" Stroke="Transparent"/>
                                 </Grid>
@@ -209,7 +209,7 @@
 
             </Grid.Resources>
             <Grid.RowDefinitions>
-                <RowDefinition Height="28"/>
+                <RowDefinition Height="32"/>
                 <RowDefinition Height="45"/>
                 <RowDefinition Height="30"/>
                 <RowDefinition/>
@@ -223,7 +223,7 @@
                 
             </Rectangle>
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
-            <Label Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" />
+            <Label Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" FontFamily="Calibri" FontSize="13" />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,32,0"
@@ -270,11 +270,11 @@
                 </ListBox.ContextMenu>
 
             </ListBox>
-            <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="98" Unchecked="btn_Unchecked" Tag="0" Grid.Row="2" Checked="btn_Checked" Height="23" />
-            <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="113,3,0,0" VerticalAlignment="Top" Width="92" Unchecked="btn_Unchecked" Tag="1" Grid.Row="2" Checked="btn_Checked" Height="23" />
-            <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="210,3,0,0" VerticalAlignment="Top" Width="99" Unchecked="btn_Unchecked" Tag="2" Grid.Row="2" Checked="btn_Checked" Height="23" />
-            <ToggleButton x:Name="btnError" Content="ERRORS" HorizontalAlignment="Left" Margin="314,3,0,0" VerticalAlignment="Top" Width="88" Unchecked="btn_Unchecked" Tag="3" Grid.Row="2" Checked="btn_Checked" Height="23"/>
-
+            <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="0" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
+            <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="140,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="1" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
+            <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="270,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="2" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
+            <ToggleButton x:Name="btnError" Content="ERRORS" HorizontalAlignment="Left" Margin="400,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="3" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12"/>
+            <Rectangle Fill="#0E97FF" Margin="10,26,0,2" Grid.Row="2" Height="2" />
 
 
             <Button x:Name="btnSettings" Grid.Row="1" Click="btnSettings_Click" HorizontalAlignment="Right" Margin="0,0,10,8" ToolTip="Remove list items that has been deleted in their Queue" Width="35" Grid.RowSpan="1" >
@@ -301,7 +301,7 @@
             </Button>
 
 
-            <Button x:Name="btnClearDeleted" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,26,60,10" ToolTip="Remove list items that has been deleted in their Queue" Width="119" Grid.RowSpan="2" >
+            <Button x:Name="btnClearDeleted" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,0,60,8" ToolTip="Remove list items that has been deleted in their Queue" Width="135" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,-6,0" >
@@ -324,7 +324,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button x:Name="btnSendCommand" Grid.Row="1" Click="btnSendCommand_Click" HorizontalAlignment="Left" Margin="10,0,0,8" ToolTip="Remove list items that has been deleted in their Queue" Width="128" Grid.RowSpan="1" >
+            <Button x:Name="btnSendCommand" Grid.Row="1" Click="btnSendCommand_Click" HorizontalAlignment="Left" Margin="10,0,0,8" ToolTip="Remove list items that has been deleted in their Queue" Width="147" Grid.RowSpan="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" Margin="0,0,-8,0" BorderBrush="#1B22E0" BorderThickness="2,0,0,0" Background="#f4f4f6" >
@@ -348,10 +348,10 @@
                 </Button.Template>
             </Button>
 
-            <Button x:Name="btnViewSubscriptions" Grid.Row="1" HorizontalAlignment="Left" Margin="162,0,0,8" Width="148" Grid.RowSpan="1" Click="btnViewSubscriptions_Click" >
+            <Button x:Name="btnViewSubscriptions" Grid.Row="1" HorizontalAlignment="Left" Margin="173,0,0,8" Width="164" Grid.RowSpan="1" Click="btnViewSubscriptions_Click" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
                     <ControlTemplate>
-                        <Border x:Name="btnBorder" Margin="0,0,-8,0" BorderBrush="#1B22E0" BorderThickness="2,0,0,0" Background="#f4f4f6" >
+                        <Border x:Name="btnBorder" Margin="0,0,-6,0" BorderBrush="#1B22E0" BorderThickness="2,0,0,0" Background="#f4f4f6" >
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="Images/viewSubs.png" Margin="5,5,5,5" />
                                 <TextBlock x:Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0"><Run Text="View Subscriptions"/></TextBlock>

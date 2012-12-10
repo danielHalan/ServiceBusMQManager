@@ -55,7 +55,7 @@ namespace ServiceBusMQ {
 
     public void Save() {
 
-      foreach( var cmd in _items ) {
+      foreach( var cmd in _items.OrderByDescending( c => c.LastSent ).Take(50) ) {
         if( !cmd.FileName.IsValid() )
           cmd.FileName = GetAvailableFileName();
 
@@ -99,7 +99,8 @@ namespace ServiceBusMQ {
       foreach( var c in _items ) {
       
         if( co.Compare(c.Command, command) ) {
-          cmd = c; // TODO: when we show what SB/Server/Q the command has been sent to, then also compare those values
+          cmd = c; // TODO: When we show what ServiceBus/Server/Queue the command has been sent to, 
+                   // then also compare those values
           break;
         }
       }

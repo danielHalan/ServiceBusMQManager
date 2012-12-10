@@ -278,7 +278,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     private QueueItem CreateQueueItem(string queueName, Message msg, QueueType type) {
       var itm = new QueueItem();
       itm.DisplayName = msg.Label;
-      itm.QueueDisplayName = queueName.CutBeginning(44);
+      itm.QueueDisplayName = queueName.CutBeginning(46);
       itm.QueueName = queueName;
       itm.QueueType = type;
       itm.Label = msg.Label;

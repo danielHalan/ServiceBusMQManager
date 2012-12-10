@@ -417,6 +417,11 @@ namespace ServiceBusMQManager {
           _dlg.Show();
 
           _dlgShown = true;
+        } else { 
+          if( !Topmost ) {
+            _dlg.Activate(); // Make sure its visible
+            this.Activate();
+          }
         }
 
         UpdateContextMenu(itm);
