@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ServiceBusMQManager.Controls" x:Class="ServiceBusMQManager.Controls.SavedCommandsControl" 
              mc:Ignorable="d" d:DesignHeight="145" d:DesignWidth="554.043">
     <Grid Name="theGrid">
-        <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20"/>
+        <Label Content="recent commands" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Margin="10,0,0,0"/>
         
         <Grid Name="selectGrid" Visibility="Hidden">
             <ComboBox x:Name="cbRecent" Style="{DynamicResource ComboBoxStyle1}" Margin="10,39,50,0" VerticalAlignment="Top" FontSize="16" SelectionChanged="cbRecent_SelectionChanged" FontFamily="Calibri" />
