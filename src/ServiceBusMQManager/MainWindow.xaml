@@ -54,7 +54,7 @@
                 <Style TargetType="{x:Type ListBox}">
                     <Setter Property="BorderThickness"  Value="0" />
                     <Setter Property="BorderBrush"  Value="Transparent" />
-                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Padding" Value="8,0,0,0" />
                 </Style>
 
                 <!--<DataTemplate DataType="{x:Type local:QueueItem}">
@@ -87,10 +87,10 @@
 
                                 <Grid x:Name="panel" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="49"/>
+                                        <ColumnDefinition Width="44"/>
                                         <ColumnDefinition Width="10*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="10,4,4,7"/>
+                                    <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="5,4,4,7"/>
                                     <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="13" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Bold" FontFamily="Segoe UI" />
                                     <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" FontFamily="Calibri" FontSize="13"  />
                                     <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
