@@ -168,12 +168,18 @@ namespace ServiceBusMQManager {
     }
     void DoSendCommand(object sender, RunWorkerCompletedEventArgs e) {
 
-      var queue = cbQueue.SelectedItem as string;
-      _mgr.SendCommand(tbServer.Text, queue, _cmd);
+      try { 
+        var queue = cbQueue.SelectedItem as string;
+        _mgr.SendCommand(tbServer.Text, queue, _cmd);
 
-      savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+        savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
       
-      Close();
+        Close();
+
+      } catch(Exception ex) {
+        btnSend.IsEnabled = true;
+        throw ex;
+      }
     }
 
     object _cmd;

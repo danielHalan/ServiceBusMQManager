@@ -31,27 +31,50 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class App : Application {
 
+    enum ArgType { Send, Silent }
+
+    class Arg { 
+      public ArgType Type { get; set; }
+      public string Param { get; set; }
+
+      public Arg(ArgType type, string param) {
+        Type = type;
+        Param = param;
+      }
+    }
+
+
+
     protected override void OnStartup(StartupEventArgs e) {
 
       if( e.Args.Length >= 2 ) {
 
-        if( e.Args[0] == "--send" || e.Args[0] == "-s" ) {
-          string cmdName = e.Args[1];
+        List<Arg> args = ProcessArgs(e.Args);
+
+        bool silent = args.Any( a => a.Type == ArgType.Silent );
+
+        var arg = args.FirstOrDefault( a => a.Type == ArgType.Send );
+        if( arg != null ) {
+          string cmdName = arg.Param;
 
           var sys = SbmqSystem.Create();
 
           var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
 
           if( cmd != null ) {
-            Console.WriteLine(string.Format("Sending Command '{0}'...", cmdName));
+            if( !silent )
+              Console.WriteLine(string.Format("Sending Command '{0}'...", cmdName));
             sys.Manager.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
 
           } else {
-            Console.WriteLine(string.Format("No Command with name '{0}' found, exiting...", cmdName));
+            if( !silent )
+              Console.WriteLine(string.Format("No Command with name '{0}' found, exiting...", cmdName));
           }
 
+          sys.Manager.Dispose();
+
           Application.Current.Shutdown();
-          return;
+          return;       
         }
 
       }
@@ -80,6 +103,24 @@ namespace ServiceBusMQManager {
       }
 
       base.OnStartup(e);
+    }
+
+    private List<Arg> ProcessArgs(string[] args) {
+      List<Arg> r = new List<Arg>();
+
+      try { 
+
+      for(int i = 0; i < args.Length; i++) 
+        switch(args[i]) {
+          case "--send": r.Add(new Arg(ArgType.Send, args[++i])); break;
+          case "-s": r.Add(new Arg(ArgType.Silent, null)); break;
+        }
+
+      } catch(Exception e) { 
+        Console.WriteLine("Failed when parsing arguments, " + e.Message);
+      }
+
+      return r;
     }
 
 

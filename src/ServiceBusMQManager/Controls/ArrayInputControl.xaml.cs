@@ -64,7 +64,9 @@ namespace ServiceBusMQManager.Controls {
       //_currCtl.Control.Height = 25;
 
       if( ctl.DataType == DataType.Complex ) {
-        ( ctl.Control as ComplexDataInputControl ).DefineComplextType += cd_DefineComplextType;
+        var complexCtl = ( ctl.Control as ComplexDataInputControl );
+        complexCtl.ShowContentInName = false;
+        complexCtl.DefineComplextType += cd_DefineComplextType;
       }
 
 
@@ -218,6 +220,11 @@ namespace ServiceBusMQManager.Controls {
 
 
     private void AddItem_Click(object sender, RoutedEventArgs e) {
+
+      if( _currCtl.DataType == DataType.Complex ) {
+        (_currCtl.Control as ComplexDataInputControl).ShowComplextDataType();
+        return;
+      }
 
 
       theGrid.Children.Remove(_currCtl.Control);

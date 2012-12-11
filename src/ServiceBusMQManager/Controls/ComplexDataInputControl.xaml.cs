@@ -40,6 +40,7 @@ namespace ServiceBusMQManager.Controls {
     Type _type;
     string _attributeName;
 
+    private  bool _showContentInName;
     private bool _isIgnoringClicks;
 
     public ComplexDataInputControl(string attributeName, Type type, object value) {
@@ -51,7 +52,14 @@ namespace ServiceBusMQManager.Controls {
       _type = type;
       Value = value;
 
-      btn.Content = type.GetDisplayName(_value).CutEnd(80);
+      _showContentInName = true;
+
+      UpdateNameLabel();
+
+    }
+
+    private void UpdateNameLabel() {
+      btn.Content = _showContentInName ? _type.GetDisplayName(_value).CutEnd(80) : _type.Name;
     }
 
     public event EventHandler<ComplexTypeEventArgs> DefineComplextType;
@@ -65,6 +73,19 @@ namespace ServiceBusMQManager.Controls {
 
       if( !_isIgnoringClicks )
         OnDefineComplextType(_attributeName, _type, Value);
+    }
+
+    public void ShowComplextDataType() {
+      OnDefineComplextType(_attributeName, _type, Value);
+    }
+
+    
+    public bool ShowContentInName { 
+      get { return _showContentInName; } 
+      set { 
+        _showContentInName = value;
+        UpdateNameLabel();
+      }  
     }
 
 
@@ -93,7 +114,7 @@ namespace ServiceBusMQManager.Controls {
 
     private void ValueHasChanged() {
 
-      btn.Content = _type.GetDisplayName(_value).CutEnd(80);
+      UpdateNameLabel();
 
       OnValueChanged();
     }
@@ -124,6 +145,9 @@ namespace ServiceBusMQManager.Controls {
       //  btn.Background = ACTIVE_BRUSH;
       //}
       
+      _showContentInName = true;
+      UpdateNameLabel();
+
       btn.IsEnabled = !_isListItem;
     }
 
@@ -135,5 +159,6 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
+   
   }
 }
