@@ -51,21 +51,16 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     }
 
     void StartPeekThreads() {
+      foreach( QueueType qt in Enum.GetValues(typeof(QueueType)) ) {
 
-      var queueTypes = Enum.GetValues(typeof(QueueType));
-      List<MessageQueue> list = null;
-
-      foreach( QueueType qt in queueTypes ) {
-
-        list = GetQueueListByType(qt);
-
-        foreach( var q in list ) {
-          var t = new Thread(new ParameterizedThreadStart(PeekMessages));
-          t.Name = "PEEK-MSMQ-" + q.QueueName;
-          t.Start(new PeekThreadParam() { Queue = q, QueueType = qt });
+        if( qt != QueueType.Error ) {
+          foreach( var q in GetQueueListByType(qt) ) {
+            var t = new Thread(new ParameterizedThreadStart(PeekMessages));
+            t.Name = "PEEK-MSMQ-" + q.QueueName;
+            t.Start(new PeekThreadParam() { Queue = q, QueueType = qt });
+          }
         }
       }
-
     }
 
     public void PeekMessages(object prm) {
@@ -99,7 +94,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
           }
 
           p.Queue.BeginPeek();
-        
+
         } else _isPeeking = false;
       };
 
