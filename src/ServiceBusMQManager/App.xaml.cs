@@ -57,10 +57,26 @@ namespace ServiceBusMQManager {
       }
 
       // Check if we are already running...
-      Process proc = Process.GetCurrentProcess();
-      if( Process.GetProcessesByName(proc.ProcessName).Length > 1 ) {
-        Application.Current.Shutdown();
-        return;
+      Process currProc = Process.GetCurrentProcess(); 
+      Process existProc = Process.GetProcessesByName(currProc.ProcessName).Where(p => p.Id != currProc.Id).FirstOrDefault();
+      if( existProc != null ) {
+        try {
+          // Show the already started SBMQM
+          WindowTools.EnumWindows( new WindowTools.EnumWindowsProc( (hwnd, lparam) => 
+            {
+              uint procId;
+              WindowTools.GetWindowThreadProcessId(hwnd, out procId);
+              if( procId == existProc.Id ) {
+                if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
+                  return false;
+              }
+              return true;
+            }), 0);
+          
+        } finally {
+          Application.Current.Shutdown();
+        }
+          return;
       }
 
       base.OnStartup(e);
@@ -82,7 +98,7 @@ namespace ServiceBusMQManager {
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
 #if !DEBUG
-      MessageBox.Show(e.Exception.Message, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
+      MessageBox.Show(e.Exception.Message +"\n\r" + e.Exception.StackTrace, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
       e.Handled = true;
 #endif
 

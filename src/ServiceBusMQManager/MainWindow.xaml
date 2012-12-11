@@ -16,7 +16,7 @@
         ResizeMode="NoResize"
         MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" LocationChanged="Window_LocationChanged"
         MinHeight="300"
-        MinWidth="550" IsVisibleChanged="Window_IsVisibleChanged" 
+        MinWidth="550" IsVisibleChanged="Window_IsVisibleChanged" SourceInitialized="Window_SourceInitialized" 
         >
     <Window.Resources>
         <!--<local:QueueItem x:Key="QueueItemDataSource" d:IsDataSource="True"/>-->

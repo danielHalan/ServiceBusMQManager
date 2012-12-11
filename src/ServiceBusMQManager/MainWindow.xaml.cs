@@ -25,6 +25,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ServiceBusMQ;
@@ -38,6 +39,9 @@ namespace ServiceBusMQManager {
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow : Window {
+
+    const int WM_APP = 0x8000;
+    public static readonly int WM_SHOWWINDOW = WM_APP + 1;
 
     private static readonly string[] BUTTON_LABELS = new string[] { "COMMANDS", "EVENTS", "MESSAGES", "ERRORS" };
     private static readonly char SPACE_SEPARATOR = ' ';
@@ -57,7 +61,7 @@ namespace ServiceBusMQManager {
     public MainWindow() {
       InitializeComponent();
 
-      SourceInitialized += Window_SourceInitialized;
+      //SourceInitialized += Window_SourceInitialized;
 
       CreateNotifyIcon();
     }
@@ -69,28 +73,46 @@ namespace ServiceBusMQManager {
       InitSystem();
 
 
+      HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+      source.AddHook(WndProc);
+
+
       if( _sys.Config.VersionCheck.Enabled ) {
-      
+
         if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
           CheckIfLatestVersion(false);
-      
+
       }
 
     }
-    
-    private void Window_Loaded(object sender, RoutedEventArgs e) {
+
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+
+      if( msg == WM_SHOWWINDOW ) {
+
+        ShowMainWindow();
+
+        handled = true;
+        return new IntPtr(1);
       
+      } else handled = false;
+
+      return IntPtr.Zero;
+    }
+
+    private void Window_Loaded(object sender, RoutedEventArgs e) {
+
       if( _mgr.EventQueues.Length == 0 && _mgr.CommandQueues.Length == 0 && _mgr.MessageQueues.Length == 0 && _mgr.ErrorQueues.Length == 0 ) {
-        
-        ShowConfigDialog();        
+
+        ShowConfigDialog();
       }
 
     }
 
     private void ShowConfigDialog() {
       ConfigWindow dlg = new ConfigWindow(_sys);
-      
-      if( dlg.ShowDialog() == true ) { 
+
+      if( dlg.ShowDialog() == true ) {
         RestartSystem();
       }
     }
@@ -147,7 +169,7 @@ namespace ServiceBusMQManager {
       CheckVersionThread cvt = new CheckVersionThread();
 
       //if( startedByUser )
-        //cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
+      //cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
       //else 
       cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_HiddenRunWorkerCompleted);
 
@@ -240,43 +262,43 @@ namespace ServiceBusMQManager {
 
       _notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(mi);
       _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIcon.ico"));
-      _notifyIcon.DoubleClick +=
-          delegate(object sender, EventArgs args) {
-            if( !this.IsVisible ) {
-              this.Show();
-              this.WindowState = WindowState.Normal;
-            } else {
-              this.Activate();
-
-              if( _dlg != null )
-                _dlg.Activate();
-            }
-
-          };
+      _notifyIcon.DoubleClick += (sender,args) => { ShowMainWindow(); };
 
       _notifyIcon.Visible = true;
+    }
+
+    private void ShowMainWindow() {
+      if( !this.IsVisible ) {
+        this.Show();
+        this.WindowState = WindowState.Normal;
+      } else {
+        this.Activate();
+
+        if( _dlg != null )
+          _dlg.Activate();
+      }
     }
 
     bool _showingActivityTrayIcon;
     private DispatcherTimer _timer;
     void ShowActivityTrayIcon() {
-      
-      if( !_showingActivityTrayIcon ) {     
+
+      if( !_showingActivityTrayIcon ) {
         _showingActivityTrayIcon = true;
 
         Thread thread = new Thread(new ThreadStart(delegate() {
- 
+
           Thread.Sleep(200); // this is important ...
           try {
             this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
                 new Action(delegate() {
-                  _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIconActivity.ico"));
+              _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIconActivity.ico"));
             }));
-            Thread.Sleep(500); 
+            Thread.Sleep(500);
 
             this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
                 new Action(delegate() {
-                  _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIcon.ico"));
+              _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIcon.ico"));
             }));
 
             _showingActivityTrayIcon = false;
@@ -302,11 +324,11 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _sys.Manager.Items.Count( i => i.QueueType == type && !i.Deleted );
+        int iCount = _sys.Manager.Items.Count(i => i.QueueType == type && !i.Deleted);
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
-          btn.Content = string.Concat(BUTTON_LABELS[iType],SPACE_SEPARATOR, count);
+          btn.Content = string.Concat(BUTTON_LABELS[iType], SPACE_SEPARATOR, count);
 
       } else {
         btn.Content = BUTTON_LABELS[iType];
@@ -318,20 +340,20 @@ namespace ServiceBusMQManager {
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
-      // Update button labels
-      UpdateButtonLabel(btnCmd);
-      UpdateButtonLabel(btnEvent);
-      UpdateButtonLabel(btnMsg);
-      UpdateButtonLabel(btnError);
+        // Update button labels
+        UpdateButtonLabel(btnCmd);
+        UpdateButtonLabel(btnEvent);
+        UpdateButtonLabel(btnMsg);
+        UpdateButtonLabel(btnError);
 
-      // Update List View
-      lbItems.Items.Refresh();
+        // Update List View
+        lbItems.Items.Refresh();
 
-      ShowActivityTrayIcon();
+        ShowActivityTrayIcon();
 
-      // Show Window
-      if( _sys.Config.ShowOnNewMessages && !this.IsVisible )
-        this.Show();
+        // Show Window
+        if( _sys.Config.ShowOnNewMessages && !this.IsVisible )
+          this.Show();
 
       }));
     }
@@ -342,14 +364,14 @@ namespace ServiceBusMQManager {
 
     private Stream _GetImageResourceStream(string name) {
       return this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQManager.Images." + name);
-    }  
+    }
     private void _UpdateContextMenuItem(MenuItem mi, QueueItem itm) {
       mi.IsEnabled = itm != null;
 
-      if( itm != null ) 
+      if( itm != null )
         mi.Tag = itm;
     }
-    
+
     private void SetupContextMenu() {
       var items = lbItems.ContextMenu.Items;
 
@@ -359,7 +381,7 @@ namespace ServiceBusMQManager {
       foreach( var name in _mgr.ErrorQueues ) {
         var m2 = new MenuItem() { Header = name };
         m2.Click += (sender, e) => { _mgr.MoveAllErrorItemsToOriginQueue(name); };
-        
+
         mi.Items.Add(m2);
       }
 
@@ -369,7 +391,7 @@ namespace ServiceBusMQManager {
       foreach( var name in _mgr.ErrorQueues ) {
         var m2 = new MenuItem() { Header = name };
         m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(name); };
-        
+
         mi.Items.Add(m2);
       }
 
@@ -417,7 +439,7 @@ namespace ServiceBusMQManager {
           _dlg.Show();
 
           _dlgShown = true;
-        } else { 
+        } else {
           if( !Topmost ) {
             _dlg.Activate(); // Make sure its visible
             this.Activate();
@@ -535,10 +557,10 @@ namespace ServiceBusMQManager {
     private void UpdateContentWindow() {
       if( _dlg != null ) {
         var s = WpfScreen.GetScreenFrom(this);
-        
+
         if( this.Top < _dlg.Height ) {
           _dlg.Top = this.Top + this.Height;
-        } else { 
+        } else {
           _dlg.Top = this.Top - _dlg.Height;
         }
 
@@ -547,7 +569,7 @@ namespace ServiceBusMQManager {
 
       }
     }
-    
+
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
       this.MoveOrResizeWindow(e);
     }
@@ -561,13 +583,15 @@ namespace ServiceBusMQManager {
       this.Hide();
     }
     private void Window_Closed(object sender, EventArgs e) {
-      _notifyIcon.Visible = false;
+
+      if( _notifyIcon != null )
+        _notifyIcon.Visible = false;
 
       StoreUIState();
 
-      _sys.Manager.Dispose();
+      if( _sys != null )
+        _sys.Manager.Dispose();
     }
-
 
     private void StoreUIState() {
 
@@ -579,12 +603,12 @@ namespace ServiceBusMQManager {
         _uiState.StoreControlState(btnError);
 
         //_uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
-      
+
         _uiState.StoreWindowState(this);
         _uiState.StoreWindowState(_dlg);
-      
+
         _uiState.AlwaysOnTop = Topmost;
-      
+
         _uiState.Save();
 
       }
@@ -636,7 +660,7 @@ namespace ServiceBusMQManager {
       _mgr.PurgeAllMessages();
     }
     private void miDeleteAllErrorMessage_Click(object sender, RoutedEventArgs e) {
-      
+
       _mgr.PurgeErrorAllMessages();
     }
 
@@ -659,7 +683,7 @@ namespace ServiceBusMQManager {
       ChangedMonitorFlag(type, false);
 
       UpdateButtonLabel(btn);
-      
+
       lbItems.Items.Refresh();
     }
     private void btn_Checked(object sender, RoutedEventArgs e) {
