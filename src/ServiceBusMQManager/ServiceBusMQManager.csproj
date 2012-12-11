@@ -389,6 +389,8 @@
     <Resource Include="Images\viewSubs.png" />
     <Resource Include="Images\Command-send-white.png" />
     <EmbeddedResource Include="Images\template-fold.png" />
+    <Resource Include="Images\refresh-white.png" />
+    <Resource Include="Images\refresh.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -27,6 +28,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Dialogs {
@@ -142,6 +144,24 @@ namespace ServiceBusMQManager.Dialogs {
         tbServer.UpdateValue(_sys.Config.ServerName);
       }
 
+    }
+
+
+    System.Threading.Timer _t;
+
+    private void btnRefresh_Click(object sender, RoutedEventArgs e) {
+      LoadSubscriptionTypes();
+
+      if( _sys.Config.ServerName == (string)tbServer.RetrieveValue() ) {  
+        lbInfo.Content = "Subscription list refreshed";
+        _t = new System.Threading.Timer( (o) => { ClearInfo(); }, null, 2000, Timeout.Infinite);
+      }
+    }
+
+    void ClearInfo() {
+      Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+        lbInfo.Content = "";
+      }));
     }
 
 
