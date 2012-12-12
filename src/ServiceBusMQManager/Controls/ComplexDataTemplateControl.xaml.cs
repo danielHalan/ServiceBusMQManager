@@ -43,9 +43,13 @@ namespace ServiceBusMQManager.Controls {
 
     public object Value;
 
-    public TemplateEventArgs(string name, Type type) {
+    public bool IsDefault;
+
+    public TemplateEventArgs(string name, Type type, bool @default = false) {
       Name = name;
       Type = type;
+
+      IsDefault = @default;
     }
   }
 
@@ -69,12 +73,34 @@ namespace ServiceBusMQManager.Controls {
   /// </summary>
   public partial class ComplexDataTemplateControl : UserControl {
 
+    class DataTemplateItem : DataTemplateManager.DataTemplate {
+      public bool IsDefault { get; set; }
+
+      public DataTemplateItem(DataTemplateManager.DataTemplate temp, bool isDefault) {  
+        if( temp != null ) {
+          Name = temp.Name;
+          Object = temp.Object;
+          TypeName = temp.TypeName;
+        }
+
+        IsDefault = isDefault;
+      }
+
+      public string DisplayName {
+        get {
+          if( !IsDefault )
+            return Name;
+          else return Name + " [Default]";
+        }
+      }
+    }
+
     Type _type;
     private ServiceBusMQ.DataTemplateManager _tempMgr;
-    
+
     bool _updating = false;
 
-    ObservableCollection<DataTemplateManager.DataTemplate> _items;
+    ObservableCollection<DataTemplateItem> _items;
 
     public ComplexDataTemplateControl(Type t) {
 
@@ -92,23 +118,23 @@ namespace ServiceBusMQManager.Controls {
 
     private void BindItems() {
 
-      _updating = true; 
+      _updating = true;
 
       try {
-        _items = new ObservableCollection<DataTemplateManager.DataTemplate>();
-        var nullItem = new DataTemplateManager.DataTemplate() { Name = "<< none >>", Object = null };
+        _items = new ObservableCollection<DataTemplateItem>();
+        var nullItem = new DataTemplateItem(null, false) { Name = "<< none >>", Object = null };
         _items.Add(nullItem);
 
         foreach( var a in _tempMgr.Templates.Where(t => t.TypeName == _type.FullName) )
-          _items.Add(a);
+          _items.Add( new DataTemplateItem(a, _tempMgr.IsDefault(a.TypeName, a.Name) ) );
 
         cbTemps.ItemsSource = _items;
-        cbTemps.DisplayMemberPath = "Name";
+        cbTemps.DisplayMemberPath = "DisplayName";
         cbTemps.SelectedValuePath = "Object";
         cbTemps.SelectedValue = nullItem;
 
         cbTemps.SelectedIndex = 0;
-      
+
       } finally {
         _updating = false;
       }
@@ -116,26 +142,26 @@ namespace ServiceBusMQManager.Controls {
 
     private void CreateTemplate_Click(object sender, RoutedEventArgs e) {
 
-      CreateTemplateDialog dlg = new CreateTemplateDialog( _tempMgr.Templates.Select( s => s.Name ).ToArray() );
+      CreateTemplateDialog dlg = new CreateTemplateDialog(_tempMgr.Templates.ToArray(), _type);
       dlg.Owner = Application.Current.Windows.OfType<SendCommandWindow>().Single();
 
       if( dlg.ShowDialog() == true ) {
-        OnCreateTemplate(dlg.tbName.Text);
+        OnCreateTemplate(dlg.tbName.Text, dlg.cDefault.IsChecked == true);
       }
 
     }
 
 
     public event EventHandler<TemplateEventArgs> CreateTemplate;
-    private void OnCreateTemplate(string name) {
+    private void OnCreateTemplate(string name, bool @default) {
 
-      var args = new TemplateEventArgs(name, _type);
+      var args = new TemplateEventArgs(name, _type, @default);
 
       if( CreateTemplate != null )
         CreateTemplate(this, args);
 
       var newItem = new DataTemplateManager.DataTemplate() { Name = name, TypeName = _type.FullName, Object = args.Value };
-      _items.Add(newItem);
+      _items.Add( new DataTemplateItem(newItem, @default) );
 
       cbTemps.SelectedValue = newItem.Object;
     }
@@ -148,7 +174,7 @@ namespace ServiceBusMQManager.Controls {
 
       if( DeleteTemplate != null )
         DeleteTemplate(this, args);
-      
+
       var index = cbTemps.SelectedIndex;
       cbTemps.SelectedIndex = 0;
 
@@ -166,7 +192,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void cbTemps_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      
+
       if( !_updating ) {
         var item = ( (DataTemplateManager.DataTemplate)cbTemps.SelectedItem );
 
@@ -178,9 +204,9 @@ namespace ServiceBusMQManager.Controls {
 
 
     internal void SelectTemplate(object value) {
-      _updating = true; 
+      _updating = true;
 
-        try {
+      try {
         var co = new CompareObjects();
 
 

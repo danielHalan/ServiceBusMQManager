@@ -52,6 +52,8 @@ namespace ServiceBusMQManager.Controls {
       _type = type;
       Value = value;
 
+      
+
       _showContentInName = true;
 
       UpdateNameLabel();

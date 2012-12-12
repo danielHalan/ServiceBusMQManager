@@ -101,6 +101,8 @@ namespace ServiceBusMQManager.Controls {
       if( _dataType == DataType.Complex ) {
         (_valueControl as ComplexDataInputControl).DefineComplextType += cd_DefineComplextType;
       
+        
+
       } else if( _dataType == DataType.Array ) {
         ( _valueControl as ArrayInputControl ).DefineComplextType += cd_DefineComplextType;
       }

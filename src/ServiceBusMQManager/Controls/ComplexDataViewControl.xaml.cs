@@ -176,7 +176,7 @@ namespace ServiceBusMQManager.Controls {
       PanelInfo pi = p.Tag as PanelInfo;
 
       object instance = CreateTypeInstance(p);
-      _tempMgr.Store(e.Name, pi.DataType, instance);
+      _tempMgr.Store(e.Name, pi.DataType, instance, e.IsDefault);
 
       e.Value = instance;
     }
@@ -211,7 +211,16 @@ namespace ServiceBusMQManager.Controls {
     private void BindDataPanel(StackPanel p, Type t, object value) {
       foreach( var prop in t.GetProperties().OrderBy(pr => pr.Name) ) {
 
-        var ctl = new AttributeControl(prop.Name, prop.PropertyType, value != null ? prop.GetValue(value, null) : null);
+        object v = value != null ? prop.GetValue(value, null) : null;
+
+        if( v == null ) {
+          var tmp = GetTempManager().GetDefault(prop.PropertyType.FullName);
+          
+          if( tmp != null )
+            v = tmp.Object;
+        }
+          
+        var ctl = new AttributeControl(prop.Name, prop.PropertyType, v);
         ctl.DefineComplextType += ctl_DefineComplextType;
 
         p.Children.Add(ctl);

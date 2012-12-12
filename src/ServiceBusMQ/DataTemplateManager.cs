@@ -33,34 +33,101 @@ namespace ServiceBusMQ {
       public string TypeName { get; set; }
 
       public object Object { get; set; }
+    
+      [JsonIgnore]
+      public string FileName { get; set; }
     }
 
     List<DataTemplate> _templates = new List<DataTemplate>();
+    private string _templateFolder;
+    private string _defaultsFile;
 
     public List<DataTemplate> Templates { get { return _templates; } }
 
+    public Dictionary<string, string> _defaults = new Dictionary<string, string>();
+
+
     public DataTemplateManager() {
 
-      _templateFile =  SbmqSystem.AppDataPath + @"\templates.dat";
+      _templateFolder = SbmqSystem.AppDataPath + @"\templates\";
+      _defaultsFile = _templateFolder + "template.def";
 
-      LoadFromDisk();
+      if( !Directory.Exists(_templateFolder) )
+        Directory.CreateDirectory(_templateFolder);
+
+      Load();
     }
 
 
-    void WriteToDisk() {
-      JsonFile.Write(_templateFile, _templates);
+    private void Load() {
+
+      foreach( var file in Directory.GetFiles(_templateFolder, "*.tmp") ) {
+        try {
+          var tmp = JsonFile.Read<DataTemplate>(file);
+          tmp.FileName = file;
+
+          _templates.Add(tmp);
+        } catch { }
+      }
+      
+      _defaults =  JsonFile.Read<Dictionary<string,string>>(_defaultsFile);
     }
 
-    void LoadFromDisk() {
+    public void Save() {
 
-      _templates = JsonFile.Read<List<DataTemplate>>(_templateFile);
+      foreach( var tmp in _templates ) 
+        WriteToDisk(tmp);
 
-      if( _templates == null )
-        _templates = new List<DataTemplate>();
+      SaveDefaults();
+    }
+
+    private void SaveDefaults() {
+      JsonFile.Write(_defaultsFile, _defaults);
+    }
+
+    void WriteToDisk(DataTemplate tmp) {
+      if( !tmp.FileName.IsValid() )
+        tmp.FileName = GetAvailableFileName();
+
+      JsonFile.Write(tmp.FileName, tmp);
+    }
+
+    private string GetAvailableFileName() {
+      string fileName;
+
+      int i = 0;
+      do {
+        fileName = string.Format("{0}{1}.tmp", _templateFolder, ++i);
+      } while( File.Exists(fileName) );
+
+      return fileName;
+    }
+
+    public DataTemplate GetDefault(string typeName) {
+      
+      if( _defaults.ContainsKey(typeName)  )
+        return _templates.FirstOrDefault(t => t.TypeName == typeName && t.Name == _defaults[typeName] );
+      
+      else return null;
+    }
+    private void SetDefault(string typeName, string name) {
+      
+      if( _defaults.ContainsKey(typeName) )
+        _defaults[typeName] = name;
+      else _defaults.Add(typeName, name);
+
+      SaveDefaults();
+    }
+    public bool IsDefault(string typeName, string name) {
+      
+      if( _defaults.ContainsKey(typeName) )
+        return _defaults[typeName] == name;
+
+      return false;
     }
 
 
-    public void Store(string name, Type type, object obj) {
+    public void Store(string name, Type type, object obj, bool @default = false) {
 
       DataTemplate temp = _templates.SingleOrDefault(t => t.TypeName == type.FullName && t.Name == name);
       if( temp == null ) {
@@ -73,7 +140,10 @@ namespace ServiceBusMQ {
 
       temp.Object = obj;
 
-      WriteToDisk();
+      if( @default )
+        SetDefault(temp.TypeName, temp.Name);
+
+      WriteToDisk(temp);
     }
 
     public object Get(string name, Type type) {
@@ -89,10 +159,19 @@ namespace ServiceBusMQ {
 
       var item = _templates.FirstOrDefault(t => t.Name == name && t.TypeName == type.FullName);
 
-      if( item != null )
+      if( item != null ) {
+        
+        if( item.FileName.IsValid() )
+          File.Delete(item.FileName);
+
+        if( _defaults.Any( d => d.Key == item.TypeName && d.Value == item.Name ) ) {
+          _defaults.Remove( item.TypeName );
+          SaveDefaults();        
+        }
+        
         _templates.Remove(item);
- 
-      WriteToDisk();
+      }
     }
+
   }
 }

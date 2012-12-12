@@ -142,6 +142,9 @@ namespace ServiceBusMQManager {
     private void RestartSystem() {
       _timer.Stop();
 
+      if( _sys != null )
+        _sys.Manager.Dispose();
+
       _sys = SbmqSystem.Create();
       _sys.ItemsChanged += MessageMgr_ItemsChanged;
 

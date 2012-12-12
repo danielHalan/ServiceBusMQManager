@@ -33,13 +33,15 @@ namespace ServiceBusMQManager.Dialogs {
   /// Interaction logic for CreateTemplateDialog.xaml
   /// </summary>
   public partial class CreateTemplateDialog : Window {
-    
-    string[] _existing;
-    
-    public CreateTemplateDialog(string[] existing) {
+
+    DataTemplateManager.DataTemplate[] _existing;
+    Type _type;
+
+    public CreateTemplateDialog(DataTemplateManager.DataTemplate[] existing, Type type) {
       InitializeComponent();
 
       _existing = existing;
+      _type = type;
 
       tbName.Focus();
     }
@@ -65,7 +67,7 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void tbName_TextChanged(object sender, TextChangedEventArgs e) {
-      bool exist = _existing.Any( s => string.Compare(s, tbName.Text, true) == 0 );
+      bool exist = _existing.Any( s => s.TypeName == _type.FullName && string.Compare(s.Name, tbName.Text, true) == 0 );
 
       if( exist ) {
         lbInfo.Content = "Template with that name already exists";
