@@ -56,8 +56,10 @@ namespace ServiceBusMQ.NServiceBus {
         if( qt != QueueType.Error ) {
           foreach( var q in GetQueueListByType(qt) ) {
             var t = new Thread(new ParameterizedThreadStart(PeekMessages));
-            t.Name = "PEEK-MSMQ-" + q.GetDisplayName();
-            t.Start(new PeekThreadParam() { Queue = q, QueueType = qt });
+            if( q.CanRead ) {
+              t.Name = "PEEK-MSMQ-" + q.GetDisplayName();
+              t.Start(new PeekThreadParam() { Queue = q, QueueType = qt });
+            }
           }
         }
       }
@@ -260,7 +262,7 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( var q in queues ) {
         string qName = q.GetDisplayName();
 
-        if( IsIgnoredQueue(qName) )
+        if( IsIgnoredQueue(qName) || !q.CanRead )
           continue;
 
         q.MessageReadPropertyFilter.ArrivedTime = true;
@@ -347,8 +349,10 @@ namespace ServiceBusMQ.NServiceBus {
 
       List<MessageSubscription> r = new List<MessageSubscription>();
 
-      foreach( var q in MessageQueue.GetPrivateQueuesByMachine(server).
-                                            Where(q => q.FormatName.EndsWith(".subscriptions")) ) {
+      foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
+                                            Where(q => q.QueueName.EndsWith(".subscriptions")).Select( q => q.QueueName ) ) {
+
+        MessageQueue q = CreateMessageQueue(server, queueName, QueueAccessMode.ReceiveAndAdmin);
 
         q.MessageReadPropertyFilter.Label = true;
         q.MessageReadPropertyFilter.Body = true;
