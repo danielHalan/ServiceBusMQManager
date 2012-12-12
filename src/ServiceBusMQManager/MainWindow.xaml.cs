@@ -94,7 +94,7 @@ namespace ServiceBusMQManager {
 
         handled = true;
         return new IntPtr(1);
-      
+
       } else handled = false;
 
       return IntPtr.Zero;
@@ -154,6 +154,8 @@ namespace ServiceBusMQManager {
       RestoreMonitorQueueState();
 
       lbItems.ItemsSource = _mgr.Items;
+
+      timer_Tick(this, EventArgs.Empty);
 
       _timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
       _timer.Start();
@@ -265,7 +267,7 @@ namespace ServiceBusMQManager {
 
       _notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(mi);
       _notifyIcon.Icon = new System.Drawing.Icon(this.GetImageResourceStream("trayIcon.ico"));
-      _notifyIcon.DoubleClick += (sender,args) => { ShowMainWindow(); };
+      _notifyIcon.DoubleClick += (sender, args) => { ShowMainWindow(); };
 
       _notifyIcon.Visible = true;
     }
@@ -314,6 +316,11 @@ namespace ServiceBusMQManager {
 
 
     private void SetupQueueMonitorTimer(int ms) {
+      
+      // Begin with a refresh
+      timer_Tick(this, EventArgs.Empty);
+
+      // now setup the timer...
       _timer = new DispatcherTimer();
       _timer.Interval = TimeSpan.FromMilliseconds(ms);
       _timer.Tick += timer_Tick;
