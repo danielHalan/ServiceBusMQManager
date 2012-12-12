@@ -29,7 +29,8 @@ using ServiceBusMQ.Manager;
 using System.Reflection;
 using ServiceBusMQ;
 
-namespace ServiceBusMQManager.MessageBus.NServiceBus {
+namespace ServiceBusMQ.NServiceBus {
+
   public abstract class NServiceBusManagerBase : MessageManagerBase {
 
 
@@ -199,6 +200,13 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     IBus _bus;
 
+    protected bool IsLocalHost(string server) {
+      return ( string.Compare(server,"localhost", true) == 0 ||
+            server == "127.0.0.1" ||
+          string.Compare(server, Environment.MachineName, true) == 0 );
+    }
+   
+
     public override void SetupBus(string[] assemblyPaths) {
 
       List<Assembly> asms = new List<Assembly>();
@@ -229,13 +237,11 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     public override void SendCommand(string destinationServer, string destinationQueue, object message) {
 
 
-      
-      if( string.Compare(destinationServer,"localhost", true) == 0 ||
-          string.Compare(destinationServer, Environment.MachineName, true) == 0 ||
-           destinationServer == "127.0.0.1"  )
+
+      if( IsLocalHost(destinationServer) )
         destinationServer = null;
 
-      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationServer + "@" + destinationQueue : destinationQueue;
+      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationQueue + "@" + destinationServer : destinationQueue;
 
 
       //var assemblies = message.GetType().Assembly

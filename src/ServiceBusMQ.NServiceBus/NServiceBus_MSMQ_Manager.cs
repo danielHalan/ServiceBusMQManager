@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using ServiceBusMQ;
 using ServiceBusMQ.Model;
 
-namespace ServiceBusMQManager.MessageBus.NServiceBus {
+namespace ServiceBusMQ.NServiceBus {
 
   public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase {
 
@@ -56,7 +56,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
         if( qt != QueueType.Error ) {
           foreach( var q in GetQueueListByType(qt) ) {
             var t = new Thread(new ParameterizedThreadStart(PeekMessages));
-            t.Name = "PEEK-MSMQ-" + q.QueueName;
+            t.Name = "PEEK-MSMQ-" + q.GetDisplayName();
             t.Start(new PeekThreadParam() { Queue = q, QueueType = qt });
           }
         }
@@ -65,8 +65,8 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
 
     public void PeekMessages(object prm) {
       PeekThreadParam p = prm as PeekThreadParam;
-      string qName = p.Queue.QueueName.Replace("private$\\", "");
-      int sameCount = 0;
+      string qName = p.Queue.GetDisplayName();
+      uint sameCount = 0;
       string lastId = string.Empty;
 
       bool _isPeeking = false;
@@ -83,21 +83,17 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
           if( msg.Id == lastId )
             sameCount++;
 
-          else TryAddItem(msg, qName, p.QueueType);
+          else {
+            sameCount = 0;
+            TryAddItem(msg, qName, p.QueueType);
+          }
 
           if( lastId != msg.Id )
             lastId = msg.Id;
 
-          if( sameCount == 10 ) { // Nobody picking up the message
-            sameCount = 0;
-            Thread.Sleep(500);
-          }
-
-          p.Queue.BeginPeek();
-
-        } else _isPeeking = false;
+        } 
+        _isPeeking = false;
       };
-
 
       while( !_disposed ) {
 
@@ -108,12 +104,24 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
             return;
         }
 
+
         if( !_isPeeking ) {
+
+          if( sameCount > 0 ) {
+            if( sameCount / 10.0F == 1.0F ) 
+              Thread.Sleep(100);
+
+            else if( sameCount / 100.0F == 1.0F ) 
+              Thread.Sleep(200);
+
+            else if( sameCount % 300 == 0 ) 
+              Thread.Sleep(500);
+          }
           p.Queue.BeginPeek();
           _isPeeking = true;
         }
 
-        Thread.Sleep(1000);
+        Thread.Sleep(100);
       }
 
 
@@ -143,12 +151,19 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
           Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
     }
     public override bool CanAccessQueue(string server, string queueName) {
-      if( !queueName.StartsWith("private$\\") )
-        queueName = "private$\\" + queueName;
-
-      var queue = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName == queueName).FirstOrDefault();
+      var queue = CreateMessageQueue(server, queueName, QueueAccessMode.ReceiveAndAdmin);
 
       return queue != null ? queue.CanRead : false;
+    }
+
+    
+    private MessageQueue CreateMessageQueue(string serverName, string queueName, QueueAccessMode accessMode) {
+      if( !queueName.StartsWith("private$\\") )
+        queueName = "Private$\\" + queueName;
+
+      queueName = string.Format("FormatName:DIRECT=OS:{0}\\{1}", !IsLocalHost(serverName) ? serverName : ".", queueName);
+
+      return new MessageQueue(queueName, false, true, accessMode);
     }
 
 
@@ -160,31 +175,43 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
         _msgQueues.Clear();
         _errorQueues.Clear();
 
-        var queues = MessageQueue.GetPrivateQueuesByMachine(_serverName);
+        //var queues = MessageQueue.GetPrivateQueuesByMachine(_serverName);
 
-        foreach( var q in queues ) {
-          string qName = q.QueueName.Replace("private$\\", "");
+        foreach( var name in _watchEventQueues ) 
+          _eventQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
 
-          if( _watchEventQueues.Any(w1 => qName.StartsWith(w1)) )
-            _eventQueues.Add(q);
+        foreach( var name in _watchCommandQueues )
+          _cmdQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
 
-          else if( _watchCommandQueues.Any(w2 => qName.StartsWith(w2)) )
-            _cmdQueues.Add(q);
+        foreach( var name in _watchMessageQueues )
+          _msgQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
 
-          else if( _watchMessageQueues.Any(w3 => qName.StartsWith(w3)) )
-            _msgQueues.Add(q);
-
-          else if( _watchErrorQueues.Any(w4 => qName.StartsWith(w4)) )
-            _errorQueues.Add(q);
+        foreach( var name in _watchErrorQueues )
+          _errorQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
 
 
-        }
+        //foreach( var q in queues ) {
+        //  string qName = q.QueueName.Replace("private$\\", "");
+
+        //  if( _watchEventQueues.Any(w1 => qName.StartsWith(w1)) )
+        //    _eventQueues.Add(q);
+
+        //  else if( _watchCommandQueues.Any(w2 => qName.StartsWith(w2)) )
+        //    _cmdQueues.Add(q);
+
+        //  else if( _watchMessageQueues.Any(w3 => qName.StartsWith(w3)) )
+        //    _msgQueues.Add(q);
+
+        //  else if( _watchErrorQueues.Any(w4 => qName.StartsWith(w4)) )
+        //    _errorQueues.Add(q);
+        //}
 
       } catch( Exception e ) {
         OnError("Error occured when loading queues", e, true);
       }
 
     }
+
 
     private List<QueueItem> LoadSubscriptionQueues(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
       if( queues.Count == 0 )
@@ -193,7 +220,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
       List<QueueItem> r = new List<QueueItem>();
 
       foreach( var q in queues ) {
-        string qName = q.QueueName.Replace("private$\\", "");
+        string qName = q.GetDisplayName();
 
         if( !IsSubscriptionQueue(qName) )
           continue;
@@ -231,7 +258,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
       List<QueueItem> r = new List<QueueItem>();
 
       foreach( var q in queues ) {
-        string qName = q.QueueName.Replace("private$\\", "");
+        string qName = q.GetDisplayName();
 
         if( IsIgnoredQueue(qName) )
           continue;
@@ -299,7 +326,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
         case QueueType.Error: qs = _errorQueues; break;
       }
 
-      return qs.Single(i => i.QueueName.EndsWith(itm.QueueName));
+      return qs.Single(i => i.FormatName.EndsWith(itm.QueueName));
     }
 
     public override string LoadMessageContent(QueueItem itm) {
@@ -321,13 +348,13 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
       List<MessageSubscription> r = new List<MessageSubscription>();
 
       foreach( var q in MessageQueue.GetPrivateQueuesByMachine(server).
-                                            Where(q => q.QueueName.EndsWith(".subscriptions")) ) {
+                                            Where(q => q.FormatName.EndsWith(".subscriptions")) ) {
 
         q.MessageReadPropertyFilter.Label = true;
         q.MessageReadPropertyFilter.Body = true;
 
         try {
-          var publisher = q.QueueName.Replace(".subscriptions", string.Empty).Replace("private$\\", string.Empty);
+          var publisher = q.GetDisplayName().Replace(".subscriptions", string.Empty);
 
           foreach( var msg in q.GetAllMessages() ) {
 
@@ -368,7 +395,7 @@ namespace ServiceBusMQManager.MessageBus.NServiceBus {
     public override void PurgeErrorMessages(string queueName) {
       string name = "private$\\" + queueName;
 
-      _errorQueues.Where(q => q.QueueName == name).Single().Purge();
+      _errorQueues.Where(q => q.GetDisplayName() == name).Single().Purge();
 
       OnItemsChanged();
     }
