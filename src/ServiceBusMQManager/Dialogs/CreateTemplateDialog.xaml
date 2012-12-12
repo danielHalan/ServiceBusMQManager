@@ -101,13 +101,13 @@
                 </Button.Template>
             </Button>
             <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="20,98,0,0" VerticalAlignment="Top" FontFamily="Calibri" FontSize="13" Foreground="#FF8B8B8B" Width="328"/>
-            <CheckBox x:Name="cDefault" Content="Set as Default for this Data Type" 
-            	HorizontalAlignment="Left" Margin="56,126,0,0" 
+            <CheckBox x:Name="cDefault" Content="Use as Default for all attributes of this Data Type" 
+            	HorizontalAlignment="Left" Margin="28,125,0,0" 
             	VerticalAlignment="Top" 
-            	FontFamily="Calibri" FontSize="14" Width="274" Height="22" Foreground="#FF5F5F5F" Background="White" BorderBrush="#FF979797" RenderTransformOrigin="0.5,0.5" Grid.Column="0">
+            	FontFamily="Calibri" FontSize="14" Width="298" Height="22" Foreground="#FF5F5F5F" Background="White" BorderBrush="#FF979797" RenderTransformOrigin="0.5,0.5" Grid.Column="0">
                 <CheckBox.RenderTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleX="1.22" ScaleY="1.22"/>
+                        <ScaleTransform ScaleX="1.0" ScaleY="1.00"/>
                         <SkewTransform/>
                         <RotateTransform/>
                         <TranslateTransform/>
