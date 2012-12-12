@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -49,12 +50,19 @@ namespace ServiceBusMQManager {
       t.LineWrapping.IndentMode = LineWrappingIndentMode.Same;
       t.LineWrapping.Mode = LineWrappingMode.Word;
       t.ConfigurationManager.Language = "xml";
+      foreach( var m in t.Margins )
+        m.Width = 0;
 
       SourceInitialized += ContentWindow_SourceInitialized;
+
+
+
+      this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
     }
 
     void ContentWindow_SourceInitialized(object sender, EventArgs e) {
-
+ 
+      this.HideFromProgramSwitcher();
     }
 
 
@@ -119,6 +127,11 @@ namespace ServiceBusMQManager {
     internal void SetTitle(string str) {
       lbTitle.Content = str;
       this.Title = str;
+    }
+
+
+    private void frmContent_Activated_1(object sender, EventArgs e) {
+      App.Current.MainWindow.EnsureVisibility();
     }
   }
 }

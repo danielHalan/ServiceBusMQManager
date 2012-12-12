@@ -129,7 +129,7 @@ namespace ServiceBusMQManager {
 
       RestoreUIState();
 
-      this.Icon = BitmapFrame.Create(_GetImageResourceStream("main.ico"));
+      this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
 
       lbItems.ItemsSource = _mgr.Items;
 
@@ -261,7 +261,7 @@ namespace ServiceBusMQManager {
       mi[0].Click += miClose_Click;
 
       _notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(mi);
-      _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIcon.ico"));
+      _notifyIcon.Icon = new System.Drawing.Icon(this.GetImageResourceStream("trayIcon.ico"));
       _notifyIcon.DoubleClick += (sender,args) => { ShowMainWindow(); };
 
       _notifyIcon.Visible = true;
@@ -292,13 +292,13 @@ namespace ServiceBusMQManager {
           try {
             this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
                 new Action(delegate() {
-              _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIconActivity.ico"));
+              _notifyIcon.Icon = new System.Drawing.Icon(this.GetImageResourceStream("trayIconActivity.ico"));
             }));
             Thread.Sleep(500);
 
             this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
                 new Action(delegate() {
-              _notifyIcon.Icon = new System.Drawing.Icon(_GetImageResourceStream("trayIcon.ico"));
+              _notifyIcon.Icon = new System.Drawing.Icon(this.GetImageResourceStream("trayIcon.ico"));
             }));
 
             _showingActivityTrayIcon = false;
@@ -362,9 +362,6 @@ namespace ServiceBusMQManager {
     }
 
 
-    private Stream _GetImageResourceStream(string name) {
-      return this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQManager.Images." + name);
-    }
     private void _UpdateContextMenuItem(MenuItem mi, QueueItem itm) {
       mi.IsEnabled = itm != null;
 
@@ -432,7 +429,7 @@ namespace ServiceBusMQManager {
 
         //_dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
         //_dlg.Top = this.Top - _dlg.Height;
-        _dlg.SetTitle(itm.Id);
+        _dlg.SetTitle(itm.DisplayName);
 
 
         if( !_dlgShown ) {
@@ -467,7 +464,7 @@ namespace ServiceBusMQManager {
       miToggleOnTop.IsChecked = value;
 
       // Update Icon
-      imgAlwaysOnTop.Source = value ? BitmapFrame.Create(_GetImageResourceStream("pinned.png")) : BitmapFrame.Create(_GetImageResourceStream("unpinned.png"));
+      imgAlwaysOnTop.Source = value ? BitmapFrame.Create(this.GetImageResourceStream("pinned.png")) : BitmapFrame.Create(this.GetImageResourceStream("unpinned.png"));
     }
     private void ChangedMonitorFlag(QueueType type, bool newState) {
       switch( type ) {
@@ -705,6 +702,13 @@ namespace ServiceBusMQManager {
       var dlg = new ViewSubscriptionsWindow(_sys);
 
       dlg.Show();
+    }
+
+    private void frmMain_Activated(object sender, EventArgs e) {
+
+      if( _dlg != null && _dlg.IsVisible )
+        _dlg.EnsureVisibility();
+
     }
 
 

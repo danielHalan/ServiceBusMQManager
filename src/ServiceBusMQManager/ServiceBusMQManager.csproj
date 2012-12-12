@@ -76,6 +76,9 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="WpfAnimatedGif">
+      <HintPath>..\packages\WpfAnimatedGif-1.3.5\WpfAnimatedGif.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -391,6 +394,7 @@
     <EmbeddedResource Include="Images\template-fold.png" />
     <Resource Include="Images\refresh-white.png" />
     <Resource Include="Images\refresh.png" />
+    <Resource Include="Images\loading.gif" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

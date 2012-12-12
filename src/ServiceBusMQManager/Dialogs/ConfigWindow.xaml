@@ -1,6 +1,7 @@
 ﻿<Window xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls" x:Name="frmConfig"  x:Class="ServiceBusMQManager.Dialogs.ConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         Title="ConfigWindow" Height="918.5" Width="700" WindowStartupLocation="CenterScreen"
         MinWidth="600"
         WindowStyle="None" 
@@ -164,6 +165,9 @@
                             </TransformGroup>
                         </CheckBox.RenderTransform>
                     </CheckBox>
+                    <Image x:Name="imgServerLoading" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="32" Margin="610,29,0,0" Grid.Row="1" 
+                           VerticalAlignment="Top" Width="32"  Visibility="Hidden"
+                           gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading.gif" />
 
 
 

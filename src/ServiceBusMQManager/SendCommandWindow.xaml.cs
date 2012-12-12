@@ -75,16 +75,18 @@ namespace ServiceBusMQManager {
 
       savedCommands.Init(system.SavedCommands);
 
+      tbServer.Text = system.Config.ServerName;
 
       cbQueue.ItemsSource = system.Config.WatchCommandQueues;
-      cbQueue.SelectedIndex = 0;
 
     }
 
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
-      _sys.UIState.RestoreControlState(tbServer, _sys.Config.ServerName);
+      //_sys.UIState.RestoreControlState(tbServer, _sys.Config.ServerName);
       _sys.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
+      if( cbQueue.SelectedIndex == -1 )
+        cbQueue.SelectedIndex = 0;
 
       _sys.UIState.RestoreWindowState(this);
     }

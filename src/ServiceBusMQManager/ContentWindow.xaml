@@ -8,7 +8,7 @@
         Topmost="True"
         WindowStyle="None" 
         ResizeMode="NoResize"
-        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove_1"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove_1" Activated="frmContent_Activated_1"
         >
 
 
@@ -25,7 +25,7 @@
                     VerticalAlignment="Top"
                     Fill="White"
 />
-            <Label Name="lbTitle" Content="TITLE" Margin="10,0,0,0" Foreground="DarkGray" />
+            <Label Name="lbTitle" Content="TITLE" Margin="10,0,0,0" Foreground="DarkGray" FontFamily="Segoe UI" FontSize="15"  />
                 <Button
                 HorizontalAlignment="Right"
                 Margin="500,6,8,0"
@@ -40,7 +40,7 @@
                     FontSize="13.333" />
                 </Button>
 
-                    <WindowsFormsHost Name="w32" Margin="0,30,0,0" Background="Transparent"  >
+                    <WindowsFormsHost Name="w32" Margin="10,30,0,0" Background="Transparent"  >
                         <sc:Scintilla Name="xmlContent" BorderStyle="None"></sc:Scintilla>
                     </WindowsFormsHost>
                 <!--<TextBox  Name="tbContent" Margin="12,10,8,10" FontFamily="Courier New" FontSize="13" BorderThickness="0"/>-->

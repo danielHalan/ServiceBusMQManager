@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -65,7 +66,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       cShowOnNewMessages.IsChecked = _config.ShowOnNewMessages;
       cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
-      
+
       queueCommands.BindItems(_config.WatchCommandQueues);
       queueEvents.BindItems(_config.WatchEventQueues);
       queueMessages.BindItems(_config.WatchMessageQueues);
@@ -120,10 +121,8 @@ namespace ServiceBusMQManager.Dialogs {
     private void StringListControl_AddItem_1(object sender, AddItemRoutedEventArgs e) {
       StringListControl s = sender as StringListControl;
 
-
-
-      SelectQueueDialog dlg = new SelectQueueDialog(_sys, _allQueueNames.Except( s.GetItems().ToList() ).ToArray() );
-      dlg.Title = "Select " + s.Title.Remove(s.Title.Length-1);
+      SelectQueueDialog dlg = new SelectQueueDialog(_sys, tbServer.RetrieveValue<string>(), _allQueueNames.Except(s.GetItems().ToList()).ToArray());
+      dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
@@ -149,9 +148,9 @@ namespace ServiceBusMQManager.Dialogs {
         }
       }
 
-      for(int i = 0; i < max.Length; i++) {
+      for( int i = 0; i < max.Length; i++ ) {
         if( max[i] > 0 )
-          grid.RowDefinitions[ROW + i].Height = new GridLength(max[i] );
+          grid.RowDefinitions[ROW + i].Height = new GridLength(max[i]);
       }
 
     }
@@ -159,7 +158,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void asmPaths_SizeChanged(object sender, SizeChangedEventArgs e) {
       StringListControl s = sender as StringListControl;
       var grid = s.Parent as Grid;
-      
+
       double max = 0;
 
       if( !double.IsNaN(s.Height) ) {
@@ -175,9 +174,9 @@ namespace ServiceBusMQManager.Dialogs {
       VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
       dialog.Description = "Please select Command Assembly Folder";
       dialog.UseDescriptionForTitle = true;
-      
+
       if( (bool)dialog.ShowDialog(this) ) {
-      
+
         e.Item = dialog.SelectedPath;
         e.Handled = true;
       }
@@ -185,14 +184,14 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {
-      
+
       SaveConfig();
-      
+
       DialogResult = true;
     }
 
     private void SaveConfig() {
-      
+
       _config.MessageBus = cbServiceBus.SelectedValue as string;
       _config.MessageBusQueueType = cbTransport.SelectedItem as string;
 
@@ -221,7 +220,7 @@ namespace ServiceBusMQManager.Dialogs {
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
-        
+
         tbCmdInherits.Text = dlg.SelectedType.QualifiedName;
       }
 
@@ -231,16 +230,42 @@ namespace ServiceBusMQManager.Dialogs {
       _sys.UIState.StoreWindowState(this);
     }
 
+
+
     private void tbServer_LostFocus_1(object sender, RoutedEventArgs e) {
       var name = tbServer.RetrieveValue() as string;
+      ServerChanged(name);
+    }
+
+    private void ServerChanged(string name) {
+      imgServerLoading.Visibility = System.Windows.Visibility.Visible;
+
+      this.IsEnabled = false;
+
+      BackgroundWorker worker = new BackgroundWorker();
+      worker.DoWork += worker_DoWork;
+      worker.RunWorkerCompleted += (s, e) => {
+        if( !( (bool)e.Result ) )
+          tbServer.UpdateValue(_sys.Config.ServerName);
+
+        imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
+        this.IsEnabled = true;
+      };
+
+      worker.RunWorkerAsync(name);
+    }
+
+    void worker_DoWork(object sender, DoWorkEventArgs e) {
+      var name = e.Argument as string;
       try {
         _allQueueNames = _sys.Manager.GetAllAvailableQueueNames(name);
+        e.Result = true;
 
-      } catch { 
+      } catch {
         MessageBox.Show("Can not access Message Queues at Server " + name, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        tbServer.UpdateValue(_sys.Config.ServerName);
-      }
 
+        e.Result = false;
+      }
     }
 
 
