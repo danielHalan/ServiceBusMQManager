@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace ServiceBusMQ {
 
@@ -25,20 +26,71 @@ namespace ServiceBusMQ {
     public DateTime LastCheck = DateTime.MinValue;
   }
 
-  
-  public class SystemConfig1 : SystemConfig {
-
-    public string ServerName { get; set; }
-    public string[] WatchEventQueues { get; set; }
-    public string[] WatchCommandQueues { get; set; }
-    public string[] WatchMessageQueues { get; set; }
-    public string[] WatchErrorQueues { get; set; }
+  public class ServerConfig {
+    public string Name { get; set; }
 
     public string MessageBus { get; set; }
     public string MessageBusQueueType { get; set; }
 
-    public bool ShowOnNewMessages { get; set; }
     public int MonitorInterval { get; set; }
+    
+    public string[] WatchEventQueues { get; set; }
+    public string[] WatchCommandQueues { get; set; }
+    public string[] WatchMessageQueues { get; set; }
+    public string[] WatchErrorQueues { get; set; }
+  }
+
+  
+  public class SystemConfig1 : SystemConfig {
+    private ServerConfig _currentServer;
+    private string _monitorServer;
+
+    public List<ServerConfig> Servers { get; set; }
+    
+    [JsonIgnore]
+    public ServerConfig CurrentServer { get { 
+        if( _currentServer == null ) {
+          _currentServer = Servers.SingleOrDefault( s => s.Name == MonitorServer );
+        }
+
+        return _currentServer;
+      }
+    }
+
+    public string MonitorServer { get { return _monitorServer; }  
+      set {
+        if( _monitorServer != value ) {
+          _currentServer = null;
+          _monitorServer = value;
+        }
+      } 
+    }
+
+    //public string ServerName { get; set; }
+
+    [JsonIgnore]
+    public string[] WatchEventQueues { get { return CurrentServer.WatchEventQueues; } }
+    
+    [JsonIgnore]
+    public string[] WatchCommandQueues { get { return CurrentServer.WatchCommandQueues; } }
+    
+    [JsonIgnore]
+    public string[] WatchMessageQueues { get { return CurrentServer.WatchMessageQueues; } }
+    
+    [JsonIgnore]
+    public string[] WatchErrorQueues { get { return CurrentServer.WatchErrorQueues; } }
+
+    [JsonIgnore]
+    public string MessageBus { get { return CurrentServer.MessageBus; } }
+    
+    [JsonIgnore]
+    public string MessageBusQueueType { get { return CurrentServer.MessageBusQueueType; } }
+
+    [JsonIgnore]
+    public int MonitorInterval { get { return CurrentServer.MonitorInterval; } }
+
+
+    public bool ShowOnNewMessages { get; set; }
 
     public string[] CommandsAssemblyPaths { get; set; }
 
@@ -62,5 +114,7 @@ namespace ServiceBusMQ {
       }
 
     }
+
+    public int StartCount { get; set; }
   }
 }

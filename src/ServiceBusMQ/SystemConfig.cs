@@ -35,28 +35,38 @@ namespace ServiceBusMQ {
     public static SystemConfig1 Load() {
       SystemConfig1 cfg = null; 
 
-      if( File.Exists(_configFileV1) ) {
-        cfg = JsonFile.Read<SystemConfig1>(_configFileV1);
-      
-      } else { // Old config file fallback
+      bool loaded = false;
 
-        SystemConfig1 c = new SystemConfig1();
+      if( File.Exists(_configFileV1) ) {
+        try { 
+          cfg = JsonFile.Read<SystemConfig1>(_configFileV1);
+          loaded = cfg.Servers != null;
+        } catch {  }
+      }
+      
+      
+      if( !loaded ) { // Old ConfigFile + Defaults fallback
 
         var appSett = ConfigurationManager.AppSettings;
+        
+        SystemConfig1 c = new SystemConfig1();
+        c.MonitorServer = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
+        
+        c.Servers = new List<ServerConfig>();
+        c.Servers.Add(new ServerConfig() { Name = c.MonitorServer });
 
-        c.MessageBus = appSett["messageBus"] ?? "NServiceBus";
-        c.MessageBusQueueType = appSett["messageBusQueueType"] ?? "MSMQ";
 
+        c.CurrentServer.MessageBus = appSett["messageBus"] ?? "NServiceBus";
+        c.CurrentServer.MessageBusQueueType = appSett["messageBusQueueType"] ?? "MSMQ";
 
-        c.ServerName = !string.IsNullOrEmpty(appSett["server"]) ? appSett["server"] : Environment.MachineName;
-        c.WatchEventQueues = ParseStringList("event.queues");
-        c.WatchCommandQueues = ParseStringList("command.queues");
-        c.WatchMessageQueues = ParseStringList("message.queues");
-        c.WatchErrorQueues = ParseStringList("error.queues");
+        c.CurrentServer.WatchEventQueues = ParseStringList("event.queues");
+        c.CurrentServer.WatchCommandQueues = ParseStringList("command.queues");
+        c.CurrentServer.WatchMessageQueues = ParseStringList("message.queues");
+        c.CurrentServer.WatchErrorQueues = ParseStringList("error.queues");
+
+        c.CurrentServer.MonitorInterval = Convert.ToInt32(appSett["interval"] ?? "750");
 
         c.ShowOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
-
-        c.MonitorInterval = Convert.ToInt32(appSett["interval"] ?? "700");
 
         c.CommandsAssemblyPaths = ParseStringList("commandsAssemblyPath");
 

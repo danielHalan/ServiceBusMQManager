@@ -44,6 +44,14 @@ namespace ServiceBusMQ {
     }
 
 
+    public static bool IsLocalHost(string server) {
+      return ( string.Compare(server, "localhost", true) == 0 ||
+            server == "127.0.0.1" ||
+          string.Compare(server, Environment.MachineName, true) == 0 );
+    }
+
+
+
     public static object CreateNullable(Type baseType, object value) {
       Type nullableType = typeof(Nullable<>).MakeGenericType(baseType);
       

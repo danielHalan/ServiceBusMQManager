@@ -137,6 +137,11 @@ namespace ServiceBusMQ.Manager {
 
       List<QueueItem> items = new List<QueueItem>();
 
+      // TODO: Solve why we can not iterate thru Remote MQ, 
+      // both GetMessageEnumerator2() and GetAllMessages() should be available for
+      // Remote computer and direct format name, but returns zero (0) messages always
+      if( !Tools.IsLocalHost(_serverName) )
+        return;
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         items.AddRange(ProcessQueue(t));

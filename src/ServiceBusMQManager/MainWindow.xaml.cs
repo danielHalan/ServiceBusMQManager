@@ -41,7 +41,7 @@ namespace ServiceBusMQManager {
   public partial class MainWindow : Window {
 
     const int WM_APP = 0x8000;
-    public static readonly int WM_SHOWWINDOW = WM_APP + 1;
+    public const int WM_SHOWWINDOW = WM_APP + 1;
 
     private static readonly string[] BUTTON_LABELS = new string[] { "COMMANDS", "EVENTS", "MESSAGES", "ERRORS" };
     private static readonly char SPACE_SEPARATOR = ' ';
@@ -76,34 +76,27 @@ namespace ServiceBusMQManager {
       HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
       source.AddHook(WndProc);
 
-
-      if( _sys.Config.VersionCheck.Enabled ) {
-
-        if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
-          CheckIfLatestVersion(false);
-
-      }
-
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 
-      if( msg == WM_SHOWWINDOW ) {
+      switch( msg ) {
+        case WM_SHOWWINDOW:
 
-        ShowMainWindow();
+          ShowMainWindow();
 
-        handled = true;
-        return new IntPtr(1);
+          handled = true;
+          return new IntPtr(1);
 
-      } else handled = false;
-
-      return IntPtr.Zero;
+        default:
+          handled = false;
+          return IntPtr.Zero;
+      }
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
-      if( _mgr.EventQueues.Length == 0 && _mgr.CommandQueues.Length == 0 && _mgr.MessageQueues.Length == 0 && _mgr.ErrorQueues.Length == 0 ) {
-
+      if( _sys.Config.StartCount == 1 ) {
         ShowConfigDialog();
       }
 
@@ -119,24 +112,43 @@ namespace ServiceBusMQManager {
 
 
     private void InitSystem() {
-      _sys = SbmqSystem.Create();
-      _sys.ItemsChanged += MessageMgr_ItemsChanged;
-
-      _mgr = _sys.Manager;
-      _uiState = _sys.UIState;
+      
+      this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
 
       _dlg = new ContentWindow();
 
-      RestoreUIState();
+      _uiState = SbmqSystem.UIState;
+      RestoreWindowState();
+      
+      this.IsEnabled = false;
 
-      this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
+      BackgroundWorker w = new BackgroundWorker();
+      w.DoWork += (s,e) => {       
+        _sys = SbmqSystem.Create();
+        _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
-      lbItems.ItemsSource = _mgr.Items;
+        _mgr = _sys.Manager;
+      };
 
-      SetupContextMenu();
+      w.RunWorkerCompleted += (s,e) => { 
 
-      SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
+        RestoreQueueButtonsState();
+        this.IsEnabled = true;
 
+        lbItems.ItemsSource = _mgr.Items;
+
+        SetupContextMenu();
+
+        SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
+
+        if( _sys.Config.VersionCheck.Enabled ) {
+          if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
+            CheckIfLatestVersion(false);
+        }
+
+      };
+
+      w.RunWorkerAsync();
     }
 
     private void RestartSystem() {
@@ -145,20 +157,31 @@ namespace ServiceBusMQManager {
       if( _sys != null )
         _sys.Manager.Dispose();
 
-      _sys = SbmqSystem.Create();
-      _sys.ItemsChanged += MessageMgr_ItemsChanged;
+      this.IsEnabled = false;
+      lbItems.ItemsSource = null;
 
-      _mgr = _sys.Manager;
-      _uiState = _sys.UIState;
+      BackgroundWorker w = new BackgroundWorker();
+      w.DoWork += (s,e) => {       
+        _sys = SbmqSystem.Create();
+        _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
-      RestoreMonitorQueueState();
+        _mgr = _sys.Manager;
+      };
 
-      lbItems.ItemsSource = _mgr.Items;
+      w.RunWorkerCompleted += (s,e) => {
 
-      timer_Tick(this, EventArgs.Empty);
+        this.IsEnabled = true;
+        RestoreMonitorQueueState();
 
-      _timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
-      _timer.Start();
+        lbItems.ItemsSource = _mgr.Items;
+
+        timer_Tick(this, EventArgs.Empty);
+
+        _timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
+        _timer.Start();
+      };
+
+      w.RunWorkerAsync();
     }
 
     private void RestoreMonitorQueueState() {
@@ -316,7 +339,7 @@ namespace ServiceBusMQManager {
 
 
     private void SetupQueueMonitorTimer(int ms) {
-      
+
       // Begin with a refresh
       timer_Tick(this, EventArgs.Empty);
 
@@ -620,15 +643,17 @@ namespace ServiceBusMQManager {
 
       }
     }
-    private void RestoreUIState() {
+    private void RestoreWindowState() {
 
       SetAlwaysOnTop(_uiState.AlwaysOnTop);
 
-      if( !_uiState.RestoreWindowState(this) )
-        SetDefaultWindowPosition();
-
       _uiState.RestoreWindowState(_dlg);
 
+      if( !_uiState.RestoreWindowState(this) )
+        SetDefaultWindowPosition();
+    }
+
+    private void RestoreQueueButtonsState() {
       _uiState.RestoreControlState(btnCmd, true);
       _uiState.RestoreControlState(btnEvent, true);
       _uiState.RestoreControlState(btnMsg, false);

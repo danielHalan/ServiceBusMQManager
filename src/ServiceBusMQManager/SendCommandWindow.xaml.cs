@@ -69,32 +69,42 @@ namespace ServiceBusMQManager {
 
       _asmPath = system.Config.CommandsAssemblyPaths;
 
-      Topmost = system.UIState.AlwaysOnTop;
+      Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
       BindCommands();
 
       savedCommands.Init(system.SavedCommands);
 
-      tbServer.Text = system.Config.ServerName;
+      BindServers();
 
-      cbQueue.ItemsSource = system.Config.WatchCommandQueues;
+    }
 
+    private void BindServers() {
+      
+      cbServer.ItemsSource = _sys.Config.Servers;
+      cbServer.DisplayMemberPath = "Name";
+      cbServer.SelectedValuePath = "Name";
+      cbServer.SelectedIndex = 0;
+
+      var s = _sys.Config.Servers[0];
+      cbQueue.ItemsSource = s.WatchCommandQueues;
+      cbQueue.SelectedIndex = 0;
     }
 
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
-      //_sys.UIState.RestoreControlState(tbServer, _sys.Config.ServerName);
-      _sys.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
+      SbmqSystem.UIState.RestoreControlState(cbServer, cbServer.SelectedValue);
+      SbmqSystem.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
       if( cbQueue.SelectedIndex == -1 )
         cbQueue.SelectedIndex = 0;
 
-      _sys.UIState.RestoreWindowState(this);
+      SbmqSystem.UIState.RestoreWindowState(this);
     }
     private void frmSendCommand_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-      _sys.UIState.StoreControlState(tbServer);
-      _sys.UIState.StoreControlState(cbQueue);
+      SbmqSystem.UIState.StoreControlState(cbServer);
+      SbmqSystem.UIState.StoreControlState(cbQueue);
 
-      _sys.UIState.StoreWindowState(this);
+      SbmqSystem.UIState.StoreWindowState(this);
     }
 
 
@@ -172,9 +182,9 @@ namespace ServiceBusMQManager {
 
       try { 
         var queue = cbQueue.SelectedItem as string;
-        _mgr.SendCommand(tbServer.Text, queue, _cmd);
+        _mgr.SendCommand(cbServer.SelectedValue as string, queue, _cmd);
 
-        savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, tbServer.Text, queue);
+        savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, cbServer.SelectedValue as string, queue);
       
         Close();
 
@@ -220,6 +230,7 @@ namespace ServiceBusMQManager {
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
+        _asmPath = _sys.Config.CommandsAssemblyPaths;
 
         BindCommands();
       }
@@ -250,6 +261,12 @@ namespace ServiceBusMQManager {
     private void savedCommands_ExitEditMode(object sender, RoutedEventArgs e) {
       cbCommands.IsEnabled = true;
       btnSend.IsEnabled = true;
+    }
+
+    private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      ServerConfig s = cbServer.SelectedItem as ServerConfig;
+
+      cbQueue.ItemsSource = s.WatchCommandQueues;
     }
 
 

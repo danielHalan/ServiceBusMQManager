@@ -49,36 +49,68 @@ namespace ServiceBusMQManager.Dialogs {
 
       _sys = system;
 
-      Topmost = _sys.UIState.AlwaysOnTop;
-
-      tbServer.Init(_sys.Config.ServerName, typeof(string), false);
-
-      LoadSubscriptionTypes();
+      Topmost = SbmqSystem.UIState.AlwaysOnTop;
+      
+      BindServers();
 
       lvTypes.ItemsSource = _items;
 
       WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
+    private void BindServers() {
+
+      cbServer.ItemsSource = _sys.Config.Servers;
+      cbServer.DisplayMemberPath = "Name";
+      cbServer.SelectedValuePath = "Name";
+      cbServer.SelectedIndex = 0;
+    }
+
+
 
     private void frmViewSubscriptions_SourceInitialized(object sender, EventArgs e) {
-      _sys.UIState.RestoreWindowState(this);
+      SbmqSystem.UIState.RestoreWindowState(this);
+      SbmqSystem.UIState.RestoreControlState(cbServer, _sys.Config.MonitorServer);
+
+      //LoadSubscriptionTypes();
+
+
 
       tbFilter.Focus();
     }
 
-    private void LoadSubscriptionTypes() {
-      var subs = _sys.Manager.GetMessageSubscriptions(tbServer.RetrieveValue<string>());
-
-      _allItems.Clear();
-      _items.Clear();
-      foreach( var ms in subs ) {
-
-        _allItems.Add(ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
-
-        _items.Add(ms);
+    private void LoadSubscriptionTypes(string serverName = null) {
+      if( serverName == null )
+        serverName = cbServer.SelectedValue as string;
+      
+      if( !Tools.IsLocalHost(serverName) ) {
+        imgServerLoading.Visibility = System.Windows.Visibility.Visible;
+        btnRefresh.Visibility = System.Windows.Visibility.Hidden;
+        cbServer.IsEnabled = false;
       }
 
+      BackgroundWorker w = new BackgroundWorker();
+      w.DoWork += (s,e) =>  {  e.Result = _sys.Manager.GetMessageSubscriptions(serverName); };
+      w.RunWorkerCompleted += (s,e) => { 
+        MessageSubscription[] subs = e.Result as MessageSubscription[];
+
+        _allItems.Clear();
+        _items.Clear();
+        foreach( var ms in subs ) {
+
+          _allItems.Add(ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
+
+          _items.Add(ms);
+        }
+
+        if( !Tools.IsLocalHost(serverName) ) {
+          imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
+          btnRefresh.Visibility = System.Windows.Visibility.Visible;
+          cbServer.IsEnabled = true;
+        }
+      };
+      w.RunWorkerAsync();
+      
     }
 
     void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e) {
@@ -130,19 +162,19 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void frmViewSubscriptions_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-      _sys.UIState.StoreWindowState(this);
+      SbmqSystem.UIState.StoreWindowState(this);
     }
 
     private void TextInputControl_LostFocus_1(object sender, RoutedEventArgs e) {
 
-      try {
-        LoadSubscriptionTypes();
-        lbInfo.Content = string.Empty;
+      //try {
+      //  LoadSubscriptionTypes();
+      //  lbInfo.Content = string.Empty;
 
-      } catch { 
-        lbInfo.Content = "Could not access server";
-        tbServer.UpdateValue(_sys.Config.ServerName);
-      }
+      //} catch { 
+      //  lbInfo.Content = "Could not access server";
+      //  tbServer.UpdateValue(_sys.Config.CurrentServer.Name);
+      //}
 
     }
 
@@ -152,7 +184,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void btnRefresh_Click(object sender, RoutedEventArgs e) {
       LoadSubscriptionTypes();
 
-      if( _sys.Config.ServerName == (string)tbServer.RetrieveValue() ) {  
+      if( _sys.Config.CurrentServer.Name == (string)cbServer.SelectedValue ) {  
         lbInfo.Content = "Subscription list refreshed";
         _t = new System.Threading.Timer( (o) => { ClearInfo(); }, null, 2000, Timeout.Infinite);
       }
@@ -162,6 +194,11 @@ namespace ServiceBusMQManager.Dialogs {
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
         lbInfo.Content = "";
       }));
+    }
+
+    private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
+      LoadSubscriptionTypes((e.AddedItems[0] as ServerConfig).Name);
     }
 
 

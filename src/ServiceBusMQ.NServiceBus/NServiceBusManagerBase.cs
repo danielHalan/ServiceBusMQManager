@@ -200,11 +200,6 @@ namespace ServiceBusMQ.NServiceBus {
 
     IBus _bus;
 
-    protected bool IsLocalHost(string server) {
-      return ( string.Compare(server,"localhost", true) == 0 ||
-            server == "127.0.0.1" ||
-          string.Compare(server, Environment.MachineName, true) == 0 );
-    }
    
 
     public override void SetupBus(string[] assemblyPaths) {
@@ -238,7 +233,7 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
-      if( IsLocalHost(destinationServer) )
+      if( Tools.IsLocalHost(destinationServer) )
         destinationServer = null;
 
       string dest = !string.IsNullOrEmpty(destinationServer) ? destinationQueue + "@" + destinationServer : destinationQueue;

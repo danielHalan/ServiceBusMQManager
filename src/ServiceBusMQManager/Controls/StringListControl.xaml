@@ -16,12 +16,8 @@
         <local:RoundMetroButton Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Click="AddItem_Click" Height="33"
     		Source="/ServiceBusMQManager;component/Images/add-white.png" Margin="0,10,0,0" />
 
-        <Label x:Name="lbEmpty" Content="&lt;&lt; No items >>" Grid.Row="1" Margin="30,-10,0,0" HorizontalContentAlignment="Left" FontStyle="Italic" FontFamily="Segoe IO" FontSize="15" Foreground="#FFBDBDBD" />
+        <Label x:Name="lbEmpty" Content="&lt;&lt; No items >>" Grid.Row="1" Margin="30,-10,0,0" HorizontalContentAlignment="Left" FontStyle="Italic" FontFamily="Segoe UI" FontSize="15" Foreground="#FFBDBDBD" />
         <StackPanel Name="theStack" Grid.Row="1">
-            <!--<Grid>
-                <TextBlock Text="sdsdsdsd" FontSize="18" FontFamily="Calibri" Margin="5,0,43,0" VerticalAlignment="Center" />
-                <local:RoundMetroButton Source="/ServiceBusMQManager;component/Images/delete-item.png" Height="32" HorizontalAlignment="Right" Margin="0,0,4,4" />
-            </Grid>-->
         </StackPanel>
 
     </Grid>

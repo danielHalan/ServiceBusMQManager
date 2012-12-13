@@ -4,6 +4,7 @@
         xmlns:ServiceBusMQManager="clr-namespace:ServiceBusMQManager"  
         xmlns:local="clr-namespace:ServiceBusMQManager.Dialogs" x:Name="frmViewSubscriptions"  
         x:Class="ServiceBusMQManager.Dialogs.ViewSubscriptionsWindow"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         
         Title="View Subscriptions" Height="555.17" Width="660.213" WindowStartupLocation="CenterScreen"
         
@@ -190,9 +191,12 @@
                 </TextBox.Style>
             </TextBox>
             <Image Height="35" Margin="0,52,12,0" VerticalAlignment="Top" Source="/ServiceBusMQManager;component/Images/search.png" HorizontalAlignment="Right" Width="37"/>
-            <Controls:TextInputControl x:Name="tbServer" HorizontalAlignment="Left" Margin="18,0,0,15" LostFocus="TextInputControl_LostFocus_1" VerticalAlignment="Bottom" Width="255"/>
+            <ComboBox Name="cbServer" HorizontalAlignment="Left" Margin="18,0,0,15" Width="255" VerticalAlignment="Bottom" BorderBrush="DarkGray" BorderThickness="1" Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" SelectionChanged="cbServer_SelectionChanged" />
             <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="323,0,0,15" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" Width="216"/>
             <Controls:RoundMetroButton x:Name="btnRefresh" Click="btnRefresh_Click" Height="35" VerticalAlignment="Bottom" Margin="278,0,0,13"  Source="/ServiceBusMQManager;component/Images/refresh.png" HorizontalAlignment="Left" Width="40" />
+            
+            <Image x:Name="imgServerLoading" HorizontalAlignment="Left" Margin="278,0,0,16" Width="32" Visibility="Hidden"
+                		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading-white.gif" Height="32" VerticalAlignment="Bottom" />
         </Grid>
     </Border>
 </Window>

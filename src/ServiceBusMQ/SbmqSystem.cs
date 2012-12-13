@@ -30,7 +30,7 @@ namespace ServiceBusMQ {
 
     IMessageManager _mgr;
     CommandHistoryManager _history;
-    UIStateConfig _uiState = new UIStateConfig();
+    static UIStateConfig _uiState = new UIStateConfig();
 
     private SbmqSystem() {
     }
@@ -40,11 +40,13 @@ namespace ServiceBusMQ {
 
       Config = SystemConfig.Load();
 
+      Config.StartCount += 1;
+
       _mgr = MessageBusFactory.Create(Config.MessageBus, Config.MessageBusQueueType);
       _mgr.ErrorOccured += MessageMgr_ErrorOccured;
       _mgr.ItemsChanged += _mgr_ItemsChanged;
 
-      _mgr.Init(Config.ServerName, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues,
+      _mgr.Init(Config.MonitorServer, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues,
                                 Config.CommandDefinition);
 
       _history = new CommandHistoryManager();
@@ -104,7 +106,7 @@ namespace ServiceBusMQ {
     public IMessageManager Manager { get { return _mgr; } }
     public SystemConfig1 Config { get; private set; }
     public CommandHistoryManager SavedCommands { get { return _history; } }
-    public UIStateConfig UIState { get { return _uiState; } }
+    public static UIStateConfig UIState { get { return _uiState; } }
 
     static string _appDataPath = null;
     public static string AppDataPath {

@@ -52,10 +52,13 @@ namespace ServiceBusMQManager.Controls {
     }
 
     public void BindItems(string[] items) {
-      
-      foreach(var itm in items) 
-        AddListItem(itm);
+      theStack.Children.Clear();
+      _items.Clear();
 
+      if( items != null ) {
+        foreach(var itm in items) 
+          AddListItem(itm);
+      }
 
       UpdateEmptyLabel();
     }
@@ -83,11 +86,6 @@ namespace ServiceBusMQManager.Controls {
 
     private void AddListItem(string str) {
     
-            //<Grid>
-            //    <TextBlock Text="sdsdsdsd" FontSize="18" FontFamily="Calibri" Margin="5,0,43,0" VerticalAlignment="Center" />
-            //    <local:RoundMetroButton Source="/ServiceBusMQManager;component/Images/delete-item.png" Height="32" HorizontalAlignment="Right" Margin="0,0,4,4" />
-            //</Grid>
-
       var id = ++_lastId;
 
       _items.Add(id, str);

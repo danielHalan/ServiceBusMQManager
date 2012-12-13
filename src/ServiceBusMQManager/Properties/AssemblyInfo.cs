@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using System.Windows;
 
 // General Information about an assembly is controlled through the following 
@@ -30,6 +31,8 @@ using System.Windows;
 [assembly: AssemblyCopyright("Copyright ©2012 ITQ.COM, all rights reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+[assembly: PermissionSetAttribute(SecurityAction.RequestMinimum, Name="FullTrust")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

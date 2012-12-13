@@ -43,7 +43,7 @@ namespace ServiceBusMQManager.Dialogs {
       _sys = system;
       _server = server;
 
-      Topmost = system.UIState.AlwaysOnTop;
+      Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
       lbQueues.ItemsSource = queueNames;
     }

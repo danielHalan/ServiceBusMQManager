@@ -73,7 +73,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       _asmPaths = asmPaths;
 
-      Topmost = system.UIState.AlwaysOnTop;
+      Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
       LoadTypes();
 
