@@ -27,7 +27,7 @@ using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  [PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
+  //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
   public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase {
 
     class PeekThreadParam {
