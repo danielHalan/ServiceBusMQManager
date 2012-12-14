@@ -49,7 +49,7 @@ namespace ServiceBusMQManager.Dialogs {
     ObservableCollection<ServerConfig> _servers = new ObservableCollection<ServerConfig>();
 
 
-    public ConfigWindow(SbmqSystem system) {
+    public ConfigWindow(SbmqSystem system, bool showSendCommand = false) {
       InitializeComponent();
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
@@ -87,8 +87,11 @@ namespace ServiceBusMQManager.Dialogs {
 
       tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
 
-
       HandleHeight();
+
+      if( showSendCommand )
+        scroller.ScrollToBottom();
+
     }
 
     private void BindServers(List<ServerConfig> list) {
@@ -105,6 +108,7 @@ namespace ServiceBusMQManager.Dialogs {
       SbmqSystem.UIState.RestoreWindowState(this);
 
       GetAllAvailableQueueNamesForServer(_config.CurrentServer.Name);
+
     }
 
     private void GetAllAvailableQueueNamesForServer(string name) {

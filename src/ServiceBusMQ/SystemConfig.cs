@@ -66,7 +66,7 @@ namespace ServiceBusMQ {
 
         c.CurrentServer.MonitorInterval = Convert.ToInt32(appSett["interval"] ?? "750");
 
-        c.ShowOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "false");
+        c.ShowOnNewMessages = Convert.ToBoolean(appSett["showOnNewMessages"] ?? "true");
 
         c.CommandsAssemblyPaths = ParseStringList("commandsAssemblyPath");
 

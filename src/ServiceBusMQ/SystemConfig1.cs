@@ -89,7 +89,6 @@ namespace ServiceBusMQ {
     [JsonIgnore]
     public int MonitorInterval { get { return CurrentServer.MonitorInterval; } }
 
-
     public bool ShowOnNewMessages { get; set; }
 
     public string[] CommandsAssemblyPaths { get; set; }
@@ -116,5 +115,6 @@ namespace ServiceBusMQ {
     }
 
     public int StartCount { get; set; }
+
   }
 }

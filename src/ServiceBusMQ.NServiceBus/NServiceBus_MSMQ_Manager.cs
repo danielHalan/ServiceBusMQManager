@@ -165,7 +165,7 @@ namespace ServiceBusMQ.NServiceBus {
     
     private MessageQueue CreateMessageQueue(string serverName, string queueName, QueueAccessMode accessMode) {
       if( !queueName.StartsWith("private$\\") )
-        queueName = "Private$\\" + queueName;
+        queueName = "private$\\" + queueName;
 
       queueName = string.Format("FormatName:DIRECT=OS:{0}\\{1}", !Tools.IsLocalHost(serverName) ? serverName : ".", queueName);
 
@@ -249,7 +249,7 @@ namespace ServiceBusMQ.NServiceBus {
         q.MessageReadPropertyFilter.ArrivedTime = true;
         q.MessageReadPropertyFilter.Label = true;
         q.MessageReadPropertyFilter.Body = true;
-               
+
         try {
           foreach( var msg in q.GetAllMessages() ) {
 

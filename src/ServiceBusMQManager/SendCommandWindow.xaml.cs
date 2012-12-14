@@ -226,7 +226,7 @@ namespace ServiceBusMQManager {
 
 
     private void btnOpenConfig_Click(object sender, RoutedEventArgs e) {
-      ConfigWindow dlg = new ConfigWindow(_sys);
+      ConfigWindow dlg = new ConfigWindow(_sys, true);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
@@ -267,6 +267,9 @@ namespace ServiceBusMQManager {
       ServerConfig s = cbServer.SelectedItem as ServerConfig;
 
       cbQueue.ItemsSource = s.WatchCommandQueues;
+      
+      if( s.WatchCommandQueues.Length > 0 )
+        cbQueue.SelectedIndex = 0;
     }
 
 
