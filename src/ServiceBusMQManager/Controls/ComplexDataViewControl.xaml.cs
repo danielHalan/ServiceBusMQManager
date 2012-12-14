@@ -251,6 +251,13 @@ namespace ServiceBusMQManager.Controls {
 
 
     void ctl_DefineComplextType(object sender, ComplexTypeEventArgs e) {
+      if( e.Value == null ) {
+        var temp = GetTempManager().GetDefault(e.Type.FullName);
+        if( temp != null ) {
+          e.Value = temp.Object;
+        }
+      }
+      
       var p = CreateDataPanel(e.Type, e.AttributeName, e.Value);
 
       BindDataPanel(p, e.Type, e.Value);
