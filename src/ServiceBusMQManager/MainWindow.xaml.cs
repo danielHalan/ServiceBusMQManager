@@ -52,6 +52,8 @@ namespace ServiceBusMQManager {
     private UIStateConfig _uiState;
 
     private System.Windows.Forms.NotifyIcon _notifyIcon;
+    
+    private bool _isMinimized;
 
 
     private ContentWindow _dlg;
@@ -60,8 +62,6 @@ namespace ServiceBusMQManager {
 
     public MainWindow() {
       InitializeComponent();
-
-      //SourceInitialized += Window_SourceInitialized;
 
       CreateNotifyIcon();
     }
@@ -75,7 +75,6 @@ namespace ServiceBusMQManager {
 
       HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
       source.AddHook(WndProc);
-
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
@@ -96,9 +95,8 @@ namespace ServiceBusMQManager {
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
-      if( _sys.Config.StartCount == 1 ) {
-        ShowConfigDialog();
-      }
+      if( _uiState.IsMinimized )
+        Close();
 
     }
 
@@ -141,7 +139,11 @@ namespace ServiceBusMQManager {
 
         SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
 
-        if( _sys.Config.VersionCheck.Enabled ) {
+        
+        if( _sys.Config.StartCount == 1 ) {
+          ShowConfigDialog();
+        
+        } else if( _sys.Config.VersionCheck.Enabled ) {
           if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
             CheckIfLatestVersion(false);
         }
@@ -261,9 +263,20 @@ namespace ServiceBusMQManager {
     }
 
 
+    private void ChangeMinimizedState(bool value) {
+      if( _isMinimized != value ) {
+        _uiState.IsMinimized = _isMinimized = value;
+        _uiState.Save();
+      }
+    }
+
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
-      if( (bool)e.NewValue )
+      if( (bool)e.NewValue ) {
+
+        ChangeMinimizedState(false);
+
         SetSelectedItem((QueueItem)lbItems.SelectedItem);
+      }
     }
 
 
@@ -299,6 +312,8 @@ namespace ServiceBusMQManager {
       if( !this.IsVisible ) {
         this.Show();
         this.WindowState = WindowState.Normal;
+
+        ChangeMinimizedState(false);
       } else {
         this.Activate();
 
@@ -391,7 +406,13 @@ namespace ServiceBusMQManager {
       }));
     }
     private void timer_Tick(object sender, EventArgs e) {
-      _sys.Manager.RefreshQueueItems();
+      try { 
+        _sys.Manager.RefreshQueueItems();
+      } catch(Exception ex) {
+#if DEBUG
+        MessageBox.Show("Failed when fetching messages " + ex.Message);
+#endif
+      }
     }
 
 
@@ -447,6 +468,9 @@ namespace ServiceBusMQManager {
     private void SetSelectedItem(QueueItem itm) {
 
       if( itm != null && itm.Content != null ) {
+
+        if( _isMinimized )
+          return;
 
         if( _dlgShown && !_dlg.IsVisible ) {
           _dlg = new ContentWindow();
@@ -627,6 +651,8 @@ namespace ServiceBusMQManager {
 
       if( _uiState != null ) {
 
+        _uiState.IsMinimized = _isMinimized; 
+
         _uiState.StoreControlState(btnCmd);
         _uiState.StoreControlState(btnEvent);
         _uiState.StoreControlState(btnMsg);
@@ -645,12 +671,15 @@ namespace ServiceBusMQManager {
     }
     private void RestoreWindowState() {
 
+      _isMinimized = _uiState.IsMinimized;
+
       SetAlwaysOnTop(_uiState.AlwaysOnTop);
 
       _uiState.RestoreWindowState(_dlg);
 
       if( !_uiState.RestoreWindowState(this) )
         SetDefaultWindowPosition();
+
     }
 
     private void RestoreQueueButtonsState() {
@@ -697,14 +726,12 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void HandleCloseClick(Object sender, RoutedEventArgs e) {
-
+    private void HandleMinimizeToTrayClick(Object sender, RoutedEventArgs e) {
+      _isMinimized = true;
+      
       StoreUIState();
 
       Close();
-    }
-    private void HandleMinimizeClick(Object sender, RoutedEventArgs e) {
-      WindowState = WindowState.Minimized;
     }
 
 

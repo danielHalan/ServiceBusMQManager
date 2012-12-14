@@ -31,6 +31,7 @@ namespace ServiceBusMQ {
   public class UIStateConfig {
     
     private static readonly string KEY_ALWAYSONTOP = "_ALWAYSONTOP";
+    private static readonly string KEY_ISMINIMIZED = "_ISMINIMIZED";
     private static readonly string KEY_CONTROL = "_CTL";
 
 
@@ -209,6 +210,14 @@ namespace ServiceBusMQ {
 
     }
 
+    private T GetValue<T>(string key, T @default) {
+      if( _data.Values.ContainsKey(key) ) {
+        return  (T)_data.Values[key];
+
+      } else return @default;
+    }
+
+
     private bool GetValue(string key, out object value) {
       if( _data.Values.ContainsKey(key) ) {
         value = _data.Values[key];
@@ -248,19 +257,8 @@ namespace ServiceBusMQ {
 
     }
 
-
-    private void UpdateAlwaysOnTop(bool value) {
-      UpdateValue(KEY_ALWAYSONTOP, value);
-    }
-    private bool GetAlwaysOnTop() {
-      object v;
-      if( !GetValue(KEY_ALWAYSONTOP, out v) )
-        return true; // default true
-
-      return (bool)v;
-    }
-
-    public Boolean AlwaysOnTop { get { return GetAlwaysOnTop(); } set { UpdateAlwaysOnTop(value); } }
+    public Boolean AlwaysOnTop { get { return GetValue<bool>(KEY_ALWAYSONTOP, true); } set { UpdateValue(KEY_ALWAYSONTOP, value); } }
+    public Boolean IsMinimized { get { return GetValue<bool>(KEY_ISMINIMIZED, false); } set { UpdateValue(KEY_ISMINIMIZED, value); } }
 
     public void Save() {
       JsonFile.Write(_fileName, _data);

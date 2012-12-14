@@ -243,7 +243,7 @@
                 Width="18"
                 VerticalAlignment="Top"
                 Style="{StaticResource ChromeButtonStyle}"
-                Click="HandleCloseClick" Height="17">
+                Click="HandleMinimizeToTrayClick" Height="17">
                 <Image Source="Images/minimize.png" />
             </Button>
 
