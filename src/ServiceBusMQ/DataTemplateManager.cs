@@ -44,7 +44,7 @@ namespace ServiceBusMQ {
 
     public List<DataTemplate> Templates { get { return _templates; } }
 
-    public Dictionary<string, string> _defaults = new Dictionary<string, string>();
+    public Dictionary<string, string> _defaults;
 
 
     public DataTemplateManager() {
@@ -70,7 +70,10 @@ namespace ServiceBusMQ {
         } catch { }
       }
       
-      _defaults =  JsonFile.Read<Dictionary<string,string>>(_defaultsFile);
+      _defaults = JsonFile.Read<Dictionary<string,string>>(_defaultsFile);
+    
+      if( _defaults == null )
+        _defaults = new Dictionary<string,string>();
     }
 
     public void Save() {
