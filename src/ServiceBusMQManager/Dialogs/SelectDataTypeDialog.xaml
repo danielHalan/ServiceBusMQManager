@@ -103,7 +103,7 @@
     			VerticalAlignment="Top"
     			Fill="Transparent"
 />
-            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" x:Name="lbTitle" Margin="10,0,0,0" Foreground="DarkGray" FontFamily="Segoe UI Light" FontSize="20" Height="51" VerticalAlignment="Top" />
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" x:Name="lbTitle" Margin="10,0,0,0" Foreground="#858585" FontFamily="Segoe UI Light" FontSize="20" Height="51" VerticalAlignment="Top" />
             <Button
     			HorizontalAlignment="Right"
     			Margin="0,6,8,0"

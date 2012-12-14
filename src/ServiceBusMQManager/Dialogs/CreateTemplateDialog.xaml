@@ -28,7 +28,7 @@
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,0" Foreground="DarkGray" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="20" Height="41" />
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,0" Foreground="#858585" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="20" Height="41" />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,8,0"
