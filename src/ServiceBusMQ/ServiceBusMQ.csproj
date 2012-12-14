@@ -72,6 +72,7 @@
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="CommandHistoryManager.cs" />
+    <Compile Include="Model\QueueItemError.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

@@ -54,6 +54,9 @@ namespace ServiceBusMQ.Model {
 
     public string Content { get; set; }
 
+    public Dictionary<string, string> Headers { get; set; }
+
+    public QueueItemError Error { get; set; }
 
   }
 }

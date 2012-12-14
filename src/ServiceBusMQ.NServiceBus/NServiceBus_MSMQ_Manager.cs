@@ -16,12 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Messaging;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using NServiceBus.Utils;
 using ServiceBusMQ;
 using ServiceBusMQ.Model;
 
@@ -77,10 +80,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       bool _isPeeking = false;
 
-      p.Queue.MessageReadPropertyFilter.ArrivedTime = true;
-      p.Queue.MessageReadPropertyFilter.Label = true;
-      p.Queue.MessageReadPropertyFilter.Body = true;
-
+      SetupMessageReadPropertyFilters(p.Queue, p.QueueType);
 
       p.Queue.PeekCompleted += (source, asyncResult) => {
         if( IsMonitoring(p.QueueType) ) {
@@ -212,9 +212,7 @@ namespace ServiceBusMQ.NServiceBus {
         if( !IsSubscriptionQueue(qName) )
           continue;
 
-        q.MessageReadPropertyFilter.ArrivedTime = true;
-        q.MessageReadPropertyFilter.Label = true;
-        q.MessageReadPropertyFilter.Body = true;
+        SetupMessageReadPropertyFilters(q, type);
 
         try {
           foreach( var msg in q.GetAllMessages() ) {
@@ -234,6 +232,16 @@ namespace ServiceBusMQ.NServiceBus {
       return r;
     }
 
+    private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type) {
+      
+      q.MessageReadPropertyFilter.ArrivedTime = true;
+      q.MessageReadPropertyFilter.Label = true;
+      q.MessageReadPropertyFilter.Body = true;
+      
+      if( type == QueueType.Error )
+        q.MessageReadPropertyFilter.Extension = true;
+    }
+
     protected override IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
       if( queues.Count == 0 )
         return EMPTY_LIST;
@@ -246,9 +254,7 @@ namespace ServiceBusMQ.NServiceBus {
         if( IsIgnoredQueue(qName) || !q.CanRead )
           continue;
 
-        q.MessageReadPropertyFilter.ArrivedTime = true;
-        q.MessageReadPropertyFilter.Label = true;
-        q.MessageReadPropertyFilter.Body = true;
+        SetupMessageReadPropertyFilters(q, type);
 
         try {
           foreach( var msg in q.GetAllMessages() ) {
@@ -280,6 +286,9 @@ namespace ServiceBusMQ.NServiceBus {
         r.Add(itm);
       }
     }
+
+    private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+
     private QueueItem CreateQueueItem(string queueName, Message msg, QueueType type) {
       var itm = new QueueItem();
       itm.DisplayName = msg.Label;
@@ -290,6 +299,28 @@ namespace ServiceBusMQ.NServiceBus {
       itm.Id = msg.Id;
       itm.ArrivedTime = msg.ArrivedTime;
       itm.Content = ReadMessageStream(msg.BodyStream);
+      
+      if( type == QueueType.Error ) { // Check for error msg 
+
+        itm.Headers = new Dictionary<string, string>();
+        if( msg.Extension.Length > 0 ) {
+          var stream = new MemoryStream(msg.Extension);
+          var o = headerSerializer.Deserialize(stream);
+
+          foreach( var pair in o as List<HeaderInfo> )
+            if( pair.Key != null )
+              itm.Headers.Add(pair.Key, pair.Value);
+        }
+
+        itm.Error = new QueueItemError();
+        try { 
+          itm.Error.Message = itm.Headers.SingleOrDefault( k => k.Key == "NServiceBus.ExceptionInfo.Message" ).Value;
+          itm.Error.Retries = Convert.ToInt32(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.Retries").Value);
+          //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
+        } catch {
+          itm.Error = null;
+        }
+      }
 
       return itm;
     }

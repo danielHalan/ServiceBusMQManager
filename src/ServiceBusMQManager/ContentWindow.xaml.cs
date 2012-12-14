@@ -33,6 +33,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using ScintillaNET;
 using ServiceBusMQ;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQManager {
   /// <summary>
@@ -104,10 +105,21 @@ namespace ServiceBusMQManager {
     }
 
 
-    public void SetContent(string xml) {
+    public void SetContent(string xml, QueueItemError errorMsg = null) {
       Scintilla t = w32.Child as Scintilla;
 
       t.Text = FormatXml(xml);
+
+      if( errorMsg != null ) {
+        theGrid.RowDefinitions[1].Height = new GridLength(61);
+        lbError.Text = errorMsg.Message;
+        lbError.Visibility = System.Windows.Visibility.Visible;
+
+      } else { 
+        theGrid.RowDefinitions[1].Height = new GridLength(0);
+        lbError.Visibility = System.Windows.Visibility.Hidden;
+      }
+
     }
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {

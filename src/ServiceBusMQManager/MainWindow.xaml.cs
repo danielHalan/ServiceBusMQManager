@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -482,7 +483,7 @@ namespace ServiceBusMQManager {
           UpdateContentWindow();
         }
 
-        _dlg.SetContent(_mgr.LoadMessageContent(itm));
+        _dlg.SetContent(_mgr.LoadMessageContent(itm), itm.Error);
 
         //_dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
         //_dlg.Top = this.Top - _dlg.Height;
