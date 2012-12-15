@@ -134,8 +134,11 @@ namespace ServiceBusMQ {
     static string _sortColumn;
     static ListSortDirection _sortDir;
 
-    public static void SetSortColumn(ItemsControl list, string column) {
-      _sortDir = column != _sortColumn ? ListSortDirection.Ascending : ( _sortDir == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending );
+    public static void SetSortColumn(ItemsControl list, string column, ListSortDirection? sorting = null) {
+      if( sorting == null )
+        _sortDir = column != _sortColumn ? ListSortDirection.Ascending : ( _sortDir == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending );
+      else _sortDir = (ListSortDirection)sorting;
+      
       ICollectionView dataView = CollectionViewSource.GetDefaultView(list.ItemsSource);
 
       dataView.SortDescriptions.Clear();

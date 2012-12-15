@@ -25,6 +25,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Ookii.Dialogs.Wpf;
@@ -37,6 +38,12 @@ namespace ServiceBusMQManager.Dialogs {
   /// Interaction logic for ConfigWindow.xaml
   /// </summary>
   public partial class ConfigWindow : Window {
+
+    const int ROW_QUEUES_INFO = 3;
+    const int ROW_QUEUES1 = 4;
+    const int ROW_QUEUES2 = 5;
+    const int ROW_SENDCMD_INFO = 7;
+    const int ROW_ASMPATH = 8;
 
     SbmqSystem _sys;
     SystemConfig1 _config;
@@ -88,6 +95,9 @@ namespace ServiceBusMQManager.Dialogs {
       tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
 
       HandleHeight();
+
+      UpdateSendCommandInfo(false);
+      UpdateQueueuInfo(false);
 
       if( showSendCommand )
         scroller.ScrollToBottom();
@@ -156,7 +166,7 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    private void Queue_AddItem_1(object sender, AddItemRoutedEventArgs e) {
+    private void Queue_AddItem_1(object sender, StringListItemRoutedEventArgs e) {
       StringListControl s = sender as StringListControl;
 
       SelectQueueDialog dlg = new SelectQueueDialog(_sys, cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().ToList()).ToArray());
@@ -181,7 +191,7 @@ namespace ServiceBusMQManager.Dialogs {
       StringListControl s = sender as StringListControl;
       var grid = s.Parent as Grid;
 
-      int ROW = 3;
+      int ROW = ROW_QUEUES1;
 
       double[] max = new double[2] { 0, 0 };
       foreach( var c in grid.Children.OfType<StringListControl>().Where(c => c.Name.StartsWith("queue")) ) {
@@ -210,9 +220,9 @@ namespace ServiceBusMQManager.Dialogs {
       }
 
       if( max > 0 )
-        grid.RowDefinitions[6].Height = new GridLength(max);
+        grid.RowDefinitions[ROW_ASMPATH].Height = new GridLength(max);
     }
-    private void asmPaths_AddItem(object sender, AddItemRoutedEventArgs e) {
+    private void asmPaths_AddItem(object sender, StringListItemRoutedEventArgs e) {
 
       VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
       dialog.Description = "Please select Command Assembly Folder";
@@ -223,6 +233,89 @@ namespace ServiceBusMQManager.Dialogs {
         e.Item = dialog.SelectedPath;
         e.Handled = true;
       }
+
+    }
+
+    private void UpdateSendCommandInfo(bool animate = true) {
+      StringBuilder sb = new StringBuilder();
+
+      if( asmPaths.ItemsCount > 0 ) {
+
+        CommandDefinition cmdDef = new CommandDefinition();
+        
+        if( tbCmdInherits.Text.IsValid() )
+          cmdDef.InheritsType = tbCmdInherits.Text;
+
+        var cmdNamespace = tbNamespace.RetrieveValue<string>();
+        if( cmdNamespace.IsValid() )
+          cmdDef.NamespaceContains = cmdNamespace;
+
+
+        if( _sys.Manager.GetAvailableCommands(asmPaths.GetItems(), cmdDef).Length == 0 ) {
+          
+          sb.Append("No commands found "); 
+        
+          if( cmdDef.InheritsType.IsValid() ) 
+            sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40) );
+
+          if( cmdDef.NamespaceContains.IsValid() ) {
+          
+            if( cmdDef.InheritsType.IsValid() ) 
+              sb.Append(" or ");
+            else sb.Append("that ");
+
+            sb.AppendFormat("contains '{0}' in Namespace", cmdDef.NamespaceContains);
+            
+          }
+
+          sb.Append(", make sure your Command Definition is correct");
+        }
+
+      
+      } else {
+        sb.Append("You need to add atleast one assembly path to be able to send commands");
+      
+      }
+
+
+      if( sb.Length > 0 ) {
+        lbSendCommandInfo.Text = sb.ToString();
+      }
+
+      UpdateInfoBox(sb.Length > 0, animate, ROW_SENDCMD_INFO, ConfigWindow.SendCommandInfoHeightProperty);  
+    }
+    private void UpdateQueueuInfo(bool animate = true) {
+      bool valid = queueCommands.ItemsCount == 0 &&
+                    queueEvents.ItemsCount == 0 &&
+                    queueMessages.ItemsCount == 0 &&
+                    queueErrors.ItemsCount == 0;
+
+
+      UpdateInfoBox(valid, animate, ROW_QUEUES_INFO, ConfigWindow.QueuesInfoHeightProperty);
+    }
+
+    private void UpdateInfoBox(bool expand, bool animate, int rowIndex, DependencyProperty property) {
+      var row = theGrid.RowDefinitions[rowIndex];
+
+      if( expand ) {
+        
+        if( row.Height.Value == 0 ) {
+
+          if( animate )
+            AnimateControlHeight(0, 70, property);
+          else row.Height = new GridLength(70);
+        }
+
+      
+      } else { 
+        if( row.Height.Value > 0 ) {
+
+          if( animate ) 
+            AnimateControlHeight(row.Height.Value, 0, property);
+          else row.Height = new GridLength(0);
+        }
+      }
+
 
     }
 
@@ -299,6 +392,8 @@ namespace ServiceBusMQManager.Dialogs {
       if( dlg.ShowDialog() == true ) {
 
         tbCmdInherits.Text = dlg.SelectedType.QualifiedName;
+
+        UpdateSendCommandInfo();
       }
 
     }
@@ -499,6 +594,72 @@ namespace ServiceBusMQManager.Dialogs {
       }
     }
 
+    private void asmPaths_RemovedItem(object sender, StringListItemRoutedEventArgs e) {
+      UpdateSendCommandInfo();
+    }
+
+    private void asmPaths_AddedItem(object sender, StringListItemRoutedEventArgs e) {
+      UpdateSendCommandInfo();
+    }
+
+
+
+    void AnimateControlHeight(double from, double to, DependencyProperty heightAttribute) {
+
+      var sb = new Storyboard();
+
+      DoubleAnimationUsingKeyFrames anim = new DoubleAnimationUsingKeyFrames();
+
+      EasingDoubleKeyFrame key = new EasingDoubleKeyFrame();
+      key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+      key.Value = from;
+      anim.KeyFrames.Add(key);
+
+      key = new EasingDoubleKeyFrame();
+      key.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(400));
+      key.Value = to;
+      anim.KeyFrames.Add(key);
+
+      sb.Children.Add(anim);
+
+      Storyboard.SetTarget(anim, this);
+      Storyboard.SetTargetProperty(anim, new PropertyPath(heightAttribute));
+
+      sb.Begin();
+    }
+
+
+
+    public static readonly DependencyProperty SendCommandInfoHeightProperty = DependencyProperty.Register(
+             "SendCommandInfoHeight", typeof(double), typeof(ConfigWindow), new PropertyMetadata(0.0));
+
+    public static readonly DependencyProperty QueuesInfoHeightProperty = DependencyProperty.Register(
+             "QueuesInfoHeight", typeof(double), typeof(ConfigWindow), new PropertyMetadata(0.0));
+
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
+      base.OnPropertyChanged(e);
+
+      if( ReferenceEquals(e.Property, SendCommandInfoHeightProperty) ) 
+        theGrid.RowDefinitions[ROW_SENDCMD_INFO].Height = new GridLength((double)e.NewValue);
+      
+      else if( ReferenceEquals(e.Property, QueuesInfoHeightProperty) )
+        theGrid.RowDefinitions[ROW_QUEUES_INFO].Height = new GridLength((double)e.NewValue);
+      
+    }
+
+
+
+    private void queue_AddedItem(object sender, StringListItemRoutedEventArgs e) {
+      UpdateQueueuInfo();
+    }
+
+    private void queue_RemovedItem(object sender, StringListItemRoutedEventArgs e) {
+      UpdateQueueuInfo();
+    }
+
+    private void tbNamespace_LostFocus(object sender, RoutedEventArgs e) {
+      UpdateSendCommandInfo();
+    }
 
 
   }

@@ -213,6 +213,7 @@ namespace ServiceBusMQ.Manager {
     }
 
     public abstract Type[] GetAvailableCommands(string[] asmPaths);
+    public abstract Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef);
     public abstract void SetupBus(string[] asmPaths);
     public abstract void SendCommand(string destinationServer, string destinationQueue, object message);
 

@@ -167,7 +167,11 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
+
     public override Type[] GetAvailableCommands(string[] asmPaths) {
+      return GetAvailableCommands(asmPaths, _commandDef);
+    }
+    public override Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
       List<Type> arr = new List<Type>();
 
       foreach( var path in asmPaths )
@@ -178,16 +182,8 @@ namespace ServiceBusMQ.NServiceBus {
 
             foreach( Type t in asm.GetTypes() ) {
 
-              if( _commandDef.IsCommand(t) ) 
+              if( commandDef.IsCommand(t) ) 
                 arr.Add(t);
-
-              //if( typeof(ICommand).IsAssignableFrom(t) ) {
-              //  arr.Add(t);
-
-              //} else if( t.AssemblyQualifiedName.Contains("Commands") ) {
-
-              //  arr.Add(t);
-              //}
 
             }
 

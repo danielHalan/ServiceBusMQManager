@@ -29,11 +29,11 @@ using System.Windows.Shapes;
 
 namespace ServiceBusMQManager.Controls {
   
-  public class AddItemRoutedEventArgs : RoutedEventArgs {
+  public class StringListItemRoutedEventArgs : RoutedEventArgs {
 
     public string Item { get; set; }
 
-    public AddItemRoutedEventArgs(RoutedEvent e): base(e) {
+    public StringListItemRoutedEventArgs(RoutedEvent e): base(e) {
     }
   }
   
@@ -74,12 +74,17 @@ namespace ServiceBusMQManager.Controls {
 
     private void AddItem_Click(object sender, RoutedEventArgs e) {
 
-      var e2 = new AddItemRoutedEventArgs(AddItemEvent);
+      var e2 = new StringListItemRoutedEventArgs(AddItemEvent);
 
       RaiseEvent(e2);
       
       if( e2.Handled ) {
         AddListItem(e2.Item);
+
+        var e3 = new StringListItemRoutedEventArgs(AddedItemEvent);
+        e3.Item = e2.Item;
+        RaiseEvent(e3);
+
       }
     
     }
@@ -126,14 +131,27 @@ namespace ServiceBusMQManager.Controls {
 
     void btnDelete_Click(object sender, RoutedEventArgs e) {
       var btn = sender as RoundMetroButton;
-      _items.Remove( Convert.ToInt32(btn.Tag));
 
+      var e2 = new StringListItemRoutedEventArgs(RemovedItemEvent);
+
+      e2.Item = _items[(int)btn.Tag];
+
+      RemoveListItem(btn);
+
+      RaiseEvent(e2);
+
+    }
+
+
+    void RemoveListItem(RoundMetroButton btn) {
+      _items.Remove( Convert.ToInt32(btn.Tag));
+      
       theStack.Children.Remove( btn.Parent as UIElement );
 
       RecalcControlSize();
       UpdateEmptyLabel();
     }
-
+    
 
     public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
              "Title", typeof(string), typeof(StringListControl), new PropertyMetadata(string.Empty));
@@ -145,14 +163,32 @@ namespace ServiceBusMQManager.Controls {
     }
 
     public static readonly RoutedEvent AddItemEvent = EventManager.RegisterRoutedEvent("AddItem",
-      RoutingStrategy.Direct, typeof(EventHandler<AddItemRoutedEventArgs>), typeof(StringListControl));
+      RoutingStrategy.Direct, typeof(EventHandler<StringListItemRoutedEventArgs>), typeof(StringListControl));
 
-    public event EventHandler<AddItemRoutedEventArgs> AddItem {
+    public event EventHandler<StringListItemRoutedEventArgs> AddItem {
       add { AddHandler(AddItemEvent, value); }
       remove { RemoveHandler(AddItemEvent, value); }
     }
 
 
+    public static readonly RoutedEvent AddedItemEvent = EventManager.RegisterRoutedEvent("AddedItem",
+      RoutingStrategy.Direct, typeof(EventHandler<StringListItemRoutedEventArgs>), typeof(StringListControl));
 
+    public event EventHandler<StringListItemRoutedEventArgs> AddedItem {
+      add { AddHandler(AddedItemEvent, value); }
+      remove { RemoveHandler(AddedItemEvent, value); }
+    }
+
+
+    public static readonly RoutedEvent RemovedItemEvent = EventManager.RegisterRoutedEvent("RemovedItem",
+       RoutingStrategy.Direct, typeof(EventHandler<StringListItemRoutedEventArgs>), typeof(StringListControl));
+
+    public event EventHandler<StringListItemRoutedEventArgs> RemovedItem {
+      add { AddHandler(RemovedItemEvent, value); }
+      remove { RemoveHandler(RemovedItemEvent, value); }
+    }
+
+
+    public int ItemsCount { get { return _items.Count; } }
   }
 }

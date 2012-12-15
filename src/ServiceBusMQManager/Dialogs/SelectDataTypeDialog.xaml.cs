@@ -79,7 +79,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       lvTypes.ItemsSource = _types;
 
-      WindowTools.SetSortColumn(lvTypes, "Name");
+      WindowTools.SetSortColumn(lvTypes, "Name", ListSortDirection.Ascending);
 
       tbFilter.Focus();
     }

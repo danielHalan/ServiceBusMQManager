@@ -18,8 +18,8 @@
             <local:RoundMetroButton x:Name="btnSave" HorizontalAlignment="Right" Margin="0,32,50,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/save-white.png" Click="btnSave_Click"/>
             <local:RoundMetroButton x:Name="btnDelete" HorizontalAlignment="Right" Margin="0,32,0,0" VerticalAlignment="Top" Width="40" Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Click="btnDelete_Click"/>
             <local:TextInputControl x:Name="tbName" Margin="10,38,95,0" VerticalAlignment="Top"/>
-            <Rectangle Fill="#FFFFFFA2" HorizontalAlignment="Left" Height="60" Margin="10,83,0,0" Stroke="White" VerticalAlignment="Top" Width="416" StrokeThickness="3"/>
-<TextBlock Text="You can send commands from Command Prompt using, ServiceBusMQManager.exe --send [recentCommandName]" Margin="72,95,141,3" TextWrapping="WrapWithOverflow" FontFamily="Calibri" FontSize="14" Foreground="#FF7D8049" FontStyle="Italic" />
+            <Rectangle Fill="#FFFFFFA2" Height="60" Margin="10,83,95,0" Stroke="White" VerticalAlignment="Top" StrokeThickness="0"/>
+<TextBlock Text="You can send commands from Command Prompt using, ServiceBusMQManager.exe --send [recentCommandName]" Margin="72,95,141,3" TextWrapping="WrapWithOverflow" FontFamily="Calibri" FontSize="14" Foreground="#FF5E612A" FontStyle="Italic" />
             <Image HorizontalAlignment="Left" Height="40" Margin="20,93,0,0" VerticalAlignment="Top" Width="44" Source="/ServiceBusMQManager;component/Images/lightbulb-gray.png"/>
         </Grid>
     </Grid>
