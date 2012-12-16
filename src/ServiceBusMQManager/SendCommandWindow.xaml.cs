@@ -128,7 +128,7 @@ namespace ServiceBusMQManager {
       cbCommands.SelectedValue = null;
     }
     private void UpdateSendButton() {
-      btnSend.IsEnabled = cmdAttrib.IsValid;
+      btnSend.IsEnabled = cmdAttrib.IsValid && cbQueue.SelectedIndex != -1;
     }
 
 
