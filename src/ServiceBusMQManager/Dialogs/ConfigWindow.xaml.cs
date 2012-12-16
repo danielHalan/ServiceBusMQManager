@@ -94,8 +94,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
 
-      HandleHeight();
-
       UpdateSendCommandInfo(false);
       UpdateQueueuInfo(false);
 
@@ -117,8 +115,9 @@ namespace ServiceBusMQManager.Dialogs {
     private void frmConfig_SourceInitialized(object sender, EventArgs e) {
       SbmqSystem.UIState.RestoreWindowState(this);
 
-      GetAllAvailableQueueNamesForServer(_config.CurrentServer.Name);
+      ValidateHeight();
 
+      GetAllAvailableQueueNamesForServer(_config.CurrentServer.Name);
     }
 
     private void GetAllAvailableQueueNamesForServer(string name) {
@@ -141,7 +140,7 @@ namespace ServiceBusMQManager.Dialogs {
       }
     }
     
-    private void HandleHeight() {
+    private void ValidateHeight() {
       var s = WpfScreen.GetScreenFrom(this);
 
       if( this.Height > s.WorkingArea.Height ) {
@@ -400,12 +399,6 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void frmConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       SbmqSystem.UIState.StoreWindowState(this);
-    }
-
-    private void tbServer_LostFocus_1(object sender, RoutedEventArgs e) {
-      //var name = tbServer.RetrieveValue() as string;
-
-      //ServerChanged(name);
     }
 
     void worker_TryAccessServer(object sender, DoWorkEventArgs e) {

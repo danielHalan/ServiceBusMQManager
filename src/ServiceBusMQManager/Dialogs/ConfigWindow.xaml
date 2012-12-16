@@ -112,7 +112,7 @@
                 		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading.gif" />
 
                     <Controls:TextInputControl x:Name="tbServer" 
-                                               Margin="46,38,2,0" LostFocus="tbServer_LostFocus_1" 
+                                               Margin="46,38,2,0" 
                                                VerticalAlignment="Top" 
                                                Grid.Row="1" 
                                                Grid.Column="0" 
