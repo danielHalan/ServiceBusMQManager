@@ -97,7 +97,7 @@ namespace ServiceBusMQ.NServiceBus {
           if( lastId != msg.Id )
             lastId = msg.Id;
 
-        } 
+        }
         _isPeeking = false;
       };
 
@@ -114,13 +114,13 @@ namespace ServiceBusMQ.NServiceBus {
         if( !_isPeeking ) {
 
           if( sameCount > 0 ) {
-            if( sameCount / 10.0F == 1.0F ) 
+            if( sameCount / 10.0F == 1.0F )
               Thread.Sleep(100);
 
-            else if( sameCount / 100.0F == 1.0F ) 
+            else if( sameCount / 100.0F == 1.0F )
               Thread.Sleep(200);
 
-            else if( sameCount % 300 == 0 ) 
+            else if( sameCount % 300 == 0 )
               Thread.Sleep(500);
           }
           p.Queue.BeginPeek();
@@ -162,7 +162,7 @@ namespace ServiceBusMQ.NServiceBus {
       return queue != null ? queue.CanRead : false;
     }
 
-    
+
     private MessageQueue CreateMessageQueue(string serverName, string queueName, QueueAccessMode accessMode) {
       if( !queueName.StartsWith("private$\\") )
         queueName = "private$\\" + queueName;
@@ -181,7 +181,7 @@ namespace ServiceBusMQ.NServiceBus {
         _msgQueues.Clear();
         _errorQueues.Clear();
 
-        foreach( var name in _watchEventQueues ) 
+        foreach( var name in _watchEventQueues )
           _eventQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
 
         foreach( var name in _watchCommandQueues )
@@ -233,13 +233,13 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type) {
-      
+
       q.MessageReadPropertyFilter.ArrivedTime = true;
       q.MessageReadPropertyFilter.Label = true;
       q.MessageReadPropertyFilter.Body = true;
-      
-      if( type == QueueType.Error )
-        q.MessageReadPropertyFilter.Extension = true;
+
+      //if( type == QueueType.Error )
+      q.MessageReadPropertyFilter.Extension = true;
     }
 
     protected override IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
@@ -299,27 +299,36 @@ namespace ServiceBusMQ.NServiceBus {
       itm.Id = msg.Id;
       itm.ArrivedTime = msg.ArrivedTime;
       itm.Content = ReadMessageStream(msg.BodyStream);
+
+      //if( type == QueueType.Error ) { // Check for error msg 
+
+      itm.Headers = new Dictionary<string, string>();
+      if( msg.Extension.Length > 0 ) {
+        var stream = new MemoryStream(msg.Extension);
+        var o = headerSerializer.Deserialize(stream);
+
+        foreach( var pair in o as List<HeaderInfo> )
+          if( pair.Key != null )
+            itm.Headers.Add(pair.Key, pair.Value);
+      }
+
+
+
       
-      if( type == QueueType.Error ) { // Check for error msg 
 
-        itm.Headers = new Dictionary<string, string>();
-        if( msg.Extension.Length > 0 ) {
-          var stream = new MemoryStream(msg.Extension);
-          var o = headerSerializer.Deserialize(stream);
-
-          foreach( var pair in o as List<HeaderInfo> )
-            if( pair.Key != null )
-              itm.Headers.Add(pair.Key, pair.Value);
-        }
+      if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.Message") ) {
 
         itm.Error = new QueueItemError();
-        try { 
-          itm.Error.Message = itm.Headers.SingleOrDefault( k => k.Key == "NServiceBus.ExceptionInfo.Message" ).Value;
+        try {
+          itm.Error.State =  type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
+
+          itm.Error.Message = itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.ExceptionInfo.Message").Value;
           itm.Error.Retries = Convert.ToInt32(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.Retries").Value);
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
           itm.Error = null;
         }
+        //}
       }
 
       return itm;
@@ -362,7 +371,7 @@ namespace ServiceBusMQ.NServiceBus {
       List<MessageSubscription> r = new List<MessageSubscription>();
 
       foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
-                                            Where(q => q.QueueName.EndsWith(".subscriptions")).Select( q => q.QueueName ) ) {
+                                            Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName) ) {
 
         MessageQueue q = CreateMessageQueue(server, queueName, QueueAccessMode.ReceiveAndAdmin);
 
@@ -409,9 +418,9 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public override void PurgeErrorMessages(string queueName) {
-      string name = "private$\\" + queueName;
+      //string name = "private$\\" + queueName;
 
-      _errorQueues.Where(q => q.GetDisplayName() == name).Single().Purge();
+      _errorQueues.Where(q => q.GetDisplayName() == queueName).Single().Purge();
 
       OnItemsChanged();
     }

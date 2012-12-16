@@ -41,6 +41,14 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class ContentWindow : Window {
 
+
+    readonly SolidColorBrush BACKGROUND_ERROR = new SolidColorBrush(Color.FromRgb(173, 28, 59));
+    readonly SolidColorBrush BACKGROUND_WARNING = new SolidColorBrush(Color.FromRgb(158, 153, 8)); // #C9C42A
+
+    readonly BitmapImage BMP_WARNING = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/warning-white.png", UriKind.Relative));
+    readonly BitmapImage BMP_ERROR = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/Error.selected.png", UriKind.Relative));
+
+
     private HwndSource _hwndSource;
 
 
@@ -105,6 +113,7 @@ namespace ServiceBusMQManager {
     }
 
 
+
     public void SetContent(string xml, QueueItemError errorMsg = null) {
       Scintilla t = w32.Child as Scintilla;
 
@@ -113,7 +122,20 @@ namespace ServiceBusMQManager {
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);
         lbError.Text = errorMsg.Message;
-        //lbError.Visibility = System.Windows.Visibility.Visible;
+        lbRetries.Text = errorMsg.Retries.ToString();
+
+        if( errorMsg.State == QueueItemErrorState.Retry ) {
+          imgError.Source = BMP_WARNING;
+          //lbRetries.
+          lbError.Background = BACKGROUND_WARNING;
+          lbRetries.Foreground = BACKGROUND_WARNING;
+        
+        } else {
+          imgError.Source = BMP_ERROR;
+          lbError.Background = BACKGROUND_ERROR;
+          lbRetries.Foreground = BACKGROUND_ERROR;
+        }
+
 
       } else { 
         theGrid.RowDefinitions[1].Height = new GridLength(0);

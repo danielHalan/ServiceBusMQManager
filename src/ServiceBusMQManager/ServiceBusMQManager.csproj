@@ -431,6 +431,8 @@
     <Resource Include="Images\refresh.png" />
     <Resource Include="Images\loading.gif" />
     <Resource Include="Images\loading-white.gif" />
+    <EmbeddedResource Include="Images\warning.png" />
+    <Resource Include="Images\warning-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

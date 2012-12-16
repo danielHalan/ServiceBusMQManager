@@ -465,6 +465,20 @@ namespace ServiceBusMQManager {
 
       mi.IsEnabled = ( itm != null && itm.QueueType == QueueType.Error );
 
+#if DEBUG
+      if( items.Count == 8 ) 
+        items.Add(new MenuItem());
+
+      mi = (MenuItem)items[8];
+      mi.Header = "Header";
+
+      mi.Items.Clear();
+
+      if( itm != null && itm.Headers != null )
+        foreach( var head in itm.Headers )
+          mi.Items.Add( new MenuItem() { Header = string.Concat(head.Key, '=', head.Value) } );
+#endif
+
     }
     private void SetSelectedItem(QueueItem itm) {
 
