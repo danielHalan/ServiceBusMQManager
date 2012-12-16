@@ -113,11 +113,11 @@ namespace ServiceBusMQManager {
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);
         lbError.Text = errorMsg.Message;
-        lbError.Visibility = System.Windows.Visibility.Visible;
+        //lbError.Visibility = System.Windows.Visibility.Visible;
 
       } else { 
         theGrid.RowDefinitions[1].Height = new GridLength(0);
-        lbError.Visibility = System.Windows.Visibility.Hidden;
+        //lbError.Visibility = System.Windows.Visibility.Hidden;
       }
 
     }
