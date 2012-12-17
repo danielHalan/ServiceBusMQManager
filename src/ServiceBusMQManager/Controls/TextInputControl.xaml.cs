@@ -53,7 +53,7 @@ namespace ServiceBusMQManager.Controls {
 
     readonly SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Color.FromRgb(78, 166, 234));
     readonly SolidColorBrush BORDER_NORMAL = new SolidColorBrush(Colors.DarkGray);
-    readonly SolidColorBrush BORDER_LISTITEM = new SolidColorBrush(Color.FromRgb(201,201,201));
+    readonly SolidColorBrush BORDER_LISTITEM = new SolidColorBrush(Color.FromRgb(201, 201, 201));
 
 
 
@@ -69,7 +69,7 @@ namespace ServiceBusMQManager.Controls {
 
     public TextInputControl() {
       InitializeComponent();
-      
+
       tb.Height = 30;
     }
 
@@ -123,7 +123,7 @@ namespace ServiceBusMQManager.Controls {
 
 
     void SetTextBoxValue(object value) {
-      
+
       if( value != null ) {
 
         if( value is string )
@@ -133,8 +133,8 @@ namespace ServiceBusMQManager.Controls {
           tb.Text = value.ToString().ToUpper();
 
         else tb.Text = value.ToString();
-      
-      } else tb.Text = string.Empty; 
+
+      } else tb.Text = string.Empty;
 
     }
 
@@ -154,10 +154,10 @@ namespace ServiceBusMQManager.Controls {
 
     bool UpdateValueFromControl() {
 
-      try { 
+      try {
         _value = Tools.Convert(tb.Text, _dataType);
-      
-      } catch(NotSupportedException e) {
+
+      } catch( NotSupportedException e ) {
         throw e;
 
       } catch {
@@ -220,7 +220,7 @@ namespace ServiceBusMQManager.Controls {
 
         try {
           _isValidValue = UpdateValueFromControl();
-           UpdateBorder();
+          UpdateBorder();
 
         } catch { }
 
@@ -241,9 +241,9 @@ namespace ServiceBusMQManager.Controls {
         if( !_isListItem ) {
           tb.BorderThickness = new Thickness(1.01);
           tb.BorderBrush = BORDER_NORMAL;
-        
+
         } else {
-          tb.BorderThickness = new Thickness(1,1,0,1);
+          tb.BorderThickness = new Thickness(1, 1, 0, 1);
           tb.BorderBrush = BORDER_LISTITEM;
         }
       }
@@ -251,13 +251,13 @@ namespace ServiceBusMQManager.Controls {
 
     private void tb_PreviewTextInput(object sender, TextCompositionEventArgs e) {
 
-      
+
       if( _dataType.IsInteger() ) {
         if( !e.Text.IsInt32() )
           e.Handled = true;
 
 
-      } else if( _dataType.IsDecimal() )  {
+      } else if( _dataType.IsDecimal() ) {
         if( !e.Text.IsDecimal() )
           e.Handled = true;
 
@@ -272,21 +272,21 @@ namespace ServiceBusMQManager.Controls {
       if( e.Key == Key.Up ) {
 
         if( _dataType.IsInteger() ) {
-          UpdateValue( (int)_value + 1 );
+          UpdateValue( Tools.AddValue(_value, _dataType, 1) );
 
         } else if( _dataType.IsAnyFloatType() ) {
-          UpdateValue((int)_value + 0.5);
+          UpdateValue( Tools.AddValue(_value, _dataType, 0.5F));
         }
-      
+
       } else if( e.Key == Key.Down ) {
-        
+
         if( _dataType.IsInteger() ) {
-          UpdateValue((int)_value - 1);
+          UpdateValue(Tools.AddValue(_value, _dataType, -1));
 
         } else if( _dataType.IsAnyFloatType() ) {
-          UpdateValue((int)_value - 0.5);
+          UpdateValue(Tools.AddValue(_value, _dataType, -0.5F));
         }
-      
+
       }
 
     }
@@ -297,9 +297,22 @@ namespace ServiceBusMQManager.Controls {
 
     private void tb_GotFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
-      
-      if( SelectAllTextOnFocus )
-        tb.SelectAll();
+
+      //if( SelectAllTextOnFocus || ContainsDefaultValue() ) {
+
+      //  tb.Dispatcher.BeginInvoke(new Action(delegate {
+      //    tb.SelectAll();
+      //  }), System.Windows.Threading.DispatcherPriority.Input);
+
+
+      //}
+    }
+
+    private bool ContainsDefaultValue() {
+      if( _dataType == typeof(Guid) )
+        return RetrieveValue<Guid>() == Guid.Empty;
+
+      return false;
     }
 
     public bool SelectAllTextOnFocus { get; set; }
@@ -310,6 +323,27 @@ namespace ServiceBusMQManager.Controls {
 
     internal void FocusTextBox() {
       tb.Focus();
+    }
+
+    private void tb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+
+      if( (SelectAllTextOnFocus || ContainsDefaultValue()) &&
+            !tb.IsKeyboardFocusWithin ) {
+        tb.SelectAll();
+        tb.Focus();
+        
+        e.Handled = true;
+      }
+
+    }
+
+    private void tb_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+
+
+      if( SelectAllTextOnFocus || ContainsDefaultValue() ) {
+        tb.SelectAll();
+      }
+
     }
 
   }

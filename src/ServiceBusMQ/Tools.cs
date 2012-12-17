@@ -26,11 +26,11 @@ namespace ServiceBusMQ {
 
 
     public static object GetDefault(Type type) {
-      if( type.IsValueType ) { 
-        
+      if( type.IsValueType ) {
+
         if( type == typeof(DateTime) )
           return DateTime.Now;
-        
+
         else if( type == typeof(Guid) )
           return Guid.Empty;
 
@@ -39,7 +39,7 @@ namespace ServiceBusMQ {
 
         return Activator.CreateInstance(type);
       }
-      
+
       return null;
     }
 
@@ -54,9 +54,9 @@ namespace ServiceBusMQ {
 
     public static object CreateNullable(Type baseType, object value) {
       Type nullableType = typeof(Nullable<>).MakeGenericType(baseType);
-      
+
       ConstructorInfo constructor = nullableType.GetConstructor(new Type[] { baseType });
-      
+
       return constructor.Invoke(new object[] { value });
     }
 
@@ -67,14 +67,80 @@ namespace ServiceBusMQ {
 
         if( obj != null )
           return CreateNullable(t, System.Convert.ChangeType(obj, t));
-          
+
         else return null;
-      
+
       } else {
         if( obj != null )
           return System.Convert.ChangeType(obj, type);
         else return GetDefault(type);
       }
+    }
+
+
+    public static object AddValue(object obj, Type type, float value) {
+
+      if( obj == null )
+        return value;
+
+
+      if( type == typeof(Single) )
+        return System.Convert.ToSingle(obj) + value;
+
+      else if( type == typeof(Double) )
+        return System.Convert.ToDouble(obj) + value;
+
+      else if( type == typeof(Decimal) )
+        return System.Convert.ToDecimal(obj) + System.Convert.ToDecimal(value);
+
+      else throw new NotSupportedException("AddValue not supporting type " + obj.GetType());
+
+
+    }
+
+    public static object AddValue(object obj, Type type, int value) {
+
+      if( obj == null )
+        return value;
+
+      bool add = value > 0;
+
+      if( type == typeof(Int16) )
+        return System.Convert.ToInt16(obj) + value;
+
+      else if( type == typeof(Int32) )
+        return System.Convert.ToInt32(obj) + value;
+
+      else if( type == typeof(Int64) )
+        return System.Convert.ToInt64(obj) + value;
+
+      else if( type == typeof(UInt16) ) {
+        var u = System.Convert.ToUInt16(obj);
+        if( u == 0 && !add )
+          return u;
+        else return u + value;
+      }
+      else if( type == typeof(UInt32) ) {
+        var u = System.Convert.ToUInt32(obj);
+        if( u == 0 && !add )
+          return u;
+        else return u + value;
+      }
+      //else if( type == typeof(UInt64) )
+      //  return System.Convert.ToUInt64(obj) + value;
+
+      else if( type == typeof(SByte) )
+        return System.Convert.ToSByte(obj) + value;
+
+      else if( type == typeof(Byte) ) {
+        var u = System.Convert.ToByte(obj);
+        if( u == 0 && !add )
+          return u;
+        else return u + value;
+      }
+
+      else throw new NotSupportedException("AddValue not supporting type " + obj.GetType());
+
     }
 
     public static object Convert(object obj, Type type) {
@@ -124,9 +190,6 @@ namespace ServiceBusMQ {
       else if( type == typeof(Double) )
         res = System.Convert.ToDouble(obj);
 
-      else if( type == typeof(double) )
-        res = (double)System.Convert.ToDouble(obj);
-
       else if( type == typeof(Decimal) )
         res = System.Convert.ToDecimal(obj);
 
@@ -136,9 +199,7 @@ namespace ServiceBusMQ {
           res = new Guid((string)obj);
         else if( obj.GetType() == typeof(byte[]) )
           res = new Guid((byte[])obj);
-      }
-
-      else if( type == typeof(DateTime) )
+      } else if( type == typeof(DateTime) )
         res = System.Convert.ToDateTime(obj);
 
       else if( type == typeof(Boolean) )
@@ -150,13 +211,13 @@ namespace ServiceBusMQ {
       else throw new NotSupportedException("Unhandled data type, Tools.Convert::" + type.ToString());
 
       return isNullable ? CreateNullable(type, res) : res;
-      
+
 
     }
 
     public static object CreateInstance(Type type, Dictionary<string, object> attributes) {
       object i = null;
-      
+
       try {
         i = Activator.CreateInstance(type);
 
