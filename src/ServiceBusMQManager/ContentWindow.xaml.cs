@@ -76,6 +76,9 @@ namespace ServiceBusMQManager {
 
 
     string FormatXml(string xml) {
+      if( !xml.IsValid() )
+        return xml;
+
       XmlDocument doc = new XmlDocument();
       try {
         doc.LoadXml(xml);
@@ -147,13 +150,10 @@ namespace ServiceBusMQManager {
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
       this.MoveOrResizeWindow(e);
     }
-
     private void HandleCloseClick(Object sender, RoutedEventArgs e) {
       Close();
     }
-
-
-    private void Window_MouseMove_1(object sender, MouseEventArgs e) {
+    private void Window_MouseMove(object sender, MouseEventArgs e) {
       Cursor = this.GetBorderCursor();
     }
 

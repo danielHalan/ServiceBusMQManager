@@ -300,8 +300,6 @@ namespace ServiceBusMQ.NServiceBus {
       itm.ArrivedTime = msg.ArrivedTime;
       itm.Content = ReadMessageStream(msg.BodyStream);
 
-      //if( type == QueueType.Error ) { // Check for error msg 
-
       itm.Headers = new Dictionary<string, string>();
       if( msg.Extension.Length > 0 ) {
         var stream = new MemoryStream(msg.Extension);
@@ -312,9 +310,6 @@ namespace ServiceBusMQ.NServiceBus {
             itm.Headers.Add(pair.Key, pair.Value);
       }
 
-
-
-      
 
       if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.Message") ) {
 

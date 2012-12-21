@@ -8,7 +8,7 @@
         Topmost="True"
         WindowStyle="None" 
         ResizeMode="NoResize"
-        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove_1" Activated="frmContent_Activated_1"
+        MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" Activated="frmContent_Activated_1"
         >
 
 
@@ -43,12 +43,22 @@
                     Foreground="DarkGray"
                     FontSize="13.333" />
                 </Button>
-            <TextBlock Name="lbError" Margin="0,0,0,0" TextWrapping="Wrap" VerticalAlignment="Bottom" 
+            <TextBlock Name="lbError" TextWrapping="Wrap" 
                        Background="#AD1C3B" Foreground="White" Text="" 
-                       Padding="50,10,10,10" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="61" />
-            <Image Name="imgError" Grid.Row="1" Width="50" HorizontalAlignment="Left" Source="Images/warning-white.png" />
-            
-       <Border CornerRadius="23"
+                       Padding="50,10,10,10" FontFamily="Calibri" FontSize="16" Grid.Row="1" />
+            <Image Name="imgError" Grid.Row="1" Width="50" HorizontalAlignment="Left" Source="Images/warning-white.png" Height="61" Margin="0,4,0,0" VerticalAlignment="Top" />
+            <GridSplitter
+                ResizeDirection="Rows"
+                Grid.Row="1"
+                Width="Auto"
+                Height="3"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Stretch"
+                Margin="0"
+                Background="#E398A8"/>
+
+
+            <Border CornerRadius="23"
         Width="23"
         Height="23"
         ToolTip="Retries"     
