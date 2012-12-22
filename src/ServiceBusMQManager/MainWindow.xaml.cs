@@ -64,12 +64,15 @@ namespace ServiceBusMQManager {
     public MainWindow() {
       InitializeComponent();
 
+      var ver = App.Info.Version;
+      lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
+      
       CreateNotifyIcon();
     }
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
 
-      lbTitle.Content = Title;
+
 
       InitSystem();
 

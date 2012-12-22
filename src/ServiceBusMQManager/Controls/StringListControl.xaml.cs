@@ -96,17 +96,20 @@ namespace ServiceBusMQManager.Controls {
       _items.Add(id, str);
 
       // Visuals
-
+      var g = new StringListItemControl(str, id);
+      g.RemovedItem += btnDelete_Click;
+      /*
       Grid g = new Grid();
       g.Background = Brushes.Gray;
       g.Margin = new Thickness(10,1,0,1);
+
 
       TextBlock tb = new TextBlock();
       tb.FontSize = 18;
       tb.Foreground = Brushes.White;
       tb.FontFamily =  new FontFamily("Calibri");
       tb.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-      tb.Margin = new Thickness(5,0,43,0);
+      tb.Margin = new Thickness(10,0,43,0);
       tb.Text = str;
       g.Children.Add(tb);
 
@@ -118,7 +121,7 @@ namespace ServiceBusMQManager.Controls {
       btn.Tag = id;
       btn.Click += btnDelete_Click;
       g.Children.Add(btn);
-
+      */
       theStack.Children.Add(g);
 
       RecalcControlSize();
@@ -129,24 +132,23 @@ namespace ServiceBusMQManager.Controls {
       this.Height = 70 + (40 * _items.Count);
     }
 
-    void btnDelete_Click(object sender, RoutedEventArgs e) {
-      var btn = sender as RoundMetroButton;
+    void btnDelete_Click(object sender, DeleteStringListItemDRoutedEventArgs e) {
+      var itm = sender as StringListItemControl;
 
       var e2 = new StringListItemRoutedEventArgs(RemovedItemEvent);
 
-      e2.Item = _items[(int)btn.Tag];
+      e2.Item = _items[(int)e.Id];
 
-      RemoveListItem(btn);
+      RemoveListItem(itm, e.Id);
 
       RaiseEvent(e2);
-
     }
 
 
-    void RemoveListItem(RoundMetroButton btn) {
-      _items.Remove( Convert.ToInt32(btn.Tag));
+    void RemoveListItem(StringListItemControl itm, int id) {
+      _items.Remove(id);
       
-      theStack.Children.Remove( btn.Parent as UIElement );
+      theStack.Children.Remove( itm );
 
       RecalcControlSize();
       UpdateEmptyLabel();

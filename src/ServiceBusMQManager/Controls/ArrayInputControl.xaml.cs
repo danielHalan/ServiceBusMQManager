@@ -183,8 +183,10 @@ namespace ServiceBusMQManager.Controls {
     private void AddControlToValueStack(Control control) {
       Grid g = new Grid();
       g.Height = LISTITEM_HEIGHT;
-      
-      control.Margin = new Thickness(0, 0, 35, 0);
+      g.Background = Brushes.Gray;
+      g.Margin = new Thickness(0,0,0,2);
+
+      control.Margin = new Thickness(0, 0, 40, 0);
 
       IInputControl inCtl = control as IInputControl;
       inCtl.IsListItem = true;

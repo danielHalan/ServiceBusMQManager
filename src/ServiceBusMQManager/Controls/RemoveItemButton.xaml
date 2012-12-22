@@ -6,12 +6,10 @@
              mc:Ignorable="d" 
              Height="30" Width="35">
     <Grid>
-        <Button x:Name="btn" Margin="0,0,0,0" ToolTip="Remove array item" Click="btn_Click">
+        <Button x:Name="btn" Margin="0,1,0,1" ToolTip="Remove array item" Click="btn_Click">
             <Button.Template>
                 <ControlTemplate>
-                    <Border Name="btnBorder" BorderBrush="#C9C9C9" BorderThickness="0,1,1,0" Background="Gray" >
                         <Image Name="img" HorizontalAlignment="Left"  Source="/ServiceBusMQManager;component/Images/delete-item-gray.png" />
-                    </Border>
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">

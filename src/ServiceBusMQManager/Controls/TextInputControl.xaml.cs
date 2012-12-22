@@ -51,9 +51,11 @@ namespace ServiceBusMQManager.Controls {
   /// </summary>
   public partial class TextInputControl : UserControl, IInputControl {
 
+    readonly SolidColorBrush BACKGROUND_LISTITEM_HOVER = new SolidColorBrush(Color.FromRgb(139, 139, 139));
+
     readonly SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Color.FromRgb(78, 166, 234));
     readonly SolidColorBrush BORDER_NORMAL = new SolidColorBrush(Colors.DarkGray);
-    readonly SolidColorBrush BORDER_LISTITEM = new SolidColorBrush(Color.FromRgb(201, 201, 201));
+    readonly SolidColorBrush BORDER_LISTITEM = Brushes.Transparent; //new SolidColorBrush(Color.FromRgb(201, 201, 201));
 
 
 
@@ -194,7 +196,7 @@ namespace ServiceBusMQManager.Controls {
 
       if( _isListItem ) {
         tb.Foreground = Brushes.White;
-        tb.Background = Brushes.Gray;
+        tb.Background = Brushes.Transparent;
 
         if( btn != null ) {
           btn.Visibility = System.Windows.Visibility.Hidden;
@@ -236,6 +238,7 @@ namespace ServiceBusMQManager.Controls {
       } else if( tb.IsFocused ) {
         tb.BorderBrush = BORDER_SELECTED;
         tb.BorderThickness = new Thickness(1.01, 2, 2, 2);
+      
       } else {
 
         if( !_isListItem ) {
@@ -297,15 +300,6 @@ namespace ServiceBusMQManager.Controls {
 
     private void tb_GotFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
-
-      //if( SelectAllTextOnFocus || ContainsDefaultValue() ) {
-
-      //  tb.Dispatcher.BeginInvoke(new Action(delegate {
-      //    tb.SelectAll();
-      //  }), System.Windows.Threading.DispatcherPriority.Input);
-
-
-      //}
     }
 
     private bool ContainsDefaultValue() {
@@ -344,6 +338,18 @@ namespace ServiceBusMQManager.Controls {
         tb.SelectAll();
       }
 
+    }
+
+    private void tb_MouseEnter(object sender, MouseEventArgs e) {
+      if( _isListItem ) {
+        theGrid.Background = BACKGROUND_LISTITEM_HOVER;
+      }
+    }
+
+    private void tb_MouseLeave(object sender, MouseEventArgs e) {
+      if( _isListItem ) {
+        theGrid.Background = Brushes.Transparent;
+      }
     }
 
   }

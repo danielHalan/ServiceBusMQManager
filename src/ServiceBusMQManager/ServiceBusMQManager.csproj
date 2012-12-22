@@ -161,8 +161,8 @@
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TextBoxControl.xaml.cs">
-      <DependentUpon>TextBoxControl.xaml</DependentUpon>
+    <Compile Include="Controls\StringListItemControl.xaml.cs">
+      <DependentUpon>StringListItemControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
@@ -246,7 +246,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\TextBoxControl.xaml">
+    <Page Include="Controls\StringListItemControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

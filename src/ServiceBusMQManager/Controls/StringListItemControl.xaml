@@ -1,0 +1,27 @@
+﻿<UserControl xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls"  x:Class="ServiceBusMQManager.Controls.StringListItemControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="300">
+    <Grid Margin="10,1,0,1">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Background" Value="Gray" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#FF8B8B8B" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+
+        <TextBlock Name="tb" Margin="10,0,43,0" FontFamily="Calibri" FontSize="16" Foreground="White" VerticalAlignment="Center">
+
+        </TextBlock>
+
+        <Controls:RoundMetroButton x:Name="btn" Height="32" Margin="0,2,4,2" HorizontalAlignment="Right" Click="btnDelete_Click"
+            Source="/ServiceBusMQManager;component/Images/delete-item-white.png"/>
+    </Grid>
+</UserControl>
