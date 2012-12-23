@@ -167,6 +167,12 @@
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TextInputImageButton.xaml.cs">
+      <DependentUpon>TextInputImageButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextInputLabelButton.xaml.cs">
+      <DependentUpon>TextInputLabelButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
@@ -251,6 +257,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TextInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TextInputImageButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TextInputLabelButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -433,6 +447,8 @@
     <Resource Include="Images\loading-white.gif" />
     <EmbeddedResource Include="Images\warning.png" />
     <Resource Include="Images\warning-white.png" />
+    <Resource Include="Images\calendar-white.png" />
+    <Resource Include="Images\calendar.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

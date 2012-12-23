@@ -179,6 +179,20 @@ namespace ServiceBusMQ {
     }
 
 
+
+    public static void BringToFront(this FrameworkElement element) {
+      if( element == null ) return;
+
+      Panel parent = element.Parent as Panel;
+      if( parent == null ) return;
+
+      var maxZ = parent.Children.OfType<UIElement>()
+        .Where(x => x != element)
+        .Select(x => Panel.GetZIndex(x))
+        .Max();
+      Panel.SetZIndex(element, maxZ + 1);
+    }
+
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
 

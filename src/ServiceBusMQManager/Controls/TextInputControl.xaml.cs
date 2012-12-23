@@ -44,6 +44,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using ServiceBusMQ;
+using System.Windows.Interop;
 
 namespace ServiceBusMQManager.Controls {
   /// <summary>
@@ -68,6 +69,8 @@ namespace ServiceBusMQManager.Controls {
 
     bool _updating;
 
+    Calendar _calendar;
+    UserControl _btn;
 
     public TextInputControl() {
       InitializeComponent();
@@ -108,19 +111,105 @@ namespace ServiceBusMQManager.Controls {
       if( _dataType.IsGuid() ) {
 
         tb.Margin = new Thickness(0, 0, 80, 0);
+        
+        var btn = new TextInputLabelButton();
 
-        btn.Content = "GENERATE";
+        btn.Text = "GENERATE";
         btn.Click += btnGuid_Click;
-        btn.Visibility = System.Windows.Visibility.Visible;
-
+        _btn = btn;
 
         tb.Tag = "GUID";
+
+      } else if( _dataType.IsDateTime() ) {
+
+        tb.Margin = new Thickness(0, 0, 40, 0);
+
+        var btn = new TextInputImageButton();
+
+        btn.Source = "/ServiceBusMQManager;component/Images/calendar-white.png";
+        btn.Click += btnDate_Click;
+        _btn = btn;
+
+        CreateCalendar();
+
       }
+
+      if( _btn != null )
+        theGrid.Children.Add(_btn);
 
     }
 
+
+
+    private void CreateCalendar() {
+      Calendar c = new Calendar();
+      c.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+      c.Height = 155;
+      c.Margin = new Thickness(0, 0, 0, -155);
+      c.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+      c.PreviewLostKeyboardFocus += c_PreviewLostKeyboardFocus;
+      c.SelectedDatesChanged += calendar_SelectedDatesChanged;
+      c.Visibility = System.Windows.Visibility.Hidden;
+      
+      theGrid.Children.Add(c);
+
+      _calendar = c;
+    }
+
+
+    void c_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+      if( e.NewFocus != null ) {
+      
+        if( !(e.NewFocus is System.Windows.Controls.Primitives.CalendarDayButton) ) {
+          _calendar.Visibility = System.Windows.Visibility.Hidden;
+        }
+      } 
+    }
+
+
     void btnGuid_Click(object sender, RoutedEventArgs e) {
       tb.Text = Guid.NewGuid().ToString().ToUpper();
+    }
+    void btnDate_Click(object sender, RoutedEventArgs e) {
+
+      BringCalendarToFront();
+
+      object value = RetrieveValue();
+      if( _isNullable && value == null )
+        _calendar.DisplayDate = DateTime.Now;
+      else _calendar.DisplayDate = (DateTime)value;
+ 
+      
+      _calendar.Visibility = System.Windows.Visibility.Visible;
+      _calendar.Focus();
+
+    }
+
+    private void BringCalendarToFront() {
+      var atrCtl = ( ( this.Parent as Grid ).Parent as AttributeControl );
+      var parentStack = atrCtl.Parent as StackPanel;
+      foreach( AttributeControl p in parentStack.Children.OfType<AttributeControl>() ) {
+        if( p.DisplayName != atrCtl.DisplayName ) {
+          Panel.SetZIndex(p, 1);
+        } else {
+          Panel.SetZIndex(p, 2);
+        }
+      }
+    }
+    private void calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e) {
+      if( _calendar.SelectedDate.HasValue )
+        UpdateValue(_calendar.SelectedDate.Value);
+      else {
+        if( _isNullable )
+          UpdateValue(null);
+        else UpdateValue(DateTime.Now);
+      }
+
+      _calendar.Visibility = System.Windows.Visibility.Hidden;
+    }
+
+    private void calendar_LostFocus_1(object sender, RoutedEventArgs e) {
+      //_calendar.Visibility = System.Windows.Visibility.Hidden;
     }
 
 
@@ -198,8 +287,8 @@ namespace ServiceBusMQManager.Controls {
         tb.Foreground = Brushes.White;
         tb.Background = Brushes.Transparent;
 
-        if( btn != null ) {
-          btn.Visibility = System.Windows.Visibility.Hidden;
+        if( _btn != null ) {
+          _btn.Visibility = System.Windows.Visibility.Hidden;
           tb.Margin = new Thickness(0, 0, 0, 0);
         }
       }
@@ -237,12 +326,12 @@ namespace ServiceBusMQManager.Controls {
 
       } else if( tb.IsFocused ) {
         tb.BorderBrush = BORDER_SELECTED;
-        tb.BorderThickness = new Thickness(1.01, 2, 2, 2);
-      
+        tb.BorderThickness = new Thickness(0.99, 2, 2, 2);
+
       } else {
 
         if( !_isListItem ) {
-          tb.BorderThickness = new Thickness(1.01);
+          tb.BorderThickness = new Thickness(0.99);
           tb.BorderBrush = BORDER_NORMAL;
 
         } else {
@@ -275,10 +364,10 @@ namespace ServiceBusMQManager.Controls {
       if( e.Key == Key.Up ) {
 
         if( _dataType.IsInteger() ) {
-          UpdateValue( Tools.AddValue(_value, _dataType, 1) );
+          UpdateValue(Tools.AddValue(_value, _dataType, 1));
 
         } else if( _dataType.IsAnyFloatType() ) {
-          UpdateValue( Tools.AddValue(_value, _dataType, 0.5F));
+          UpdateValue(Tools.AddValue(_value, _dataType, 0.5F));
         }
 
       } else if( e.Key == Key.Down ) {
@@ -321,11 +410,11 @@ namespace ServiceBusMQManager.Controls {
 
     private void tb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 
-      if( (SelectAllTextOnFocus || ContainsDefaultValue()) &&
+      if( ( SelectAllTextOnFocus || ContainsDefaultValue() ) &&
             !tb.IsKeyboardFocusWithin ) {
         tb.SelectAll();
         tb.Focus();
-        
+
         e.Handled = true;
       }
 
@@ -351,6 +440,7 @@ namespace ServiceBusMQManager.Controls {
         theGrid.Background = Brushes.Transparent;
       }
     }
+
 
   }
 }
