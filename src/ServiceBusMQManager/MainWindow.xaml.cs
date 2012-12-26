@@ -29,6 +29,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
@@ -68,7 +69,10 @@ namespace ServiceBusMQManager {
       lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
       
       CreateNotifyIcon();
+
+      SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
     }
+
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
 
@@ -198,7 +202,6 @@ namespace ServiceBusMQManager {
     }
 
 
-
     void CheckIfLatestVersion(bool startedByUser) {
       CheckVersionThread cvt = new CheckVersionThread();
 
@@ -274,6 +277,10 @@ namespace ServiceBusMQManager {
       }
     }
 
+
+    void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) {
+      _uiState.RestoreWindowState(this);
+    }
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
       if( (bool)e.NewValue ) {
 
@@ -282,8 +289,12 @@ namespace ServiceBusMQManager {
         SetSelectedItem((QueueItem)lbItems.SelectedItem);
       }
     }
+    private void frmMain_Activated(object sender, EventArgs e) {
 
+      if( _dlg != null && _dlg.IsVisible )
+        _dlg.EnsureVisibility();
 
+    }
     protected override void OnStateChanged(EventArgs e) {
       if( WindowState == WindowState.Minimized ) {
         this.Hide();
@@ -783,15 +794,6 @@ namespace ServiceBusMQManager {
 
       dlg.Show();
     }
-
-    private void frmMain_Activated(object sender, EventArgs e) {
-
-      if( _dlg != null && _dlg.IsVisible )
-        _dlg.EnsureVisibility();
-
-    }
-
-
 
 
   }
