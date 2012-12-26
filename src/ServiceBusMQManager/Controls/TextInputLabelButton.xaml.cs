@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQManager
+  File:    TextInputLabelButton.xaml.cs
+  Created: 2012-12-23
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
