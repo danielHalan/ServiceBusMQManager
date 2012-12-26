@@ -127,9 +127,12 @@ namespace ServiceBusMQ {
     }
 
     public void Remove(SavedCommand item) {
+      
+      if( item.FileName.IsValid() ) 
+        File.Delete(item.FileName);
+      
       _items.Remove(item);
       
-      Save();
     }
   }
 }
