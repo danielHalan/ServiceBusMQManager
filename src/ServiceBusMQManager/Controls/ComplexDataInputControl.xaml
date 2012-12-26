@@ -29,8 +29,8 @@
                         </Trigger>
                         <Trigger Property="Button.IsEnabled" Value="False">
                             <Setter Property="Visibility" Value="Hidden" TargetName="img" />
-                            <Setter Property="Background" Value="Gray" TargetName="btnBorder" />
-                            <Setter Property="BorderBrush" Value="#C9C9C9" TargetName="btnBorder" />
+                            <Setter Property="Background" Value="Transparent" TargetName="btnBorder" />
+                            <Setter Property="BorderBrush" Value="Transparent" TargetName="btnBorder" />
                             <Setter Property="BorderThickness" Value="1,1,0,1" TargetName="btnBorder" />
                         </Trigger>
                     </ControlTemplate.Triggers>

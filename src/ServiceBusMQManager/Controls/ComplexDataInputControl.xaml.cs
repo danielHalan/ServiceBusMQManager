@@ -61,7 +61,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void UpdateNameLabel() {
-      btn.Content = _showContentInName ? _type.GetDisplayName(_value).CutEnd(80) : _type.Name;
+      btn.Content = _showContentInName ? _type.GetDisplayName(_value).CutEnd(80) : (( _value == null ) ? "Define " + _type.Name : _type.Name);
     }
 
     public event EventHandler<ComplexTypeEventArgs> DefineComplextType;
