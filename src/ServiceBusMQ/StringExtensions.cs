@@ -117,6 +117,11 @@ namespace ServiceBusMQ {
       return !string.IsNullOrEmpty(str);
     }
 
+    public static int Convert(this string str, int @default) {
+      int r = 0;
+      return Int32.TryParse(str, out r) ? r : @default;
+    }
+
     public static bool TryParseToInt32(this string str, ref object value) {
       int r = 0;
       bool result = Int32.TryParse(str, out r);

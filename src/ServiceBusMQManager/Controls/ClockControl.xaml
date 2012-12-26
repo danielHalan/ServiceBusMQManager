@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="ServiceBusMQManager.Controls.ClockControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="250" SizeChanged="UserControl_SizeChanged_1" SourceUpdated="UserControl_SourceUpdated_1" MouseMove="UserControl_MouseMove_1" Loaded="UserControl_Loaded_1" >
+    <Grid>
+        <Ellipse Name="Clock" Fill="#FF02AFFF" Margin="0,0,0,0" Visibility="Hidden"  /> 
+        <Rectangle Name="MinArm" Fill="#FFE6E6E6" Margin="125,125,0,0" RenderTransformOrigin="0.5,0"  Tag="1"
+                           Height="100" VerticalAlignment="Top" HorizontalAlignment="Left" Width="4" MouseLeftButtonDown="Arm_MouseLeftButtonDown" >
+            <Rectangle.RenderTransform>
+                <RotateTransform Angle="0" />
+            </Rectangle.RenderTransform>
+        </Rectangle>
+        <Rectangle Name="HourArm" Fill="Azure" Margin="125,125,0,0" RenderTransformOrigin="0.5,0" Tag="0"
+                           Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" Width="6" MouseLeftButtonDown="Arm_MouseLeftButtonDown"  >
+            <Rectangle.RenderTransform>
+                <RotateTransform Angle="180" />
+            </Rectangle.RenderTransform>
+        </Rectangle>
+
+    </Grid>
+</UserControl>

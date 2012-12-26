@@ -70,7 +70,7 @@ namespace ServiceBusMQManager.Controls {
     bool _updating;
 
     Calendar _calendar;
-    UserControl _btn;
+    List<UserControl> _btns = new List<UserControl>();
 
     public TextInputControl() {
       InitializeComponent();
@@ -114,28 +114,38 @@ namespace ServiceBusMQManager.Controls {
         
         var btn = new TextInputLabelButton();
 
+        btn.HorizontalAlignment= System.Windows.HorizontalAlignment.Right;
+        btn.Width = 80;
         btn.Text = "GENERATE";
         btn.Click += btnGuid_Click;
-        _btn = btn;
+        _btns.Add(btn);
 
         tb.Tag = "GUID";
 
       } else if( _dataType.IsDateTime() ) {
 
-        tb.Margin = new Thickness(0, 0, 40, 0);
+        tb.Margin = new Thickness(0, 0, 80, 0);
 
         var btn = new TextInputImageButton();
 
         btn.Source = "/ServiceBusMQManager;component/Images/calendar-white.png";
+        btn.Margin = new Thickness(0, 0, 40, 0);
         btn.Click += btnDate_Click;
-        _btn = btn;
+        _btns.Add(btn);
+
+        btn = new TextInputImageButton();
+        btn.Source = "/ServiceBusMQManager;component/Images/clock-white.png";
+        btn.Click += btnTime_Click; 
+        _btns.Add(btn);
+
 
         CreateCalendar();
+        CreateTimeControl();
 
       }
 
-      if( _btn != null )
-        theGrid.Children.Add(_btn);
+      if( _btns.Count > 0 ) 
+        _btns.ForEach( b => theGrid.Children.Add(b) );
 
     }
 
@@ -156,6 +166,23 @@ namespace ServiceBusMQManager.Controls {
       _calendar = c;
     }
 
+    private void CreateTimeControl() {
+    
+      TimeControl c = new TimeControl();
+      //c.Width = 255;
+      //c.Height = 255;
+      c.Margin = new Thickness(0, 0, 0, -c.Height);
+      c.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+      c.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+      c.SelectedTimeChanged += c_SelectedTimeChanged;
+
+      theGrid.Children.Add(c);
+
+      _time = c;
+    }
+
+
+
 
     void c_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
       if( e.NewFocus != null ) {
@@ -172,7 +199,7 @@ namespace ServiceBusMQManager.Controls {
     }
     void btnDate_Click(object sender, RoutedEventArgs e) {
 
-      BringCalendarToFront();
+      BringToFront();
 
       object value = RetrieveValue();
       if( _isNullable && value == null )
@@ -184,8 +211,20 @@ namespace ServiceBusMQManager.Controls {
       _calendar.Focus();
 
     }
+    void btnTime_Click(object sender, RoutedEventArgs e) {
 
-    private void BringCalendarToFront() {
+      BringToFront();
+
+      object value = RetrieveValue();
+      DateTime time = ( value == null ) ? DateTime.Now : (DateTime)value;
+
+      if( time.Hour == 0 && time.Minute == 0 )  
+        time = new DateTime(1979,01,03,12,15,0,0);
+
+      _time.Show(time);
+    }
+
+    private void BringToFront() {
       var atrCtl = ( ( this.Parent as Grid ).Parent as AttributeControl );
       var parentStack = atrCtl.Parent as StackPanel;
       foreach( AttributeControl p in parentStack.Children.OfType<AttributeControl>() ) {
@@ -206,6 +245,16 @@ namespace ServiceBusMQManager.Controls {
       }
 
       _calendar.Visibility = System.Windows.Visibility.Hidden;
+    }
+
+    void c_SelectedTimeChanged(object sender, RoutedEventArgs e) {
+      var dt = RetrieveValue<DateTime>();
+      if( dt == null ) 
+        dt = DateTime.Now;
+
+      var time = _time.SelectedTime;
+      UpdateValue(new DateTime(dt.Year, dt.Month, dt.Day, time.Hour, time.Minute, time.Second));
+      
     }
 
     private void calendar_LostFocus_1(object sender, RoutedEventArgs e) {
@@ -287,8 +336,8 @@ namespace ServiceBusMQManager.Controls {
         tb.Foreground = Brushes.White;
         tb.Background = Brushes.Transparent;
 
-        if( _btn != null ) {
-          _btn.Visibility = System.Windows.Visibility.Hidden;
+        if( _btns.Count > 0 ) {
+          _btns.ForEach( b => b.Visibility = System.Windows.Visibility.Hidden );
           tb.Margin = new Thickness(0, 0, 0, 0);
         }
       }
@@ -305,6 +354,7 @@ namespace ServiceBusMQManager.Controls {
 
 
     bool _isValidValue = true;
+    private TimeControl _time;
 
     private void tb_TextChanged(object sender, TextChangedEventArgs e) {
       if( !_updating ) {
@@ -392,8 +442,11 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private bool ContainsDefaultValue() {
-      if( _dataType == typeof(Guid) )
-        return RetrieveValue<Guid>() == Guid.Empty;
+      if( _dataType == typeof(Guid) && !_isNullable ) {
+        object value = RetrieveValue();
+        if( value != null )
+          return ((Guid)value) == Guid.Empty;
+      }
 
       return false;
     }

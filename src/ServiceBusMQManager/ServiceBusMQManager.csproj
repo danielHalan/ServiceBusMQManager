@@ -130,6 +130,9 @@
     <Compile Include="Controls\CheckBoxInputControl.xaml.cs">
       <DependentUpon>CheckBoxInputControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ClockControl.xaml.cs">
+      <DependentUpon>ClockControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ComboBoxInputControl.xaml.cs">
       <DependentUpon>ComboBoxInputControl.xaml</DependentUpon>
     </Compile>
@@ -173,6 +176,9 @@
     <Compile Include="Controls\TextInputLabelButton.xaml.cs">
       <DependentUpon>TextInputLabelButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TimeControl.xaml.cs">
+      <DependentUpon>TimeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
@@ -209,6 +215,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\CheckBoxInputControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ClockControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -265,6 +275,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TextInputLabelButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TimeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -449,6 +463,7 @@
     <Resource Include="Images\warning-white.png" />
     <Resource Include="Images\calendar-white.png" />
     <Resource Include="Images\calendar.png" />
+    <Resource Include="Images\clock-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
