@@ -105,6 +105,28 @@ namespace ServiceBusMQ {
 
       Save();
     }
+    public bool RestoreWindowState(Window window) {
+
+      if( _data.WindowStates.ContainsKey(window.Name) ) {
+        var r = _data.WindowStates[window.Name];
+
+        if( r.WindowPosition == WindowPositionType.Custom ) {
+
+          window.Left = r.Left;
+          window.Top = r.Top;
+          window.Width = r.Width;
+          window.Height = r.Height;
+
+          MakeSureVisibility(window);
+
+        } else SetWindowPosition(window, r.WindowPosition);
+
+
+        return true;
+
+      } else return false;
+
+    }
 
     private WindowPositionType GetWindowPosition(Window w) {
       var s = WpfScreen.GetScreenFrom(w).WorkingArea;
@@ -234,28 +256,6 @@ namespace ServiceBusMQ {
       else _data.Values.Add(key, value);
     }
 
-    public bool RestoreWindowState(Window window) {
-
-      if( _data.WindowStates.ContainsKey(window.Name) ) {
-        var r = _data.WindowStates[window.Name];
-
-        if( r.WindowPosition == WindowPositionType.Custom ) {
-
-          window.Left = r.Left;
-          window.Top = r.Top;
-          window.Width = r.Width;
-          window.Height = r.Height;
-
-          MakeSureVisibility(window);
-
-        } else SetWindowPosition(window, r.WindowPosition);
-
-
-        return true;
-
-      } else return false;
-
-    }
 
     public Boolean AlwaysOnTop { get { return GetValue<bool>(KEY_ALWAYSONTOP, true); } set { UpdateValue(KEY_ALWAYSONTOP, value); } }
     public Boolean IsMinimized { get { return GetValue<bool>(KEY_ISMINIMIZED, false); } set { UpdateValue(KEY_ISMINIMIZED, value); } }
