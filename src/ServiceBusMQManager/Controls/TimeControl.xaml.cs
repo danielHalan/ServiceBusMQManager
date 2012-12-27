@@ -214,7 +214,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void HideControl() {
-      var hour = _timeOfDay == TimeOfDay.AM ? clock.Hour : clock.Hour + 12;
+      var hour = _timeOfDay == TimeOfDay.AM ? clock.Hour : (clock.Hour + 12) % 24;
 
       SelectedTime = new DateTime(1979, 01, 03, hour, clock.Minute, clock.Second);
       
