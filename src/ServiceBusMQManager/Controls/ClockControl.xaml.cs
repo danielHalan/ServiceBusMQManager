@@ -245,55 +245,15 @@ namespace ServiceBusMQManager.Controls {
     private void UserControl_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e) {
       var pt = e.GetPosition((IInputElement)this);
 
-      // Clear the contents of the list used for hit test results.
-      hitResultsList.Clear();
-
-      // Set up a callback to receive the hit test result enumeration.
-      for( int x = 1; x < 10; x++ ) {
-
-        VisualTreeHelper.HitTest(this, new HitTestFilterCallback(MyHitTestFilter),
-            new HitTestResultCallback(MyHitTestResult),
-            new PointHitTestParameters(new Point(pt.X + x, pt.Y)));
-
-        // Perform actions on the hit test results list. 
-        if( hitResultsList.Count > 0 ) {
-          Console.WriteLine("Number of Visuals Hit: " + hitResultsList.Count);
-          break;
-        }
-      }
-
-
       HandleMousePress(pt.X, pt.Y);
     }
 
-    // Return the result of the hit test to the callback. 
-    public HitTestResultBehavior MyHitTestResult(HitTestResult result) {
-      // Add the hit test result to the list that will be processed after the enumeration.
-      hitResultsList.Add(result.VisualHit);
-
-      // Set the behavior to return visuals at all z-order levels. 
-      return HitTestResultBehavior.Continue;
-    }
-
-    public HitTestFilterBehavior MyHitTestFilter(DependencyObject o) {
-      // Test for the object value you want to filter. 
-      if( o.GetType() != typeof(Rectangle) )
-        // Visual object and descendants are NOT part of hit test results enumeration. 
-        return HitTestFilterBehavior.ContinueSkipSelfAndChildren;
-      else return HitTestFilterBehavior.Continue;
-
-    }
-
-
     private double CalcPosition(double x, double y) {
-
       var y1 = _r - y;
       var x1 = _r - x;
       var angle = ( ( Math.Atan2(y1, x1) * 180F / Math.PI ) + 360 ) % 360;
 
       return ( angle + 90 ) % 360;
-
-
     }
 
     private void HandleMousePress(double x, double y) {

@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-              Width="244.5" Height="281.5" LostFocus="UserControl_LostFocus_1" LostKeyboardFocus="UserControl_LostKeyboardFocus_1">
-    <Border BorderBrush="#FF959595" BorderThickness="1" MouseMove="clockGrid_MouseMove">
+              Width="244.5" Height="281.5" LostKeyboardFocus="UserControl_LostKeyboardFocus_1">
+    <Border BorderBrush="#FF959595" BorderThickness="1">
         <Grid Background="White" Margin="0,0,0,-1" >
             <Grid.RowDefinitions>
                 <RowDefinition/>

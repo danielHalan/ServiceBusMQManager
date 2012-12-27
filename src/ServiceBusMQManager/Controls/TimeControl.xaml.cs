@@ -29,6 +29,7 @@ using System.Windows.Shapes;
 using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Controls {
+  
   public enum TimeOfDay { AM, PM }
 
   /// <summary>
@@ -36,8 +37,6 @@ namespace ServiceBusMQManager.Controls {
   /// </summary>
   public partial class TimeControl : UserControl {
 
-    bool _capturing = false;
-    
     private TimeOfDay _timeOfDay;
 
 
@@ -73,64 +72,12 @@ namespace ServiceBusMQManager.Controls {
       btnTimeOfDay.Content = _timeOfDay.ToString();
     }
 
-    private void Ellipse_MouseDown_1(object sender, MouseButtonEventArgs e) {
-      _capturing = true;
-    }
-
-    private void Ellipse_MouseUp_1(object sender, MouseButtonEventArgs e) {
-      _capturing = false;
-    }
-
     public static readonly DependencyProperty SelectedTimeProperty =
       DependencyProperty.Register("SelectedTime", typeof(DateTime), typeof(TimeControl), new UIPropertyMetadata(DateTime.Now));
 
     public DateTime SelectedTime {
       get { return (DateTime)GetValue(SelectedTimeProperty); }
       set { SetValue(SelectedTimeProperty, value); }
-    }
-
-    private void Ellipse_MouseMove_1(object sender, MouseEventArgs e) {
-    }
-
-
-    //private double CalcPosition(double x, double y) {
-    //  var rt = _selectedPointer.RenderTransform as RotateTransform;
-    //  var radius = Clock.ActualHeight / 2;
-
-    //  rt.Angle = (( Math.Atan2(y - radius, x - radius) * 180 / Math.PI ) + 90 );
-
-    //  Console.WriteLine(" x: " + x + " y: " + y + ", angle: " + rt.Angle);
-    //  return rt.Angle;
-
-    //}
-
-    private void clockGrid_MouseMove(object sender, MouseEventArgs e) {
-
-      if( e.LeftButton == MouseButtonState.Pressed ) {
-
-        //var x = e.GetPosition((IInputElement)Clock).X;
-        //var y = e.GetPosition((IInputElement)Clock).Y;
-
-        //HandleMousePress(x, y);
-      }
-
-    }
-
-    private void HandleMousePress(double x, double y) {
-      //var angle = CalcPosition(x, y);
-
-      //if( angle < 0 ) 
-      //  angle += 360;
-
-
-      //var hour = (Math.Round((angle / 360) * 12))+1;
-      //var min = ( Math.Round(( angle / 360 ) * 12) ) + 1;
-
-      //if( _selectedPointer == MinArm ) {
-
-      //  tbHour.Text = (Math.Round((angle / 360) * 12, 0)).ToString();
-      //}
-
     }
 
 
@@ -190,10 +137,6 @@ namespace ServiceBusMQManager.Controls {
 
     private void TextInputLabelButton_Click_1(object sender, RoutedEventArgs e) {
       HideControl();
-    }
-
-    private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
-      //
     }
 
     private void UserControl_LostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
