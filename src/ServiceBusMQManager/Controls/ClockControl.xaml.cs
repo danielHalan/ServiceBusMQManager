@@ -26,6 +26,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Expression.Shapes;
+using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Controls {
 
@@ -38,14 +40,18 @@ namespace ServiceBusMQManager.Controls {
   public partial class ClockControl : UserControl {
 
 
-    static readonly Brush CIRCLE_BRUSH = new SolidColorBrush(Color.FromRgb(0x02, 0xAF, 0xFF)); // 02AFFF
-    static readonly Brush CIRCLE_SHADOW_BRUSH = new SolidColorBrush(Color.FromRgb(0x00, 0x9E, 0xE8)); // 009FE8
+    static readonly Brush BRUSH_CIRCLE = new SolidColorBrush(Color.FromRgb(0x02, 0xAF, 0xFF)); // 02AFFF
+    static readonly Brush BRUSH_CIRCLE_SHADOW = new SolidColorBrush(Color.FromRgb(0x00, 0xA0, 0xEB)); // 00A0EB
+
+    static readonly Brush BRUSH_CIRCLE_HOUR = new SolidColorBrush(Color.FromRgb(0xDB, 0xF4, 0xFF)); // DBF4FF
+
     
 
     static readonly Pen PEN_WHITE = new Pen(Brushes.White, 2);
     static readonly Pen PEN_GRAY = new Pen(Brushes.LightGray, 2);
     static readonly Pen PEN_BLACK = new Pen(Brushes.Black, 2);
-
+    static readonly Pen PEN_MINUTE = new Pen(BRUSH_CIRCLE_HOUR, 2);
+    
     private Pen _pen;
     private double _r;
     private Point _center;
@@ -89,10 +95,16 @@ namespace ServiceBusMQManager.Controls {
       _r = ActualWidth / 2;
 
       HourArm.Height = ( _r * 0.55 );
+      HourArmTreshold.Height = MinArm.Height + 16;
+      
       HourArm.Margin = new Thickness(_r - ( HourArm.ActualWidth / 2 ), _r, 0, 0);
+      HourArmTreshold.Margin = new Thickness(HourArm.Margin.Left - 8, HourArm.Margin.Top, 0, 0);
 
       MinArm.Height = ( _r * 0.70 );
+      MinArmTreshold.Height = MinArm.Height + 16;
+
       MinArm.Margin = new Thickness(_r - ( MinArm.ActualWidth / 2 ), _r, 0, 0);
+      MinArmTreshold.Margin = new Thickness(MinArm.Margin.Left - 10, MinArm.Margin.Top, 0, 0);
 
       _center = new Point(_r, _r);
 
@@ -122,20 +134,58 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-    void DrawArc(DrawingContext drawingContext) {
-      // setup the geometry object
-      PathGeometry geometry = new PathGeometry();
-      PathFigure figure = new PathFigure();
-      figure.IsClosed = true;
 
-      geometry.Figures.Add(figure);
-      figure.StartPoint = new Point(_r, ( _r * 2 ));
+    StreamGeometry DrawArc(DrawingContext drawingContext) {
+      StreamGeometry geometry = new StreamGeometry();
+      geometry.FillRule = FillRule.EvenOdd;
 
-      // add the arc to the geometry
-      figure.Segments.Add(new ArcSegment(new Point(0, _r), new Size(_r, _r), 0, false, SweepDirection.Clockwise, false));
+      using( StreamGeometryContext context = geometry.Open() ) {
+        _DrawArcToStream(context);
+      }
 
-      // draw the arc
-      drawingContext.DrawGeometry(CIRCLE_SHADOW_BRUSH, null, geometry);
+      // Freeze the geometry for performance benefits
+      geometry.Freeze();
+
+      drawingContext.DrawGeometry(BRUSH_CIRCLE_SHADOW, null, geometry);
+
+      return geometry;
+
+    }
+
+    void _DrawArcToStream(StreamGeometryContext context) {
+
+      var rotationAngle = 65F;
+      var innerRadius = 0F;
+      var centerX = _r;
+      var centreY = _r;
+      var wedgeAngle = 150F;
+
+      Point startPoint = new Point(centerX, centreY);
+
+      Point innerArcStartPoint = Tools.ComputeCartesianCoordinate(rotationAngle, innerRadius);
+      innerArcStartPoint.Offset(centerX, centreY);
+
+      Point innerArcEndPoint = Tools.ComputeCartesianCoordinate(rotationAngle + wedgeAngle, innerRadius);
+      innerArcEndPoint.Offset(centerX, centreY);
+
+      Point outerArcStartPoint = Tools.ComputeCartesianCoordinate(rotationAngle, _r);
+      outerArcStartPoint.Offset(centerX, centreY);
+
+      Point outerArcEndPoint = Tools.ComputeCartesianCoordinate(rotationAngle + wedgeAngle, _r);
+      outerArcEndPoint.Offset(centerX, centreY);
+
+      bool largeArc = wedgeAngle > 180.0;
+
+      Size outerArcSize = new Size(_r, _r);
+      Size innerArcSize = new Size(innerRadius, innerRadius);
+
+      context.BeginFigure(innerArcStartPoint, true, true);
+      
+      context.LineTo(outerArcStartPoint, true, true);
+      context.ArcTo(outerArcEndPoint, outerArcSize, 0, largeArc, SweepDirection.Clockwise, true, true);
+      
+      context.LineTo(innerArcEndPoint, true, true);
+      context.ArcTo(innerArcStartPoint, innerArcSize, 0, largeArc, SweepDirection.Counterclockwise, true, true);
     }
 
     protected override void OnRender(System.Windows.Media.DrawingContext g) {
@@ -145,10 +195,10 @@ namespace ServiceBusMQManager.Controls {
         return;
 
       // Draw clock 
-      g.DrawEllipse(CIRCLE_BRUSH, null, _center, _r, _r);
+      g.DrawEllipse(BRUSH_CIRCLE, null, _center, _r, _r);
 
       DrawArc(g);
-      
+
       g.DrawEllipse(Brushes.White, PEN_WHITE, _center, 2, 2);
 
       // Draw Hour marks
@@ -157,13 +207,13 @@ namespace ServiceBusMQManager.Controls {
         if( i % 3 == 0 ) {
           var centerPoint = PointOnCircle(_r - 13, inc * i, _center);
 
-          g.DrawEllipse(Brushes.White, PEN_WHITE, centerPoint, 4, 4);
+          g.DrawEllipse(BRUSH_CIRCLE_HOUR, null, centerPoint, 4, 4);
 
         } else {
           var topPoint = PointOnCircle(_r - 12, inc * i, _center);
           var bottomPoint = PointOnCircle(_r - 21, inc * i, _center);
 
-          g.DrawLine(PEN_WHITE, topPoint, bottomPoint);
+          g.DrawLine(PEN_MINUTE, topPoint, bottomPoint);
         }
       }
 
@@ -184,11 +234,53 @@ namespace ServiceBusMQManager.Controls {
 
       if( e.LeftButton == MouseButtonState.Pressed ) {
 
-        var x = e.GetPosition((IInputElement)this).X;
-        var y = e.GetPosition((IInputElement)this).Y;
+        var point = e.GetPosition((IInputElement)this);
 
-        HandleMousePress(x, y);
+        HandleMousePress(point.X, point.Y);
       }
+
+    }
+
+    List<DependencyObject> hitResultsList = new List<DependencyObject>();
+    private void UserControl_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e) {
+      var pt = e.GetPosition((IInputElement)this);
+
+      // Clear the contents of the list used for hit test results.
+      hitResultsList.Clear();
+
+      // Set up a callback to receive the hit test result enumeration.
+      for( int x = 1; x < 10; x++ ) {
+
+        VisualTreeHelper.HitTest(this, new HitTestFilterCallback(MyHitTestFilter),
+            new HitTestResultCallback(MyHitTestResult),
+            new PointHitTestParameters(new Point(pt.X + x, pt.Y)));
+
+        // Perform actions on the hit test results list. 
+        if( hitResultsList.Count > 0 ) {
+          Console.WriteLine("Number of Visuals Hit: " + hitResultsList.Count);
+          break;
+        }
+      }
+
+
+      HandleMousePress(pt.X, pt.Y);
+    }
+
+    // Return the result of the hit test to the callback. 
+    public HitTestResultBehavior MyHitTestResult(HitTestResult result) {
+      // Add the hit test result to the list that will be processed after the enumeration.
+      hitResultsList.Add(result.VisualHit);
+
+      // Set the behavior to return visuals at all z-order levels. 
+      return HitTestResultBehavior.Continue;
+    }
+
+    public HitTestFilterBehavior MyHitTestFilter(DependencyObject o) {
+      // Test for the object value you want to filter. 
+      if( o.GetType() != typeof(Rectangle) )
+        // Visual object and descendants are NOT part of hit test results enumeration. 
+        return HitTestFilterBehavior.ContinueSkipSelfAndChildren;
+      else return HitTestFilterBehavior.Continue;
 
     }
 
@@ -206,9 +298,6 @@ namespace ServiceBusMQManager.Controls {
 
     private void HandleMousePress(double x, double y) {
       var angle = CalcPosition(x, y);
-
-      var rt = _selectedArmCtl.RenderTransform as RotateTransform;
-
 
       List<double> list = null;
       int timeValue = 0;
@@ -237,7 +326,7 @@ namespace ServiceBusMQManager.Controls {
 
       angle = list[index];
 
-      rt.Angle = angle + 180;
+      SetArmAngle(_selectedArmCtl, angle + 180);
 
       if( _selectedArmCtl == HourArm ) {
         Hour = timeValue;
@@ -246,6 +335,16 @@ namespace ServiceBusMQManager.Controls {
       }
 
       OnValueChanged();
+    }
+
+    private void SetArmAngle(Rectangle arm, double angle) {
+      var rt = arm.RenderTransform as RotateTransform;
+      rt.Angle = angle;
+
+      rt = (RotateTransform)( ( arm == HourArm ) ? HourArmTreshold.RenderTransform : MinArmTreshold.RenderTransform );
+      if( rt != null )
+        rt.Angle = angle;
+
     }
 
     private void OnValueChanged() {
@@ -294,24 +393,18 @@ namespace ServiceBusMQManager.Controls {
     public void SetHour(int hour) {
       Hour = hour % 12;
 
-      if( _hours.Count > 0 ) {
-        var angle = _hours[Hour];
-
-        var rt = HourArm.RenderTransform as RotateTransform;
-        rt.Angle = angle + 180;
-      }
+      if( _hours.Count > 0 ) 
+        SetArmAngle(HourArm, _hours[Hour] + 180);
+      
     }
 
 
     public void SetMinute(int minute) {
       Minute = minute;
 
-      if( _mins.Count > 0 ) {
-        var angle = _mins[minute % 60];
-
-        var rt = MinArm.RenderTransform as RotateTransform;
-        rt.Angle = angle + 180;
-      }
+      if( _mins.Count > 0 ) 
+        SetArmAngle(MinArm, _mins[minute % 60] + 180);
+      
     }
     private void SetSecond(int second) {
       Second = second;
@@ -330,6 +423,15 @@ namespace ServiceBusMQManager.Controls {
     private void Arm_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
       SelectArm(sender as Rectangle);
     }
+
+    private void MinArmTreshold_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+      SelectArm(MinArm);
+    }
+
+    private void HourArmTreshold_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e) {
+      SelectArm(HourArm);
+    }
+
 
   }
 }

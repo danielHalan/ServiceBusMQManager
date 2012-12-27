@@ -138,10 +138,8 @@ namespace ServiceBusMQManager.Controls {
         btn.Click += btnTime_Click; 
         _btns.Add(btn);
 
-
         CreateCalendar();
         CreateTimeControl();
-
       }
 
       if( _btns.Count > 0 ) 

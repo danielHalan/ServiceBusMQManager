@@ -215,6 +215,17 @@ namespace ServiceBusMQ {
 
     }
 
+    public static System.Windows.Point ComputeCartesianCoordinate(double angle, double radius) {
+      // convert to radians
+      double angleRad = ( Math.PI / 180.0 ) * ( angle - 90 );
+
+      double x = radius * Math.Cos(angleRad);
+      double y = radius * Math.Sin(angleRad);
+
+      return new System.Windows.Point(x, y);
+    }
+
+
     public static object CreateInstance(Type type, Dictionary<string, object> attributes) {
       object i = null;
 
