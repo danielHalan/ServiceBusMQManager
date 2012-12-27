@@ -113,7 +113,7 @@ namespace ServiceBusMQManager {
 
       _commands.Clear();
 
-      foreach( Type t in cmdTypes ) {
+      foreach( Type t in cmdTypes.OrderBy( t => t.Name ) ) {
         var cmd = new CommandItem();
         cmd.Type = t;
         cmd.DisplayName = string.Format("{0} ({1})", t.Name, t.Namespace);
