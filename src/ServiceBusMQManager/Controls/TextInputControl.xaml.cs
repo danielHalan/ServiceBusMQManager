@@ -234,9 +234,19 @@ namespace ServiceBusMQManager.Controls {
       }
     }
     private void calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e) {
-      if( _calendar.SelectedDate.HasValue )
-        UpdateValue(_calendar.SelectedDate.Value);
-      else {
+      if( _calendar.SelectedDate.HasValue ) {
+
+        DateTime dt = _calendar.SelectedDate.Value;
+        
+        var current = RetrieveValue();
+        if( current != null ) {
+          var currDt = (DateTime)current;
+          UpdateValue(new DateTime(dt.Year, dt.Month, dt.Day, currDt.Hour, currDt.Minute, currDt.Second));
+        
+        } else UpdateValue(dt);
+
+      
+      } else {
         if( _isNullable )
           UpdateValue(null);
         else UpdateValue(DateTime.Now);

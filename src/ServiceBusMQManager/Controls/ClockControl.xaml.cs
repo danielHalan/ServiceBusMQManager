@@ -165,8 +165,6 @@ namespace ServiceBusMQManager.Controls {
       Point innerArcStartPoint = Tools.ComputeCartesianCoordinate(rotationAngle, innerRadius);
       innerArcStartPoint.Offset(centerX, centreY);
 
-      Point innerArcEndPoint = Tools.ComputeCartesianCoordinate(rotationAngle + wedgeAngle, innerRadius);
-      innerArcEndPoint.Offset(centerX, centreY);
 
       Point outerArcStartPoint = Tools.ComputeCartesianCoordinate(rotationAngle, _r);
       outerArcStartPoint.Offset(centerX, centreY);
@@ -177,15 +175,11 @@ namespace ServiceBusMQManager.Controls {
       bool largeArc = wedgeAngle > 180.0;
 
       Size outerArcSize = new Size(_r, _r);
-      Size innerArcSize = new Size(innerRadius, innerRadius);
 
       context.BeginFigure(innerArcStartPoint, true, true);
       
       context.LineTo(outerArcStartPoint, true, true);
       context.ArcTo(outerArcEndPoint, outerArcSize, 0, largeArc, SweepDirection.Clockwise, true, true);
-      
-      context.LineTo(innerArcEndPoint, true, true);
-      context.ArcTo(innerArcStartPoint, innerArcSize, 0, largeArc, SweepDirection.Counterclockwise, true, true);
     }
 
     protected override void OnRender(System.Windows.Media.DrawingContext g) {
@@ -330,7 +324,7 @@ namespace ServiceBusMQManager.Controls {
       for( int i = 0; i < list.Count; i++ ) {
         var h = list[i];
 
-        if( ( prevH + treshold <= timeAngle && timeAngle < h ) || // before the hour w/ treshold
+        if( ( prevH + treshold <= timeAngle && ((timeAngle < h) || (h == 0)) ) || // before the hour w/ treshold
 
            ( timeAngle >= h && timeAngle <= ( h + treshold ) ) ) { // after the hour w/ treshold
           angle = h;

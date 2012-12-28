@@ -29,7 +29,7 @@ using System.Windows.Shapes;
 using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Controls {
-  
+
   public enum TimeOfDay { AM, PM }
 
   /// <summary>
@@ -57,14 +57,12 @@ namespace ServiceBusMQManager.Controls {
       clock.SetValue(time.Hour, time.Minute, time.Second);
       clock.SelectedArm = TimeArm.Hour;
 
-      SetTextValue(tbHour, time.Hour % 12);
-      SetTextValue(tbMin, time.Minute);
       SetTextValue(tbSec, time.Second);
+      SetTextValue(tbMin, time.Minute);
+      SetTextValue(tbHour, time.Hour % 12);
 
       this.Visibility = System.Windows.Visibility.Visible;
 
-      tbHour.SelectAll();
-      tbHour.Focus();
     }
     private void SetTimeOfDay(TimeOfDay timeOfDay) {
       _timeOfDay = timeOfDay;
@@ -102,8 +100,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void SetTextValue(TextBox tb, int value) {
-      if( !tb.IsFocused )
-        tb.Focus();
+      tb.Focus();
       tb.Text = value.ToString();
       tb.SelectAll();
     }
@@ -141,14 +138,28 @@ namespace ServiceBusMQManager.Controls {
 
     private void UserControl_LostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
 
-      if( e.NewFocus is ScrollViewer )
-        return; // ignore ScrollViewer control, as it always selected when moving time-arms
 
+      if( e.NewFocus is ScrollViewer ) {
+        var pt = Mouse.GetPosition(this);
+        Console.WriteLine("x: " + pt.X + ", y: " + pt.Y);
+
+        if( ( pt.X > 0 && pt.X < this.Width ) &&
+            ( pt.Y > 0 && pt.Y < this.Height ) ) {
+
+          //if( clock.SelectedArm == TimeArm.Hour )
+          //  tbHour.Focus();
+          //else tbMin.Focus();
+
+          return; // ignore ScrollViewer control, as it always selected when moving time-arms
+        }
+      }
       DependencyObject o = (DependencyObject)e.NewFocus;
-      bool isParent = e.NewFocus == this;
-      while( !isParent && ( o = VisualTreeHelper.GetParent(o) ) != null ) {
+      bool isParent = false;
+      while( !isParent && ( o != null ) ) {
         if( o == this )
           isParent = true;
+
+        o = VisualTreeHelper.GetParent(o);
       }
 
       if( !isParent )
@@ -157,12 +168,12 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void HideControl() {
-      var hour = _timeOfDay == TimeOfDay.AM ? clock.Hour : (clock.Hour + 12) % 24;
+      var hour = _timeOfDay == TimeOfDay.AM ? clock.Hour : ( clock.Hour + 12 ) % 24;
 
       SelectedTime = new DateTime(1979, 01, 03, hour, clock.Minute, clock.Second);
-      
+
       OnSelectedTimeChanged();
-      
+
       this.Visibility = System.Windows.Visibility.Hidden;
     }
 
@@ -184,6 +195,18 @@ namespace ServiceBusMQManager.Controls {
         SetTimeOfDay(TimeOfDay.AM);
       else
         SetTimeOfDay(TimeOfDay.PM);
+    }
+
+    private void UserControl_Loaded_1(object sender, RoutedEventArgs e) {
+      //this.Focus();
+    }
+
+    private void UserControl_GotFocus_1(object sender, RoutedEventArgs e) {
+      //this.Focus();
+    }
+
+    private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
+      Console.WriteLine("UserControl_LostFocus_1");
     }
 
 

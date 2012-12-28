@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-              Width="244.5" Height="281.5" LostKeyboardFocus="UserControl_LostKeyboardFocus_1">
-    <Border BorderBrush="#FF959595" BorderThickness="1">
+             mc:Ignorable="d" Focusable="True" Loaded="UserControl_Loaded_1" GotFocus="UserControl_GotFocus_1" LostFocus="UserControl_LostFocus_1"
+              Width="244.5" Height="281.5" LostKeyboardFocus="UserControl_LostKeyboardFocus_1" FocusManager.IsFocusScope="True" >
+    <Border BorderBrush="#FF959595" BorderThickness="1" >
+        
         <Grid Background="White" Margin="0,0,0,-1" >
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -15,26 +16,29 @@
 
             
             <Grid Height="40" VerticalAlignment="Bottom" Grid.RowSpan="2">
-                <TextBox Name="tbHour" 
+                <TextBox Name="tbHour" TabIndex="{Binding TabIndex, ElementName=UserControl}"
                      Text="20"
                      Height="20" Width="35"
                      FontFamily="Calibri" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  BorderThickness="1" BorderBrush="#ADADAD"  
-                 Margin="12,0,0,10" VerticalAlignment="Bottom" GotFocus="tbHour_GotFocus" HorizontalAlignment="Left" TextChanged="tbHour_TextChanged" LostKeyboardFocus="UserControl_LostKeyboardFocus_1"   />
+                 Margin="12,0,0,10" VerticalAlignment="Bottom" GotFocus="tbHour_GotFocus" HorizontalAlignment="Left" TextChanged="tbHour_TextChanged" 
+                         />
 
                 <TextBox x:Name="tbMin" 
             	Text="20"
             	Height="20" Width="35"
             	FontFamily="Calibri" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
             	BorderThickness="1" BorderBrush="#ADADAD"  
-            	Margin="57,0,0,10" VerticalAlignment="Bottom" GotFocus="tbMin_GotFocus" HorizontalAlignment="Left" TextChanged="tbMin_TextChanged" LostKeyboardFocus="UserControl_LostKeyboardFocus_1"   />
+            	Margin="57,0,0,10" VerticalAlignment="Bottom" GotFocus="tbMin_GotFocus" HorizontalAlignment="Left" TextChanged="tbMin_TextChanged" 
+                         />
 
                 <TextBox x:Name="tbSec" 
             	Text="20"
             	Height="20" Width="35"
             	FontFamily="Calibri" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
             	BorderThickness="1" BorderBrush="#ADADAD"  
-            	Margin="104,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left" LostKeyboardFocus="UserControl_LostKeyboardFocus_1"   />
+            	Margin="104,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left" 
+                         />
                 <Label Content=":" HorizontalAlignment="Left" Margin="45,0,0,7" VerticalAlignment="Bottom" Height="25"/>
                 <Label Content=":" HorizontalAlignment="Left" Margin="91,0,0,7" VerticalAlignment="Bottom" Height="25"/>
                 <Border Background="WhiteSmoke" 

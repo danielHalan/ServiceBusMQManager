@@ -8,8 +8,7 @@
     
     <Grid Name="theGrid">
 
-
-        <TextBox Name="tb" BorderBrush="Gray" 
+        <TextBox Name="tb" BorderBrush="Gray" Padding="4,0,0,0"
                  FontFamily="Calibri" FontSize="16"  
                  BorderThickness="1.01" Margin="0,0,0,0" 
                  VerticalContentAlignment="Center" 
