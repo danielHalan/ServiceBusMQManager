@@ -48,7 +48,7 @@ namespace ServiceBusMQManager.Controls {
 
     public void Show(DateTime time) {
 
-      if( time.Hour > 12 ) {
+      if( time.Hour >= 12 ) {
         SetTimeOfDay(TimeOfDay.PM);
 
       } else SetTimeOfDay(TimeOfDay.AM);
@@ -59,9 +59,9 @@ namespace ServiceBusMQManager.Controls {
 
       SetTextValue(tbSec, time.Second);
       SetTextValue(tbMin, time.Minute);
-      SetTextValue(tbHour, time.Hour % 12);
 
       this.Visibility = System.Windows.Visibility.Visible;
+      SetTextValue(tbHour, time.Hour % 12);
 
     }
     private void SetTimeOfDay(TimeOfDay timeOfDay) {
@@ -153,14 +153,8 @@ namespace ServiceBusMQManager.Controls {
           return; // ignore ScrollViewer control, as it always selected when moving time-arms
         }
       }
-      DependencyObject o = (DependencyObject)e.NewFocus;
-      bool isParent = false;
-      while( !isParent && ( o != null ) ) {
-        if( o == this )
-          isParent = true;
 
-        o = VisualTreeHelper.GetParent(o);
-      }
+      bool isParent = this.IsChildControl((DependencyObject)e.NewFocus);
 
       if( !isParent )
         HideControl();
@@ -195,6 +189,7 @@ namespace ServiceBusMQManager.Controls {
         SetTimeOfDay(TimeOfDay.AM);
       else
         SetTimeOfDay(TimeOfDay.PM);
+    
     }
 
     private void UserControl_Loaded_1(object sender, RoutedEventArgs e) {
@@ -207,6 +202,18 @@ namespace ServiceBusMQManager.Controls {
 
     private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
       Console.WriteLine("UserControl_LostFocus_1");
+    }
+
+    private void UserControl_PreviewLostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
+
+      if( e.OldFocus == btnTimeOfDay && !this.IsChildControl((DependencyObject)e.NewFocus) ) {
+
+        if( clock.SelectedArm == TimeArm.Hour )
+          tbHour.Focus();
+        else tbMin.Focus();
+
+        e.Handled = true;
+      }
     }
 
 

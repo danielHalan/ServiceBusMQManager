@@ -28,6 +28,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ServiceBusMQ {
@@ -130,6 +131,17 @@ namespace ServiceBusMQ {
           (IntPtr)( 61440 + pos ), IntPtr.Zero);
     }
 
+    public static bool IsChildControl(this Control control, DependencyObject o) {
+      bool isParent = false;
+      while( !isParent && ( o != null ) ) {
+        if( o == control )
+          isParent = true;
+
+        o = VisualTreeHelper.GetParent(o);
+      }
+
+      return isParent;
+    }
 
     static string _sortColumn;
     static ListSortDirection _sortDir;
@@ -177,6 +189,8 @@ namespace ServiceBusMQ {
 
       return null;
     }
+
+
 
 
 

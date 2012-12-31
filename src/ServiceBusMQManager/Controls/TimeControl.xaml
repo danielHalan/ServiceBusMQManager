@@ -3,8 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" Focusable="True" Loaded="UserControl_Loaded_1" GotFocus="UserControl_GotFocus_1" LostFocus="UserControl_LostFocus_1"
-              Width="244.5" Height="281.5" LostKeyboardFocus="UserControl_LostKeyboardFocus_1" FocusManager.IsFocusScope="True" >
+             mc:Ignorable="d" 
+             Loaded="UserControl_Loaded_1" 
+             GotFocus="UserControl_GotFocus_1" 
+             LostFocus="UserControl_LostFocus_1"
+              Width="244.5" Height="281.5" 
+             Focusable="True" 
+             FocusManager.IsFocusScope="True" 
+             LostKeyboardFocus="UserControl_LostKeyboardFocus_1" 
+             PreviewLostKeyboardFocus="UserControl_PreviewLostKeyboardFocus_1" >
     <Border BorderBrush="#FF959595" BorderThickness="1" >
         
         <Grid Background="White" Margin="0,0,0,-1" >
@@ -39,8 +46,8 @@
             	BorderThickness="1" BorderBrush="#ADADAD"  
             	Margin="104,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left" 
                          />
-                <Label Content=":" HorizontalAlignment="Left" Margin="45,0,0,7" VerticalAlignment="Bottom" Height="25"/>
-                <Label Content=":" HorizontalAlignment="Left" Margin="91,0,0,7" VerticalAlignment="Bottom" Height="25"/>
+                <Label Content=":" HorizontalAlignment="Left" Margin="45,0,0,7" VerticalAlignment="Bottom" Height="25" Foreground="#FF7C7C7C"/>
+                <Label Content=":" HorizontalAlignment="Left" Margin="91,0,0,7" VerticalAlignment="Bottom" Height="25" Foreground="#FF7C7C7C"/>
                 <Border Background="WhiteSmoke" 
                            Height="19"
                            Margin="143,0,0,10" 
@@ -52,12 +59,13 @@
                     
                 </Border>
 
+                
                 <Button x:Name="btnTimeOfDay" 
                          Content="AM"
-                           Height="20"
+                           Height="20" Focusable="True"
                            Margin="143,0,0,10" 
                            VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="31"
-                        
+                        FocusManager.IsFocusScope="True"
                         Click="TimeOfDay_Click">
                     <Button.Template>
                         <ControlTemplate>
