@@ -144,6 +144,45 @@ namespace ServiceBusMQ {
     //}
 
 
+    public bool CanSendCommand { 
+      get { 
+        return (_mgr as ISendCommand) != null;
+      } 
+    }
+
+
+    public Type[] GetAvailableCommands(string[] _asmPath) {
+      var sc = _mgr as ISendCommand;
+      if( sc != null ) 
+        return sc.GetAvailableCommands(_asmPath);
+      else return new Type[0];
+    }
+
+    public Type[] GetAvailableCommands(string[] _asmPath, CommandDefinition cmdDef) {
+      var sc = _mgr as ISendCommand;
+      if( sc != null )
+        return sc.GetAvailableCommands(_asmPath, cmdDef);
+      else return new Type[0];
+    }
+
+    public MessageSubscription[] GetMessageSubscriptions(string serverName) {
+      var sc = _mgr as IViewSubscriptions;
+      if( sc != null )
+        return sc.GetMessageSubscriptions(serverName);
+      else return new MessageSubscription[0];
+    }
+
+    public void SendCommand(string destinationServer, string destinationQueue, object message) {
+      var sc = _mgr as ISendCommand;
+      if( sc != null )
+        sc.SendCommand(destinationServer, destinationQueue, message);
+    }
+
+    public void SetupBus(string[] assemblyPaths) {
+      var sc = _mgr as ISendCommand;
+      if( sc != null )
+        sc.SetupBus(assemblyPaths);
+    }
   }
 
 }

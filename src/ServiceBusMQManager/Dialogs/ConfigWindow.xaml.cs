@@ -250,7 +250,7 @@ namespace ServiceBusMQManager.Dialogs {
           cmdDef.NamespaceContains = cmdNamespace;
 
 
-        if( _sys.Manager.GetAvailableCommands(asmPaths.GetItems(), cmdDef).Length == 0 ) {
+        if( _sys.GetAvailableCommands(asmPaths.GetItems(), cmdDef).Length == 0 ) {
           
           sb.Append("No commands found "); 
         

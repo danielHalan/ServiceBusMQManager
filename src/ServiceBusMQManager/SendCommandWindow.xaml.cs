@@ -52,7 +52,6 @@ namespace ServiceBusMQManager {
 
     string[] _asmPath;
 
-    IMessageManager _mgr;
     SbmqSystem _sys;
 
     ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
@@ -65,7 +64,6 @@ namespace ServiceBusMQManager {
       InitializeComponent();
 
       _sys = system;
-      _mgr = system.Manager;
 
       _asmPath = system.Config.CommandsAssemblyPaths;
 
@@ -109,7 +107,7 @@ namespace ServiceBusMQManager {
 
 
     private void BindCommands() {
-      var cmdTypes = _mgr.GetAvailableCommands(_asmPath);
+      var cmdTypes = _sys.GetAvailableCommands(_asmPath);
 
       _commands.Clear();
 
@@ -172,7 +170,7 @@ namespace ServiceBusMQManager {
     void DoSetupBus(object sender, DoWorkEventArgs e) {
 
       if( !_isBusStarted ) {
-        _mgr.SetupBus(_asmPath);
+        _sys.SetupBus(_asmPath);
 
         _isBusStarted = true;
       }
@@ -182,9 +180,9 @@ namespace ServiceBusMQManager {
 
       try { 
         var queue = cbQueue.SelectedItem as string;
-        _mgr.SendCommand(cbServer.SelectedValue as string, queue, _cmd);
+        _sys.SendCommand(cbServer.SelectedValue as string, queue, _cmd);
 
-        savedCommands.CommandSent(_cmd, _mgr.BusName, _mgr.BusQueueType, cbServer.SelectedValue as string, queue);
+        savedCommands.CommandSent(_cmd, _sys.Manager.BusName, _sys.Manager.BusQueueType, cbServer.SelectedValue as string, queue);
       
         Close();
 

@@ -24,14 +24,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using NServiceBus.Utils;
 using ServiceBusMQ;
+using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
+
+using NServiceBus;
+using NServiceBus.Utils;
+using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
+using System.Reflection;
+
 
 namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
 
     class PeekThreadParam {
       public QueueType QueueType { get; set; }
@@ -444,6 +450,86 @@ namespace ServiceBusMQ.NServiceBus {
     public override string BusName { get { return "NServiceBus"; } }
     public override string BusQueueType { get { return "MSMQ"; } }
 
+
+
+    public override Type[] GetAvailableCommands(string[] asmPaths) {
+      return GetAvailableCommands(asmPaths, _commandDef);
+    }
+    public override Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
+      List<Type> arr = new List<Type>();
+
+      foreach( var path in asmPaths )
+        foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
+
+          try {
+            var asm = Assembly.LoadFrom(dll);
+
+            foreach( Type t in asm.GetTypes() ) {
+
+              if( commandDef.IsCommand(t) )
+                arr.Add(t);
+
+            }
+
+          } catch { }
+
+        }
+
+      return arr.ToArray();
+    }
+
+    IBus _bus;
+
+
+
+    public override void SetupBus(string[] assemblyPaths) {
+
+      List<Assembly> asms = new List<Assembly>();
+
+      foreach( string path in assemblyPaths ) {
+
+        foreach( string file in Directory.GetFiles(path, "*.dll") ) {
+          try {
+            asms.Add(Assembly.LoadFrom(file));
+          } catch { }
+        }
+
+      }
+
+
+      _bus = Configure.With(asms)
+                .DefineEndpointName("SBMQM_NSB")
+                .DefaultBuilder()
+        //.MsmqSubscriptionStorage()
+          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+                .XmlSerializer()
+                .MsmqTransport()
+                .UnicastBus()
+            .SendOnly();
+
+    }
+    public override void SendCommand(string destinationServer, string destinationQueue, object message) {
+
+
+
+      if( Tools.IsLocalHost(destinationServer) )
+        destinationServer = null;
+
+      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationQueue + "@" + destinationServer : destinationQueue;
+
+
+      //var assemblies = message.GetType().Assembly
+      // .GetReferencedAssemblies()
+      // .Select(n => Assembly.Load(n))
+      // .ToList();
+      //assemblies.Add(GetType().Assembly);
+
+
+      if( message != null )
+        _bus.Send(dest, message);
+      else OnError("Can not send an incomplete message", false);
+
+    }
 
 
   }

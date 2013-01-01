@@ -90,7 +90,7 @@ namespace ServiceBusMQManager.Dialogs {
       }
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s,e) =>  {  e.Result = _sys.Manager.GetMessageSubscriptions(serverName); };
+      w.DoWork += (s,e) =>  {  e.Result = _sys.GetMessageSubscriptions(serverName); };
       w.RunWorkerCompleted += (s,e) => { 
         MessageSubscription[] subs = e.Result as MessageSubscription[];
 

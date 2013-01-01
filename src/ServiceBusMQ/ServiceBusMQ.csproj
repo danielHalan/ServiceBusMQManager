@@ -72,6 +72,8 @@
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="CommandHistoryManager.cs" />
+    <Compile Include="Manager\ISendCommand.cs" />
+    <Compile Include="Manager\IViewSubscriptions.cs" />
     <Compile Include="Model\QueueItemError.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
