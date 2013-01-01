@@ -149,6 +149,11 @@ namespace ServiceBusMQ {
         return (_mgr as ISendCommand) != null;
       } 
     }
+    public bool CanViewSubscriptions {
+      get {
+        return ( _mgr as IViewSubscriptions ) != null;
+      }
+    }
 
 
     public Type[] GetAvailableCommands(string[] _asmPath) {

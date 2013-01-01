@@ -141,6 +141,9 @@ namespace ServiceBusMQManager {
         RestoreQueueButtonsState();
         this.IsEnabled = true;
 
+        btnSendCommand.IsEnabled = _sys.CanSendCommand;
+        btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
+
         lbItems.ItemsSource = _mgr.Items;
 
         SetupContextMenu();
@@ -182,6 +185,9 @@ namespace ServiceBusMQManager {
 
         this.IsEnabled = true;
         RestoreMonitorQueueState();
+
+        btnSendCommand.IsEnabled = _sys.CanSendCommand;
+        btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
         lbItems.ItemsSource = _mgr.Items;
 
