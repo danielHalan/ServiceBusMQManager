@@ -152,7 +152,7 @@
                     <TextBox x:Name="tbCmdInherits" Foreground="Black"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" BorderBrush="Gray" Height="27" Margin="75,84,0,0" TextWrapping="Wrap" Width="349" Grid.Row="10" IsEnabled="False" FontSize="16" Grid.ColumnSpan="2"/>
 
 
-                    <Button x:Name="btnSelectType" HorizontalAlignment="Left" Margin="107,76,0,0" VerticalAlignment="Top" Width="42" Grid.Row="10" Height="42" Click="Button_Click_1" Grid.Column="1">
+                    <Button x:Name="btnSelectType" HorizontalAlignment="Left" Margin="430,76,0,0" VerticalAlignment="Top" Width="42" Grid.Row="10" Height="42" Click="Button_Click_1" Grid.Column="0" Grid.ColumnSpan="2">
                         <Button.Template>
                             <ControlTemplate>
                                 <Image x:Name="img" HorizontalAlignment="Left"  Source="/ServiceBusMQManager;component/Images/search-item-white.png" Margin="0,-1,0,1" />
