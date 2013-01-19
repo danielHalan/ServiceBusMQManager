@@ -289,7 +289,7 @@ namespace ServiceBusMQ.NServiceBus {
         itm.MessageNames = GetMessageNames(itm.Content, true);
         itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label);
 
-        r.Add(itm);
+        r.Insert(0, itm);
       }
     }
 
@@ -316,6 +316,16 @@ namespace ServiceBusMQ.NServiceBus {
             itm.Headers.Add(pair.Key, pair.Value);
       }
 
+      if( itm.Headers.Any( k => k.Key == "NServiceBus.ProcessingStarted" ) ) {
+      
+        try {
+          itm.ProcessTime = Convert.ToInt32((Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) - 
+                            Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"])).TotalSeconds);
+
+        } catch { }
+      
+      }
+
 
       if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.Message") ) {
 
@@ -324,6 +334,10 @@ namespace ServiceBusMQ.NServiceBus {
           itm.Error.State =  type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
 
           itm.Error.Message = itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.ExceptionInfo.Message").Value;
+          
+          if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace") )
+            itm.Error.StackTrace = itm.Headers.Single(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace").Value;
+          
           itm.Error.Retries = Convert.ToInt32(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.Retries").Value);
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
