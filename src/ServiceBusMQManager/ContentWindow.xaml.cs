@@ -31,7 +31,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml;
-using ScintillaNET;
+//using ScintillaNET;
 using ServiceBusMQ;
 using ServiceBusMQ.Model;
 
@@ -55,13 +55,6 @@ namespace ServiceBusMQManager {
     public ContentWindow() {
       InitializeComponent();
 
-      Scintilla t = w32.Child as Scintilla;
-      t.LineWrapping.IndentMode = LineWrappingIndentMode.Same;
-      t.LineWrapping.Mode = LineWrappingMode.Word;
-      t.ConfigurationManager.Language = "xml";
-      foreach( var m in t.Margins )
-        m.Width = 0;
-
       SourceInitialized += ContentWindow_SourceInitialized;
 
 
@@ -75,29 +68,6 @@ namespace ServiceBusMQManager {
     }
 
 
-    string FormatXml(string xml) {
-      if( !xml.IsValid() )
-        return xml;
-
-      XmlDocument doc = new XmlDocument();
-      try {
-        doc.LoadXml(xml);
-
-        StringBuilder sb = new StringBuilder();
-        using( XmlTextWriter wr = new XmlTextWriter(new StringWriter(sb)) ) {
-
-          wr.Indentation = 2;
-          wr.Formatting = Formatting.Indented;
-
-          doc.Save(wr);
-        }
-
-        return sb.ToString();
-
-      } catch {
-        return xml;
-      }
-    }
 
 
     private static FlowDocument GetFlowDocument(string xml) {
@@ -118,9 +88,8 @@ namespace ServiceBusMQManager {
 
 
     public void SetContent(string xml, QueueItemError errorMsg = null) {
-      Scintilla t = w32.Child as Scintilla;
 
-      t.Text = FormatXml(xml);
+      tbContent.Text = Tools.FormatXml(xml);
 
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);
@@ -129,7 +98,7 @@ namespace ServiceBusMQManager {
 
         if( errorMsg.State == QueueItemErrorState.Retry ) {
           imgError.Source = BMP_WARNING;
-          //lbRetries.
+
           lbError.Background = BACKGROUND_WARNING;
           lbRetries.Foreground = BACKGROUND_WARNING;
         
@@ -142,7 +111,6 @@ namespace ServiceBusMQManager {
 
       } else { 
         theGrid.RowDefinitions[1].Height = new GridLength(0);
-        //lbError.Visibility = System.Windows.Visibility.Hidden;
       }
 
     }
