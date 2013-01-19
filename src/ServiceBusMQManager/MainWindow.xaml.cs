@@ -57,6 +57,7 @@ namespace ServiceBusMQManager {
     
     private bool _isMinimized;
 
+    bool _firstLoad = true;
 
     private ContentWindow _dlg;
     private bool _dlgShown = false;
@@ -75,8 +76,6 @@ namespace ServiceBusMQManager {
 
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
-
-
 
       InitSystem();
 
@@ -118,7 +117,7 @@ namespace ServiceBusMQManager {
 
 
     private void InitSystem() {
-      
+
       this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
 
       _dlg = new ContentWindow();
@@ -421,9 +420,11 @@ namespace ServiceBusMQManager {
         ShowActivityTrayIcon();
 
         // Show Window
-        if( _sys.Config.ShowOnNewMessages && !this.IsVisible )
+        if( _sys.Config.ShowOnNewMessages && !_firstLoad && !this.IsVisible )
           this.Show();
 
+        _firstLoad = false;
+        
       }));
     }
     private void timer_Tick(object sender, EventArgs e) {
@@ -647,13 +648,27 @@ namespace ServiceBusMQManager {
       if( _dlg != null ) {
         var s = WpfScreen.GetScreenFrom(this);
 
-        if( this.Top < _dlg.Height ) {
-          _dlg.Top = this.Top + this.Height;
+        if( this.Top < _dlg.ActualHeight ) { // no space above, place bellow
+
+          var height = this.Top + this.ActualHeight;
+
+          if( height + _dlg.ActualHeight < s.WorkingArea.Height )
+            _dlg.Top = height;
+
+          else { // Not fit bellow
+            _dlg.Top = this.Top;
+            _dlg.Left = this.Left - _dlg.ActualWidth;
+            if( _dlg.Left < 0 )
+              _dlg.Left = this.Left + this.ActualWidth;
+
+            return;
+          }
+
         } else {
-          _dlg.Top = this.Top - _dlg.Height;
+          _dlg.Top = this.Top - _dlg.ActualHeight;
         }
 
-        _dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
+        _dlg.Left = ( this.Left + this.ActualWidth ) - _dlg.ActualWidth;
 
 
       }
@@ -706,7 +721,7 @@ namespace ServiceBusMQManager {
     }
     private void RestoreWindowState() {
 
-      _isMinimized = _uiState.IsMinimized;
+      _isMinimized = _uiState.IsMinimized || App.StartMinimized;
 
       SetAlwaysOnTop(_uiState.AlwaysOnTop);
 
@@ -715,6 +730,19 @@ namespace ServiceBusMQManager {
       if( !_uiState.RestoreWindowState(this) )
         SetDefaultWindowPosition();
 
+      UpdateContentWindow();
+
+
+      if( _isMinimized ) {
+        this.Hide();
+        this.WindowState = System.Windows.WindowState.Minimized;
+
+        if( _dlg != null ) {
+          //_dlg.WindowState = System.Windows.WindowState.Minimized;
+          _dlg.Hide();
+        }
+
+      }
     }
 
     private void RestoreQueueButtonsState() {

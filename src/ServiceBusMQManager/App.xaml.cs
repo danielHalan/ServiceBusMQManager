@@ -32,7 +32,7 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class App : Application {
 
-    enum ArgType { Send, Silent }
+    enum ArgType { Send, Silent, Minimized }
 
     class Arg {
       public ArgType Type { get; set; }
@@ -50,13 +50,16 @@ namespace ServiceBusMQManager {
     [DllImport("Kernel32.dll")]
     public static extern bool AttachConsole(int processId);
     
-    protected override void OnStartup(StartupEventArgs e) {
+    public static bool StartMinimized = false;
 
+    protected override void OnStartup(StartupEventArgs e) {
+      List<Arg> args = ProcessArgs(e.Args);
+
+      StartMinimized = args.Any(a => a.Type == ArgType.Minimized);
 
       if( e.Args.Length >= 1 ) {
         AttachConsole(-1);
 
-        List<Arg> args = ProcessArgs(e.Args);
 
         _silent = args.Any(a => a.Type == ArgType.Silent);
 
@@ -150,6 +153,7 @@ namespace ServiceBusMQManager {
           switch( args[i] ) {
             case "--send": r.Add(new Arg(ArgType.Send, args[++i])); break;
             case "-s": r.Add(new Arg(ArgType.Silent, null)); break;
+            case "-m": r.Add(new Arg(ArgType.Minimized, null)); break;
           }
 
       } catch( Exception e ) {
