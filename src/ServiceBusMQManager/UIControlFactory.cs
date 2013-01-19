@@ -71,7 +71,6 @@ namespace ServiceBusMQManager {
       } else if( IsDateTime(t) ) {
 
         res.Control = new TextInputControl(value, t, res.IsNullable);
-        //res.Control = new DateTimeInputControl(value);
         res.DataType = DataType.Date;
 
       } else if( IsGuid(t) ) {
