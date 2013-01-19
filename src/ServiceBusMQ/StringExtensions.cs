@@ -23,16 +23,24 @@ namespace ServiceBusMQ {
   public static class StringExtensions {
 
     public static string CutBeginning(this string str, int length) {
-      length -= 3;
-      if( str.Length > length ) {
-        return "..." + str.Substring(str.Length - length, length);
-      } else return str;
+      if( str.IsValid() ) {
+        length -= 3;
+        if( str.Length > length ) {
+          return "..." + str.Substring(str.Length - length, length);
+        }
+      }
+
+      return str;
     }
     public static string CutEnd(this string str, int length) {
-      length -= 3;
-      if( str.Length > length && !str.EndsWith("...") ) {
-        return str.Substring(0, length) + "...";
-      } else return str;
+      if( str.IsValid() ) {
+        length -= 3;
+        if( str.Length > length && !str.EndsWith("...") ) {
+          return str.Substring(0, length) + "...";
+        }
+      }
+
+      return str;
     }
 
     public static string Default(this string str, string def) {
@@ -41,12 +49,28 @@ namespace ServiceBusMQ {
 
 
     public static string RemoveNumbers(this string str) {
-      StringBuilder sb = new StringBuilder(str.Length);
-      foreach( char c in str )
-        if( !char.IsDigit(c) )
-          sb.Append(c);
 
-      return sb.ToString();
+      if( str.IsValid() ) {
+        StringBuilder sb = new StringBuilder(str.Length);
+        foreach( char c in str )
+          if( !char.IsDigit(c) )
+            sb.Append(c);
+
+        return sb.ToString();
+
+      } else return str;
+    }
+    public static string RemoveNonChars(this string str) {
+
+      if( str.IsValid() ) {
+        StringBuilder sb = new StringBuilder(str.Length);
+        foreach( char c in str )
+          if( !char.IsControl(c) )
+            sb.Append(c);
+
+        return sb.ToString();
+
+      } else return str;
     }
 
     public static string OnlyNumbers(this string str) {
@@ -81,9 +105,9 @@ namespace ServiceBusMQ {
     public static bool IsNumeric(this string Expression) {
       double ret;
 
-      return Double.TryParse(Expression, 
-            System.Globalization.NumberStyles.Any, 
-            System.Globalization.NumberFormatInfo.InvariantInfo, 
+      return Double.TryParse(Expression,
+            System.Globalization.NumberStyles.Any,
+            System.Globalization.NumberFormatInfo.InvariantInfo,
             out ret);
     }
 
@@ -150,6 +174,10 @@ namespace ServiceBusMQ {
       value = r;
 
       return result;
+    }
+
+    public static string With(this string str, params object[] prms) {
+      return string.Format(str, prms);
     }
 
   }
