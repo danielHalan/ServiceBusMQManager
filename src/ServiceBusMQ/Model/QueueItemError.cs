@@ -25,6 +25,7 @@ namespace ServiceBusMQ.Model {
   public class QueueItemError {
     public QueueItemErrorState State { get; set; }  
     public string Message { get; set; }
+    public string StackTrace { get; set; }
     public DateTime TimeOfFailure { get; set; }
     public int Retries { get; set; }
 

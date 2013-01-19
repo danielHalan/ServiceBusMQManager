@@ -56,8 +56,9 @@ namespace ServiceBusMQ.Model {
     public string[] MessageNames { get; set; }
 
     public DateTime ArrivedTime { get; set; }
+    public int ProcessTime { get; set; }
+    
     public string ArrivedTimeString {
-
       get {
         if( ArrivedTime.Date == DateTime.Today.Date ) {
           return ArrivedTime.ToString("HH:mm:ss");
