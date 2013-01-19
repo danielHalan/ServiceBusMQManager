@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="ServiceBusMQManager.Controls.TextEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <RichTextBox x:Name="doc" BorderThickness="0" Background="Transparent"
+                     IsReadOnly="{Binding Path=ReadOnly, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"
+                     TextOptions.TextFormattingMode="Ideal"
+                     UseLayoutRounding="True"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto" FontFamily="Consolas, Courier New" FontSize="13"/>
+    </ScrollViewer>
+</UserControl>

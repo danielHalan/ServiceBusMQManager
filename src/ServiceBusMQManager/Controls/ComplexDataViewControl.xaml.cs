@@ -67,16 +67,18 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
+    public ServiceBusMQ.Manager.ISendCommand SendCommandManager { get; set; }
 
     private void CreateTitlePart(StackPanel p, Type type, string attribute, object value) {
 
       // Add Title
       var titleControl = new ComplexDataTitleControl(type.Name, _panels.Count > 0);
       titleControl.BackClick += titleControl_BackClick;
+      titleControl.ContentViewToggled += titleControl_ContentViewToggled;
 
       p.Children.Add(titleControl);
 
-      // Add Template bar
+      // Add Template bar (only for sub-data types, not commands them-selfs)
       if( _panels.Count > 0 ) {
         var tempControl = new ComplexDataTemplateControl(type, GetTempManager());
         tempControl.CreateTemplate += tempControl_CreateTemplate;
@@ -98,9 +100,10 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
+
     private Stream _GetImageResourceStream(string name) {
       return this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQManager.Images." + name);
-    }  
+    }
 
 
     private DataTemplateManager GetTempManager() {
@@ -118,7 +121,7 @@ namespace ServiceBusMQManager.Controls {
       mainPanel.Margin = new Thickness(0, 0, 0, 0);
       mainPanel.Background = Brushes.Transparent;
       mainPanel.Width = CONTROL_WIDTH; // 480;
-      
+
       var panelInfo = new PanelInfo() { DataType = type, AttributeName = attribute, ChildControl = mainPanel };
       mainPanel.Tag = panelInfo;
 
@@ -184,7 +187,7 @@ namespace ServiceBusMQManager.Controls {
 
     public void SetDataType(Type t, object value) {
 
-      if( !ScrollToMainPanel( () => _SetDataType(t, value), 0) )
+      if( !ScrollToMainPanel(() => _SetDataType(t, value), 0) )
         _SetDataType(t, value);
 
     }
@@ -215,11 +218,11 @@ namespace ServiceBusMQManager.Controls {
 
         if( v == null ) {
           var tmp = GetTempManager().GetDefault(prop.PropertyType.FullName);
-          
+
           if( tmp != null )
             v = tmp.Object;
         }
-          
+
         var ctl = new AttributeControl(prop.Name, prop.PropertyType, v);
         ctl.DefineComplextType += ctl_DefineComplextType;
 
@@ -257,7 +260,7 @@ namespace ServiceBusMQManager.Controls {
           e.Value = temp.Object;
         }
       }
-      
+
       var p = CreateDataPanel(e.Type, e.AttributeName, e.Value);
 
       BindDataPanel(p, e.Type, e.Value);
@@ -277,6 +280,50 @@ namespace ServiceBusMQManager.Controls {
 
       ScrollBackToPreviousControl(pi);
     }
+    void titleControl_ContentViewToggled(object sender, ToggleContentViewEventArgs e) {
+      var p = _panels.Peek() as StackPanel;
+      PanelInfo pi = p.Tag as PanelInfo;
+
+
+      if( e.ViewAsText ) {
+
+        foreach( var ctl in p.Children.OfType<UserControl>() )
+          ctl.Visibility = System.Windows.Visibility.Collapsed;
+
+        var editor = p.Children.OfType<CommandTextEditor>().SingleOrDefault();
+        if( editor == null ) {
+          editor = new CommandTextEditor();
+          editor.Height = 400;
+          p.Children.Add(editor);
+        }
+
+        object inst = CreateTypeInstance(p);
+
+        editor.Text = SendCommandManager.SerializeCommand(inst);
+        editor.Visibility = System.Windows.Visibility.Visible;
+
+      } else {
+        var editor = p.Children.OfType<CommandTextEditor>().SingleOrDefault();
+
+        try {
+          object instance = SendCommandManager.DeserializeCommand(editor.Text);
+
+          UpdateDataPanel(p, pi.DataType, instance);
+        } catch( Exception ex ) {
+          if( MessageBox.Show("Failed to Create Command based on provided Text \n\r\n\r" + ex.Message + "\n\r\n\rDiscard changes?", "Error",
+              MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No ) {
+            e.Cancel = true;
+            return;
+          }
+        }
+
+        foreach( var ctl in p.Children.OfType<UserControl>() )
+          ctl.Visibility = System.Windows.Visibility.Visible;
+
+        editor.Visibility = System.Windows.Visibility.Collapsed;
+      }
+    }
+
 
     private void ScrollToNextControl(ComplexDataInputControl btn) {
       btn.IsIgnoringClicks = true;
@@ -321,7 +368,7 @@ namespace ServiceBusMQManager.Controls {
         anim.To = 0;
         anim.Duration = new Duration(new TimeSpan(0, 0, 0, 0, scrollTime));
         anim.RepeatBehavior = new RepeatBehavior(1);
-        anim.Completed += (s2, e2) => { onCompleted();  };
+        anim.Completed += (s2, e2) => { onCompleted(); };
         anim.AccelerationRatio = 0.5;
         TranslateTransform trans = new TranslateTransform();
 
@@ -329,31 +376,30 @@ namespace ServiceBusMQManager.Controls {
         trans.BeginAnimation(TranslateTransform.XProperty, anim);
 
         return true;
-      
-      
+
+
       } else return false;
     }
 
 
     private void SetAttributeValue(StackPanel panel, string name, object value) {
-      PanelInfo pi = panel.Tag as PanelInfo;
-
       AttributeControl ac = panel.Children.OfType<AttributeControl>().Where(c => c.DisplayName == name).FirstOrDefault();
       if( ac != null )
         ac.Value = value;
-
 
     }
 
 
     public object CreateObject() {
       if( IsValid ) {
-      
+
         if( _panels.Count > 1 ) { // Scroll back to Main Panel
           var scrollTime = _panels.Count * 120;
-          ScrollToMainPanel(() => { theStack.Children.OfType<StackPanel>().
-            Where(s => s.Tag != _mainPanel.Tag).
-            ForEach(s => s.Visibility = Visibility.Hidden ); }, scrollTime);
+          ScrollToMainPanel(() => {
+            theStack.Children.OfType<StackPanel>().
+              Where(s => s.Tag != _mainPanel.Tag).
+              ForEach(s => s.Visibility = Visibility.Hidden);
+          }, scrollTime);
           WindowTools.Sleep(scrollTime);
         }
 
@@ -370,7 +416,7 @@ namespace ServiceBusMQManager.Controls {
 
         return CreateTypeInstance(_mainPanel);
       } else return null;
-    
+
     }
     private object CreateTypeInstance(StackPanel panel) {
       Dictionary<string, object> values = new Dictionary<string, object>();

@@ -63,6 +63,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppDomainBinder.cs" />
     <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CheckVersionThread.cs">
       <SubType>Component</SubType>

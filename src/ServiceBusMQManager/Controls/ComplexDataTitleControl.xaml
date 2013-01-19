@@ -5,6 +5,82 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              Height="50" d:DesignWidth="500">
+    <UserControl.Resources>
+        
+        <Style TargetType="{x:Type ToggleButton}">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush"  Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="#EBEBEB" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate xmlns:ms="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero" 
+                                                TargetType="{x:Type ToggleButton}">
+
+                        <Border Name="btnBorder" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                        BorderBrush="#de6a5b" BorderThickness="0,0,0,0" 
+                                Background="#FF727272" Height="30" Width="{TemplateBinding Width}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/ServiceBusMQManager;component/Images/doc.xml-white.png" 
+                                       Width="32" Height="32" 
+                                       Margin="4,-1,0,0"  />
+                                <TextBlock Name="btnText" Foreground="White" VerticalAlignment="Center" 
+                                           TextAlignment="Left" Width="{TemplateBinding Width}"  
+                                           Padding="0,0,0,0" Text="{TemplateBinding Content}" />
+                            </StackPanel>
+                        </Border>
+
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#0E97FF" TargetName="btnBorder" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#ADADAD"/>
+                            </Trigger>
+
+                            <!-- Mouse Over -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background" Value="#8E8E8E" TargetName="btnBorder" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background" Value="#45AFFF" TargetName="btnBorder" />
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+
+
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="true">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Background" Value="#0E97FF" />
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
+
+
+    </UserControl.Resources>
     <Grid>
 
         <Button Name="btnBack"  Click="Button_Click" HorizontalAlignment="Left" Width="42" ToolTip="Return to previous entity" >
@@ -27,5 +103,12 @@
         </Button>
 
         <Label Name="lbTitle" FontFamily="Segoe UI Light" FontSize="24" Content="TITLE" Margin="42,0,0,0"  VerticalContentAlignment="Top" VerticalAlignment="Top" Height="50"  />
+        
+        <ToggleButton x:Name="btnViewAsText" Content="Edit as Text" 
+                      HorizontalAlignment="Right" 
+                      Margin="0,10,20,0" 
+                      VerticalAlignment="Top" Width="116" 
+                      Unchecked="btn_Checked" Tag="0" Checked="btn_Checked" 
+                       FontFamily="Segoe UI" FontSize="13" />
     </Grid>
 </UserControl>

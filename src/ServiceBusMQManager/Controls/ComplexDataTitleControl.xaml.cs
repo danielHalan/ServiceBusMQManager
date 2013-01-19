@@ -28,16 +28,33 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace ServiceBusMQManager.Controls {
+ 
+  public class ToggleContentViewEventArgs : EventArgs { 
+    
+    public ToggleContentViewEventArgs(bool viewAsText) {
+      ViewAsText = viewAsText;
+    }
+
+    public bool ViewAsText { get; set; }
+    public bool Cancel { get; set; }
+  }
+  
   /// <summary>
   /// Interaction logic for ComplexDataTitleControl.xaml
   /// </summary>
-  
   public partial class ComplexDataTitleControl : UserControl {
-    
+ 
+
+
+    bool _viewAsText = false;
+
+
     public ComplexDataTitleControl(string title, bool hasParent) {
       InitializeComponent();
 
       lbTitle.Content = title;
+
+      btnViewAsText.IsChecked = _viewAsText;
 
       if( !hasParent ) {
         btnBack.Visibility = System.Windows.Visibility.Hidden;
@@ -51,12 +68,39 @@ namespace ServiceBusMQManager.Controls {
       OnBackClick();
     }
 
+    private void btn_Checked(object sender, RoutedEventArgs e) {
+
+      _viewAsText = !_viewAsText;
+      
+      if( !OnToggleContentViewClick() )
+        _viewAsText = !_viewAsText;
+
+    }
+
+
     public event EventHandler<EventArgs> BackClick;
 
     private void OnBackClick() {
       if( BackClick != null )
         BackClick(this, EventArgs.Empty);
     }
+
+    public event EventHandler<ToggleContentViewEventArgs> ContentViewToggled;
+
+    private bool OnToggleContentViewClick() {
+      if( ContentViewToggled != null ) {
+        var e = new ToggleContentViewEventArgs(_viewAsText);
+        e.Cancel = false;
+
+        ContentViewToggled(this, e);
+        return !e.Cancel;
+      }
+
+      return true;
+    }
+
+
+
 
 
 

@@ -80,16 +80,18 @@
       <HintPath>bin\Interop.MSMQ.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Microsoft.Expression.Drawing" />
+    <Reference Include="Microsoft.Expression.Drawing">
+      <HintPath>..\..\..\..\..\..\..\..\Users\thanan.CORP\Downloads\Microsoft.Expression.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Profiler.Common">
+      <HintPath>..\packages\NServiceBus\NServiceBus.Profiler.Common.dll</HintPath>
+    </Reference>
     <Reference Include="Ookii.Dialogs.Wpf">
       <HintPath>..\packages\Ookii.Dialogs.Wpf\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="PresentationFramework.Classic" />
     <Reference Include="PresentationFramework.Luna" />
-    <Reference Include="ScintillaNET">
-      <HintPath>..\packages\ScintillaNET-v2.5.2\ScintillaNET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -137,6 +139,9 @@
     <Compile Include="Controls\ComboBoxInputControl.xaml.cs">
       <DependentUpon>ComboBoxInputControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CommandTextEditor.xaml.cs">
+      <DependentUpon>CommandTextEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ComplexDataInputControl.xaml.cs">
       <DependentUpon>ComplexDataInputControl.xaml</DependentUpon>
     </Compile>
@@ -148,9 +153,6 @@
     </Compile>
     <Compile Include="Controls\ComplexDataViewControl.xaml.cs">
       <DependentUpon>ComplexDataViewControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\DateTimeInputControl.xaml.cs">
-      <DependentUpon>DateTimeInputControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\IInputControl.cs" />
     <Compile Include="Controls\RemoveItemButton.xaml.cs">
@@ -167,6 +169,9 @@
     </Compile>
     <Compile Include="Controls\StringListItemControl.xaml.cs">
       <DependentUpon>StringListItemControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextEditor.xaml.cs">
+      <DependentUpon>TextEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TextInputControl.xaml.cs">
       <DependentUpon>TextInputControl.xaml</DependentUpon>
@@ -227,6 +232,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\CommandTextEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ComplexDataInputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -240,10 +249,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ComplexDataViewControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\DateTimeInputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -264,6 +269,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\StringListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TextEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -465,6 +474,7 @@
     <Resource Include="Images\calendar-white.png" />
     <Resource Include="Images\calendar.png" />
     <Resource Include="Images\clock-white.png" />
+    <Resource Include="Images\doc.xml-white.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

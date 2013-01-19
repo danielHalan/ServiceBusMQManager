@@ -58,8 +58,8 @@ namespace ServiceBusMQManager {
 
     bool _recentUpdating = false;
     bool _isBusStarted = false;
-    
-    
+
+
     public SendCommandWindow(SbmqSystem system) {
       InitializeComponent();
 
@@ -75,10 +75,11 @@ namespace ServiceBusMQManager {
 
       BindServers();
 
+      cmdAttrib.SendCommandManager = _sys.Manager as ISendCommand;
     }
 
     private void BindServers() {
-      
+
       cbServer.ItemsSource = _sys.Config.Servers;
       cbServer.DisplayMemberPath = "Name";
       cbServer.SelectedValuePath = "Name";
@@ -103,6 +104,8 @@ namespace ServiceBusMQManager {
       SbmqSystem.UIState.StoreControlState(cbQueue);
 
       SbmqSystem.UIState.StoreWindowState(this);
+
+      //savedCommands.Unload();
     }
 
 
@@ -111,7 +114,7 @@ namespace ServiceBusMQManager {
 
       _commands.Clear();
 
-      foreach( Type t in cmdTypes.OrderBy( t => t.Name ) ) {
+      foreach( Type t in cmdTypes.OrderBy(t => t.Name) ) {
         var cmd = new CommandItem();
         cmd.Type = t;
         cmd.DisplayName = string.Format("{0} ({1})", t.Name, t.Namespace);
@@ -132,7 +135,7 @@ namespace ServiceBusMQManager {
 
 
     private void cbCommands_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      
+
       if( !_recentUpdating ) {
         var cmd = cbCommands.SelectedItem as CommandItem;
 
@@ -157,12 +160,12 @@ namespace ServiceBusMQManager {
             cmdAttrib.SetDataType(t, recent.Command);
             cbCommands.SelectedValue = t.FullName;
 
-          } 
+          }
 
         }
       } finally {
         _recentUpdating = false;
-        
+
         UpdateSendButton();
       }
     }
@@ -178,15 +181,15 @@ namespace ServiceBusMQManager {
     }
     void DoSendCommand(object sender, RunWorkerCompletedEventArgs e) {
 
-      try { 
+      try {
         var queue = cbQueue.SelectedItem as string;
         _sys.SendCommand(cbServer.SelectedValue as string, queue, _cmd);
 
         savedCommands.CommandSent(_cmd, _sys.Manager.BusName, _sys.Manager.BusQueueType, cbServer.SelectedValue as string, queue);
-      
+
         Close();
 
-      } catch(Exception ex) {
+      } catch( Exception ex ) {
         btnSend.IsEnabled = true;
         throw ex;
       }
@@ -195,7 +198,7 @@ namespace ServiceBusMQManager {
     object _cmd;
 
     private void btnSend_Click(object sender, RoutedEventArgs e) {
-      
+
 
 
       if( btnSend.IsEnabled ) {
@@ -206,9 +209,9 @@ namespace ServiceBusMQManager {
         var thread = new BackgroundWorker();
         thread.DoWork += DoSetupBus;
         thread.RunWorkerCompleted += DoSendCommand;
-        
+
         thread.RunWorkerAsync(cbQueue.SelectedItem);
-        
+
       }
     }
 
@@ -264,10 +267,13 @@ namespace ServiceBusMQManager {
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       ServerConfig s = cbServer.SelectedItem as ServerConfig;
 
-      cbQueue.ItemsSource = s.WatchCommandQueues;
-      
-      if( s.WatchCommandQueues.Length > 0 )
+      if( s != null ) {
+        cbQueue.ItemsSource = s.WatchCommandQueues;
+      }
+
+      if( cbQueue.Items.Count > 0 )
         cbQueue.SelectedIndex = 0;
+
     }
 
 

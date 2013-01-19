@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml;
 
 namespace ServiceBusMQ {
   public static class Tools {
@@ -97,7 +99,6 @@ namespace ServiceBusMQ {
 
 
     }
-
     public static object AddValue(object obj, Type type, int value) {
 
       if( obj == null )
@@ -225,7 +226,6 @@ namespace ServiceBusMQ {
       return new System.Windows.Point(x, y);
     }
 
-
     public static object CreateInstance(Type type, Dictionary<string, object> attributes) {
       object i = null;
 
@@ -244,7 +244,7 @@ namespace ServiceBusMQ {
             for( int n = 0; n < dict.Count; n++ ) {
               var element = dict.ElementAt(n);
 
-              if( attributes.Any(ke => string.Compare(ke.Key, element.Key, true) == 0) )
+              if( attributes != null && attributes.Any(ke => string.Compare(ke.Key, element.Key, true) == 0) )
                 dict[element.Key] = Tools.ChangeType(attributes.Single(ke => string.Compare(ke.Key, element.Key, true) == 0).Value, cParams[n].ParameterType);
               else dict[element.Key] = cParams[n].DefaultValue != System.DBNull.Value ? cParams[n].DefaultValue : Tools.GetDefault(cParams[n].ParameterType);
             }
@@ -259,11 +259,12 @@ namespace ServiceBusMQ {
         }
       }
 
-      foreach( var v in attributes ) {
-        try {
-          type.GetProperty(v.Key).SetValue(i, v.Value, null);
-        } catch { }
-      }
+      if( attributes != null )
+        foreach( var v in attributes ) {
+          try {
+            type.GetProperty(v.Key).SetValue(i, v.Value, null);
+          } catch { }
+        }
 
       if( i == null )
         throw new Exception("Failed to create instance of " + type.Name);
@@ -271,5 +272,31 @@ namespace ServiceBusMQ {
 
       return i;
     }
+
+    public static string FormatXml(string xml) {
+      if( !xml.IsValid() )
+        return xml;
+
+      XmlDocument doc = new XmlDocument();
+      try {
+        doc.LoadXml(xml);
+
+        StringBuilder sb = new StringBuilder();
+        using( XmlTextWriter wr = new XmlTextWriter(new StringWriter(sb)) ) {
+
+          wr.Indentation = 2;
+          wr.Formatting = Formatting.Indented;
+
+          doc.Save(wr);
+        }
+
+        return sb.ToString();
+
+      } catch {
+        return xml;
+      }
+    }
+
+  
   }
 }
