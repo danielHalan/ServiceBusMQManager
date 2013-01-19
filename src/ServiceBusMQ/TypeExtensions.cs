@@ -89,8 +89,8 @@ namespace ServiceBusMQ {
 
       Type t = p.PropertyType;
 
-      if( t == typeof(string) )
-        res = (string)value;
+      if( t == typeof(string) )  
+        res = ((string)value).RemoveNonChars();
 
       else if( t.IsClass && !t.IsPrimitive ) {
 
