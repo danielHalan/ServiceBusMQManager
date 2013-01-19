@@ -27,6 +27,8 @@ namespace ServiceBusMQ.Manager {
     void SetupBus(string[] assemblyPaths);
     void SendCommand(string destinationServer, string destinationQueue, object message);
 
+    string SerializeCommand(object cmd);
+    object DeserializeCommand(string cmd);
   
   }
 }

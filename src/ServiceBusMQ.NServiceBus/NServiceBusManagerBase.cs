@@ -100,7 +100,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
       return DoFetchQueueItems(GetQueueListByType(type), type, currentItems);
-   }
+    }
     protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
     protected List<MessageQueue> GetQueueListByType(QueueType type) {
@@ -168,7 +168,41 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
+    public string SerializeCommand(object cmd) {
 
+      var types = new List<Type> { cmd.GetType() };
+
+      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+      mapper.Initialize(types);
+
+      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
+      serializr.Initialize(types);
+
+      using( Stream stream = new MemoryStream() ) {
+        serializr.Serialize(new[] { cmd }, stream);
+        stream.Position = 0;
+
+        return new StreamReader(stream).ReadToEnd();
+      }
+
+    }
+
+    public object DeserializeCommand(string cmd) {
+      var types = new List<Type> { cmd.GetType() };
+
+      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+      mapper.Initialize(types);
+
+      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
+      serializr.Initialize(types);
+
+      using( Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(cmd)) ) {
+        var obj = serializr.Deserialize(stream);
+
+        return obj[0];
+      }
+
+    }
 
   }
 }
