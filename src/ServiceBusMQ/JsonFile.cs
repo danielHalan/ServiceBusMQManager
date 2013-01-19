@@ -35,35 +35,37 @@ namespace ServiceBusMQ {
       File.WriteAllText(fileName, JsonConvert.SerializeObject(obj, Formatting.Indented, s));
     }
 
-    public static T Read<T>(string fileName) {
+    public static T Read<T>(string fileName, System.Runtime.Serialization.SerializationBinder binder = null) {
 
       if( File.Exists(fileName) ) {
         var s = new JsonSerializerSettings {
           TypeNameHandling = TypeNameHandling.All,
           TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-          ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+          ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+          ConstructorHandlingFallback = CtorFallback,
+          Binder = binder
         };
 
-        s.ConstructorHandlingFallback = ConstFallBack;
-        
-          return (T)JsonConvert.DeserializeObject(File.ReadAllText(fileName), typeof(T), s);
+
+        return (T)JsonConvert.DeserializeObject(File.ReadAllText(fileName), typeof(T), s);
       }
 
       return default(T);
     }
 
-    private static void ConstFallBack(object sender, ConstructorHandlingFallbackEventArgs e) {
-    
-      Dictionary<string, object> props = new Dictionary<string,object>();
+    private static void CtorFallback(object sender, ConstructorHandlingFallbackEventArgs e) {
+
+      Dictionary<string, object> props = new Dictionary<string, object>();
       foreach( var p in e.ObjectContract.Properties ) {
         props.Add(p.PropertyName, Tools.GetDefault(p.PropertyType));
       }
 
       e.Object = Tools.CreateInstance(e.ObjectContract.UnderlyingType, props);
- 
+
       e.Handled = true;
-    
+
     }
+
 
 
   }

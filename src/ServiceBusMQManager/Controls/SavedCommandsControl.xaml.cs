@@ -67,6 +67,9 @@ namespace ServiceBusMQManager.Controls {
 
       BindRecent();
     }
+    internal void Unload() {
+      //_mgr.Unload();
+    }
 
     public SavedCommand SelectedItem {
       get { return cbRecent.SelectedItem as SavedCommand; }
@@ -285,7 +288,6 @@ namespace ServiceBusMQManager.Controls {
 
       return _storyCollapseControl;
     }
-
     private void Collapse() {
       GetCollapseParentGridStoryboard().Begin();
       GetCollapseControlStoryboard().Begin();
@@ -362,5 +364,7 @@ namespace ServiceBusMQManager.Controls {
 
       return sentCmd;
     }
+
+
   }
 }

@@ -49,7 +49,7 @@ namespace ServiceBusMQ {
       _mgr.Init(Config.MonitorServer, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues,
                                 Config.CommandDefinition);
 
-      _history = new CommandHistoryManager();
+      _history = new CommandHistoryManager(Config);
     }
 
     static SbmqSystem _instance;

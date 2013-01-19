@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ {
+  
+  [Serializable]
   public class CommandDefinition {
 
     public string NamespaceContains;

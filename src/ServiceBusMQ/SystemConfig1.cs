@@ -21,11 +21,13 @@ using Newtonsoft.Json;
 
 namespace ServiceBusMQ {
 
+  [Serializable]
   public class VersionCheck {
     public bool Enabled = true;
     public DateTime LastCheck = DateTime.MinValue;
   }
 
+  [Serializable]
   public class ServerConfig {
     public string Name { get; set; }
 
@@ -40,7 +42,8 @@ namespace ServiceBusMQ {
     public string[] WatchErrorQueues { get; set; }
   }
 
-  
+
+  [Serializable]
   public class SystemConfig1 : SystemConfig {
     private ServerConfig _currentServer;
     private string _monitorServer;

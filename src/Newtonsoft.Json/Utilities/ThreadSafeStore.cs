@@ -47,7 +47,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Newtonsoft.Json.Utilities
 {
-  internal class ThreadSafeStore<TKey, TValue>
+  public class ThreadSafeStore<TKey, TValue>
   {
     private readonly object _lock = new object();
     private Dictionary<TKey, TValue> _store;

@@ -20,6 +20,8 @@ using System.Text;
 using Newtonsoft.Json;
 
 namespace ServiceBusMQ {
+
+  [Serializable]
   public class SavedCommand {
 
     public string DisplayName { get; set; }
