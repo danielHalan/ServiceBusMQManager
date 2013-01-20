@@ -47,10 +47,12 @@ namespace ServiceBusMQManager.Dialogs {
 
       foreach( HalanVersionInfo inf in products ) {
 
-        string v = inf.LatestVersion.ToString(2);
+        string title = string.Format("{0} {1}.{2:D2}", inf.Product.Replace("ServiceBusMQManager", "Service Bus MQ Manager"), 
+                                                        inf.LatestVersion.Major, inf.LatestVersion.Minor);
         
         Paragraph para = new Paragraph();
-        para.Inlines.Add(new Bold(new Run(string.Format("{0} v{1}", inf.Product, v))));
+        para.Inlines.Add(new Bold(
+                               new Run(title) { FontSize = 19 } ));
 
         if( inf.ReleaseDate > DateTime.MinValue )
           para.Inlines.Add( new Run(string.Concat(", Released: ", inf.ReleaseDate.ToShortDateString())) );

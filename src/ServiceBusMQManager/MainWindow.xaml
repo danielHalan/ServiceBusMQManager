@@ -34,6 +34,8 @@
                 <ContextMenu>
                     <MenuItem Name="miToggleOnTop" Header="Always on Top" Click="miToggleAlwaysOnTop_Click" IsChecked="True" />
                     <Separator />
+                    <MenuItem Name="miCheckVersion" Header="Check for New Version..." Click="CheckVersion_Click" />
+                    <Separator />
                     <MenuItem Header="Exit" Click="miClose_Click"  />
 
 

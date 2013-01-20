@@ -46,7 +46,7 @@ namespace ServiceBusMQ {
         r.Status = ( larestVer <= currentVersion ) ? VersionStatus.Latest : VersionStatus.Old;
         r.LatestVersion = larestVer;
         r.Features = resp.Features;
-        r.Url = resp.Url.Default("http://blog.halan.se/page/Service-Bus-MQ-Manager.aspx");
+        r.Url = resp.Url.Default("http://blog.halan.se/page/Service-Bus-MQ-Manager.aspx?update=true&v=" + currentVersion.ToString());
         return r;
       }
 

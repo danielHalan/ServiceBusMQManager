@@ -26,7 +26,7 @@
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,301" Foreground="#858585" FontFamily="Segoe UI Light" FontSize="20" />
+            <Label Content="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" Name="lbTitle" Margin="10,0,0,0" Foreground="#858585" FontFamily="Segoe UI Light" FontSize="20" Height="40" VerticalAlignment="Top" />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,8,0"
@@ -89,7 +89,7 @@
                 </Button.Template>
             </Button>
             <Label x:Name="lbInfo" HorizontalContentAlignment="Right" Content="Do you want to go to the download web page?" Margin="0,0,17,52" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" HorizontalAlignment="Right" Width="346"/>
-            <RichTextBox x:Name="tbFeatures" Margin="21,56,28,87" FontFamily="Segoe UI" FontSize="16"
+            <RichTextBox x:Name="tbFeatures" Margin="21,56,28,87" FontFamily="Calibri" FontSize="16"
                          BorderThickness="0,0,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <FlowDocument>
                 </FlowDocument>
