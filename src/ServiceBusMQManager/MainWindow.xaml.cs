@@ -210,10 +210,11 @@ namespace ServiceBusMQManager {
     void CheckIfLatestVersion(bool startedByUser) {
       CheckVersionThread cvt = new CheckVersionThread();
 
-      //if( startedByUser )
-      //cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
-      //else 
-      cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_HiddenRunWorkerCompleted);
+      if( startedByUser ) {
+        miCheckVersion.IsEnabled = false;
+        cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
+      
+      } else cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_HiddenRunWorkerCompleted);
 
       List<CheckVersionObject> list = new List<CheckVersionObject>();
 
@@ -229,7 +230,7 @@ namespace ServiceBusMQManager {
 
     void cvt_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
 
-      /*
+      
       if( e.Error == null ) {
         List<HalanVersionInfo> inf = (List<HalanVersionInfo>)e.Result;
 
@@ -238,23 +239,28 @@ namespace ServiceBusMQManager {
           ShowNewerVersionDialog(inf);
 
         } else if( inf.All(v => v.Status == VersionStatus.Latest) ) {
-          lbVersionInfo.Text = "You have the latest version";
-          lbVersionInfo.Visible = true;
+          LogInfo("You have the latest version");
 
         } else if( inf.Any(v => v.Status == VersionStatus.NoConnection) ) {
-          lbVersionInfo.Text = "Could not connect to Server";
-          lbVersionInfo.Visible = true;
+          LogInfo("Could not connect to Server");
         }
 
-      } else LogError(("Failed to retrieve latest version information from server", e.Error));
+      } else LogError("Failed to retrieve latest version information from server", e.Error);
 
 
-      if( !btnCheckUpdate.Enabled ) {
-        btnCheckUpdate.Text = CHECK_UPDATES_LABEL;
-        btnCheckUpdate.Enabled = true;
+      if( !miCheckVersion.IsEnabled ) {
+        miCheckVersion.IsEnabled = true;
       }
-     */
+     
     }
+
+    private void LogError(string msg, Exception exception) {
+      MessageBox.Show(msg + ", " + exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+    private void LogInfo(string msg) {
+      MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
     void cvt_HiddenRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
 
       if( e.Error == null ) {
@@ -827,6 +833,11 @@ namespace ServiceBusMQManager {
       var dlg = new ViewSubscriptionsWindow(_sys);
 
       dlg.Show();
+    }
+
+    private void CheckVersion_Click(object sender, RoutedEventArgs e) {
+      CheckIfLatestVersion(true);
+
     }
 
 
