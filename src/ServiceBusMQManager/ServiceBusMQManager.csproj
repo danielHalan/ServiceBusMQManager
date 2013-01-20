@@ -154,6 +154,7 @@
     <Compile Include="Controls\ComplexDataViewControl.xaml.cs">
       <DependentUpon>ComplexDataViewControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FailedDeserializingCommandException.cs" />
     <Compile Include="Controls\IInputControl.cs" />
     <Compile Include="Controls\RemoveItemButton.xaml.cs">
       <DependentUpon>RemoveItemButton.xaml</DependentUpon>

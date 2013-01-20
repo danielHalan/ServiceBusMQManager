@@ -55,6 +55,9 @@ namespace ServiceBusMQManager.Controls {
       public Type DataType;
       public string AttributeName;
       public StackPanel ChildControl;
+
+      public bool EditAsText;
+      public object InitialObject;
     }
 
 
@@ -164,7 +167,6 @@ namespace ServiceBusMQManager.Controls {
       var p = _panels.Peek() as StackPanel;
       PanelInfo pi = p.Tag as PanelInfo;
 
-      object instance = CreateTypeInstance(p);
       _tempMgr.Delete(e.Name, pi.DataType);
 
     }
@@ -272,7 +274,19 @@ namespace ServiceBusMQManager.Controls {
       var p = _panels.Pop() as StackPanel;
       PanelInfo pi = p.Tag as PanelInfo;
 
-      object instance = CreateTypeInstance(p);
+
+      object instance = null;
+
+      try {
+        instance = CreateTypeInstance(p);
+      } catch( FailedDeserializingCommandException ex ) {
+        if( !ShowDiscardCommandChangesDialog(ex) ) {
+
+          _panels.Push(p);
+          return;
+        } else instance = pi.InitialObject;
+      }
+
 
       var currPanel = _panels.Peek() as StackPanel;
 
@@ -284,8 +298,7 @@ namespace ServiceBusMQManager.Controls {
       var p = _panels.Peek() as StackPanel;
       PanelInfo pi = p.Tag as PanelInfo;
 
-
-      if( e.ViewAsText ) {
+      if( e.EditAsText ) {
 
         foreach( var ctl in p.Children.OfType<UserControl>() )
           ctl.Visibility = System.Windows.Visibility.Collapsed;
@@ -302,26 +315,30 @@ namespace ServiceBusMQManager.Controls {
         editor.Text = SendCommandManager.SerializeCommand(inst);
         editor.Visibility = System.Windows.Visibility.Visible;
 
-      } else {
-        var editor = p.Children.OfType<CommandTextEditor>().SingleOrDefault();
+        pi.InitialObject = inst;
 
+      } else { // Hide Editor & Show Input Controls
+
+        object inst = null;
         try {
-          object instance = SendCommandManager.DeserializeCommand(editor.Text);
+          inst = CreateTypeInstance(p);
 
-          UpdateDataPanel(p, pi.DataType, instance);
-        } catch( Exception ex ) {
-          if( MessageBox.Show("Failed to Create Command based on provided Text \n\r\n\r" + ex.Message + "\n\r\n\rDiscard changes?", "Error",
-              MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No ) {
+        } catch( FailedDeserializingCommandException ex ) {
+          if( !ShowDiscardCommandChangesDialog(ex) ) {
             e.Cancel = true;
             return;
-          }
+          } else inst = pi.InitialObject;
         }
+        UpdateDataPanel(p, pi.DataType, inst);
 
         foreach( var ctl in p.Children.OfType<UserControl>() )
           ctl.Visibility = System.Windows.Visibility.Visible;
 
+        var editor = p.Children.OfType<CommandTextEditor>().SingleOrDefault();
         editor.Visibility = System.Windows.Visibility.Collapsed;
       }
+
+      pi.EditAsText = e.EditAsText;
     }
 
 
@@ -393,8 +410,30 @@ namespace ServiceBusMQManager.Controls {
     public object CreateObject() {
       if( IsValid ) {
 
-        if( _panels.Count > 1 ) { // Scroll back to Main Panel
-          var scrollTime = _panels.Count * 120;
+        int panelCount = _panels.Count;
+
+        while( _panels.Count > 1 ) { // Save all sub objects
+          var p = _panels.Pop() as StackPanel;
+          PanelInfo pi = p.Tag as PanelInfo;
+          object instance = null;
+
+          try {
+            instance = CreateTypeInstance(p);
+          } catch( FailedDeserializingCommandException ex ) {
+            if( !ShowDiscardCommandChangesDialog(ex) ) {
+              _panels.Push(p);
+              return null;
+
+            } else instance = pi.InitialObject;
+          }
+
+          var currPanel = _panels.Peek() as StackPanel;
+
+          SetAttributeValue(currPanel, pi.AttributeName, instance);
+        }
+
+        if( panelCount > 1 ) { // Scroll back to Main Panel
+          var scrollTime = panelCount * 120;
           ScrollToMainPanel(() => {
             theStack.Children.OfType<StackPanel>().
               Where(s => s.Tag != _mainPanel.Tag).
@@ -403,31 +442,42 @@ namespace ServiceBusMQManager.Controls {
           WindowTools.Sleep(scrollTime);
         }
 
-        while( _panels.Count > 1 ) { // Save all sub objects
-          var p = _panels.Pop() as StackPanel;
-          PanelInfo pi = p.Tag as PanelInfo;
-
-          object instance = CreateTypeInstance(p);
-
-          var currPanel = _panels.Peek() as StackPanel;
-
-          SetAttributeValue(currPanel, pi.AttributeName, instance);
-        }
 
         return CreateTypeInstance(_mainPanel);
       } else return null;
 
     }
+
+    private bool ShowDiscardCommandChangesDialog(FailedDeserializingCommandException ex) {
+        return( MessageBox.Show("Failed to Create Command based on provided Text \n\r\n\r" + ex.Message + "\n\r\n\rDiscard changes?", "Error",
+                MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes );
+    }
     private object CreateTypeInstance(StackPanel panel) {
-      Dictionary<string, object> values = new Dictionary<string, object>();
+      if( !( panel.Tag as PanelInfo ).EditAsText ) {
 
-      foreach( AttributeControl atr in panel.Children.OfType<AttributeControl>() ) {
-        values.Add(atr.DisplayName, atr.Value);
+        Dictionary<string, object> values = new Dictionary<string, object>();
+
+        foreach( AttributeControl atr in panel.Children.OfType<AttributeControl>() ) {
+          values.Add(atr.DisplayName, atr.Value);
+        }
+
+        Type type = ( panel.Tag as PanelInfo ).DataType;
+
+        return Tools.CreateInstance(type, values);
+      } else {
+
+        var editor = panel.Children.OfType<CommandTextEditor>().SingleOrDefault();
+
+        try {
+          if( editor != null )
+            return SendCommandManager.DeserializeCommand(editor.Text);
+          else throw new Exception("Could not find Text Editor Control");
+        
+        } catch( Exception ex ) {
+          throw new FailedDeserializingCommandException(ex);
+        }
+
       }
-
-      Type type = ( panel.Tag as PanelInfo ).DataType;
-
-      return Tools.CreateInstance(type, values);
     }
 
 

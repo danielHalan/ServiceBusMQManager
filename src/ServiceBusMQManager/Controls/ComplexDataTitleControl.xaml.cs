@@ -32,10 +32,10 @@ namespace ServiceBusMQManager.Controls {
   public class ToggleContentViewEventArgs : EventArgs { 
     
     public ToggleContentViewEventArgs(bool viewAsText) {
-      ViewAsText = viewAsText;
+      EditAsText = viewAsText;
     }
 
-    public bool ViewAsText { get; set; }
+    public bool EditAsText { get; set; }
     public bool Cancel { get; set; }
   }
   
@@ -46,7 +46,7 @@ namespace ServiceBusMQManager.Controls {
  
 
 
-    bool _viewAsText = false;
+    bool _editAsText = false;
 
 
     public ComplexDataTitleControl(string title, bool hasParent) {
@@ -54,7 +54,7 @@ namespace ServiceBusMQManager.Controls {
 
       lbTitle.Content = title;
 
-      btnViewAsText.IsChecked = _viewAsText;
+      btnViewAsText.IsChecked = _editAsText;
 
       if( !hasParent ) {
         btnBack.Visibility = System.Windows.Visibility.Hidden;
@@ -66,14 +66,15 @@ namespace ServiceBusMQManager.Controls {
       btnBack.IsEnabled = false;
 
       OnBackClick();
+      btnBack.IsEnabled = true;
     }
 
     private void btn_Checked(object sender, RoutedEventArgs e) {
 
-      _viewAsText = !_viewAsText;
+      _editAsText = !_editAsText;
       
       if( !OnToggleContentViewClick() )
-        _viewAsText = !_viewAsText;
+        _editAsText = !_editAsText;
 
     }
 
@@ -89,7 +90,7 @@ namespace ServiceBusMQManager.Controls {
 
     private bool OnToggleContentViewClick() {
       if( ContentViewToggled != null ) {
-        var e = new ToggleContentViewEventArgs(_viewAsText);
+        var e = new ToggleContentViewEventArgs(_editAsText);
         e.Cancel = false;
 
         ContentViewToggled(this, e);
@@ -100,7 +101,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-
+    public bool EditAsText { get { return _editAsText; } }
 
 
 

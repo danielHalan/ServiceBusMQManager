@@ -206,11 +206,15 @@ namespace ServiceBusMQManager {
 
         _cmd = cmdAttrib.CreateObject();
 
-        var thread = new BackgroundWorker();
-        thread.DoWork += DoSetupBus;
-        thread.RunWorkerCompleted += DoSendCommand;
+        if( _cmd != null ) {
 
-        thread.RunWorkerAsync(cbQueue.SelectedItem);
+          var thread = new BackgroundWorker();
+          thread.DoWork += DoSetupBus;
+          thread.RunWorkerCompleted += DoSendCommand;
+
+          thread.RunWorkerAsync(cbQueue.SelectedItem);
+        
+        } else btnSend.IsEnabled = true;
 
       }
     }
