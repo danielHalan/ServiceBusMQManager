@@ -648,16 +648,16 @@ namespace ServiceBusMQManager {
       if( _dlg != null ) {
         var s = WpfScreen.GetScreenFrom(this);
 
-        if( this.Top < _dlg.ActualHeight ) { // no space above, place bellow
+        if( this.Top < _dlg.Height ) { // no space above, place bellow
 
           var height = this.Top + this.ActualHeight;
 
-          if( height + _dlg.ActualHeight < s.WorkingArea.Height )
+          if( height + _dlg.Height < s.WorkingArea.Height )
             _dlg.Top = height;
 
           else { // Not fit bellow
             _dlg.Top = this.Top;
-            _dlg.Left = this.Left - _dlg.ActualWidth;
+            _dlg.Left = this.Left - _dlg.Width;
             if( _dlg.Left < 0 )
               _dlg.Left = this.Left + this.ActualWidth;
 
@@ -665,10 +665,10 @@ namespace ServiceBusMQManager {
           }
 
         } else {
-          _dlg.Top = this.Top - _dlg.ActualHeight;
+          _dlg.Top = this.Top - _dlg.Height;
         }
 
-        _dlg.Left = ( this.Left + this.ActualWidth ) - _dlg.ActualWidth;
+        _dlg.Left = ( this.Left + this.ActualWidth ) - _dlg.Width;
 
 
       }
