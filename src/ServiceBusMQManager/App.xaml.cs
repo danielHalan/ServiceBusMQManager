@@ -32,7 +32,7 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class App : Application {
 
-    enum ArgType { Send, Silent, Minimized }
+    enum ArgType { Unknown, Send, Silent, Minimized }
 
     class Arg {
       public ArgType Type { get; set; }
@@ -49,7 +49,7 @@ namespace ServiceBusMQManager {
 
     [DllImport("Kernel32.dll")]
     public static extern bool AttachConsole(int processId);
-    
+
     public static bool StartMinimized = false;
 
     protected override void OnStartup(StartupEventArgs e) {
@@ -57,41 +57,45 @@ namespace ServiceBusMQManager {
 
       StartMinimized = args.Any(a => a.Type == ArgType.Minimized);
 
-      if( e.Args.Length >= 1 ) {
+      _silent = args.Any(a => a.Type == ArgType.Silent);
+
+      var arg = args.FirstOrDefault(a => a.Type == ArgType.Send);
+      if( arg != null ) {
         AttachConsole(-1);
-
-
-        _silent = args.Any(a => a.Type == ArgType.Silent);
 
         PrintHeader();
 
-        var arg = args.FirstOrDefault(a => a.Type == ArgType.Send);
-        if( arg != null ) {
-          string cmdName = arg.Param;
+        string cmdName = arg.Param;
 
-          var sys = SbmqSystem.Create();
-          try {
-            var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
+        var sys = SbmqSystem.Create();
+        try {
+          var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
 
-            if( cmd != null ) {
-              Out(string.Format("Sending Command '{0}'...", cmdName));
-              sys.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
+          if( cmd != null ) {
+            Out(string.Format("Sending Command '{0}'...", cmdName));
+            sys.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
 
-            } else {
-                Out(string.Format("No Command with name '{0}' found, exiting...", cmdName));
-            }
-          
-          } finally {
-            sys.Manager.Dispose();
+          } else {
+            Out(string.Format("No Command with name '{0}' found, exiting...", cmdName));
           }
 
-        } else {
-          PrintHelp();
+        } finally {
+          sys.Manager.Dispose();
         }
 
         Application.Current.Shutdown(0);
         return;
       }
+
+      if( args.Where( a => a.Type != ArgType.Minimized ).Count() > 0 ) {
+        AttachConsole(-1);
+        PrintHeader();
+        PrintHelp();
+
+        Application.Current.Shutdown(0);
+        return;
+      }
+
 
       // Check if we are already running...
       Process currProc = Process.GetCurrentProcess();
@@ -100,14 +104,14 @@ namespace ServiceBusMQManager {
         try {
           // Show the already started SBMQM
           WindowTools.EnumWindows(new WindowTools.EnumWindowsProc((hwnd, lparam) => {
-              uint procId;
-              WindowTools.GetWindowThreadProcessId(hwnd, out procId);
-              if( procId == existProc.Id ) {
-                if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
-                  return false;
-              }
-              return true;
-            }), 0);
+            uint procId;
+            WindowTools.GetWindowThreadProcessId(hwnd, out procId);
+            if( procId == existProc.Id ) {
+              if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
+                return false;
+            }
+            return true;
+          }), 0);
 
         } finally {
           Application.Current.Shutdown();
@@ -128,7 +132,7 @@ namespace ServiceBusMQManager {
 
     private void PrintHelp() {
 
-      
+
       Out(" Command Line: ServiceBusMQManager.exe --send <recentCommandName> [-s]");
       //Out("                                [-px <name> <value>]");
 
@@ -140,7 +144,7 @@ namespace ServiceBusMQManager {
     }
 
     private void Out(string str) {
-      if( !_silent ) 
+      if( !_silent )
         Console.WriteLine(str);
     }
 
@@ -154,6 +158,7 @@ namespace ServiceBusMQManager {
             case "--send": r.Add(new Arg(ArgType.Send, args[++i])); break;
             case "-s": r.Add(new Arg(ArgType.Silent, null)); break;
             case "-m": r.Add(new Arg(ArgType.Minimized, null)); break;
+            default: r.Add(new Arg(ArgType.Unknown, null)); break;
           }
 
       } catch( Exception e ) {
@@ -179,7 +184,7 @@ namespace ServiceBusMQManager {
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
 #if !DEBUG
-      MessageBox.Show(e.Exception.Message +"\n\r" + e.Exception.StackTrace, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
+      MessageBox.Show(e.Exception.Message + "\n\r" + e.Exception.StackTrace, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
       e.Handled = true;
 #endif
 
