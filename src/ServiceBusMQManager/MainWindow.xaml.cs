@@ -149,6 +149,7 @@ namespace ServiceBusMQManager {
 
         SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
 
+        _notifyIcon.Text = GetQueueStatusString();
         
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
@@ -355,6 +356,8 @@ namespace ServiceBusMQManager {
       if( !_showingActivityTrayIcon ) {
         _showingActivityTrayIcon = true;
 
+        _notifyIcon.Text = GetQueueStatusString();
+
         Thread thread = new Thread(new ThreadStart(delegate() {
 
           Thread.Sleep(200); // this is important ...
@@ -376,6 +379,17 @@ namespace ServiceBusMQManager {
         thread.Name = "thread-updateTrayIcon";
         thread.Start();
       }
+    }
+
+    private string GetQueueStatusString() {
+      var itemTypes = _mgr.Items.Select( i => i.QueueType ).ToArray();
+
+      return string.Format(" Commands: {0} \r\n Events: {1} \r\n Messages: {2} \r\n Errors: {3} ",
+                  itemTypes.Count(i => i == QueueType.Command),
+                  itemTypes.Count(i => i == QueueType.Event),
+                  itemTypes.Count(i => i == QueueType.Message),
+                  itemTypes.Count(i => i == QueueType.Error)
+                  );
     }
 
 
