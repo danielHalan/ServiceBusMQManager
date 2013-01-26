@@ -307,6 +307,16 @@ namespace ServiceBusMQManager.Controls {
         if( editor == null ) {
           editor = new CommandTextEditor();
           editor.Height = 400;
+
+          switch(SendCommandManager.MessageContentFormat) {
+            case ServiceBusMQ.Manager.MessageContentFormat.Xml: 
+              editor.TextType = CommandTextType.Xml;
+              break;
+            case ServiceBusMQ.Manager.MessageContentFormat.Json:
+              editor.TextType = CommandTextType.Json;
+              break;
+          }
+
           p.Children.Add(editor);
         }
 

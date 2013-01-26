@@ -33,6 +33,7 @@ using System.Windows.Shapes;
 using System.Xml;
 //using ScintillaNET;
 using ServiceBusMQ;
+using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQManager {
@@ -87,9 +88,23 @@ namespace ServiceBusMQManager {
 
 
 
-    public void SetContent(string xml, QueueItemError errorMsg = null) {
+    public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {
 
-      tbContent.Text = Tools.FormatXml(xml);
+      if( content.StartsWith("<?xml version=\"1.0\"") )
+        contentType = MessageContentFormat.Xml;
+
+
+      switch(contentType) {
+        case MessageContentFormat.Xml:
+          tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
+          tbContent.Text = Tools.FormatXml(content);
+          break;
+
+        case MessageContentFormat.Json:
+          tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
+          tbContent.Text = content;
+          break;
+      }
 
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);

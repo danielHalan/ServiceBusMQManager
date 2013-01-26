@@ -335,8 +335,8 @@ namespace ServiceBusMQManager.Dialogs {
 
         cbServers.SelectedValue = name;
 
-        cbServiceBus.SelectedIndex = 0;
-        cbTransport.SelectedIndex = 0;
+        cbServiceBus.SelectedValue = s.MessageBus;
+        cbTransport.SelectedValue = s.MessageBusQueueType;
 
         tbInterval.UpdateValue(s.MonitorInterval);
 

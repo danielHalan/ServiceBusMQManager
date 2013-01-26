@@ -184,6 +184,7 @@ namespace ServiceBusMQ.Manager {
 
     public abstract string LoadMessageContent(QueueItem itm);
 
+    public abstract MessageContentFormat MessageContentFormat { get; }
 
     public abstract bool IsIgnoredQueue(string queueName);
     public abstract bool IsIgnoredQueueItem(QueueItem itm);

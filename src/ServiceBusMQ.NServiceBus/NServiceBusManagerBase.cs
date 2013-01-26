@@ -44,7 +44,6 @@ namespace ServiceBusMQ.NServiceBus {
 
     public NServiceBusManagerBase() {
     }
-
     public override void Init(string serverName, string[] commandQueues, string[] eventQueues,
                       string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
       base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
@@ -136,10 +135,39 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected string[] GetMessageNames(string xml, bool includeNamespace) {
+    protected string[] GetMessageNames(string content, bool includeNamespace) {
+
+      if( content.StartsWith("<?xml version=\"1.0\"") )
+        return GetXmlMessageNames(content, includeNamespace);
+      else return GetJsonMessageNames(content, includeNamespace);
+
+    }
+
+
+    static readonly string JSON_START = "\"$type\":\"";
+    static readonly string JSON_END = ",";
+
+    private string[] GetJsonMessageNames(string content, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
-        XDocument doc = XDocument.Parse(xml);
+        int iStart = content.IndexOf(JSON_START) + JSON_START.Length;
+        int iEnd = content.IndexOf(JSON_END, iStart);
+
+        if( !includeNamespace ) {
+          iStart = content.LastIndexOf(".", iEnd) + 1;
+        }
+
+        r.Add( content.Substring(iStart, iEnd-iStart) );
+
+      } catch { }
+
+      return r.ToArray();
+    }
+
+    protected string[] GetXmlMessageNames(string content, bool includeNamespace) {
+      List<string> r = new List<string>();
+      try {
+        XDocument doc = XDocument.Parse(content);
         string ns = string.Empty;
 
         if( includeNamespace ) {
@@ -155,6 +183,8 @@ namespace ServiceBusMQ.NServiceBus {
       return r.ToArray();
     }
 
+
+
     protected string MergeStringArray(string[] arr) {
       StringBuilder sb = new StringBuilder();
       foreach( var str in arr ) {
@@ -166,43 +196,9 @@ namespace ServiceBusMQ.NServiceBus {
       return sb.ToString();
     }
 
-
-
-    public string SerializeCommand(object cmd) {
-
-      var types = new List<Type> { cmd.GetType() };
-
-      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-      mapper.Initialize(types);
-
-      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
-      serializr.Initialize(types);
-
-      using( Stream stream = new MemoryStream() ) {
-        serializr.Serialize(new[] { cmd }, stream);
-        stream.Position = 0;
-
-        return new StreamReader(stream).ReadToEnd();
-      }
-
-    }
-
-    public object DeserializeCommand(string cmd) {
-      var types = new List<Type> { cmd.GetType() };
-
-      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-      mapper.Initialize(types);
-
-      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
-      serializr.Initialize(types);
-
-      using( Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(cmd)) ) {
-        var obj = serializr.Deserialize(stream);
-
-        return obj[0];
-      }
-
-    }
+    public abstract object DeserializeCommand(string cmd);
+    public abstract string SerializeCommand(object cmd);
 
   }
+
 }

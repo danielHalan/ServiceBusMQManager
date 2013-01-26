@@ -98,7 +98,7 @@
                     <Label Content="Service Bus" HorizontalAlignment="Left" Margin="5,14,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="79" Grid.Column="1"/>
                     <ComboBox x:Name="cbServiceBus" HorizontalAlignment="Left" Margin="5,40,0,0" Style="{DynamicResource ComboBoxStyle1}" VerticalAlignment="Top" Width="139" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
                     <Label Content="Transportation " HorizontalAlignment="Left" Margin="162,14,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107" Grid.Column="1"/>
-                    <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="162,40,0,0" VerticalAlignment="Top" Width="132" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
+                    <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="162,40,0,0" VerticalAlignment="Top" Width="154" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
                     <Label Content="Server" HorizontalAlignment="Left" Margin="52,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
 
                     <Controls:RoundMetroButton Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Click="AddServer_Click" Height="33"

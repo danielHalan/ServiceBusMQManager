@@ -29,6 +29,8 @@ namespace ServiceBusMQ.Manager {
 
     string SerializeCommand(object cmd);
     object DeserializeCommand(string cmd);
-  
+
+    MessageContentFormat MessageContentFormat { get; }
+
   }
 }

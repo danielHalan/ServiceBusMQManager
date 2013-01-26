@@ -35,6 +35,8 @@ namespace ServiceBusMQ.Manager {
 
     bool IsIgnoredQueue(string queueName);
 
+    MessageContentFormat MessageContentFormat { get; }
+
     string LoadMessageContent(QueueItem itm);
 
     string[] GetAllAvailableQueueNames(string server);

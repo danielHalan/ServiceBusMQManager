@@ -37,7 +37,7 @@ using System.Reflection;
 namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
+  public abstract class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
 
     class PeekThreadParam {
       public QueueType QueueType { get; set; }
@@ -462,7 +462,6 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public override string BusName { get { return "NServiceBus"; } }
-    public override string BusQueueType { get { return "MSMQ"; } }
 
 
 
@@ -492,36 +491,9 @@ namespace ServiceBusMQ.NServiceBus {
       return arr.ToArray();
     }
 
-    IBus _bus;
+    protected IBus _bus;
 
 
-
-    public override void SetupBus(string[] assemblyPaths) {
-
-      List<Assembly> asms = new List<Assembly>();
-
-      foreach( string path in assemblyPaths ) {
-
-        foreach( string file in Directory.GetFiles(path, "*.dll") ) {
-          try {
-            asms.Add(Assembly.LoadFrom(file));
-          } catch { }
-        }
-
-      }
-
-
-      _bus = Configure.With(asms)
-                .DefineEndpointName("SBMQM_NSB")
-                .DefaultBuilder()
-        //.MsmqSubscriptionStorage()
-          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
-                .XmlSerializer()
-                .MsmqTransport()
-                .UnicastBus()
-            .SendOnly();
-
-    }
     public override void SendCommand(string destinationServer, string destinationQueue, object message) {
 
 

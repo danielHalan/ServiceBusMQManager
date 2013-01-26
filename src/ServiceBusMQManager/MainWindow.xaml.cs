@@ -538,7 +538,8 @@ namespace ServiceBusMQManager {
           UpdateContentWindow();
         }
 
-        _dlg.SetContent(_mgr.LoadMessageContent(itm), itm.Error);
+        
+        _dlg.SetContent(_mgr.LoadMessageContent(itm), _mgr.MessageContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
 
         if( !_dlgShown ) {

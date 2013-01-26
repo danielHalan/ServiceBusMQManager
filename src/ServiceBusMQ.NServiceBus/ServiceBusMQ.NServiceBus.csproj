@@ -61,7 +61,9 @@
     <Compile Include="ErrorManager.cs" />
     <Compile Include="MsmqExtensions.cs" />
     <Compile Include="NServiceBusManagerBase.cs" />
+    <Compile Include="NServiceBus_MSMQ_JSON_Manager.cs" />
     <Compile Include="NServiceBus_MSMQ_Manager.cs" />
+    <Compile Include="NServiceBus_MSMQ_XML_Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

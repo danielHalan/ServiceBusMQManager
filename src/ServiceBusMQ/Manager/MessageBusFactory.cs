@@ -73,7 +73,6 @@ namespace ServiceBusMQ.Manager {
     public static IMessageManager Create(string name, string queueType) {
       Type mgrInterface = typeof(IMessageManager);
       
-      
       foreach( Assembly asm in GetAssemblies() ) 
         foreach( var tMgr in asm.GetTypes().Where( t => mgrInterface.IsAssignableFrom(t) && !t.IsAbstract ) ) {
           IMessageManager mgr = (IMessageManager)Activator.CreateInstance(tMgr);

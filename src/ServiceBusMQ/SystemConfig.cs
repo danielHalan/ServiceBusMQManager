@@ -57,7 +57,7 @@ namespace ServiceBusMQ {
 
 
         c.CurrentServer.MessageBus = appSett["messageBus"] ?? "NServiceBus";
-        c.CurrentServer.MessageBusQueueType = appSett["messageBusQueueType"] ?? "MSMQ";
+        c.CurrentServer.MessageBusQueueType = appSett["messageBusQueueType"] ?? "MSMQ (XML)";
 
         c.CurrentServer.WatchEventQueues = ParseStringList("event.queues");
         c.CurrentServer.WatchCommandQueues = ParseStringList("command.queues");

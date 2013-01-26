@@ -38,13 +38,16 @@ namespace ServiceBusMQManager.Controls {
   public partial class TextEditor : UserControl {
     public TextEditor() {
       InitializeComponent();
+
+      CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
     }
+
 
     public void SetText(string text) {
       doc.Document.Blocks.Clear();
       
       if( text.IsValid() ) {
-        var presenter = new CodeBlockPresenter(CodeLanguage.Xml);
+        var presenter = new CodeBlockPresenter(CodeLanguage);
         var t = new Paragraph();
 
         presenter.FillInlines(Tools.FormatXml(text), t.Inlines);
@@ -60,6 +63,14 @@ namespace ServiceBusMQManager.Controls {
       set { SetValue(ReadOnlyProperty, value); }
     }
 
+
+    public static readonly DependencyProperty CodeLanguageProperty =
+      DependencyProperty.Register("CodeLanguageProperty", typeof(CodeLanguage), typeof(TextEditor), new UIPropertyMetadata(CodeLanguage.Plain));
+    
+    public CodeLanguage CodeLanguage {
+      get { return (CodeLanguage)GetValue(CodeLanguageProperty); }
+      set { SetValue(CodeLanguageProperty, value); }
+    }
 
     public static readonly DependencyProperty TextProperty =
       DependencyProperty.Register("Text", typeof(string), typeof(TextEditor), new UIPropertyMetadata(string.Empty));

@@ -30,21 +30,16 @@ using System.Windows.Shapes;
 using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Controls {
+
+  public enum CommandTextType { Xml, Json }
+
   /// <summary>
   /// Interaction logic for CommandTextEditor.xaml
   /// </summary>
   public partial class CommandTextEditor : UserControl {
- 
+
     public CommandTextEditor() {
       InitializeComponent();
-
-      //Scintilla t = w32.Child as Scintilla;
-      //t.LineWrapping.IndentMode = LineWrappingIndentMode.Same;
-      //t.LineWrapping.Mode = LineWrappingMode.Word;
-      //t.ConfigurationManager.Language = "xml";
-      //foreach( var m in t.Margins )
-      //  m.Width = 0;
-
     }
 
     public static readonly DependencyProperty TextProperty =
@@ -52,7 +47,20 @@ namespace ServiceBusMQManager.Controls {
 
     public string Text {
       get { return tb.Text; }
-      set {  tb.SetText(value); }
+      set { tb.SetText(value); }
+    }
+
+
+    CommandTextType _textType;
+    public CommandTextType TextType {
+      get { return _textType; }
+      set { _textType = value; 
+      
+        if( _textType == CommandTextType.Xml ) 
+          tb.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
+        else tb.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
+      }
+
     }
 
   }
