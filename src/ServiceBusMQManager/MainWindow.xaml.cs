@@ -102,7 +102,7 @@ namespace ServiceBusMQManager {
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
-      if( _uiState.IsMinimized )
+      if( _uiState.IsMinimized || App.StartMinimized )
         Close();
 
     }
@@ -539,11 +539,7 @@ namespace ServiceBusMQManager {
         }
 
         _dlg.SetContent(_mgr.LoadMessageContent(itm), itm.Error);
-
-        //_dlg.Left = ( this.Left + this.Width ) - _dlg.Width;
-        //_dlg.Top = this.Top - _dlg.Height;
         _dlg.SetTitle(itm.DisplayName);
-
 
         if( !_dlgShown ) {
           _dlg.Show();
