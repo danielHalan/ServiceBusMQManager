@@ -24,6 +24,7 @@ namespace ServiceBusMQ {
     public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action) {
       if( action == null )
         throw new ArgumentNullException("action");
+      
       foreach( T item in sequence )
         action(item);
     }

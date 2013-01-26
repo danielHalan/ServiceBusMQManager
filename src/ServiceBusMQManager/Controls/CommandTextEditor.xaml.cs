@@ -58,7 +58,7 @@ namespace ServiceBusMQManager.Controls {
       
         if( _textType == CommandTextType.Xml ) 
           tb.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
-        else tb.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
+        else tb.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Json;
       }
 
     }

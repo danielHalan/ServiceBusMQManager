@@ -20,6 +20,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ServiceBusMQ {
   public static class Tools {
@@ -120,17 +122,15 @@ namespace ServiceBusMQ {
         if( u == 0 && !add )
           return u;
         else return u + value;
-      }
-      else if( type == typeof(UInt32) ) {
+      } else if( type == typeof(UInt32) ) {
         var u = System.Convert.ToUInt32(obj);
         if( u == 0 && !add )
           return u;
         else return u + value;
       }
-      //else if( type == typeof(UInt64) )
-      //  return System.Convert.ToUInt64(obj) + value;
-
-      else if( type == typeof(SByte) )
+        //else if( type == typeof(UInt64) )
+        //  return System.Convert.ToUInt64(obj) + value;
+        else if( type == typeof(SByte) )
         return System.Convert.ToSByte(obj) + value;
 
       else if( type == typeof(Byte) ) {
@@ -138,9 +138,7 @@ namespace ServiceBusMQ {
         if( u == 0 && !add )
           return u;
         else return u + value;
-      }
-
-      else throw new NotSupportedException("AddValue not supporting type " + obj.GetType());
+      } else throw new NotSupportedException("AddValue not supporting type " + obj.GetType());
 
     }
 
@@ -285,7 +283,7 @@ namespace ServiceBusMQ {
         using( XmlTextWriter wr = new XmlTextWriter(new StringWriter(sb)) ) {
 
           wr.Indentation = 2;
-          wr.Formatting = Formatting.Indented;
+          wr.Formatting = System.Xml.Formatting.Indented;
 
           doc.Save(wr);
         }
@@ -296,7 +294,76 @@ namespace ServiceBusMQ {
         return xml;
       }
     }
+    public static string FormatJson(string content) {
+      try {
+        return _FormatJson(content);
 
-  
+      } catch {
+        return content;
+      }
+    }
+
+
+
+    private const string INDENT_STRING = "    ";
+    public static string _FormatJson(string str) {
+      var indent = 0;
+      var quoted = false;
+      var sb = new StringBuilder(str.Length + 100);
+      
+      for( var i = 0; i < str.Length; i++ ) {
+        var ch = str[i];
+        
+        switch( ch ) {
+          case '{':
+          case '[':
+            sb.Append(ch);
+            if( !quoted ) {
+              sb.AppendLine();
+              Enumerable.Range(0, ++indent).ForEach(item => sb.Append(INDENT_STRING));
+            }
+            break;
+          
+          case '}':
+          case ']':
+            if( !quoted ) {
+              sb.AppendLine();
+              Enumerable.Range(0, --indent).ForEach(item => sb.Append(INDENT_STRING));
+            }
+            sb.Append(ch);
+            break;
+          
+          case '"':
+            sb.Append(ch);
+            bool escaped = false;
+            var index = i;
+            while( index > 0 && str[--index] == '\\' )
+              escaped = !escaped;
+            if( !escaped )
+              quoted = !quoted;
+            break;
+          
+          case ',':
+            sb.Append(ch);
+            if( !quoted ) {
+              sb.AppendLine();
+              Enumerable.Range(0, indent).ForEach(item => sb.Append(INDENT_STRING));
+            }
+            break;
+          
+          case ':':
+            sb.Append(ch);
+            if( !quoted )
+              sb.Append(" ");
+            break;
+          
+          default:
+            sb.Append(ch);
+            break;
+        }
+      }
+      return sb.ToString();
+    }
+
   }
 }

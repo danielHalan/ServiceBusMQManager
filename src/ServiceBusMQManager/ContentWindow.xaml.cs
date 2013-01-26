@@ -101,8 +101,8 @@ namespace ServiceBusMQManager {
           break;
 
         case MessageContentFormat.Json:
-          tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
-          tbContent.Text = content;
+          tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Json;
+          tbContent.Text = Tools.FormatJson(content);
           break;
       }
 

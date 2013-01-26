@@ -50,7 +50,12 @@ namespace ServiceBusMQManager.Controls {
         var presenter = new CodeBlockPresenter(CodeLanguage);
         var t = new Paragraph();
 
-        presenter.FillInlines(Tools.FormatXml(text), t.Inlines);
+        if( CodeLanguage == NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml )
+          text = Tools.FormatXml(text);
+        else if( CodeLanguage == NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Json )
+          text = Tools.FormatJson(text);
+
+        presenter.FillInlines(text, t.Inlines);
         doc.Document.Blocks.Add(t);
       } 
     }
