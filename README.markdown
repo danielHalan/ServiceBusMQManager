@@ -1,4 +1,4 @@
-Service Bus MQ Manager - v2.00
+Service Bus MQ Manager - v2.xx
 ======================================================================
 An application to view and manage Service Bus messages.
 
@@ -12,5 +12,6 @@ The application is most useful when used in a [CQRS architecture](http://cqrsinf
 - **Retry failed messages**, Move messages from Error queue to its original queue
 - **Send Command**, Build and send commands in an user friendly interface The commands can later be sent directly from command prompt
 - **View Subscriptions**, View what Events are being subscribed and who is publishing them
+- **Service Bus Integration**, Supports NServiceBus with MSMQ XML and JSON Transportation.
  
 More information can be found at http://blog.halan.se/page/Service-Bus-MQ-Manager.aspx
