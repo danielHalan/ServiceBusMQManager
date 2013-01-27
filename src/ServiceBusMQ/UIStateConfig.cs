@@ -53,8 +53,11 @@ namespace ServiceBusMQ {
         WindowPosition = WindowPositionType.Custom;
       }
 
-      public UIWindowState(WindowPositionType winPos) {
+      public UIWindowState(WindowPositionType winPos, double width, double height) {
         WindowPosition = winPos;
+        
+        Width = width;
+        Height = height;
       }
 
       public UIWindowState(double left, double top, double width, double height) {
@@ -97,7 +100,7 @@ namespace ServiceBusMQ {
 
       var r = winPos == WindowPositionType.Custom ? 
         new UIWindowState(window.Left, window.Top, window.Width, window.Height) : 
-        new UIWindowState(winPos);
+        new UIWindowState(winPos, window.Width, window.Height);
 
       if( !_data.WindowStates.ContainsKey(window.Name) )
         _data.WindowStates.Add(window.Name, r);
@@ -110,17 +113,17 @@ namespace ServiceBusMQ {
       if( _data.WindowStates.ContainsKey(window.Name) ) {
         var r = _data.WindowStates[window.Name];
 
+        window.Width = r.Width;
+        window.Height = r.Height;
+
         if( r.WindowPosition == WindowPositionType.Custom ) {
 
           window.Left = r.Left;
           window.Top = r.Top;
-          window.Width = r.Width;
-          window.Height = r.Height;
-
-          MakeSureVisibility(window);
 
         } else SetWindowPosition(window, r.WindowPosition);
 
+        MakeSureVisibility(window);
 
         return true;
 
