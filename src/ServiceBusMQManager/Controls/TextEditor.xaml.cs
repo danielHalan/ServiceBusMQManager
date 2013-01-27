@@ -45,7 +45,11 @@ namespace ServiceBusMQManager.Controls {
 
     public void SetText(string text) {
       doc.Document.Blocks.Clear();
-      
+
+      if( text.StartsWith("<?xml version=\"1.0\"") )
+        CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
+
+
       if( text.IsValid() ) {
         var presenter = new CodeBlockPresenter(CodeLanguage);
         var t = new Paragraph();

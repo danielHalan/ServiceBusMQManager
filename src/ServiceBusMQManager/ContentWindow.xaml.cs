@@ -88,21 +88,19 @@ namespace ServiceBusMQManager {
 
 
 
-    public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {
+    public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {    
 
-      if( content.StartsWith("<?xml version=\"1.0\"") )
-        contentType = MessageContentFormat.Xml;
 
 
       switch(contentType) {
         case MessageContentFormat.Xml:
           tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
-          tbContent.Text = Tools.FormatXml(content);
+          tbContent.Text = content;
           break;
 
         case MessageContentFormat.Json:
           tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Json;
-          tbContent.Text = Tools.FormatJson(content);
+          tbContent.Text = content;
           break;
       }
 
