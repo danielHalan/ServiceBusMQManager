@@ -68,7 +68,7 @@ namespace ServiceBusMQ.Model {
 
     public string Id { get; set; }
 
-    public bool Deleted { get; set; }
+    public bool Processed { get; set; }
 
     public string ImagePath { get { return "Images/" + QueueType + ".png"; } }
     public string SelectedImagePath { get { return "Images/" + QueueType + ".selected.png"; } }
