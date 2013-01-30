@@ -412,7 +412,7 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _sys.Manager.Items.Count(i => i.QueueType == type && !i.Deleted);
+        int iCount = _sys.Manager.Items.Count(i => i.QueueType == type && !i.Processed);
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
@@ -498,7 +498,7 @@ namespace ServiceBusMQManager {
       // Remove message
       var mi = (MenuItem)items[2];
       _UpdateContextMenuItem((MenuItem)items[2], itm);
-      mi.IsEnabled = itm != null && !itm.Deleted;
+      mi.IsEnabled = itm != null && !itm.Processed;
 
       // Return Error Message to Origin
       mi = (MenuItem)items[5];
@@ -849,6 +849,10 @@ namespace ServiceBusMQManager {
     private void CheckVersion_Click(object sender, RoutedEventArgs e) {
       CheckIfLatestVersion(true);
 
+    }
+
+    private void ShowProcessedMsg_Click(object sender, RoutedEventArgs e) {
+      _mgr.LoadProcessedQueueItems(new TimeSpan(99,0,0));
     }
 
 

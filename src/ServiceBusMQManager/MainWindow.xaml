@@ -292,6 +292,17 @@
                         <MenuItem Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
                         <MenuItem Header="Return All Error Messages to Source Queue"  />
                         <MenuItem Header="Purge All Error Messages" />
+                        <Separator />
+                        <MenuItem Header="Show Processed Messages" >
+                            <MenuItem Header="All">
+                                <MenuItem Header="Past 1 minute" Tag="1" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click"   />
+                            </MenuItem>
+
+                        </MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
 
