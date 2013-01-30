@@ -177,6 +177,9 @@ namespace ServiceBusMQ.NServiceBus {
 
       return new MessageQueue(queueName, false, true, accessMode);
     }
+    private MessageQueue CreateMessageQueue(string queueFormatName, QueueAccessMode accessMode) {
+      return new MessageQueue(queueFormatName, false, true, accessMode);
+    }
 
 
 
@@ -188,16 +191,16 @@ namespace ServiceBusMQ.NServiceBus {
         _errorQueues.Clear();
 
         foreach( var name in _watchEventQueues )
-          _eventQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
+          _eventQueues.Add(new MsmqMessageQueue(_serverName, name));
 
         foreach( var name in _watchCommandQueues )
-          _cmdQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
+          _cmdQueues.Add(new MsmqMessageQueue(_serverName, name));
 
         foreach( var name in _watchMessageQueues )
-          _msgQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
+          _msgQueues.Add(new MsmqMessageQueue(_serverName, name));
 
         foreach( var name in _watchErrorQueues )
-          _errorQueues.Add(CreateMessageQueue(_serverName, name, QueueAccessMode.ReceiveAndAdmin));
+          _errorQueues.Add(new MsmqMessageQueue(_serverName, name));
 
       } catch( Exception e ) {
         OnError("Error occured when loading queues", e, true);
@@ -248,8 +251,9 @@ namespace ServiceBusMQ.NServiceBus {
       q.MessageReadPropertyFilter.Extension = true;
     }
 
-    protected override IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems) {
-      if( queues.Count == 0 )
+
+    protected override IEnumerable<Model.QueueItem> DoFetchQueueItems(IEnumerable<System.Messaging.MessageQueue> queues, Model.QueueType type, IList<Model.QueueItem> currentItems) {
+      if( queues.Count() == 0 )
         return EMPTY_LIST;
 
       List<QueueItem> r = new List<QueueItem>();
@@ -272,6 +276,51 @@ namespace ServiceBusMQ.NServiceBus {
 
             AddQueueItem(r, itm);
           }
+        } catch( Exception e ) {
+          OnError("Error occured when processing queue " + qName + ", " + e.Message, e, false);
+        }
+
+      }
+
+      return r;
+    }
+
+
+    protected override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, IList<QueueItem> currentItems) {
+
+      List<QueueItem> r = new List<QueueItem>();
+
+      var queues = GetJournalQueueListByType(type);
+      if( queues.Count() == 0 )
+        return EMPTY_LIST;
+
+      foreach( var q in queues ) {
+        string qName = q.GetDisplayName();
+
+        if( IsIgnoredQueue(qName) || !q.CanRead )
+          continue;
+
+        SetupMessageReadPropertyFilters(q, type);
+
+        try {
+
+          MessageEnumerator msgs = q.GetMessageEnumerator2();
+
+
+          while( msgs.MoveNext() ) {
+            Message msg = msgs.Current;
+
+            QueueItem itm = currentItems.SingleOrDefault(i => i.Id == msg.Id);
+
+            if( itm == null )
+              itm = CreateQueueItem(qName, msg, type);
+
+            AddQueueItem(r, itm);
+
+            Console.WriteLine("Msg Date: " + msg.ArrivedTime.ToString());
+          }
+
+
         } catch( Exception e ) {
           OnError("Error occured when processing queue " + qName + ", " + e.Message, e, false);
         }
@@ -316,14 +365,14 @@ namespace ServiceBusMQ.NServiceBus {
             itm.Headers.Add(pair.Key, pair.Value);
       }
 
-      if( itm.Headers.Any( k => k.Key == "NServiceBus.ProcessingStarted" ) ) {
-      
+      if( itm.Headers.Any(k => k.Key == "NServiceBus.ProcessingStarted") ) {
+
         try {
-          itm.ProcessTime = Convert.ToInt32((Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) - 
-                            Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"])).TotalSeconds);
+          itm.ProcessTime = Convert.ToInt32(( Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) -
+                            Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"]) ).TotalSeconds);
 
         } catch { }
-      
+
       }
 
 
@@ -331,13 +380,13 @@ namespace ServiceBusMQ.NServiceBus {
 
         itm.Error = new QueueItemError();
         try {
-          itm.Error.State =  type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
+          itm.Error.State = type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
 
           itm.Error.Message = itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.ExceptionInfo.Message").Value;
-          
+
           if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace") )
             itm.Error.StackTrace = itm.Headers.Single(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace").Value;
-          
+
           itm.Error.Retries = Convert.ToInt32(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.Retries").Value);
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
@@ -354,8 +403,8 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    private MessageQueue GetMessageQueue(QueueItem itm) {
-      List<MessageQueue> qs = null;
+    private MsmqMessageQueue GetMessageQueue(QueueItem itm) {
+      List<MsmqMessageQueue> qs = null;
 
       switch( itm.QueueType ) {
         case QueueType.Command: qs = _cmdQueues; break;
@@ -364,7 +413,7 @@ namespace ServiceBusMQ.NServiceBus {
         case QueueType.Error: qs = _errorQueues; break;
       }
 
-      return qs.Single(i => i.FormatName.EndsWith(itm.QueueName));
+      return qs.Single(i => i.Main.FormatName.EndsWith(itm.QueueName));
     }
 
     public override string LoadMessageContent(QueueItem itm) {
@@ -374,7 +423,7 @@ namespace ServiceBusMQ.NServiceBus {
 
         mq.MessageReadPropertyFilter.ArrivedTime = false;
         mq.MessageReadPropertyFilter.Body = true;
-        itm.Content = !itm.Deleted ? ReadMessageStream(mq.PeekById(itm.Id).BodyStream) : "DELETED";
+        itm.Content = !itm.Processed ? ReadMessageStream(mq.PeekById(itm.Id).BodyStream) : "DELETED";
       }
 
       return itm.Content;
@@ -446,10 +495,10 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public override void PurgeMessage(QueueItem itm) {
-      var q = GetMessageQueue(itm);
+      MessageQueue q = GetMessageQueue(itm);
       q.ReceiveById(itm.Id);
 
-      itm.Deleted = true;
+      itm.Processed = true;
 
       OnItemsChanged();
     }

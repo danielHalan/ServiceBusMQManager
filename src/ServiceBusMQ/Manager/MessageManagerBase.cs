@@ -129,6 +129,50 @@ namespace ServiceBusMQ.Manager {
       return false;
     }
 
+    protected abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, IList<QueueItem> currentItems);
+
+
+    public void LoadProcessedQueueItems(TimeSpan timeSpan) {
+      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 && _watchErrorQueues.Length == 0 )
+        return;
+
+      List<QueueItem> items = new List<QueueItem>();
+
+      // TODO: Solve why we can not iterate thru Remote MQ, 
+      // both GetMessageEnumerator2() and GetAllMessages() should be available for
+      // Remote computer and direct format name, but returns zero (0) messages always
+      //if( !Tools.IsLocalHost(_serverName) )
+      //  return;
+
+      foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
+        items.AddRange(GetProcessedQueueItems(t, _items));
+
+      bool changed = false;
+      lock( _itemsLock ) {
+
+        // Add new items
+        foreach( var itm in items )
+          if( !_items.Any(i => i.Id == itm.Id) ) {
+            _items.Insert(0, itm);
+            changed = true;
+          }
+
+        // Mark removed as deleted messages
+        foreach( var itm in _items )
+          if( !items.Any(i2 => i2.Id == itm.Id) ) {
+
+            if( !itm.Processed ) {
+              itm.Processed = true;
+              changed = true;
+            }
+          }
+
+      }
+
+      if( changed )
+        OnItemsChanged();
+    }
+
 
     public void RefreshQueueItems() {
 
@@ -160,8 +204,8 @@ namespace ServiceBusMQ.Manager {
         foreach( var itm in _items )
           if( !items.Any(i2 => i2.Id == itm.Id) ) {
 
-            if( !itm.Deleted ) {
-              itm.Deleted = true;
+            if( !itm.Processed ) {
+              itm.Processed = true;
               changed = true;
             }
           }
@@ -175,7 +219,7 @@ namespace ServiceBusMQ.Manager {
     }
 
     public void ClearDeletedItems() {
-      foreach( var itm in _items.Where(i => i.Deleted).ToArray() )
+      foreach( var itm in _items.Where(i => i.Processed).ToArray() )
         _items.Remove(itm);
     }
 
@@ -220,6 +264,8 @@ namespace ServiceBusMQ.Manager {
 
 
     public abstract MessageSubscription[] GetMessageSubscriptions(string server);
+
+
 
   }
 

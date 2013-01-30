@@ -75,6 +75,6 @@ namespace ServiceBusMQ.Manager {
 
     void ClearDeletedItems();
 
-
+    void LoadProcessedQueueItems(TimeSpan timeSpan);
   }
 }

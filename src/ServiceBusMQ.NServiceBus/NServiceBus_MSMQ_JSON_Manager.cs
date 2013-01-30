@@ -89,5 +89,6 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override MessageContentFormat MessageContentFormat { get { return Manager.MessageContentFormat.Json; } }
 
+
   }
 }

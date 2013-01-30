@@ -36,10 +36,10 @@ namespace ServiceBusMQ.NServiceBus {
 
     protected string _ignoreMessageBody;
 
-    protected List<MessageQueue> _eventQueues = new List<MessageQueue>();
-    protected List<MessageQueue> _cmdQueues = new List<MessageQueue>();
-    protected List<MessageQueue> _msgQueues = new List<MessageQueue>();
-    protected List<MessageQueue> _errorQueues = new List<MessageQueue>();
+    protected List<MsmqMessageQueue> _eventQueues = new List<MsmqMessageQueue>();
+    protected List<MsmqMessageQueue> _cmdQueues = new List<MsmqMessageQueue>();
+    protected List<MsmqMessageQueue> _msgQueues = new List<MsmqMessageQueue>();
+    protected List<MsmqMessageQueue> _errorQueues = new List<MsmqMessageQueue>();
 
 
     public NServiceBusManagerBase() {
@@ -100,21 +100,37 @@ namespace ServiceBusMQ.NServiceBus {
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
       return DoFetchQueueItems(GetQueueListByType(type), type, currentItems);
     }
-    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IList<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
-    protected List<MessageQueue> GetQueueListByType(QueueType type) {
+    protected IEnumerable<MessageQueue> GetQueueListByType(QueueType type) {
 
       if( type == QueueType.Command )
-        return _cmdQueues;
+        return _cmdQueues.Select( q => q.Main);
 
       else if( type == QueueType.Event )
-        return _eventQueues;
+        return _eventQueues.Select( q => q.Main);
 
       else if( type == QueueType.Message )
-        return _msgQueues;
+        return _msgQueues.Select( q => q.Main);
 
       else if( type == QueueType.Error )
-        return _errorQueues;
+        return _errorQueues.Select( q => q.Main);
+
+      return null;
+    }
+    protected IEnumerable<MessageQueue> GetJournalQueueListByType(QueueType type) {
+
+      if( type == QueueType.Command )
+        return _cmdQueues.Select(q => q.Journal);
+
+      else if( type == QueueType.Event )
+        return _eventQueues.Select(q => q.Journal);
+
+      else if( type == QueueType.Message )
+        return _msgQueues.Select(q => q.Journal);
+
+      else if( type == QueueType.Error )
+        return _errorQueues.Select(q => q.Journal);
 
       return null;
     }
