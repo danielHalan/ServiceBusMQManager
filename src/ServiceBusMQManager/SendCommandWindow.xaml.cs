@@ -156,8 +156,8 @@ namespace ServiceBusMQManager {
         if( !savedCommands.Updating ) {
 
           if( recent != null ) {
-            var t = recent.Command.GetType();
-            cmdAttrib.SetDataType(t, recent.Command);
+            var t = recent.SentCommand.Command.GetType();
+            cmdAttrib.SetDataType(t, recent.SentCommand.Command);
             cbCommands.SelectedValue = t.FullName;
 
           }

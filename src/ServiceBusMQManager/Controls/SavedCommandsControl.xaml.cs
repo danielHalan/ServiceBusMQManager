@@ -49,7 +49,7 @@ namespace ServiceBusMQManager.Controls {
 
     CommandHistoryManager _mgr;
 
-    ObservableCollection<SavedCommand> _recent = new ObservableCollection<SavedCommand>();
+    ObservableCollection<SavedCommandItem> _recent = new ObservableCollection<SavedCommandItem>();
 
     public SavedCommandsControl() {
       InitializeComponent();
@@ -71,8 +71,8 @@ namespace ServiceBusMQManager.Controls {
       //_mgr.Unload();
     }
 
-    public SavedCommand SelectedItem {
-      get { return cbRecent.SelectedItem as SavedCommand; }
+    public SavedCommandItem SelectedItem {
+      get { return cbRecent.SelectedItem as SavedCommandItem; }
       set { cbRecent.SelectedItem = value; }
     }
 
@@ -82,7 +82,7 @@ namespace ServiceBusMQManager.Controls {
 
       cbRecent.ItemsSource = _recent;
       cbRecent.DisplayMemberPath = "DisplayName";
-      cbRecent.SelectedValuePath = "Command";
+      cbRecent.SelectedValuePath = "SentCommand";
 
       cbRecent.SelectedValue = null;
     }
@@ -326,7 +326,7 @@ namespace ServiceBusMQManager.Controls {
 
     }
     private void btnDelete_Click(object sender, RoutedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommand;
+      var recent = cbRecent.SelectedItem as SavedCommandItem;
       Updating = true;
       try {
 
@@ -348,7 +348,7 @@ namespace ServiceBusMQManager.Controls {
 
     public bool Updating { get; set; }
 
-    public SavedCommand CommandSent(object command, string serviceBus, string transport, string server, string queue) {
+    public SavedCommandItem CommandSent(object command, string serviceBus, string transport, string server, string queue) {
       var sentCmd = _mgr.AddCommand(command, serviceBus, transport, server, queue);
 
       int pos = _recent.IndexOf(sentCmd);
@@ -356,7 +356,7 @@ namespace ServiceBusMQManager.Controls {
         _recent.Insert(0, sentCmd);
 
         if( cbRecent.SelectedItem != sentCmd )
-          cbRecent.SelectedValue = sentCmd.Command;
+          cbRecent.SelectedValue = sentCmd.SentCommand;
 
       } else if( pos != 0 ) {
         _recent.Move(_recent.IndexOf(sentCmd), 0);

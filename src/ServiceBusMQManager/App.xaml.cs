@@ -69,11 +69,11 @@ namespace ServiceBusMQManager {
 
         var sys = SbmqSystem.Create();
         try {
-          var cmd = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
+          var itm = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
 
-          if( cmd != null ) {
+          if( itm != null ) {
             Out(string.Format("Sending Command '{0}'...", cmdName));
-            sys.SendCommand(cmd.Server, cmd.Transport, cmd.Command);
+            sys.SendCommand(itm.SentCommand.Server, itm.SentCommand.Transport, itm.SentCommand.Command);
 
           } else {
             Out(string.Format("No Command with name '{0}' found, exiting...", cmdName));
@@ -124,9 +124,10 @@ namespace ServiceBusMQManager {
 
 
     private void PrintHeader() {
+      var ver = App.Info.Version;
       Out(string.Empty);
       Out("===============================================================================");
-      Out("  Service Bus MQ Manager v2.00 - (c)2012 ITQ.COM, Daniel Halan http://halan.se");
+      Out("  Service Bus MQ Manager v2.{0}.{1} - (c)2012 ITQ.COM, Daniel Halan http://halan.se".With(ver.Major, ver.Minor.ToString("D2")));
       Out("===============================================================================");
     }
 
