@@ -126,6 +126,7 @@ namespace ServiceBusMQManager {
       RestoreWindowState();
       
       this.IsEnabled = false;
+      lbLoading.Visibility = System.Windows.Visibility.Visible;
 
       BackgroundWorker w = new BackgroundWorker();
       w.DoWork += (s,e) => {       
@@ -139,6 +140,8 @@ namespace ServiceBusMQManager {
 
         RestoreQueueButtonsState();
         this.IsEnabled = true;
+        lbLoading.Visibility = System.Windows.Visibility.Hidden;
+
 
         btnSendCommand.IsEnabled = _sys.CanSendCommand;
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
@@ -249,7 +252,7 @@ namespace ServiceBusMQManager {
       } else LogError("Failed to retrieve latest version information from server", e.Error);
 
 
-      if( !miCheckVersion.IsEnabled ) {
+      if( !miCheckVersion.IsEnabled  ) {
         miCheckVersion.IsEnabled = true;
       }
      
@@ -507,11 +510,12 @@ namespace ServiceBusMQManager {
       mi.IsEnabled = ( itm != null && itm.QueueType == QueueType.Error );
 
 #if DEBUG
-      if( items.Count == 8 ) 
-        items.Add(new MenuItem());
+      if( (items[items.Count-1] as MenuItem).Header != "Headers" ) { 
+        mi = new MenuItem();
+        mi.Header = "Headers";
+        items.Add(mi);
 
-      mi = (MenuItem)items[8];
-      mi.Header = "Header";
+      } else mi = (MenuItem)items[items.Count - 1];
 
       mi.Items.Clear();
 
@@ -613,7 +617,7 @@ namespace ServiceBusMQManager {
 
     private void btnClearDeleted_Click(object sender, RoutedEventArgs e) {
 
-      _mgr.ClearDeletedItems();
+      _mgr.ClearProcessedItems();
 
       lbItems.Items.Refresh();
     }
@@ -852,7 +856,26 @@ namespace ServiceBusMQManager {
     }
 
     private void ShowProcessedMsg_Click(object sender, RoutedEventArgs e) {
-      _mgr.LoadProcessedQueueItems(new TimeSpan(99,0,0));
+      var min = Convert.ToInt32((e.Source as MenuItem).Tag as string);
+      TimeSpan timeSpan = ( min != 0 ) ? new TimeSpan(0, min, 0) : TimeSpan.FromTicks(DateTime.Today.Ticks);
+
+      LoadProcessedQueueItems(timeSpan);
+    }
+
+    private void ShowProcessedMsgPastDays_Click(object sender, RoutedEventArgs e) {
+      var days = Convert.ToInt32(( e.Source as MenuItem ).Tag as string);
+
+      LoadProcessedQueueItems(new TimeSpan(days, 0, 0, 0));
+    }
+
+    private void LoadProcessedQueueItems(TimeSpan timeSpan) {
+      lbLoading.Visibility = System.Windows.Visibility.Visible;
+      WindowTools.Sleep(10);
+      try {
+        _mgr.LoadProcessedQueueItems(timeSpan);
+      } finally {
+        lbLoading.Visibility = System.Windows.Visibility.Hidden;
+      }
     }
 
 

@@ -100,37 +100,21 @@ namespace ServiceBusMQ.NServiceBus {
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
       return DoFetchQueueItems(GetQueueListByType(type), type, currentItems);
     }
-    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
 
-    protected IEnumerable<MessageQueue> GetQueueListByType(QueueType type) {
-
-      if( type == QueueType.Command )
-        return _cmdQueues.Select( q => q.Main);
-
-      else if( type == QueueType.Event )
-        return _eventQueues.Select( q => q.Main);
-
-      else if( type == QueueType.Message )
-        return _msgQueues.Select( q => q.Main);
-
-      else if( type == QueueType.Error )
-        return _errorQueues.Select( q => q.Main);
-
-      return null;
-    }
-    protected IEnumerable<MessageQueue> GetJournalQueueListByType(QueueType type) {
+    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
 
       if( type == QueueType.Command )
-        return _cmdQueues.Select(q => q.Journal);
+        return _cmdQueues;
 
       else if( type == QueueType.Event )
-        return _eventQueues.Select(q => q.Journal);
+        return _eventQueues;
 
       else if( type == QueueType.Message )
-        return _msgQueues.Select(q => q.Journal);
+        return _msgQueues;
 
       else if( type == QueueType.Error )
-        return _errorQueues.Select(q => q.Journal);
+        return _errorQueues;
 
       return null;
     }

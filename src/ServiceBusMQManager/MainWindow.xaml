@@ -40,7 +40,7 @@
 
 
                 </ContextMenu>
-                
+
             </Grid.ContextMenu>
             <Grid.Resources>
                 <Style x:Key="StyleNoFocusRect">
@@ -102,7 +102,7 @@
                                 </Grid>
 
                                 <ControlTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding Deleted}" Value="True">
+                                    <DataTrigger Binding="{Binding Processed}" Value="True">
                                         <Setter Property="Foreground" TargetName="lbName" Value="Gray" />
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="Gray" />
                                         <Setter Property="Foreground" TargetName="lbDate" Value="Gray" />
@@ -113,7 +113,7 @@
 
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Deleted}" Value="True" />
+                                            <Condition Binding="{Binding Processed}" Value="True" />
                                             <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
                                             <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="True" />
                                         </MultiDataTrigger.Conditions>
@@ -122,7 +122,7 @@
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Deleted}" Value="True" />
+                                            <Condition Binding="{Binding Processed}" Value="True" />
                                             <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
                                             <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Selector.IsSelectionActive)}" Value="False" />
                                         </MultiDataTrigger.Conditions>
@@ -138,7 +138,7 @@
                                         <Setter Property="Foreground" TargetName="lbDate" Value="White"/>
                                         <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
                                     </Trigger>
-                                    
+
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
                                             <Condition Property="IsSelected" Value="true"/>
@@ -193,7 +193,7 @@
                                     <Trigger Property="IsEnabled" Value="false">
                                         <Setter Property="Foreground" Value="#ADADAD"/>
                                     </Trigger>
-                                    
+
                                     <!-- Mouse Over -->
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
@@ -246,7 +246,7 @@
                     VerticalAlignment="Top"
                     Fill="White" Grid.RowSpan="2"
              >
-                
+
             </Rectangle>
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
             <Label Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" FontFamily="Calibri" FontSize="13" />
@@ -259,7 +259,7 @@
                 Click="miToggleAlwaysOnTop_Click"
                 ToolTip="Toggle always on top" Height="13"
                 >
-                <Image Name="imgAlwaysOnTop" Source="Images/pinned.png" /> 
+                <Image Name="imgAlwaysOnTop" Source="Images/pinned.png" />
             </Button>
             <Button
                 HorizontalAlignment="Right"
@@ -294,15 +294,21 @@
                         <MenuItem Header="Purge All Error Messages" />
                         <Separator />
                         <MenuItem Header="Show Processed Messages" >
-                            <MenuItem Header="All">
-                                <MenuItem Header="Past 1 minute" Tag="1" Click="ShowProcessedMsg_Click"   />
-                                <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click"   />
-                                <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click"   />
-                                <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click"   />
-                                <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 1 minute" Tag="1" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Days">
+                                <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
                             </MenuItem>
-
+                            <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click"   />
                         </MenuItem>
+
                     </ContextMenu>
                 </ListBox.ContextMenu>
 
@@ -410,7 +416,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-
+            <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="10,46,10,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="White"/>
 
 
         </Grid>
