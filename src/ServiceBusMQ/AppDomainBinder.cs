@@ -41,7 +41,7 @@ namespace ServiceBusMQ {
         Assembly assembly;
 
 //#pragma warning disable 618,612
-        Console.WriteLine(_appDomain.FriendlyName);
+        //Console.WriteLine(_appDomain.FriendlyName);
         
         assembly = _appDomain.Load( new AssemblyName() { Name = assemblyName } );
 //#pragma warning restore 618,612

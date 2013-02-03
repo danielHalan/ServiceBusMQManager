@@ -73,7 +73,7 @@ namespace ServiceBusMQ.Manager {
     event EventHandler ItemsChanged;
     event EventHandler<ErrorArgs> ErrorOccured;
 
-    void ClearDeletedItems();
+    void ClearProcessedItems();
 
     void LoadProcessedQueueItems(TimeSpan timeSpan);
   }
