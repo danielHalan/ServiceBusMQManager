@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQ.NServiceBus
+  File:    MsmqMessageQueue.cs
+  Created: 2013-01-30
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
@@ -11,9 +26,12 @@ namespace ServiceBusMQ.NServiceBus {
     public MessageQueue Main { get; set; }
     public MessageQueue Journal { get; set; }
 
+    public bool UseJournalQueue { get { return Main.UseJournalQueue; } }
+
     public MsmqMessageQueue(string serverName, string queueName) { 
       Main = CreateMessageQueue(serverName, queueName, QueueAccessMode.ReceiveAndAdmin);
-      Journal = new MessageQueue(Main.FormatName + ";JOURNAL");
+      if( Main.UseJournalQueue )
+        Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", serverName, queueName));
     }
 
     public static implicit operator MessageQueue(MsmqMessageQueue q) {
