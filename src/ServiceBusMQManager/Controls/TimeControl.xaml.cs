@@ -141,7 +141,6 @@ namespace ServiceBusMQManager.Controls {
 
       if( e.NewFocus is ScrollViewer ) {
         var pt = Mouse.GetPosition(this);
-        Console.WriteLine("x: " + pt.X + ", y: " + pt.Y);
 
         if( ( pt.X > 0 && pt.X < this.Width ) &&
             ( pt.Y > 0 && pt.Y < this.Height ) ) {
@@ -201,7 +200,6 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
-      Console.WriteLine("UserControl_LostFocus_1");
     }
 
     private void UserControl_PreviewLostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
