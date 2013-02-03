@@ -129,7 +129,7 @@ namespace ServiceBusMQ.Manager {
       return false;
     }
 
-    protected abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IList<QueueItem> currentItems);
 
 
     public void LoadProcessedQueueItems(TimeSpan timeSpan) {
@@ -143,9 +143,11 @@ namespace ServiceBusMQ.Manager {
       // Remote computer and direct format name, but returns zero (0) messages always
       //if( !Tools.IsLocalHost(_serverName) )
       //  return;
+      DateTime since = DateTime.Now - timeSpan;
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        items.AddRange(GetProcessedQueueItems(t, _items));
+        if( IsMonitoring(t) )
+          items.AddRange(GetProcessedQueueItems(t, since, _items));
 
       bool changed = false;
       lock( _itemsLock ) {
@@ -218,7 +220,7 @@ namespace ServiceBusMQ.Manager {
 
     }
 
-    public void ClearDeletedItems() {
+    public void ClearProcessedItems() {
       foreach( var itm in _items.Where(i => i.Processed).ToArray() )
         _items.Remove(itm);
     }
@@ -249,12 +251,12 @@ namespace ServiceBusMQ.Manager {
 
     public event EventHandler<ErrorArgs> ErrorOccured;
 
-    protected void OnError(string message, bool fatal) {
+    protected void OnError(string message, string stackTrace, bool fatal) {
       if( ErrorOccured != null )
-        ErrorOccured(this, new ErrorArgs(message, fatal));
+        ErrorOccured(this, new ErrorArgs(message, stackTrace, fatal));
     }
     protected void OnError(string message, Exception e, bool fatal) {
-      OnError(string.Format("{0}, {1} ({2})", message, e.Message, e.GetType().Name), fatal);
+      OnError(string.Format("{0}\n\r {1} ({2})", message, e.Message, e.GetType().Name), e.StackTrace, fatal);
     }
 
     public abstract Type[] GetAvailableCommands(string[] asmPaths);

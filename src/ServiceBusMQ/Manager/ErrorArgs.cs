@@ -23,11 +23,13 @@ namespace ServiceBusMQ.Manager {
 
     public string Message { get; private set; }
     public bool Fatal { get; private set; }
-  
-    public ErrorArgs(string message, bool fatal) {
+    public string StackTrace { get; set; }
+
+    public ErrorArgs(string message, string stackTrace, bool fatal) {
     
       Message = message;
       Fatal = fatal;
+      StackTrace = stackTrace;
     }
   
   }
