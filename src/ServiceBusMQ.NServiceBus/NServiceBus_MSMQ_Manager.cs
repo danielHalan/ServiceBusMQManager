@@ -277,7 +277,7 @@ namespace ServiceBusMQ.NServiceBus {
         try {
           foreach( var msg in q.GetAllMessages() ) {
 
-            QueueItem itm = currentItems.SingleOrDefault(i => i.Id == msg.Id);
+            QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
             if( itm == null )
               itm = CreateQueueItem(qName, msg, type);
@@ -304,7 +304,7 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( var q in queues ) {
         string qName = q.GetDisplayName();
 
-        if( IsIgnoredQueue(qName) || !q.Journal.CanRead )
+        if( IsIgnoredQueue(qName) || !q.CanReadJournalQueue )
           continue;
 
         SetupMessageReadPropertyFilters(q.Journal, type);
@@ -318,10 +318,12 @@ namespace ServiceBusMQ.NServiceBus {
 
               if( msg.ArrivedTime >= since ) {
 
-                QueueItem itm = currentItems.SingleOrDefault(i => i.Id == msg.Id);
+                QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
-                if( itm == null )
+                if( itm == null ) {
                   itm = CreateQueueItem(qName, msg, type);
+                  itm.Processed = true;
+                }
 
                 AddQueueItem(r, itm);
 
@@ -468,7 +470,7 @@ namespace ServiceBusMQ.NServiceBus {
             r.Add(itm);
           }
         } catch( Exception e ) {
-          OnError("Error occured when processing queue item", e, true);
+          OnError("Error occured when getting subcriptions", e, true);
         }
 
       }
@@ -525,7 +527,9 @@ namespace ServiceBusMQ.NServiceBus {
     public override string BusName { get { return "NServiceBus"; } }
 
 
-    private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll" };
+    private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll", 
+                                                                  "\\MongoDB.Driver.dll", "\\MongoDB.Bson.dll", 
+                                                                  "\\NServiceBus.dll" };
 
     public override Type[] GetAvailableCommands(string[] asmPaths) {
       return GetAvailableCommands(asmPaths, _commandDef);

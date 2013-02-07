@@ -27,6 +27,9 @@ namespace ServiceBusMQ.NServiceBus {
     public MessageQueue Journal { get; set; }
 
     public bool UseJournalQueue { get { return Main.UseJournalQueue; } }
+    public bool CanReadJournalQueue { get { return Main.UseJournalQueue && Journal.CanRead; } }
+
+
 
     public MsmqMessageQueue(string serverName, string queueName) { 
       Main = CreateMessageQueue(serverName, queueName, QueueAccessMode.ReceiveAndAdmin);
