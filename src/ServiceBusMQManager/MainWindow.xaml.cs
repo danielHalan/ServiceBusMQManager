@@ -615,7 +615,7 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void btnClearDeleted_Click(object sender, RoutedEventArgs e) {
+    private void btnClearProcessed_Click(object sender, RoutedEventArgs e) {
 
       _mgr.ClearProcessedItems();
 

@@ -383,7 +383,7 @@
                 </Button.Template>
             </Button>
 
-            <Button x:Name="btnClearDeleted" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,0,60,8" ToolTip="Remove list items that has been deleted in their Queue" Width="135" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
+            <Button x:Name="btnClearProcessed" Click="btnClearProcessed_Click" HorizontalAlignment="Right" Margin="0,0,60,8" ToolTip="Remove list items that has been deleted in their Queue" Width="135" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,-6,0" >
