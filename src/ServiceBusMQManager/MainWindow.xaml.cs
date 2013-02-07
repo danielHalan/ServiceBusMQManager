@@ -868,6 +868,9 @@ namespace ServiceBusMQManager {
       LoadProcessedQueueItems(new TimeSpan(days, 0, 0, 0));
     }
 
+
+    bool _openedByButton = false;
+
     private void LoadProcessedQueueItems(TimeSpan timeSpan) {
       lbLoading.Visibility = System.Windows.Visibility.Visible;
       WindowTools.Sleep(10);
@@ -876,6 +879,51 @@ namespace ServiceBusMQManager {
       } finally {
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       }
+    }
+
+    private void btnShowProcessed_Click_1(object sender, RoutedEventArgs e) {
+      var btn = sender as Button;
+      var cm = ContextMenuService.GetContextMenu(sender as DependencyObject);
+      if( cm != null ) {
+        _openedByButton = true;
+
+        var offset = btn.TranslatePoint(new Point(0, 0), this);
+
+        cm.Placement = PlacementMode.Relative;
+        cm.HorizontalOffset = this.Left + offset.X;
+        cm.VerticalOffset = this.Top + offset.Y + btn.ActualHeight;
+
+        if( FlowDirection.RightToLeft == FlowDirection )
+          cm.HorizontalOffset *= -1;
+
+        cm.IsOpen = true;
+
+      }
+    }
+
+    private void ContextMenu_Opened_1(object sender, RoutedEventArgs e) {
+      
+      var btn = btnShowProcessed;
+      var cm = ContextMenuService.GetContextMenu(btn as DependencyObject);
+      if( cm != null ) {
+
+        if( !_openedByButton ) {
+          var offset = btn.TranslatePoint(new Point(0, 0), this);
+          
+          cm.Placement = PlacementMode.AbsolutePoint;
+          cm.HorizontalOffset = this.Left + offset.X;
+          cm.VerticalOffset = this.Top + offset.Y + btn.ActualHeight;
+
+          if( FlowDirection.RightToLeft == FlowDirection )
+            cm.HorizontalOffset *= -1;
+        }
+
+      }
+    }
+
+    private void ContextMenu_Closed_1(object sender, RoutedEventArgs e) {
+
+      _openedByButton = false;
     }
 
 

@@ -476,6 +476,8 @@
     <Resource Include="Images\calendar.png" />
     <Resource Include="Images\clock-white.png" />
     <Resource Include="Images\doc.xml-white.png" />
+    <Resource Include="Images\history-white.png" />
+    <Resource Include="Images\history.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

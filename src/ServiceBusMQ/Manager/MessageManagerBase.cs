@@ -196,11 +196,24 @@ namespace ServiceBusMQ.Manager {
       lock( _itemsLock ) {
 
         // Add new items
-        foreach( var itm in items )
-          if( !_items.Any(i => i.Id == itm.Id) ) {
+        foreach( var itm in items ) {
+          var existingItem = _items.SingleOrDefault( i => i.Id == itm.Id );
+
+          if( existingItem == null ) {
+            
+            _items.Insert(0, itm);
+            changed = true;
+
+          } else if( existingItem.Processed ) {
+
+            _items.Remove(itm);
+            itm.Processed = false;
+            
             _items.Insert(0, itm);
             changed = true;
           }
+        
+        }
 
         // Mark removed as deleted messages
         foreach( var itm in _items )

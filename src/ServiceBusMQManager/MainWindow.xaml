@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
         x:Class="ServiceBusMQManager.MainWindow"
         x:Name="frmMain"
-        Height="314.55" Width="587.833" 
+        Height="314.55" Width="620" 
         Topmost="True" 
         
         Loaded="Window_Loaded" 
@@ -15,7 +15,7 @@
         ResizeMode="NoResize"
         MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" LocationChanged="Window_LocationChanged"
         MinHeight="300"
-        MinWidth="550" IsVisibleChanged="Window_IsVisibleChanged" SourceInitialized="Window_SourceInitialized" 
+        MinWidth="600" IsVisibleChanged="Window_IsVisibleChanged" SourceInitialized="Window_SourceInitialized" 
      Activated="frmMain_Activated"
         >
     <Window.Resources>
@@ -343,6 +343,45 @@
                 </Button.Template>
             </Button>
 
+            <Button x:Name="btnShowProcessed" Click="btnShowProcessed_Click_1" HorizontalAlignment="Right" Margin="0,0,200,8" ToolTip="Remove list items that has been deleted in their Queue" Width="40" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
+                <Button.ContextMenu>
+                    <ContextMenu HasDropShadow="False"  Opened="ContextMenu_Opened_1" Closed="ContextMenu_Closed_1">
+                        <MenuItem Header="Show Processed Messages"  Focusable="False"  IsEnabled="False" FontSize="13" FontFamily="Segoe UI"  />
+                            <MenuItem Header="Past 1 minute" Tag="1" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Days">
+                                <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
+                            </MenuItem>
+                            <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click"   />
+                    </ContextMenu>
+
+                </Button.ContextMenu>
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Name="btnBorder" BorderBrush="#35D119" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
+                            <Image Source="Images/History.png" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
+                                <Setter Property="Cursor" Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="Button.IsPressed" Value="True">
+                                <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
             <Button x:Name="btnClearDeleted" Click="btnClearDeleted_Click" HorizontalAlignment="Right" Margin="0,0,60,8" ToolTip="Remove list items that has been deleted in their Queue" Width="135" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
