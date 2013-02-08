@@ -343,7 +343,8 @@
                 </Button.Template>
             </Button>
 
-            <Button x:Name="btnShowProcessed" Click="btnShowProcessed_Click_1" HorizontalAlignment="Right" Margin="0,0,200,8" ToolTip="Remove list items that has been deleted in their Queue" Width="40" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
+            <Button x:Name="btnShowProcessed" Click="btnShowProcessed_Click_1" HorizontalAlignment="Right" Margin="0,0,200,8" 
+                    ToolTip="Show processed messages" Width="40" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.ContextMenu>
                     <ContextMenu HasDropShadow="False"  Opened="ContextMenu_Opened_1" Closed="ContextMenu_Closed_1">
                         <MenuItem Header="Show Processed Messages"  Focusable="False"  IsEnabled="False" FontSize="13" FontFamily="Segoe UI"  />
