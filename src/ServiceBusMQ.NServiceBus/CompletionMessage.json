@@ -1,0 +1,6 @@
+﻿[
+    {
+        "$type": "NServiceBus.Unicast.Transport.CompletionMessage, NServiceBus.Core",
+        "ErrorCode": 0
+    }
+]
