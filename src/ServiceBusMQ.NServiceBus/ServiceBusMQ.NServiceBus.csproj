@@ -68,9 +68,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CheckMessage.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
       <Project>{a8780696-12f3-4795-9fee-93f6cbbd900e}</Project>
       <Name>ServiceBusMQ</Name>

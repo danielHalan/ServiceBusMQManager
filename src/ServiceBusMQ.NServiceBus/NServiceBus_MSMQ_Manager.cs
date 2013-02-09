@@ -346,10 +346,9 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     private void AddQueueItem(List<QueueItem> r, QueueItem itm) {
+      itm.MessageNames = GetMessageNames(itm.Content, true);
 
       if( !IsIgnoredQueueItem(itm) ) {
-
-        itm.MessageNames = GetMessageNames(itm.Content, true);
         itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label);
 
         r.Insert(0, itm);

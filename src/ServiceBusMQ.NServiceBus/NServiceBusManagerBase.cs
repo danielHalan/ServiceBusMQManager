@@ -34,7 +34,7 @@ namespace ServiceBusMQ.NServiceBus {
   public abstract class NServiceBusManagerBase : MessageManagerBase {
 
 
-    protected string _ignoreMessageBody;
+    //protected string _ignoreMessageBody;
 
     protected List<MsmqMessageQueue> _eventQueues = new List<MsmqMessageQueue>();
     protected List<MsmqMessageQueue> _cmdQueues = new List<MsmqMessageQueue>();
@@ -49,15 +49,14 @@ namespace ServiceBusMQ.NServiceBus {
       base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
 
 
-
-      _ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CheckMessage.xml")).ReadToEnd();
     }
 
 
 
+    private static readonly string NSERVICEBUS_INFRA_MESSAGE = "NServiceBus.Unicast.Transport.CompletionMessage";
 
     public override bool IsIgnoredQueueItem(QueueItem itm) {
-      return string.Compare(itm.Content, _ignoreMessageBody) == 0;
+      return ( itm.MessageNames.Length == 1 && itm.MessageNames[0] == NSERVICEBUS_INFRA_MESSAGE );
     }
     public override bool IsIgnoredQueue(string queueName) {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );

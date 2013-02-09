@@ -30,6 +30,11 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
+    public override void Init(string serverName, string[] commandQueues, string[] eventQueues, string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
+      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
+
+      //_ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CompletionMessage.xml")).ReadToEnd();
+    }
 
     public override void SetupBus(string[] assemblyPaths) {
 
