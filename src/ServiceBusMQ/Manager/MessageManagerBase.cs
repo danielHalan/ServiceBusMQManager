@@ -155,6 +155,7 @@ namespace ServiceBusMQ.Manager {
         // Add new items
         foreach( var itm in items )
           if( !_items.Any(i => i.Id == itm.Id) ) {
+
             _items.Insert(0, itm);
             changed = true;
           }
@@ -171,8 +172,11 @@ namespace ServiceBusMQ.Manager {
 
       }
 
-      if( changed )
+      if( changed ) {
+        _items.Sort( (a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime) );
+
         OnItemsChanged();
+      }
     }
 
 
@@ -185,22 +189,26 @@ namespace ServiceBusMQ.Manager {
 
       // TODO: Solve why we can not iterate thru Remote MQ, 
       // both GetMessageEnumerator2() and GetAllMessages() should be available for
-      // Remote computer and direct format name, but returns zero (0) messages always
+      // Remote computer and direct format name, but returns zero (0) messages in some cases
       //if( !Tools.IsLocalHost(_serverName) )
       //  return;
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         items.AddRange(ProcessQueue(t));
 
+      // Newest first
+      if( items.Count > 1 )
+        items.Sort((a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime));
+
       bool changed = false;
       lock( _itemsLock ) {
 
         // Add new items
         foreach( var itm in items ) {
-          var existingItem = _items.SingleOrDefault( i => i.Id == itm.Id );
+          var existingItem = _items.SingleOrDefault(i => i.Id == itm.Id);
 
           if( existingItem == null ) {
-            
+
             _items.Insert(0, itm);
             changed = true;
 
@@ -208,11 +216,11 @@ namespace ServiceBusMQ.Manager {
 
             _items.Remove(itm);
             itm.Processed = false;
-            
+
             _items.Insert(0, itm);
             changed = true;
           }
-        
+
         }
 
         // Mark removed as deleted messages

@@ -349,7 +349,7 @@ namespace ServiceBusMQ.NServiceBus {
       itm.MessageNames = GetMessageNames(itm.Content, true);
 
       if( !IsIgnoredQueueItem(itm) ) {
-        itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label);
+        itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label).CutEnd(55);
 
         r.Insert(0, itm);
       }
@@ -363,6 +363,8 @@ namespace ServiceBusMQ.NServiceBus {
       itm.QueueDisplayName = queueName.CutBeginning(46);
       itm.QueueName = queueName;
       itm.QueueType = type;
+      itm.QueueColor = "#A13AAB";
+      itm.SelectedQueueColor = "#CA7BD1";
       itm.Label = msg.Label;
       itm.Id = msg.Id;
       itm.ArrivedTime = msg.ArrivedTime;

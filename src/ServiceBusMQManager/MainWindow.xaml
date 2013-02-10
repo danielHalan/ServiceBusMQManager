@@ -92,6 +92,7 @@
                                         <ColumnDefinition Width="44"/>
                                         <ColumnDefinition Width="10*"/>
                                     </Grid.ColumnDefinitions>
+                                    <Rectangle x:Name="color" Fill="{Binding QueueColor}" Width="4" Margin="0,0,0,1" HorizontalAlignment="Left" />
                                     <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="5,4,4,7"/>
                                     <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" FontFamily="Calibri" FontSize="13"  />
                                     <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
@@ -119,6 +120,7 @@
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Stroke" TargetName="StrikeThrough" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
                                         <Setter Property="Fill" TargetName="StrikeThrough" Value="#F59395"/>
+                                        
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -137,6 +139,7 @@
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="White"/>
                                         <Setter Property="Foreground" TargetName="lbDate" Value="White"/>
                                         <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
+                                        <Setter Property="Fill" TargetName="color" Value="{Binding SelectedQueueColor}"/>
                                     </Trigger>
 
                                     <MultiTrigger>
@@ -271,7 +274,7 @@
                 <Image Source="Images/minimize.png" />
             </Button>
 
-            <ListBox Margin="0,10,0,10" x:Name="lbItems" 
+            <ListBox Margin="2,10,0,10" x:Name="lbItems" 
 		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0" MouseDoubleClick="lbItems_MouseDoubleClick" >
 
                 <ListBox.Resources>
