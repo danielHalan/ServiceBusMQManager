@@ -21,14 +21,15 @@ using System.Reflection;
 using System.Text;
 using NServiceBus;
 using ServiceBusMQ.Manager;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
   public class NServiceBus_MSMQ_JSON_Manager : NServiceBus_MSMQ_Manager {
 
     public override string BusQueueType { get { return "MSMQ (JSON)"; } }
 
-    public override void Init(string serverName, string[] commandQueues, string[] eventQueues, string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
+    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
+      base.Init(serverName, monitorQueues, commandDef);
 
       //_ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CompletionMessage.json")).ReadToEnd();
     }
