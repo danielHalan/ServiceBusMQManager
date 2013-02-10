@@ -22,6 +22,7 @@ using System.Text;
 using System.Xml.Linq;
 using NServiceBus;
 using ServiceBusMQ.Manager;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
   public class NServiceBus_MSMQ_XML_Manager : NServiceBus_MSMQ_Manager {
@@ -30,8 +31,8 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
-    public override void Init(string serverName, string[] commandQueues, string[] eventQueues, string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
+    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
+      base.Init(serverName, monitorQueues, commandDef);
 
       //_ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CompletionMessage.xml")).ReadToEnd();
     }

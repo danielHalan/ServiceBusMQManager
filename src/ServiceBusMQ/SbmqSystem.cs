@@ -23,7 +23,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using ServiceBusMQ.Configuration;
 using ServiceBusMQ.Manager;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ {
   public class SbmqSystem {
@@ -46,8 +48,8 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += MessageMgr_ErrorOccured;
       _mgr.ItemsChanged += _mgr_ItemsChanged;
 
-      _mgr.Init(Config.MonitorServer, Config.WatchCommandQueues, Config.WatchEventQueues, Config.WatchMessageQueues, Config.WatchErrorQueues,
-                                Config.CommandDefinition);
+      _mgr.Init(Config.MonitorServer, Config.MonitorQueues.Select( mq => new Queue(mq.Name, mq.Type, mq.Color) ).ToArray(), 
+                                          Config.CommandDefinition);
 
       _history = new CommandHistoryManager(Config);
     }
@@ -104,7 +106,7 @@ namespace ServiceBusMQ {
 
 
     public IMessageManager Manager { get { return _mgr; } }
-    public SystemConfig1 Config { get; private set; }
+    public SystemConfig2 Config { get; private set; }
     public CommandHistoryManager SavedCommands { get { return _history; } }
     public static UIStateConfig UIState { get { return _uiState; } }
 

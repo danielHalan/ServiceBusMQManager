@@ -18,10 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
 using System.Text;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
 
   public class MsmqMessageQueue {
+
+    public Queue Queue { get; set; }
 
     public MessageQueue Main { get; set; }
     public MessageQueue Journal { get; set; }
@@ -31,10 +34,12 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
-    public MsmqMessageQueue(string serverName, string queueName) { 
-      Main = CreateMessageQueue(serverName, queueName, QueueAccessMode.ReceiveAndAdmin);
+    public MsmqMessageQueue(string serverName, Queue queue) { 
+      Queue = queue;
+      
+      Main = CreateMessageQueue(serverName, queue.Name, QueueAccessMode.ReceiveAndAdmin);
       if( Main.UseJournalQueue )
-        Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", serverName, queueName));
+        Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", serverName, queue.Name));
     }
 
     public static implicit operator MessageQueue(MsmqMessageQueue q) {

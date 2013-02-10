@@ -92,10 +92,10 @@
                                         <ColumnDefinition Width="44"/>
                                         <ColumnDefinition Width="10*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Rectangle x:Name="color" Fill="{Binding QueueColor}" Width="4" Margin="0,0,0,1" HorizontalAlignment="Left" />
+                                    <Rectangle x:Name="color" Fill="{Binding Queue.ColorString}" Width="4" Margin="0,0,0,1" HorizontalAlignment="Left" />
                                     <Image x:Name="img" Source="{Binding ImagePath}" Height="32" Width="32" Margin="5,4,4,7"/>
                                     <Label x:Name="lbDate" Content="{Binding ArrivedTimeString}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" FontFamily="Calibri" FontSize="13"  />
-                                    <Label x:Name="lbQueueName" Content="{Binding QueueDisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
+                                    <Label x:Name="lbQueueName" Content="{Binding Queue.DisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
                                     <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,0,0" HorizontalAlignment="Left" Grid.Column="1" Foreground="#696969" Background="{Binding ElementName=panel, Path=Background}" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
                                     <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="15.5" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Medium" FontFamily="Calibri" />
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Left" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,120,22" 
@@ -139,7 +139,7 @@
                                         <Setter Property="Foreground" TargetName="lbQueueName" Value="White"/>
                                         <Setter Property="Foreground" TargetName="lbDate" Value="White"/>
                                         <Setter Property="Source" TargetName="img" Value="{Binding SelectedImagePath}"/>
-                                        <Setter Property="Fill" TargetName="color" Value="{Binding SelectedQueueColor}"/>
+                                        <Setter Property="Fill" TargetName="color" Value="{Binding Queue.SelectedColorString}"/>
                                     </Trigger>
 
                                     <MultiTrigger>

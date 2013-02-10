@@ -36,17 +36,13 @@ namespace ServiceBusMQ.NServiceBus {
 
     //protected string _ignoreMessageBody;
 
-    protected List<MsmqMessageQueue> _eventQueues = new List<MsmqMessageQueue>();
-    protected List<MsmqMessageQueue> _cmdQueues = new List<MsmqMessageQueue>();
-    protected List<MsmqMessageQueue> _msgQueues = new List<MsmqMessageQueue>();
-    protected List<MsmqMessageQueue> _errorQueues = new List<MsmqMessageQueue>();
+    protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
 
     public NServiceBusManagerBase() {
     }
-    public override void Init(string serverName, string[] commandQueues, string[] eventQueues,
-                      string[] messageQueues, string[] errorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, commandQueues, eventQueues, messageQueues, errorQueues, commandDef);
+    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
+      base.Init(serverName, monitorQueues, commandDef);
 
 
     }
@@ -66,15 +62,15 @@ namespace ServiceBusMQ.NServiceBus {
       if( string.IsNullOrEmpty(itm.Id) )
         throw new ArgumentException("MessageId can not be null or empty");
 
-      if( itm.QueueType != QueueType.Error )
-        throw new ArgumentException("Queue is not of type Error, " + itm.QueueType);
+      if( itm.Queue.Type != QueueType.Error )
+        throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
 
       var mgr = new ErrorManager();
 
       // TODO:
       // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
 
-      mgr.InputQueue = Address.Parse(itm.QueueName);
+      mgr.InputQueue = Address.Parse(itm.Queue.Name);
 
       mgr.ReturnMessageToSourceQueue(itm.Id);
     }
@@ -97,25 +93,12 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
-      return DoFetchQueueItems(GetQueueListByType(type), type, currentItems);
+      return DoFetchQueueItems(GetQueueListByType(type), currentItems);
     }
-    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, QueueType type, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues,  IList<QueueItem> currentItems);
 
     protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
-
-      if( type == QueueType.Command )
-        return _cmdQueues;
-
-      else if( type == QueueType.Event )
-        return _eventQueues;
-
-      else if( type == QueueType.Message )
-        return _msgQueues;
-
-      else if( type == QueueType.Error )
-        return _errorQueues;
-
-      return null;
+      return _monitorMsmqQueues.Where( q => q.Queue.Type == type );
     }
 
 

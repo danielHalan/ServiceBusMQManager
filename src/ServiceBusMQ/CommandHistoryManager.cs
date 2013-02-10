@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Text;
 using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
+using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQ {
 
@@ -84,7 +85,7 @@ namespace ServiceBusMQ {
 
     //AppDomain _appDomain;
     List<SavedCommandItem> _items;
-    SystemConfig1 _config;
+    SystemConfig2 _config;
 
     public IEnumerable<SavedCommandItem> Items {
       get {
@@ -95,7 +96,7 @@ namespace ServiceBusMQ {
       }
     }
 
-    public CommandHistoryManager(SystemConfig1 config) {
+    public CommandHistoryManager(SystemConfig2 config) {
       _config = config;
 
       _itemsFolder = SbmqSystem.AppDataPath + @"\savedCommands\";

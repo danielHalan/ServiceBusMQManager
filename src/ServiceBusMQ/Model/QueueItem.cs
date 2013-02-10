@@ -28,16 +28,9 @@ namespace ServiceBusMQ.Model {
 
   public class QueueItem {
 
-
-    static readonly string[] MONTH_NAMES = new string[12];
-
-    static QueueItem() {
-      for(int i = 0; i < 12; i++ ) {
-        MONTH_NAMES[i] = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(i+1);
-      }
+    public QueueItem(Queue queue) {
+      Queue = queue;
     }
-
-
 
     public string DisplayName { get; set; }
 
@@ -57,12 +50,7 @@ namespace ServiceBusMQ.Model {
       }
     }
 
-    //TODO: Move this to an Queue Object
-    public string QueueDisplayName { get; set; }
-    public string QueueName { get; set; }
-    public QueueType QueueType { get; set; }
-    public string QueueColor { get; set; }
-    public string SelectedQueueColor { get; set; }
+    public Queue Queue { get; private set; }
 
     public string Label { get; set; }
 
@@ -75,7 +63,7 @@ namespace ServiceBusMQ.Model {
       get {
         if( ArrivedTime.Date == DateTime.Today.Date ) {
           return ArrivedTime.ToString("HH:mm:ss");
-        } else return string.Format("{1} {0} - {2}", MONTH_NAMES[ArrivedTime.Month-1], ArrivedTime.Day, ArrivedTime.ToString("HH:mm:ss"));
+        } else return string.Format("{1} {0} - {2}", Tools.MONTH_NAMES_ABBR[ArrivedTime.Month-1], ArrivedTime.Day, ArrivedTime.ToString("HH:mm:ss"));
       }
     }
 
@@ -83,8 +71,8 @@ namespace ServiceBusMQ.Model {
 
     public bool Processed { get; set; }
 
-    public string ImagePath { get { return "Images/" + QueueType + ".png"; } }
-    public string SelectedImagePath { get { return "Images/" + QueueType + ".selected.png"; } }
+    public string ImagePath { get { return "Images/" + Queue.Type + ".png"; } }
+    public string SelectedImagePath { get { return "Images/" + Queue.Type + ".selected.png"; } }
 
     public string Content { get; set; }
 

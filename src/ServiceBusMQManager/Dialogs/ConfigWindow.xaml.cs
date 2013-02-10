@@ -30,7 +30,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Ookii.Dialogs.Wpf;
 using ServiceBusMQ;
+using ServiceBusMQ.Configuration;
 using ServiceBusMQ.Manager;
+using ServiceBusMQ.Model;
 using ServiceBusMQManager.Controls;
 
 namespace ServiceBusMQManager.Dialogs {
@@ -46,14 +48,14 @@ namespace ServiceBusMQManager.Dialogs {
     const int ROW_ASMPATH = 8;
 
     SbmqSystem _sys;
-    SystemConfig1 _config;
+    SystemConfig2 _config;
     MessageBusFactory.ServiceBusManagerType[] _managerTypes;
-    Dictionary<string,string[]> _allQueueNames = new Dictionary<string,string[]>();
+    Dictionary<string, string[]> _allQueueNames = new Dictionary<string, string[]>();
 
     bool _updatingServer = false;
 
 
-    ObservableCollection<ServerConfig> _servers = new ObservableCollection<ServerConfig>();
+    ObservableCollection<ServerConfig2> _servers = new ObservableCollection<ServerConfig2>();
 
 
     public ConfigWindow(SbmqSystem system, bool showSendCommand = false) {
@@ -102,7 +104,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
-    private void BindServers(List<ServerConfig> list) {
+    private void BindServers(List<ServerConfig2> list) {
       _servers.Clear();
 
       list.ForEach(s => _servers.Add(s));
@@ -121,9 +123,9 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private void GetAllAvailableQueueNamesForServer(string name) {
-      
+
       if( !_allQueueNames.ContainsKey(name) ) {
-      
+
         _SetAccessingServer(true);
         UpdateConfigWindowUIState();
 
@@ -139,7 +141,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       }
     }
-    
+
     private void ValidateHeight() {
       var s = WpfScreen.GetScreenFrom(this);
 
@@ -182,7 +184,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     private string[] GetAllQueueNames() {
       var name = _config.CurrentServer.Name;
-       
+
       return _allQueueNames[name];
     }
 
@@ -241,7 +243,7 @@ namespace ServiceBusMQManager.Dialogs {
       if( asmPaths.ItemsCount > 0 ) {
 
         CommandDefinition cmdDef = new CommandDefinition();
-        
+
         if( tbCmdInherits.Text.IsValid() )
           cmdDef.InheritsType = tbCmdInherits.Text;
 
@@ -251,29 +253,29 @@ namespace ServiceBusMQManager.Dialogs {
 
 
         if( _sys.GetAvailableCommands(asmPaths.GetItems(), cmdDef).Length == 0 ) {
-          
-          sb.Append("No commands found "); 
-        
-          if( cmdDef.InheritsType.IsValid() ) 
-            sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40) );
+
+          sb.Append("No commands found ");
+
+          if( cmdDef.InheritsType.IsValid() )
+            sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40));
 
           if( cmdDef.NamespaceContains.IsValid() ) {
-          
-            if( cmdDef.InheritsType.IsValid() ) 
+
+            if( cmdDef.InheritsType.IsValid() )
               sb.Append(" or ");
             else sb.Append("that ");
 
             sb.AppendFormat("contains '{0}' in Namespace", cmdDef.NamespaceContains);
-            
+
           }
 
           sb.Append(", make sure your Command Definition is correct");
         }
 
-      
+
       } else {
         sb.Append("You need to add atleast one assembly path to be able to send commands");
-      
+
       }
 
 
@@ -281,7 +283,7 @@ namespace ServiceBusMQManager.Dialogs {
         lbSendCommandInfo.Text = sb.ToString();
       }
 
-      UpdateInfoBox(sb.Length > 0, animate, ROW_SENDCMD_INFO, ConfigWindow.SendCommandInfoHeightProperty);  
+      UpdateInfoBox(sb.Length > 0, animate, ROW_SENDCMD_INFO, ConfigWindow.SendCommandInfoHeightProperty);
     }
     private void UpdateQueueuInfo(bool animate = true) {
       bool valid = queueCommands.ItemsCount == 0 &&
@@ -297,7 +299,7 @@ namespace ServiceBusMQManager.Dialogs {
       var row = theGrid.RowDefinitions[rowIndex];
 
       if( expand ) {
-        
+
         if( row.Height.Value == 0 ) {
 
           if( animate )
@@ -305,11 +307,11 @@ namespace ServiceBusMQManager.Dialogs {
           else row.Height = new GridLength(70);
         }
 
-      
-      } else { 
+
+      } else {
         if( row.Height.Value > 0 ) {
 
-          if( animate ) 
+          if( animate )
             AnimateControlHeight(row.Height.Value, 0, property);
           else row.Height = new GridLength(0);
         }
@@ -340,11 +342,11 @@ namespace ServiceBusMQManager.Dialogs {
 
         tbInterval.UpdateValue(s.MonitorInterval);
 
-        queueCommands.BindItems(s.WatchCommandQueues);
-        queueEvents.BindItems(s.WatchEventQueues);
-        queueMessages.BindItems(s.WatchMessageQueues);
-        queueErrors.BindItems(s.WatchErrorQueues);
-
+        queueCommands.BindItems(s.MonitorQueues.Where( q => q.Type == QueueType.Command).Select( q => q.Name) );
+        queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(q => q.Name));
+        queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(q => q.Name));
+        queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(q => q.Name));
+        
         _updatingServer = false;
       }
 
@@ -353,17 +355,20 @@ namespace ServiceBusMQManager.Dialogs {
 
 
     private void SaveServerConfig(string name) {
-      var currServer = _config.Servers.Single( s => s.Name == name );
+      var currServer = _config.Servers.Single(s => s.Name == name);
 
       currServer.MessageBus = cbServiceBus.SelectedValue as string;
       currServer.MessageBusQueueType = cbTransport.SelectedItem as string;
 
       currServer.MonitorInterval = (int)tbInterval.RetrieveValue();
 
-      currServer.WatchCommandQueues = queueCommands.GetItems();
-      currServer.WatchEventQueues = queueEvents.GetItems();
-      currServer.WatchMessageQueues = queueMessages.GetItems();
-      currServer.WatchErrorQueues = queueErrors.GetItems();
+      List<QueueConfig> monitorQueues = new List<QueueConfig>();
+      monitorQueues.AddRange(queueCommands.GetItems().Select(n => new QueueConfig(n, QueueType.Command, 0)));
+      monitorQueues.AddRange(queueEvents.GetItems().Select(n => new QueueConfig(n, QueueType.Event, 0)));
+      monitorQueues.AddRange(queueMessages.GetItems().Select(n => new QueueConfig(n, QueueType.Message, 0)));
+      monitorQueues.AddRange(queueErrors.GetItems().Select(n => new QueueConfig(n, QueueType.Error, 0)));
+
+      currServer.MonitorQueues = monitorQueues.ToArray();
     }
 
     private void SaveConfig() {
@@ -434,7 +439,7 @@ namespace ServiceBusMQManager.Dialogs {
       UpdateServerButtonState(string.Empty);
 
       UpdateConfigWindowUIState();
-      
+
 
       tbServer.Focus();
     }
@@ -450,14 +455,14 @@ namespace ServiceBusMQManager.Dialogs {
 
         _prevServerActionVisibility = btnServerAction.Visibility;
         btnServerAction.Visibility = System.Windows.Visibility.Hidden;
-      
+
       } else {
         cbServers.IsEnabled = true;
-        
+
         imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
         btnServerAction.Visibility = _prevServerActionVisibility;
       }
-      
+
       UpdateConfigWindowUIState();
     }
 
@@ -498,15 +503,12 @@ namespace ServiceBusMQManager.Dialogs {
       string name = tbServer.RetrieveValue<string>();
 
       TryAccessServer(name, () => { // Success
-        var s = new ServerConfig();
+        var s = new ServerConfig2();
         s.Name = name;
         s.MonitorInterval = tbInterval.RetrieveValue<int>();
         s.MessageBus = cbServiceBus.SelectedValue as string;
         s.MessageBusQueueType = cbTransport.SelectedItem as string;
-        s.WatchCommandQueues = new string[0];
-        s.WatchEventQueues = new string[0];
-        s.WatchMessageQueues = new string[0];
-        s.WatchErrorQueues = new string[0];
+        s.MonitorQueues = new QueueConfig[0];
 
         _sys.Config.Servers.Add(s);
         _sys.Config.MonitorServer = s.Name;
@@ -562,7 +564,7 @@ namespace ServiceBusMQManager.Dialogs {
         } else onSuccess();
 
         SelectServer(name);
-        
+
         imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
         this.IsEnabled = true;
       };
@@ -632,12 +634,12 @@ namespace ServiceBusMQManager.Dialogs {
     protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
       base.OnPropertyChanged(e);
 
-      if( ReferenceEquals(e.Property, SendCommandInfoHeightProperty) ) 
+      if( ReferenceEquals(e.Property, SendCommandInfoHeightProperty) )
         theGrid.RowDefinitions[ROW_SENDCMD_INFO].Height = new GridLength((double)e.NewValue);
-      
+
       else if( ReferenceEquals(e.Property, QueuesInfoHeightProperty) )
         theGrid.RowDefinitions[ROW_QUEUES_INFO].Height = new GridLength((double)e.NewValue);
-      
+
     }
 
 

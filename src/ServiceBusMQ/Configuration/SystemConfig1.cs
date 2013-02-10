@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ {
 
@@ -26,6 +27,8 @@ namespace ServiceBusMQ {
     public bool Enabled = true;
     public DateTime LastCheck = DateTime.MinValue;
   }
+
+
 
   [Serializable]
   public class ServerConfig {
@@ -41,6 +44,7 @@ namespace ServiceBusMQ {
     public string[] WatchMessageQueues { get; set; }
     public string[] WatchErrorQueues { get; set; }
   }
+
 
 
   [Serializable]

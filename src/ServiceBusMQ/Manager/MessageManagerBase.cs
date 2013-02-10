@@ -36,26 +36,32 @@ namespace ServiceBusMQ.Manager {
 
     protected string _serverName;
 
-    protected string[] _watchEventQueues;
-    protected string[] _watchCommandQueues;
-    protected string[] _watchMessageQueues;
-    protected string[] _watchErrorQueues;
-
-
-    public string[] EventQueues { get { return _watchEventQueues; } }
-    public string[] CommandQueues { get { return _watchCommandQueues; } }
-    public string[] MessageQueues { get { return _watchMessageQueues; } }
-    public string[] ErrorQueues { get { return _watchErrorQueues; } }
+    protected Queue[] _monitorQueues;
+    public Queue[] MonitorQueues { get { return _monitorQueues; } }
 
     protected CommandDefinition _commandDef;
 
+    public bool MonitorCommands {
+      get { return (bool)MonitorQueueTypes[QueueType.Command]; }
+      set { MonitorQueueTypes[QueueType.Command] = value; UpdateItems(QueueType.Command, value); }
+    }
 
-    bool _monitorCommands, _monitorEvents, _monitorMessages, _monitorErrors;
+    public bool MonitorEvents {
+      get { return (bool)MonitorQueueTypes[QueueType.Event]; }
+      set { MonitorQueueTypes[QueueType.Event] = value; UpdateItems(QueueType.Event, value); }
+    }
 
-    public bool MonitorCommands { get { return _monitorCommands; } set { _monitorCommands = value; UpdateItems(QueueType.Command, value); } }
-    public bool MonitorEvents { get { return _monitorEvents; } set { _monitorEvents = value; UpdateItems(QueueType.Event, value); } }
-    public bool MonitorMessages { get { return _monitorMessages; } set { _monitorMessages = value; UpdateItems(QueueType.Message, value); } }
-    public bool MonitorErrors { get { return _monitorErrors; } set { _monitorErrors = value; UpdateItems(QueueType.Error, value); } }
+    public bool MonitorMessages {
+      get { return (bool)MonitorQueueTypes[QueueType.Message]; }
+      set { MonitorQueueTypes[QueueType.Message] = value; UpdateItems(QueueType.Message, value); }
+    }
+
+    public bool MonitorErrors {
+      get { return (bool)MonitorQueueTypes[QueueType.Error]; ; }
+      set { MonitorQueueTypes[QueueType.Error] = value; UpdateItems(QueueType.Error, value); }
+    }
+
+    public System.Collections.Hashtable MonitorQueueTypes { get; private set; }
 
 
     protected EventHandler _itemsChanged;
@@ -77,17 +83,26 @@ namespace ServiceBusMQ.Manager {
     }
 
 
-    public virtual void Init(string serverName, string[] watchCommandQueues, string[] watchEventQueues, string[] watchMessageQueues, string[] watchErrorQueues, CommandDefinition commandDef) {
+    public virtual void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
 
       _serverName = serverName;
-      _watchCommandQueues = watchCommandQueues;
-      _watchEventQueues = watchEventQueues;
-      _watchMessageQueues = watchMessageQueues;
-      _watchErrorQueues = watchErrorQueues;
+      _monitorQueues = monitorQueues;
+
+      MonitorQueueTypes = InitMonitorQueueTypes();
 
       _commandDef = commandDef;
 
       LoadQueues();
+    }
+
+    private System.Collections.Hashtable InitMonitorQueueTypes() {
+      var h = new System.Collections.Hashtable();
+      h.Add(QueueType.Command, true);
+      h.Add(QueueType.Event, true);
+      h.Add(QueueType.Message, false);
+      h.Add(QueueType.Error, true);
+
+      return h;
     }
     public virtual void Dispose() { }
 
@@ -95,7 +110,7 @@ namespace ServiceBusMQ.Manager {
     private void UpdateItems(QueueType type, bool value) {
 
       if( !value )
-        foreach( var itm in _items.Where(i => i.QueueType == type).ToArray() )
+        foreach( var itm in _items.Where(i => i.Queue.Type == type).ToArray() )
           _items.Remove(itm);
     }
 
@@ -133,7 +148,7 @@ namespace ServiceBusMQ.Manager {
 
 
     public void LoadProcessedQueueItems(TimeSpan timeSpan) {
-      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 && _watchErrorQueues.Length == 0 )
+      if( _monitorQueues.Length == 0 )
         return;
 
       List<QueueItem> items = new List<QueueItem>();
@@ -173,7 +188,7 @@ namespace ServiceBusMQ.Manager {
       }
 
       if( changed ) {
-        _items.Sort( (a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime) );
+        _items.Sort((a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime));
 
         OnItemsChanged();
       }
@@ -182,7 +197,7 @@ namespace ServiceBusMQ.Manager {
 
     public void RefreshQueueItems() {
 
-      if( _watchEventQueues.Length == 0 && _watchCommandQueues.Length == 0 && _watchMessageQueues.Length == 0 && _watchErrorQueues.Length == 0 )
+      if( _monitorQueues.Length == 0 )
         return;
 
       List<QueueItem> items = new List<QueueItem>();
@@ -287,8 +302,6 @@ namespace ServiceBusMQ.Manager {
 
 
     public abstract MessageSubscription[] GetMessageSubscriptions(string server);
-
-
 
   }
 

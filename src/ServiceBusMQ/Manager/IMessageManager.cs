@@ -23,9 +23,7 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.Manager {
   public interface IMessageManager : IDisposable {
 
-
-    void Init(string serverName, string[] commandQueues, string[] eventQueues,
-                      string[] messageQueues, string[] errorQueues, CommandDefinition commandDef);
+    void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef);
 
 
     bool IsIgnoredQueueItem(QueueItem itm);
@@ -56,10 +54,7 @@ namespace ServiceBusMQ.Manager {
     string BusQueueType { get; }
 
 
-    string[] EventQueues { get; }
-    string[] CommandQueues { get; }
-    string[] MessageQueues { get; }
-    string[] ErrorQueues { get; }
+    Queue[] MonitorQueues { get; }
 
     bool MonitorCommands { get; set; }
     bool MonitorEvents { get; set; }

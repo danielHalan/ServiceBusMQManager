@@ -86,7 +86,7 @@ namespace ServiceBusMQManager {
       cbServer.SelectedIndex = 0;
 
       var s = _sys.Config.Servers[0];
-      cbQueue.ItemsSource = s.WatchCommandQueues;
+      cbQueue.ItemsSource = s.MonitorQueues.Where( q => q.Type == ServiceBusMQ.Model.QueueType.Command);
       cbQueue.SelectedIndex = 0;
     }
 

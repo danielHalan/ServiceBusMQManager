@@ -176,6 +176,16 @@ namespace ServiceBusMQ {
       return result;
     }
 
+    public static string ToUpperFirst(this string str) {
+      if( !string.IsNullOrEmpty( str ) ) {
+        StringBuilder sb = new StringBuilder(str);
+        sb[0] = char.ToUpper(sb[0]);
+
+        return sb.ToString();
+      
+      } else return str;
+    }
+
     public static string With(this string str, params object[] prms) {
       return string.Format(str, prms);
     }

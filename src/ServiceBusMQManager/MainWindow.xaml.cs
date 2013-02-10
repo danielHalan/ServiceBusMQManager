@@ -385,7 +385,7 @@ namespace ServiceBusMQManager {
     }
 
     private string GetQueueStatusString() {
-      var itemTypes = _mgr.Items.Select( i => i.QueueType ).ToArray();
+      var itemTypes = _mgr.Items.Select( i => i.Queue.Type ).ToArray();
 
       return string.Format(" Commands: {0} \r\n Events: {1} \r\n Messages: {2} \r\n Errors: {3} ",
                   itemTypes.Count(i => i == QueueType.Command),
@@ -415,7 +415,7 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _sys.Manager.Items.Count(i => i.QueueType == type && !i.Processed);
+        int iCount = _sys.Manager.Items.Count(i => i.Queue.Type == type && !i.Processed);
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
@@ -474,9 +474,9 @@ namespace ServiceBusMQManager {
       // Return All error messages
       var mi = (MenuItem)items[6];
       mi.Items.Clear();
-      foreach( var name in _mgr.ErrorQueues ) {
-        var m2 = new MenuItem() { Header = name };
-        m2.Click += (sender, e) => { _mgr.MoveAllErrorItemsToOriginQueue(name); };
+      foreach( var q in _mgr.MonitorQueues.Where( q => q.Type == QueueType.Error ) ) {
+        var m2 = new MenuItem() { Header = q.Name };
+        m2.Click += (sender, e) => { _mgr.MoveAllErrorItemsToOriginQueue(q.Name); };
 
         mi.Items.Add(m2);
       }
@@ -484,9 +484,9 @@ namespace ServiceBusMQManager {
       // Purge all error messages
       mi = (MenuItem)items[7];
       mi.Items.Clear();
-      foreach( var name in _mgr.ErrorQueues ) {
-        var m2 = new MenuItem() { Header = name };
-        m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(name); };
+      foreach( var q in _mgr.MonitorQueues.Where( q => q.Type == QueueType.Error ) ) {
+        var m2 = new MenuItem() { Header = q.Name };
+        m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(q.Name); };
 
         mi.Items.Add(m2);
       }
@@ -507,7 +507,7 @@ namespace ServiceBusMQManager {
       mi = (MenuItem)items[5];
       _UpdateContextMenuItem(mi, itm);
 
-      mi.IsEnabled = ( itm != null && itm.QueueType == QueueType.Error );
+      mi.IsEnabled = ( itm != null && itm.Queue.Type == QueueType.Error );
 
 #if DEBUG
       if( (items[items.Count-1] as MenuItem).Header != "Headers" ) { 

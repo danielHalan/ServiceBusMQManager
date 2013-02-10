@@ -51,7 +51,7 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
-    public void BindItems(string[] items) {
+    public void BindItems(IEnumerable<string> items) {
       theStack.Children.Clear();
       _items.Clear();
 

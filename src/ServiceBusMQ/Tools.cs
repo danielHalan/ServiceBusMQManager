@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,8 +26,17 @@ using Newtonsoft.Json.Linq;
 
 namespace ServiceBusMQ {
   public static class Tools {
+    
+    public static readonly string[] MONTH_NAMES_ABBR = new string[12];
 
     public static Action NOOP { get { return () => { }; } }
+
+
+    static Tools() {
+      for(int i = 0; i < 12; i++ ) {
+        MONTH_NAMES_ABBR[i] = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(i+1).ToUpperFirst();
+      }
+    }
 
 
     public static object GetDefault(Type type) {
@@ -53,7 +63,6 @@ namespace ServiceBusMQ {
             server == "127.0.0.1" ||
           string.Compare(server, Environment.MachineName, true) == 0 );
     }
-
 
 
     public static object CreateNullable(Type baseType, object value) {
