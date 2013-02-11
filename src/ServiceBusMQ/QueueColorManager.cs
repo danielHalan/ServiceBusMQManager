@@ -18,20 +18,23 @@ namespace ServiceBusMQ {
     static Random _rnd = new Random();
 
     static QueueColorManager() {
-    
+
       _unusedColors = new List<int>(COLORS);
 
     }
 
     public static int GetRandomAvailableColor() {
-      int index = _rnd.Next(_unusedColors.Count);
 
-      int color = _unusedColors[index];
-      _unusedColors.Remove(color);
+      if( _unusedColors.Count > 0 ) {
+        int index = _rnd.Next(_unusedColors.Count);
 
-      return color;
-      //return Color.Azure.ToArgb();
+        int color = _unusedColors[index];
+        _unusedColors.Remove(color);
+
+        return color;
+
+      } else return Color.Azure.ToArgb();
     }
-  
+
   }
 }

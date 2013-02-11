@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
@@ -194,8 +195,8 @@ namespace ServiceBusMQ.NServiceBus {
     private void AddQueue(List<MsmqMessageQueue> queues, string _serverName, Queue queue) {
       try {
         queues.Add(new MsmqMessageQueue(_serverName, queue));
-      } catch(Exception e) {
-        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(_serverName, queue.Name), e, false);      
+      } catch( Exception e ) {
+        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(_serverName, queue.Name), e, false);
       }
     }
 
@@ -316,12 +317,11 @@ namespace ServiceBusMQ.NServiceBus {
             }
           } finally {
             msgs.Close();
-            Console.WriteLine("FINISHED");
           }
 
 
         } catch( Exception e ) {
-          OnError("Error occured when processing queue " + qName + ", " + e.Message, e, false);
+          OnError("Error occured when getting processed messages from queue \"" + qName + "\", " + e.Message, e, false);
         }
 
       }
@@ -475,7 +475,7 @@ namespace ServiceBusMQ.NServiceBus {
       OnItemsChanged();
     }
     public override void PurgeErrorAllMessages() {
-      _monitorMsmqQueues.Where( q => q.Queue.Type == QueueType.Error ).ForEach(q => q.Purge());
+      _monitorMsmqQueues.Where(q => q.Queue.Type == QueueType.Error).ForEach(q => q.Purge());
 
       OnItemsChanged();
     }
@@ -507,27 +507,38 @@ namespace ServiceBusMQ.NServiceBus {
     public override Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
       List<Type> arr = new List<Type>();
 
-      
 
-      foreach( var path in asmPaths )
-        foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
+      List<string> nonExistingPaths = new List<string>();
 
-          if( IGNORE_DLL.Any( a => dll.EndsWith(a) ) )
-            continue;
 
-          try {
-            var asm = Assembly.LoadFrom(dll);
+      foreach( var path in asmPaths ) {
 
-            foreach( Type t in asm.GetTypes() ) {
+        if( Directory.Exists(path) ) {
 
-              if( commandDef.IsCommand(t) )
-                arr.Add(t);
+          foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
 
-            }
+            if( IGNORE_DLL.Any(a => dll.EndsWith(a)) )
+              continue;
 
-          } catch { }
+            try {
+              var asm = Assembly.LoadFrom(dll);
 
-        }
+              foreach( Type t in asm.GetTypes() ) {
+
+                if( commandDef.IsCommand(t) )
+                  arr.Add(t);
+
+              }
+
+            } catch { }
+
+          }
+        } else nonExistingPaths.Add(path);
+      }
+
+      if( nonExistingPaths.Count > 0 )
+        OnError("The paths '{0}' doesn't exist, could not search for commands.".With(nonExistingPaths.Concat()), "mgr::GetAvailableCommands", false);
+
 
       return arr.ToArray();
     }
@@ -536,8 +547,6 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     public override void SendCommand(string destinationServer, string destinationQueue, object message) {
-
-
 
       if( Tools.IsLocalHost(destinationServer) )
         destinationServer = null;
