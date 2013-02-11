@@ -34,7 +34,7 @@ namespace ServiceBusMQ.Model {
       byte g = (byte) ((color & 0x00FF00) >> 8);
       byte b = (byte) (color & 0x0000FF);
 
-      return ( Math.Min(r + 40, 0xFF) << 16 ) | ( Math.Min(g + 40, 0xFF) << 8 ) | Math.Min(b + 40, 0xFF);
+      return ( Math.Min(r + 50, 0xFF) << 16 ) | ( Math.Min(g + 50, 0xFF) << 8 ) | Math.Min(b + 50, 0xFF);
     }
 
 
