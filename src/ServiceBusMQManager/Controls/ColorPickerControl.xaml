@@ -10,18 +10,44 @@
              FocusManager.IsFocusScope="True" 
              LostKeyboardFocus="UserControl_LostKeyboardFocus_1" 
              PreviewLostKeyboardFocus="UserControl_PreviewLostKeyboardFocus_1"
-             Height="37" 
+             Height="35" 
    >
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="257*"/>
-            <RowDefinition Height="43*"/>
-        </Grid.RowDefinitions>
-        <Border BorderBrush="#FF959595" BorderThickness="0" Grid.RowSpan="2" Background="Gray" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="88*"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="#FF959595" BorderThickness="0" Background="Gray" Grid.ColumnSpan="2" >
             <Grid>
                 <WrapPanel x:Name="thePanel">
                 </WrapPanel>
             </Grid>
         </Border>
+
+        <Button x:Name="btn" HorizontalAlignment="Stretch" Margin="0,0,0,0" Click="btn_Click_1" Grid.Column="1">
+            <Button.Template>
+                <ControlTemplate>
+                    <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="Gray" >
+                        <DockPanel Margin="0,0,0,0" HorizontalAlignment="Stretch">
+                            <TextBlock Name="lbText" HorizontalAlignment="Center" VerticalAlignment="Center"  Padding="0,0,0,0" Foreground="White" FontSize="22" FontFamily="Arial">
+                               <ContentPresenter Content="X"></ContentPresenter>
+                            </TextBlock>
+                        </DockPanel>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#3D9BFF" TargetName="btnBorder" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="Button.IsPressed" Value="True">
+                            <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
     </Grid>
 </UserControl>

@@ -44,26 +44,29 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-    public static SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Colors.Yellow);
-    public static SolidColorBrush BORDER_UNSELECTED = new SolidColorBrush(Colors.White);
+    private static SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Colors.Yellow);
+    private static SolidColorBrush BORDER_UNSELECTED = new SolidColorBrush(Colors.White);
+    private static Thickness BORDER_THICKNESS_SELECTED = new Thickness(2);
+    private static Thickness BORDER_THICKNESS_UNSELECTED = new Thickness(1);
 
     public void Show(System.Drawing.Color color) {
+
+      SelectedColor = color;
 
       foreach( Border b in thePanel.Children ) {
         var c = (b.Background as SolidColorBrush).Color;
 
         if( c.R == color.R && c.G == color.G && c.B == color.B ) {
-          b.BorderThickness = new Thickness(2);
+          b.BorderThickness = BORDER_THICKNESS_SELECTED;
           b.BorderBrush = BORDER_SELECTED;
         } else {
-          b.BorderThickness = new Thickness(1);
+          b.BorderThickness = BORDER_THICKNESS_UNSELECTED;
           b.BorderBrush = BORDER_UNSELECTED;
         }
       }
 
 
       this.Visibility = System.Windows.Visibility.Visible;
-
     }
 
     private void UserControl_GotFocus_1(object sender, RoutedEventArgs e) {
@@ -160,6 +163,10 @@ namespace ServiceBusMQManager.Controls {
     public System.Drawing.Color SelectedColor {
       get { return (System.Drawing.Color)GetValue(SelectedColorProperty); }
       set { SetValue(SelectedColorProperty, value); }
+    }
+
+    private void btn_Click_1(object sender, RoutedEventArgs e) {
+      HideControl();
     }
 
 
