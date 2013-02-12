@@ -127,7 +127,8 @@ namespace ServiceBusMQManager {
       var ver = App.Info.Version;
       Out(string.Empty);
       Out("===============================================================================");
-      Out("  Service Bus MQ Manager v2.{0}.{1} - (c)2012 ITQ.COM, Daniel Halan http://halan.se".With(ver.Major, ver.Minor.ToString("D2")));
+      Out("  Service Bus MQ Manager v2.{0}.{1} ".With(ver.Major, ver.Minor.ToString("D2")));
+      Out("  (c)2012-2013 ITQ.COM, Daniel Halan http://halan.se");
       Out("===============================================================================");
     }
 

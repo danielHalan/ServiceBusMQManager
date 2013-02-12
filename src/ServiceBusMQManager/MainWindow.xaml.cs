@@ -67,7 +67,7 @@ namespace ServiceBusMQManager {
       InitializeComponent();
 
       var ver = App.Info.Version;
-      lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
+      lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
       
       CreateNotifyIcon();
 
