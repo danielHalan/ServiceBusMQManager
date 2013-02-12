@@ -28,16 +28,16 @@ namespace ServiceBusMQManager.Controls {
 
     private void BindColors() {
 
-      foreach( var color in QueueColorManager.COLORS.Select( c => System.Drawing.Color.FromArgb(c) ) ) {
+      foreach( var color in QueueColorManager.COLORS.Select(c => System.Drawing.Color.FromArgb(c)) ) {
         var b = new Border();
         b.Background = new SolidColorBrush(Color.FromRgb(color.R, color.G, color.B));
         b.Width = b.Height = 20;
-        b.Margin = new Thickness(5,8,0,0);
+        b.Margin = new Thickness(5, 8, 0, 0);
         b.BorderBrush = new SolidColorBrush(Colors.White);
         b.MouseLeftButtonDown += Color_MouseLeftButtonDown;
         b.Cursor = Cursors.Hand;
         b.BorderThickness = new Thickness(1);
-                    
+
         thePanel.Children.Add(b);
       }
 
@@ -53,16 +53,23 @@ namespace ServiceBusMQManager.Controls {
 
       SelectedColor = color;
 
+      Border selected = null;
       foreach( Border b in thePanel.Children ) {
-        var c = (b.Background as SolidColorBrush).Color;
+        var c = ( b.Background as SolidColorBrush ).Color;
 
         if( c.R == color.R && c.G == color.G && c.B == color.B ) {
           b.BorderThickness = BORDER_THICKNESS_SELECTED;
           b.BorderBrush = BORDER_SELECTED;
+          selected = b;
         } else {
           b.BorderThickness = BORDER_THICKNESS_UNSELECTED;
           b.BorderBrush = BORDER_UNSELECTED;
         }
+      }
+
+      if( selected != null ) {
+        thePanel.Children.Remove(selected);
+        thePanel.Children.Insert(0, selected);
       }
 
 
@@ -168,6 +175,7 @@ namespace ServiceBusMQManager.Controls {
     private void btn_Click_1(object sender, RoutedEventArgs e) {
       HideControl();
     }
+
 
 
   }

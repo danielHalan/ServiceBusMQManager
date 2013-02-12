@@ -48,7 +48,7 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
-    ColorPickerControl _colorPicker;
+    ColorPickerControl _colorPicker = null;
 
     int _lastId = 0;
 
@@ -56,17 +56,6 @@ namespace ServiceBusMQManager.Controls {
 
     public QueueListControl() {
       InitializeComponent();
-
-
-      //var c = new ColorPickerControl();
-
-      //c.Margin = new Thickness(0, 0, 0, 0);
-      //c.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-      //c.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-      //c.SelectedColorChanged += c_SelectedColorChanged;
-
-
-      //theGrid.Children.Add(c);
 
       _colorPicker = colorPicker;
     }
@@ -134,13 +123,10 @@ namespace ServiceBusMQManager.Controls {
       var c = sender as QueueListItemControl;
 
       var offset = c.TranslatePoint(new System.Windows.Point(0, 0), theGrid);
-      _colorPicker.Margin = new Thickness(10, offset.Y - theGrid.RowDefinitions[0].ActualHeight, 0, 0);
-      _colorPicker.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+      _colorPicker.Margin = new Thickness(10, (offset.Y+1) - theGrid.RowDefinitions[0].ActualHeight, 0, 0);
       _colorPicker.Tag = c;
       _colorPicker.Show(e.Color);
       
-
-      //e.Handled = true;
     }
 
     private void RecalcControlSize() {
@@ -209,9 +195,9 @@ namespace ServiceBusMQManager.Controls {
     public int ItemsCount { get { return _items.Count; } }
 
     private void colorPicker_SelectedColorChanged(object sender, RoutedEventArgs e) {
-      var itm = colorPicker.Tag as QueueListItemControl;
+      var itm = _colorPicker.Tag as QueueListItemControl;
       
-      itm.UpdateColor(colorPicker.SelectedColor);
+      itm.UpdateColor(_colorPicker.SelectedColor);
 
     }
   }

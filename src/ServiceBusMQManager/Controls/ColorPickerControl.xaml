@@ -17,7 +17,7 @@
             <ColumnDefinition Width="88*"/>
             <ColumnDefinition Width="7*"/>
         </Grid.ColumnDefinitions>
-        <Border BorderBrush="#FF959595" BorderThickness="0" Background="Gray" Grid.ColumnSpan="2" >
+        <Border BorderBrush="#FF959595" BorderThickness="0" Background="#FF8B8B8B" Grid.ColumnSpan="2" >
             <Grid>
                 <WrapPanel x:Name="thePanel">
                 </WrapPanel>
@@ -27,7 +27,7 @@
         <Button x:Name="btn" HorizontalAlignment="Stretch" Margin="0,0,0,0" Click="btn_Click_1" Grid.Column="1">
             <Button.Template>
                 <ControlTemplate>
-                    <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="Gray" >
+                    <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#FF8B8B8B" >
                         <DockPanel Margin="0,0,0,0" HorizontalAlignment="Stretch">
                             <TextBlock Name="lbText" HorizontalAlignment="Center" VerticalAlignment="Center"  Padding="0,0,0,0" Foreground="White" FontSize="22" FontFamily="Arial">
                                <ContentPresenter Content="X"></ContentPresenter>

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ServiceBusMQManager.Controls" 
              
-             mc:Ignorable="d" d:DesignHeight="130.553" Width="259.333" >
+             mc:Ignorable="d" d:DesignHeight="130.553" d:DesignWidth="259.333" >
     <Grid x:Name="theGrid"> 
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -20,7 +20,9 @@
         <Label x:Name="lbEmpty" Content="&lt;&lt; No items >>" Grid.Row="1" Margin="30,-10,0,0" HorizontalContentAlignment="Left" FontStyle="Italic" FontFamily="Segoe UI" FontSize="15" Foreground="#FFBDBDBD" />
         <StackPanel Name="theStack" Grid.Row="1">
         </StackPanel>
-        <local:ColorPickerControl x:Name="colorPicker" Margin="10,3,0,0" VerticalAlignment="Top"  Grid.Row="1" SelectedColorChanged="colorPicker_SelectedColorChanged" Width="Auto" />
+        <local:ColorPickerControl x:Name="colorPicker" Margin="10,3,0,0" HorizontalAlignment="Stretch"  
+                                  VerticalAlignment="Top"  Grid.Row="1"  Width="Auto"
+                                  SelectedColorChanged="colorPicker_SelectedColorChanged"  />
 
     </Grid>
 
