@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="ServiceBusMQManager.Controls.ColorPickerControl"
+             xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls"  
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Width="380"
+             
+             Focusable="True" 
+             FocusManager.IsFocusScope="True" 
+             LostKeyboardFocus="UserControl_LostKeyboardFocus_1" 
+             PreviewLostKeyboardFocus="UserControl_PreviewLostKeyboardFocus_1"
+             Height="37" 
+   >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="257*"/>
+            <RowDefinition Height="43*"/>
+        </Grid.RowDefinitions>
+        <Border BorderBrush="#FF959595" BorderThickness="0" Grid.RowSpan="2" Background="Gray" >
+            <Grid>
+                <WrapPanel x:Name="thePanel">
+                </WrapPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

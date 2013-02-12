@@ -1,4 +1,6 @@
-﻿<UserControl xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls"  x:Class="ServiceBusMQManager.Controls.TimeControl"
+﻿<UserControl 
+    xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls"  
+    x:Class="ServiceBusMQManager.Controls.TimeControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -92,7 +94,7 @@
                 </Button>
 
             </Grid>
-            <Controls:TextInputLabelButton Text="OK" HorizontalAlignment="Left" Margin="181,2,0,0" Grid.Row="1" VerticalAlignment="Top" Width="52" Click="TextInputLabelButton_Click_1" Height="24"/>
+            <Controls:TextInputLabelButton Text="OK" HorizontalAlignment="Left" Margin="181,2,0,0" Grid.Row="1" VerticalAlignment="Top" Width="52" Click="TextInputLabelButton_Click_1" Height="24" />
 
         </Grid>
     </Border>

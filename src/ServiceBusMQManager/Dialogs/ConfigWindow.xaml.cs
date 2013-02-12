@@ -167,16 +167,16 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    private void Queue_AddItem_1(object sender, StringListItemRoutedEventArgs e) {
-      StringListControl s = sender as StringListControl;
+    private void Queue_AddItem_1(object sender, QueueListItemRoutedEventArgs e) {
+      QueueListControl s = sender as QueueListControl;
 
-      SelectQueueDialog dlg = new SelectQueueDialog(_sys, cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().ToList()).ToArray());
+      SelectQueueDialog dlg = new SelectQueueDialog(_sys, cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select( i=>i.Name).ToList()).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
         e.Handled = true;
-        e.Item = dlg.SelectedQueueName;
+        e.Item = new QueueListControl.QueueListItem(dlg.SelectedQueueName, QueueColorManager.GetRandomAvailableColor());
       }
 
 
@@ -188,14 +188,14 @@ namespace ServiceBusMQManager.Dialogs {
       return _allQueueNames[name];
     }
 
-    private void StringListControl_SizeChanged(object sender, SizeChangedEventArgs e) {
-      StringListControl s = sender as StringListControl;
+    private void QueueListControl_SizeChanged(object sender, SizeChangedEventArgs e) {
+      QueueListControl s = sender as QueueListControl;
       var grid = s.Parent as Grid;
 
       int ROW = ROW_QUEUES1;
 
       double[] max = new double[2] { 0, 0 };
-      foreach( var c in grid.Children.OfType<StringListControl>().Where(c => c.Name.StartsWith("queue")) ) {
+      foreach( var c in grid.Children.OfType<QueueListControl>().Where(c => c.Name.StartsWith("queue")) ) {
 
         if( !double.IsNaN(c.Height) ) {
           int row = Grid.GetRow(c) - ROW;
@@ -342,10 +342,14 @@ namespace ServiceBusMQManager.Dialogs {
 
         tbInterval.UpdateValue(s.MonitorInterval);
 
-        queueCommands.BindItems(s.MonitorQueues.Where( q => q.Type == QueueType.Command).Select( q => q.Name) );
-        queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(q => q.Name));
-        queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(q => q.Name));
-        queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(q => q.Name));
+        queueCommands.BindItems(s.MonitorQueues.Where( q => q.Type == QueueType.Command).Select( 
+                                        q => new QueueListControl.QueueListItem(q.Name, q.Color) ) );
+        queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(
+                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+        queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(
+                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+        queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
+                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
         
         _updatingServer = false;
       }
@@ -363,10 +367,10 @@ namespace ServiceBusMQManager.Dialogs {
       currServer.MonitorInterval = (int)tbInterval.RetrieveValue();
 
       List<QueueConfig> monitorQueues = new List<QueueConfig>();
-      monitorQueues.AddRange(queueCommands.GetItems().Select(n => new QueueConfig(n, QueueType.Command, 0)));
-      monitorQueues.AddRange(queueEvents.GetItems().Select(n => new QueueConfig(n, QueueType.Event, 0)));
-      monitorQueues.AddRange(queueMessages.GetItems().Select(n => new QueueConfig(n, QueueType.Message, 0)));
-      monitorQueues.AddRange(queueErrors.GetItems().Select(n => new QueueConfig(n, QueueType.Error, 0)));
+      monitorQueues.AddRange(queueCommands.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Command, n.Color.ToArgb())));
+      monitorQueues.AddRange(queueEvents.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Event, n.Color.ToArgb())));
+      monitorQueues.AddRange(queueMessages.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Message, n.Color.ToArgb())));
+      monitorQueues.AddRange(queueErrors.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Error, n.Color.ToArgb())));
 
       currServer.MonitorQueues = monitorQueues.ToArray();
     }
@@ -644,11 +648,11 @@ namespace ServiceBusMQManager.Dialogs {
 
 
 
-    private void queue_AddedItem(object sender, StringListItemRoutedEventArgs e) {
+    private void queue_AddedItem(object sender, QueueListItemRoutedEventArgs e) {
       UpdateQueueuInfo();
     }
 
-    private void queue_RemovedItem(object sender, StringListItemRoutedEventArgs e) {
+    private void queue_RemovedItem(object sender, QueueListItemRoutedEventArgs e) {
       UpdateQueueuInfo();
     }
 

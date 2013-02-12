@@ -136,29 +136,6 @@ namespace ServiceBusMQManager.Controls {
       HideControl();
     }
 
-    private void UserControl_LostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
-
-
-      if( e.NewFocus is ScrollViewer ) {
-        var pt = Mouse.GetPosition(this);
-
-        if( ( pt.X > 0 && pt.X < this.Width ) &&
-            ( pt.Y > 0 && pt.Y < this.Height ) ) {
-
-          //if( clock.SelectedArm == TimeArm.Hour )
-          //  tbHour.Focus();
-          //else tbMin.Focus();
-
-          return; // ignore ScrollViewer control, as it always selected when moving time-arms
-        }
-      }
-
-      bool isParent = this.IsChildControl((DependencyObject)e.NewFocus);
-
-      if( !isParent )
-        HideControl();
-
-    }
 
     private void HideControl() {
       var hour = _timeOfDay == TimeOfDay.AM ? clock.Hour : ( clock.Hour + 12 ) % 24;
@@ -202,6 +179,29 @@ namespace ServiceBusMQManager.Controls {
     private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
     }
 
+    private void UserControl_LostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
+
+
+      if( e.NewFocus is ScrollViewer ) {
+        var pt = Mouse.GetPosition(this);
+
+        if( ( pt.X > 0 && pt.X < this.Width ) &&
+            ( pt.Y > 0 && pt.Y < this.Height ) ) {
+
+          //if( clock.SelectedArm == TimeArm.Hour )
+          //  tbHour.Focus();
+          //else tbMin.Focus();
+
+          return; // ignore ScrollViewer control, as it always selected when moving time-arms
+        }
+      }
+
+      bool isParent = this.IsChildControl((DependencyObject)e.NewFocus);
+
+      if( !isParent )
+        HideControl();
+
+    }
     private void UserControl_PreviewLostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
 
       if( e.OldFocus == btnTimeOfDay && !this.IsChildControl((DependencyObject)e.NewFocus) ) {

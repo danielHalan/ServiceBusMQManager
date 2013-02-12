@@ -183,8 +183,8 @@
                     <Image Grid.Row="3" HorizontalAlignment="Left" Height="40" Margin="20,15,0,0" VerticalAlignment="Top" Width="44" Source="/ServiceBusMQManager;component/Images/lightbulb-gray.png"/>
 
 
-                    <Controls:StringListControl Grid.Row="4" x:Name="queueCommands"  Title="Command queues"  VerticalAlignment="Top" Margin="20,0,18,0"  AddItem="Queue_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.RowSpan="2" AddedItem="queue_AddedItem" RemovedItem="queue_RemovedItem" />
-                    <Controls:StringListControl Grid.Row="4" x:Name="queueEvents" Title="Event queues" VerticalAlignment="Top" Margin="16,0,20,0"  AddItem="Queue_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.Column="1" Grid.RowSpan="2" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
+                    <Controls:QueueListControl Grid.Row="4" x:Name="queueCommands"  Title="Command queues"  VerticalAlignment="Top" Margin="20,0,18,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" Grid.RowSpan="2" AddedItem="queue_AddedItem" RemovedItem="queue_RemovedItem" />
+                    <Controls:QueueListControl Grid.Row="4" x:Name="queueEvents" Title="Event queues" VerticalAlignment="Top" Margin="16,0,20,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" Grid.Column="1" Grid.RowSpan="2" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
 
 
                     <Rectangle Grid.Row="7" Grid.ColumnSpan="2" Fill="#FFFFFFA2" Height="60" Margin="10,5,10,0" Stroke="White" VerticalAlignment="Top" StrokeThickness="0" />
@@ -193,8 +193,8 @@
 
 
                     <Controls:StringListControl x:Name="asmPaths" Title="Assembly paths" Margin="20,0,20,0" VerticalAlignment="Top" Grid.Row="8" Height="70" SizeChanged="asmPaths_SizeChanged" AddItem="asmPaths_AddItem" Grid.ColumnSpan="2" Grid.RowSpan="3" RemovedItem="asmPaths_RemovedItem" AddedItem="asmPaths_AddedItem"/>
-                    <Controls:StringListControl Grid.Row="5" x:Name="queueMessages"  Title="Messages queues"  VerticalAlignment="Top" Margin="20,10,18,0"  AddItem="Queue_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem" />
-                    <Controls:StringListControl Grid.Row="5" x:Name="queueErrors" Title="Error queues" VerticalAlignment="Top" Margin="16,10,20,0"  AddItem="Queue_AddItem_1" SizeChanged="StringListControl_SizeChanged" Height="80" Grid.Column="1" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
+                    <Controls:QueueListControl Grid.Row="5" x:Name="queueMessages"  Title="Messages queues"  VerticalAlignment="Top" Margin="20,10,18,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem" />
+                    <Controls:QueueListControl Grid.Row="5" x:Name="queueErrors" Title="Error queues" VerticalAlignment="Top" Margin="16,10,20,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" Grid.Column="1" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
                     <Label Content="or" HorizontalAlignment="Left" Margin="32,101,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="10" Height="42" Width="37"/>
                     <Label Content="ms" HorizontalAlignment="Left" Margin="173,104,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="40" FontSize="18"/>
                     <CheckBox x:Name="cCheckForNewVer" Content=" Check for new versions" 

@@ -1,12 +1,12 @@
-﻿<UserControl
+﻿<UserControl x:Class="ServiceBusMQManager.Controls.QueueListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ServiceBusMQManager.Controls" 
-             x:Class="ServiceBusMQManager.Controls.StringListControl" 
+             
              mc:Ignorable="d" d:DesignHeight="130.553" d:DesignWidth="264.666" >
-    <Grid>
+    <Grid x:Name="theGrid"> 
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="193*"/>
@@ -20,6 +20,8 @@
         <Label x:Name="lbEmpty" Content="&lt;&lt; No items >>" Grid.Row="1" Margin="30,-10,0,0" HorizontalContentAlignment="Left" FontStyle="Italic" FontFamily="Segoe UI" FontSize="15" Foreground="#FFBDBDBD" />
         <StackPanel Name="theStack" Grid.Row="1">
         </StackPanel>
+        <local:ColorPickerControl x:Name="colorPicker" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top"  Grid.Row="1" SelectedColorChanged="colorPicker_SelectedColorChanged"/>
 
     </Grid>
+
 </UserControl>

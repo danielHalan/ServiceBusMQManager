@@ -30,11 +30,11 @@ using System.Windows.Shapes;
 namespace ServiceBusMQManager.Controls {
 
 
-  public class DeleteStringListItemDRoutedEventArgs : RoutedEventArgs {
+  public class DeleteStringListItemRoutedEventArgs : RoutedEventArgs {
 
     public int Id { get; set; }
 
-    public DeleteStringListItemDRoutedEventArgs(RoutedEvent e)
+    public DeleteStringListItemRoutedEventArgs(RoutedEvent e)
       : base(e) {
     }
   }
@@ -45,7 +45,7 @@ namespace ServiceBusMQManager.Controls {
   /// Interaction logic for StringListItemControl.xaml
   /// </summary>
   public partial class StringListItemControl : UserControl {
-    
+
     public StringListItemControl(string value, int id) {
       InitializeComponent();
 
@@ -54,12 +54,12 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-    void btnDelete_Click(object sender, RoutedEventArgs e) {
+    private void btnDelete_Click(object sender, RoutedEventArgs e) {
       var btn = sender as RoundMetroButton;
 
-      var e2 = new DeleteStringListItemDRoutedEventArgs(RemovedItemEvent);
+      var e2 = new DeleteStringListItemRoutedEventArgs(RemovedItemEvent);
 
-      e2.Id =  (int)btn.Tag;
+      e2.Id = (int)btn.Tag;
 
       RaiseEvent(e2);
     }
@@ -67,9 +67,9 @@ namespace ServiceBusMQManager.Controls {
 
 
     public static readonly RoutedEvent RemovedItemEvent = EventManager.RegisterRoutedEvent("RemovedItem",
-       RoutingStrategy.Direct, typeof(EventHandler<DeleteStringListItemDRoutedEventArgs>), typeof(StringListItemControl));
+       RoutingStrategy.Direct, typeof(EventHandler<DeleteStringListItemRoutedEventArgs>), typeof(StringListItemControl));
 
-    public event EventHandler<DeleteStringListItemDRoutedEventArgs> RemovedItem {
+    public event EventHandler<DeleteStringListItemRoutedEventArgs> RemovedItem {
       add { AddHandler(RemovedItemEvent, value); }
       remove { RemoveHandler(RemovedItemEvent, value); }
     }

@@ -33,7 +33,8 @@ namespace ServiceBusMQManager.Controls {
 
     public string Item { get; set; }
 
-    public StringListItemRoutedEventArgs(RoutedEvent e): base(e) {
+    public StringListItemRoutedEventArgs(RoutedEvent e)
+      : base(e) {
     }
   }
   
@@ -98,30 +99,7 @@ namespace ServiceBusMQManager.Controls {
       // Visuals
       var g = new StringListItemControl(str, id);
       g.RemovedItem += btnDelete_Click;
-      /*
-      Grid g = new Grid();
-      g.Background = Brushes.Gray;
-      g.Margin = new Thickness(10,1,0,1);
 
-
-      TextBlock tb = new TextBlock();
-      tb.FontSize = 18;
-      tb.Foreground = Brushes.White;
-      tb.FontFamily =  new FontFamily("Calibri");
-      tb.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-      tb.Margin = new Thickness(10,0,43,0);
-      tb.Text = str;
-      g.Children.Add(tb);
-
-      RoundMetroButton btn = new RoundMetroButton();
-      btn.Source = "/ServiceBusMQManager;component/Images/delete-item-white.png";
-      btn.Height = 32;
-      btn.Margin = new Thickness(0, 2, 4, 2);
-      btn.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-      btn.Tag = id;
-      btn.Click += btnDelete_Click;
-      g.Children.Add(btn);
-      */
       theStack.Children.Add(g);
 
       RecalcControlSize();
@@ -132,7 +110,7 @@ namespace ServiceBusMQManager.Controls {
       this.Height = 70 + (40 * _items.Count);
     }
 
-    void btnDelete_Click(object sender, DeleteStringListItemDRoutedEventArgs e) {
+    void btnDelete_Click(object sender, DeleteStringListItemRoutedEventArgs e) {
       var itm = sender as StringListItemControl;
 
       var e2 = new StringListItemRoutedEventArgs(RemovedItemEvent);

@@ -105,16 +105,16 @@ namespace ServiceBusMQ.Configuration {
 
       List<QueueConfig> r = new List<QueueConfig>();
       foreach( string q in commandQueues )
-        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Command, Color = QueueColorManager.GetRandomAvailableColor() });
+        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Command, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
 
       foreach( string q in eventQueues )
-        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Event, Color = QueueColorManager.GetRandomAvailableColor() });
+        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Event, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
 
       foreach( string q in msgQueues )
-        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Message, Color = QueueColorManager.GetRandomAvailableColor() });
+        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Message, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
 
       foreach( string q in errorQueues )
-        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Error, Color = QueueColorManager.GetRandomAvailableColor() });
+        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Error, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
 
       return r.ToArray();
     }

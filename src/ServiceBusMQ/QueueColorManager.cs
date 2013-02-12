@@ -22,7 +22,7 @@ using System.Text;
 namespace ServiceBusMQ {
   public static class QueueColorManager {
 
-    public static readonly int[] COLORS = new int[] { 0xA200FF, 0xFF0097, 0x00ABA9, 0x8CBF26, 0xA05000, 0xE671B8, 0xF09609, 0x1BA1E2, 
+    public static readonly int[] COLORS = new int[] { 0xffffff, 0xA200FF, 0xFF0097, 0x00ABA9, 0x8CBF26, 0xA05000, 0xE671B8, 0xF09609, 0x1BA1E2, 
                                                         0xE51400, // red
                                                         0x339933,
                                                         0x632F00
@@ -38,7 +38,7 @@ namespace ServiceBusMQ {
 
     }
 
-    public static int GetRandomAvailableColor() {
+    public static int GetRandomAvailableColorAsInt() {
 
       if( _unusedColors.Count > 0 ) {
         int index = _rnd.Next(_unusedColors.Count);
@@ -51,5 +51,11 @@ namespace ServiceBusMQ {
       } else return Color.Azure.ToArgb();
     }
 
+    public static Color GetRandomAvailableColor() {
+      return System.Drawing.Color.FromArgb(GetRandomAvailableColorAsInt());
+    }
+
   }
+
+
 }
