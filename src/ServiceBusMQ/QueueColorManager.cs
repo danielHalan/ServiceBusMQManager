@@ -22,10 +22,21 @@ using System.Text;
 namespace ServiceBusMQ {
   public static class QueueColorManager {
 
-    public static readonly int[] COLORS = new int[] { 0xffffff, 0xA200FF, 0xFF0097, 0x00ABA9, 0x8CBF26, 0xA05000, 0xE671B8, 0xF09609, 0x1BA1E2, 
-                                                        0xE51400, // red
-                                                        0x339933,
-                                                        0x632F00
+    public static readonly int[] COLORS = new int[] { 0xffffff, 0xC9C9C9, // white & Gray
+                                      0xfef200, // yellow
+                                      0xA200FF, // purple
+                                      0xE671B8, // pink light 
+                                      0xFF0097, // pink dark 
+                                      0xDC572E, // orange
+                                      0xF09609, // orange brown 
+                                      0xA05000, // brown 
+                                      0x632F00, // brown dark
+                                      0x8CBF26, // lime green 
+                                      0x339933, // dark green
+                                      0x0E97FF, // azure
+                                      0x0000fe, // blue
+                                      0x0100a6, // blue dark
+                                      0xE51400  // red
     };
 
     static List<int> _unusedColors;
