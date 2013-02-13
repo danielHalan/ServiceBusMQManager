@@ -47,6 +47,7 @@
                        Padding="50,10,10,10" FontFamily="Calibri" FontSize="16" Grid.Row="1" >
                 <TextBlock.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Copy Message to Clipboard" Click="CopyMessage_Click" />
                         <MenuItem Header="Copy Stack Trace to Clipboard" Click="CopyCallStack_Click" />
                     </ContextMenu>
                 </TextBlock.ContextMenu>

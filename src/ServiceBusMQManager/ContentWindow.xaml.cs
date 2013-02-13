@@ -156,5 +156,8 @@ namespace ServiceBusMQManager {
     private void CopyCallStack_Click(object sender, RoutedEventArgs e) {
       Clipboard.SetData(DataFormats.Text, imgStackTrace.ToolTip);
     }
+    private void CopyMessage_Click(object sender, RoutedEventArgs e) {
+      Clipboard.SetData(DataFormats.Text, lbError.Text);
+    }
   }
 }
