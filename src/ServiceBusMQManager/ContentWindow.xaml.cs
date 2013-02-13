@@ -43,11 +43,13 @@ namespace ServiceBusMQManager {
   public partial class ContentWindow : Window {
 
 
-    readonly SolidColorBrush BACKGROUND_ERROR = new SolidColorBrush(Color.FromRgb(173, 28, 59));
-    readonly SolidColorBrush BACKGROUND_WARNING = new SolidColorBrush(Color.FromRgb(158, 153, 8)); // #C9C42A
+    readonly SolidColorBrush ERROR_BACKGROUND = new SolidColorBrush(Color.FromRgb(173, 28, 59));
+    readonly SolidColorBrush ERROR_SPLITHANDLE = new SolidColorBrush(Color.FromRgb(227, 152, 168)); // #E398A8
+    readonly SolidColorBrush WARNING_BACKGROUND = new SolidColorBrush(Color.FromRgb(130, 128, 62)); // #82803E
+    readonly SolidColorBrush WARNING_SPLITHANDLE = new SolidColorBrush(Color.FromRgb(176, 175, 134)); // #B0AF86
 
-    readonly BitmapImage BMP_WARNING = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/warning-white.png", UriKind.Relative));
-    readonly BitmapImage BMP_ERROR = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/Error.selected.png", UriKind.Relative));
+    readonly BitmapImage WARNING_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/warning-white.png", UriKind.Relative));
+    readonly BitmapImage ERROR_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/Error.selected.png", UriKind.Relative));
 
 
     private HwndSource _hwndSource;
@@ -107,18 +109,20 @@ namespace ServiceBusMQManager {
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);
         lbError.Text = errorMsg.Message;
+        imgStackTrace.ToolTip = errorMsg.StackTrace;
         lbRetries.Text = errorMsg.Retries.ToString();
 
         if( errorMsg.State == QueueItemErrorState.Retry ) {
-          imgError.Source = BMP_WARNING;
-
-          lbError.Background = BACKGROUND_WARNING;
-          lbRetries.Foreground = BACKGROUND_WARNING;
+          imgError.Source = WARNING_BMP;
+          lbError.Background = WARNING_BACKGROUND;
+          gsError.Background = WARNING_SPLITHANDLE;
+          lbRetries.Foreground = WARNING_BACKGROUND;
         
         } else {
-          imgError.Source = BMP_ERROR;
-          lbError.Background = BACKGROUND_ERROR;
-          lbRetries.Foreground = BACKGROUND_ERROR;
+          imgError.Source = ERROR_BMP;
+          lbError.Background = ERROR_BACKGROUND;
+          gsError.Background = ERROR_SPLITHANDLE;
+          lbRetries.Foreground = ERROR_BACKGROUND;
         }
 
 
@@ -147,6 +151,10 @@ namespace ServiceBusMQManager {
 
     private void frmContent_Activated_1(object sender, EventArgs e) {
       App.Current.MainWindow.EnsureVisibility();
+    }
+
+    private void CopyCallStack_Click(object sender, RoutedEventArgs e) {
+      Clipboard.SetData(DataFormats.Text, imgStackTrace.ToolTip);
     }
   }
 }

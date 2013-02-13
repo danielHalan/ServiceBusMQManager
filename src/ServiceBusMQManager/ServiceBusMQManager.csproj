@@ -499,6 +499,8 @@
     <Resource Include="Images\doc.xml-white.png" />
     <Resource Include="Images\history-white.png" />
     <Resource Include="Images\history.png" />
+    <Resource Include="Images\StackTrace-white.png" />
+    <Resource Include="Images\StackTrace.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
