@@ -496,15 +496,16 @@ namespace ServiceBusMQManager {
       var items = lbItems.ContextMenu.Items;
 
       // Copy to Clipboard
-      _UpdateContextMenuItem((MenuItem)items[0], itm);
+      _UpdateContextMenuItem(miCopyMsgId, itm);
+      _UpdateContextMenuItem(miCopyMsgContent, itm);
 
       // Remove message
-      var mi = (MenuItem)items[2];
-      _UpdateContextMenuItem((MenuItem)items[2], itm);
+      var mi = miPurgeMsg;
+      _UpdateContextMenuItem(mi, itm);
       mi.IsEnabled = itm != null && !itm.Processed;
 
       // Return Error Message to Origin
-      mi = (MenuItem)items[5];
+      mi = (MenuItem)miReturnErrToOrgin;
       _UpdateContextMenuItem(mi, itm);
 
       mi.IsEnabled = ( itm != null && itm.Queue.Type == QueueType.Error );
@@ -794,6 +795,11 @@ namespace ServiceBusMQManager {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
       Clipboard.SetData(DataFormats.Text, itm.Id);
+    }
+    private void miCopyMessageContent_Click(object sender, RoutedEventArgs e) {
+      QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
+
+      Clipboard.SetData(DataFormats.Text, itm.Content);
     }
     private void miDeleteMessage_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
