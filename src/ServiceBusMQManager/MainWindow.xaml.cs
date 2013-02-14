@@ -477,7 +477,7 @@ namespace ServiceBusMQManager {
       mi.Items.Clear();
       foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
         var m2 = new MenuItem() { Header = q.Name };
-        m2.Click += (sender, e) => { _mgr.MoveAllErrorItemsToOriginQueue(q.Name); };
+        m2.Click += (sender, e) => { _mgr.MoveAllErrorMessagesToOriginQueue(q.Name); };
 
         mi.Items.Add(m2);
       }
@@ -792,7 +792,7 @@ namespace ServiceBusMQManager {
     private void miReturnErrorMsg_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
-      _mgr.MoveErrorItemToOriginQueue(itm);
+      _mgr.MoveErrorMessageToOriginQueue(itm);
     }
     private void miCopyMessageID_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;

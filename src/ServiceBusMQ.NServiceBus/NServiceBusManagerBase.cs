@@ -66,7 +66,7 @@ namespace ServiceBusMQ.NServiceBus {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
-    public void MoveErrorItemToOriginQueue(QueueItem itm) {
+    public void MoveErrorMessageToOriginQueue(QueueItem itm) {
       if( string.IsNullOrEmpty(itm.Id) )
         throw new ArgumentException("MessageId can not be null or empty");
 
@@ -82,7 +82,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       mgr.ReturnMessageToSourceQueue(itm.Id);
     }
-    public void MoveAllErrorItemsToOriginQueue(string errorQueue) {
+    public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager();
 
       // TODO:
@@ -181,8 +181,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public abstract MessageContentFormat MessageContentFormat { get; }
 
-    public abstract IEnumerable<QueueItem> GetUnprocessedQueueItems(QueueType type, IEnumerable<QueueItem> currentItems);
-    public abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
+    public abstract IEnumerable<QueueItem> GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
+    public abstract IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
 
     public abstract void PurgeMessage(QueueItem itm);
     public abstract void PurgeAllMessages();

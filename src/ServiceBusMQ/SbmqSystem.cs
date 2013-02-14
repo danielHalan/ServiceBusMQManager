@@ -108,7 +108,7 @@ namespace ServiceBusMQ {
 
       IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        items.AddRange(_mgr.GetUnprocessedQueueItems(t, currentItems));
+        items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
 
       // Newest first
       if( items.Count > 1 )
@@ -169,7 +169,7 @@ namespace ServiceBusMQ {
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         if( MonitorQueueType[(int)t] )
-          items.AddRange(_mgr.GetProcessedQueueItems(t, since, _items.AsEnumerable<QueueItem>()));
+          items.AddRange(_mgr.GetProcessedMessages(t, since, _items.AsEnumerable<QueueItem>()));
 
       bool changed = false;
       lock( _itemsLock ) {

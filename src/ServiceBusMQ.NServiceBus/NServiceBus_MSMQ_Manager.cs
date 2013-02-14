@@ -232,7 +232,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override IEnumerable<Model.QueueItem> GetUnprocessedQueueItems(QueueType type, IEnumerable<QueueItem> currentItems) {
+    public override IEnumerable<Model.QueueItem> GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
       var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == type);
 
       if( queues.Count() == 0 )
@@ -270,7 +270,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
+    public override IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
       List<QueueItem> r = new List<QueueItem>();
 
       var queues = GetQueueListByType(type);
