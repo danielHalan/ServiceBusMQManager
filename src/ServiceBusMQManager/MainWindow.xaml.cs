@@ -544,7 +544,7 @@ namespace ServiceBusMQManager {
         }
 
         
-        _dlg.SetContent(_mgr.LoadMessageContent(itm), _mgr.MessageContentFormat, itm.Error);
+        _dlg.SetContent(_mgr.GetMessageContent(itm), _mgr.MessageContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
 
         if( !_dlgShown ) {

@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ServiceBusMQ.Model;
+using ServiceBusMQ.ViewModel;
 
 namespace ServiceBusMQ.Manager {
 
@@ -30,9 +31,9 @@ namespace ServiceBusMQ.Manager {
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
     protected volatile object _itemsLock = new object();
-    protected volatile List<QueueItem> _items = new List<QueueItem>();
+    protected volatile List<QueueItemViewModel> _items = new List<QueueItemViewModel>();
 
-    public List<QueueItem> Items { get { return _items; } }
+    public List<QueueItemViewModel> Items { get { return _items; } }
 
     protected string _serverName;
 
@@ -144,7 +145,7 @@ namespace ServiceBusMQ.Manager {
       return false;
     }
 
-    protected abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
 
 
     public void LoadProcessedQueueItems(TimeSpan timeSpan) {
@@ -162,7 +163,7 @@ namespace ServiceBusMQ.Manager {
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         if( IsMonitoring(t) )
-          items.AddRange(GetProcessedQueueItems(t, since, _items));
+          items.AddRange(GetProcessedQueueItems(t, since, _items.AsEnumerable<QueueItem>()));
 
       bool changed = false;
       lock( _itemsLock ) {
@@ -171,7 +172,7 @@ namespace ServiceBusMQ.Manager {
         foreach( var itm in items )
           if( !_items.Any(i => i.Id == itm.Id) ) {
 
-            _items.Insert(0, itm);
+            _items.Insert(0, new QueueItemViewModel(itm));
             changed = true;
           }
 
@@ -224,15 +225,15 @@ namespace ServiceBusMQ.Manager {
 
           if( existingItem == null ) {
 
-            _items.Insert(0, itm);
+            _items.Insert(0, new QueueItemViewModel(itm));
             changed = true;
 
           } else if( existingItem.Processed ) {
 
-            _items.Remove(itm);
+            _items.Remove(existingItem);
             itm.Processed = false;
 
-            _items.Insert(0, itm);
+            _items.Insert(0, new QueueItemViewModel(itm));
             changed = true;
           }
 
@@ -262,14 +263,11 @@ namespace ServiceBusMQ.Manager {
     }
 
 
-    protected abstract IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> FetchQueueItems(QueueType type, IEnumerable<QueueItem> currentItems);
 
-    public abstract string LoadMessageContent(QueueItem itm);
+    public abstract string GetMessageContent(QueueItem itm);
 
     public abstract MessageContentFormat MessageContentFormat { get; }
-
-    public abstract bool IsIgnoredQueue(string queueName);
-    public abstract bool IsIgnoredQueueItem(QueueItem itm);
 
 
     public abstract void PurgeMessage(QueueItem itm);

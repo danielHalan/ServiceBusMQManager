@@ -75,6 +75,8 @@
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="CommandHistoryManager.cs" />
     <Compile Include="ListExtensions.cs" />
+    <Compile Include="Manager\IServiceBusDiscovery.cs" />
+    <Compile Include="Manager\IServiceBusManager.cs" />
     <Compile Include="Manager\MessageContentFormat.cs" />
     <Compile Include="Manager\ISendCommand.cs" />
     <Compile Include="Manager\IViewSubscriptions.cs" />
@@ -108,6 +110,7 @@
     <Compile Include="Tools.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Configuration\UIStateConfig.cs" />
+    <Compile Include="ViewModel\QueueItemModel.cs" />
     <Compile Include="Web References\HalanService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

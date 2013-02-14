@@ -28,6 +28,7 @@ using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using System.Reflection;
 using ServiceBusMQ;
+using ServiceBusMQ.ViewModel;
 
 namespace ServiceBusMQ.NServiceBus {
 
@@ -51,10 +52,10 @@ namespace ServiceBusMQ.NServiceBus {
 
     private static readonly string NSERVICEBUS_INFRA_MESSAGE = "NServiceBus.Unicast.Transport.CompletionMessage";
 
-    public override bool IsIgnoredQueueItem(QueueItem itm) {
+    public bool IsIgnoredQueueItem(QueueItem itm) {
       return ( itm.MessageNames.Length == 1 && itm.MessageNames[0] == NSERVICEBUS_INFRA_MESSAGE );
     }
-    public override bool IsIgnoredQueue(string queueName) {
+    public bool IsIgnoredQueue(string queueName) {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
@@ -92,10 +93,10 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IList<QueueItem> currentItems) {
+    protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IEnumerable<QueueItem> currentItems) {
       return DoFetchQueueItems(GetQueueListByType(type), currentItems);
     }
-    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues,  IList<QueueItem> currentItems);
+    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, IEnumerable<QueueItem> currentItems);
 
     protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
       return _monitorMsmqQueues.Where( q => q.Queue.Type == type );

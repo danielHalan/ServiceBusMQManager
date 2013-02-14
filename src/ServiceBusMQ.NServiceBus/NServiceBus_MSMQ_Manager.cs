@@ -33,6 +33,7 @@ using NServiceBus;
 using NServiceBus.Utils;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using System.Reflection;
+using ServiceBusMQ.ViewModel;
 
 
 namespace ServiceBusMQ.NServiceBus {
@@ -148,7 +149,9 @@ namespace ServiceBusMQ.NServiceBus {
 
           var itm = CreateQueueItem(q, msg);
 
-          AddQueueItem(_items, itm);
+          // TODO: Refactor, should not use internal _items list
+          if( PrepareQueueItemForAdd(itm) )
+            _items.Insert(0, new QueueItemViewModel(itm));
 
           OnItemsChanged();
 
@@ -246,7 +249,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected override IEnumerable<Model.QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, IList<Model.QueueItem> currentItems) {
+    protected override IEnumerable<Model.QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, IEnumerable<QueueItem> currentItems) {
       if( queues.Count() == 0 )
         return EMPTY_LIST;
 
@@ -268,7 +271,9 @@ namespace ServiceBusMQ.NServiceBus {
             if( itm == null )
               itm = CreateQueueItem(q.Queue, msg);
 
-            AddQueueItem(r, itm);
+            if( PrepareQueueItemForAdd(itm) )
+              r.Insert(0, itm);
+
           }
         } catch( Exception e ) {
           OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
@@ -280,7 +285,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IList<QueueItem> currentItems) {
+    protected override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
       List<QueueItem> r = new List<QueueItem>();
 
       var queues = GetQueueListByType(type);
@@ -311,7 +316,8 @@ namespace ServiceBusMQ.NServiceBus {
                   itm.Processed = true;
                 }
 
-                AddQueueItem(r, itm);
+                if( PrepareQueueItemForAdd(itm) ) 
+                  r.Insert(0, itm);
 
               }
             }
@@ -330,14 +336,16 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    private void AddQueueItem(List<QueueItem> r, QueueItem itm) {
+    private bool PrepareQueueItemForAdd(QueueItem itm) {
       itm.MessageNames = GetMessageNames(itm.Content, true);
 
       if( !IsIgnoredQueueItem(itm) ) {
-        itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.Label).CutEnd(55);
+        itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.DisplayName).CutEnd(55);
 
-        r.Insert(0, itm);
+        return true;
       }
+
+      return false;
     }
 
     private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
@@ -345,7 +353,6 @@ namespace ServiceBusMQ.NServiceBus {
     private QueueItem CreateQueueItem(Queue queue, Message msg) {
       var itm = new QueueItem(queue);
       itm.DisplayName = msg.Label;
-      itm.Label = msg.Label;
       itm.Id = msg.Id;
       itm.ArrivedTime = msg.ArrivedTime;
       itm.Content = ReadMessageStream(msg.BodyStream);
@@ -402,7 +409,7 @@ namespace ServiceBusMQ.NServiceBus {
       return _monitorMsmqQueues.Single(i => i.Queue.Type == itm.Queue.Type && i.Queue.Name == itm.Queue.Name);
     }
 
-    public override string LoadMessageContent(QueueItem itm) {
+    public override string GetMessageContent(QueueItem itm) {
       if( itm.Content == null ) {
 
         MessageQueue mq = GetMessageQueue(itm);

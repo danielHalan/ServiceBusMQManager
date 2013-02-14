@@ -19,23 +19,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ServiceBusMQ.Model;
+using ServiceBusMQ.ViewModel;
 
 namespace ServiceBusMQ.Manager {
   public interface IMessageManager : IDisposable {
 
     void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef);
 
-
-    bool IsIgnoredQueueItem(QueueItem itm);
+    MessageContentFormat MessageContentFormat { get; }
 
     void MoveErrorItemToOriginQueue(QueueItem itm);
     void MoveAllErrorItemsToOriginQueue(string errorQueue);
 
-    bool IsIgnoredQueue(string queueName);
 
-    MessageContentFormat MessageContentFormat { get; }
-
-    string LoadMessageContent(QueueItem itm);
+    string GetMessageContent(QueueItem itm);
 
     string[] GetAllAvailableQueueNames(string server);
     bool CanAccessQueue(string server, string queueName);
@@ -62,7 +59,7 @@ namespace ServiceBusMQ.Manager {
     bool MonitorErrors { get; set; }
 
 
-    List<QueueItem> Items { get; }
+    List<QueueItemViewModel> Items { get; }
 
 
     event EventHandler ItemsChanged;
