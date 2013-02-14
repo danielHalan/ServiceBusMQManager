@@ -30,6 +30,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using ServiceBusMQ;
+using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQManager.Dialogs {
   /// <summary>
@@ -198,7 +199,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 
-      LoadSubscriptionTypes((e.AddedItems[0] as ServerConfig).Name);
+      LoadSubscriptionTypes((e.AddedItems[0] as ServerConfig2).Name);
     }
 
 

@@ -80,7 +80,7 @@ namespace ServiceBusMQManager {
           }
 
         } finally {
-          sys.Manager.Dispose();
+          //sys.Manager.Dispose();
         }
 
         Application.Current.Shutdown(0);

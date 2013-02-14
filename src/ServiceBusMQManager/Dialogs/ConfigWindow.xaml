@@ -107,8 +107,8 @@
                     <Controls:RoundMetroButton x:Name="btnServerAction" Grid.Row="1" VerticalAlignment="Top" Click="ServerAction_Click" Height="33"
                 		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,38,9,0" HorizontalAlignment="Right" Width="30" />
 
-                    <Image x:Name="imgServerLoading" Grid.Column="1" HorizontalAlignment="Left" Height="32" Margin="3,37,0,0" Grid.Row="1" 
-                		VerticalAlignment="Top" Width="32"  Visibility="Hidden"
+                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Left" Height="32" Margin="307,37,0,0" Grid.Row="1" 
+                		VerticalAlignment="Top" Width="32"  Visibility="Visible"
                 		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading.gif" />
 
                     <Controls:TextInputControl x:Name="tbServer" 

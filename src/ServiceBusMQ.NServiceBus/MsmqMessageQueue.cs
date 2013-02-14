@@ -36,27 +36,14 @@ namespace ServiceBusMQ.NServiceBus {
 
     public MsmqMessageQueue(string serverName, Queue queue) { 
       Queue = queue;
-      
-      Main = CreateMessageQueue(serverName, queue.Name, QueueAccessMode.ReceiveAndAdmin);
-      if( Main.UseJournalQueue )
+
+      Main = Msmq.Create(serverName, queue.Name, QueueAccessMode.ReceiveAndAdmin);
+      if( Main.UseJournalQueue ) // Error when trying to use FormatName, strange as it should work according to MSDN. Temp solution for now.
         Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", serverName, queue.Name));
     }
 
     public static implicit operator MessageQueue(MsmqMessageQueue q) {
       return q.Main;
-    }
-
-
-    private MessageQueue CreateMessageQueue(string serverName, string queueName, QueueAccessMode accessMode) {
-      if( !queueName.StartsWith("private$\\") )
-        queueName = "private$\\" + queueName;
-
-      queueName = string.Format("FormatName:DIRECT=OS:{0}\\{1}", !Tools.IsLocalHost(serverName) ? serverName : ".", queueName);
-
-      return new MessageQueue(queueName, false, true, accessMode);
-    }
-    private MessageQueue CreateMessageQueue(string queueFormatName, QueueAccessMode accessMode) {
-      return new MessageQueue(queueFormatName, false, true, accessMode);
     }
 
 

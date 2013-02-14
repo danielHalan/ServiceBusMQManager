@@ -27,20 +27,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using ServiceBusMQ;
+using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQManager.Dialogs {
   /// <summary>
   /// Interaction logic for SelectQueueDialog.xaml
   /// </summary>
   public partial class SelectQueueDialog : Window {
-    
-    SbmqSystem _sys;
+
+    IServiceBusDiscovery _disc;
     string _server;
 
-    public SelectQueueDialog(SbmqSystem system, string server, string[] queueNames) {
+    public SelectQueueDialog(IServiceBusDiscovery discovery, string server, string[] queueNames) {
       InitializeComponent();
 
-      _sys = system;
+      _disc = discovery;
       _server = server;
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
@@ -87,7 +88,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void lbQueues_SelectionChanged(object sender, SelectionChangedEventArgs e) {
     
       if( lbQueues.SelectedItem != null ) {
-        if( !_sys.Manager.CanAccessQueue(_server, lbQueues.SelectedItem as string ) ) {
+        if( !_disc.CanAccessQueue(_server, lbQueues.SelectedItem as string ) ) {
           lbInfo.Content = "You don't have read access to queue " + lbQueues.SelectedItem;
           btnOK.IsEnabled = false;
 

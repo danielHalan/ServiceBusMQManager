@@ -59,8 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ErrorManager.cs" />
+    <Compile Include="Msmq.cs" />
     <Compile Include="MsmqExtensions.cs" />
     <Compile Include="MsmqMessageQueue.cs" />
+    <Compile Include="NServiceBusDiscovery.cs" />
     <Compile Include="NServiceBusManagerBase.cs" />
     <Compile Include="NServiceBus_MSMQ_JSON_Manager.cs" />
     <Compile Include="NServiceBus_MSMQ_Manager.cs" />

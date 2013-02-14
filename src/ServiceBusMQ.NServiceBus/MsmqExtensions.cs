@@ -26,6 +26,7 @@ namespace ServiceBusMQ.NServiceBus {
     public static string GetDisplayName(this MessageQueue queue) {
       return queue.FormatName.Substring( queue.FormatName.LastIndexOf('\\') + 1 );
     }
-  
+
+
   }
 }

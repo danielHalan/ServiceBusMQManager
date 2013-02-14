@@ -213,7 +213,6 @@
     <Compile Include="Dialogs\ViewSubscriptionsWindow.xaml.cs">
       <DependentUpon>ViewSubscriptionsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\QueueItemModel.cs" />
     <Compile Include="SendCommandWindow.xaml.cs">
       <DependentUpon>SendCommandWindow.xaml</DependentUpon>
     </Compile>

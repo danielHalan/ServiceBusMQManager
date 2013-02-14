@@ -26,7 +26,7 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.NServiceBus {
   public class NServiceBus_MSMQ_JSON_Manager : NServiceBus_MSMQ_Manager {
 
-    public override string BusQueueType { get { return "MSMQ (JSON)"; } }
+    public override string TransportationName { get { return "MSMQ (JSON)"; } }
 
     public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
       base.Init(serverName, monitorQueues, commandDef);
@@ -35,7 +35,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override void SetupBus(string[] assemblyPaths) {
+    public override void SetupServiceBus(string[] assemblyPaths) {
 
       List<Assembly> asms = new List<Assembly>();
 
@@ -51,7 +51,7 @@ namespace ServiceBusMQ.NServiceBus {
 
 
       _bus = Configure.With(asms)
-                .DefineEndpointName("SBMQM_NSB")
+                .DefineEndpointName("SBMQM_NSB_JSON")
                 .DefaultBuilder()
         //.MsmqSubscriptionStorage()
           .DefiningCommandsAs(t => _commandDef.IsCommand(t))

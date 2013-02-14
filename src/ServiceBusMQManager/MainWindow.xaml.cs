@@ -50,11 +50,11 @@ namespace ServiceBusMQManager {
     private static readonly List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
     private SbmqSystem _sys;
-    private IMessageManager _mgr;
+    private IServiceBusManager _mgr;
     private UIStateConfig _uiState;
 
     private System.Windows.Forms.NotifyIcon _notifyIcon;
-    
+
     private bool _isMinimized;
 
     bool _firstLoad = true;
@@ -68,7 +68,7 @@ namespace ServiceBusMQManager {
 
       var ver = App.Info.Version;
       lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
-      
+
       CreateNotifyIcon();
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
@@ -124,19 +124,19 @@ namespace ServiceBusMQManager {
 
       _uiState = SbmqSystem.UIState;
       RestoreWindowState();
-      
+
       this.IsEnabled = false;
       lbLoading.Visibility = System.Windows.Visibility.Visible;
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s,e) => {       
+      w.DoWork += (s, e) => {
         _sys = SbmqSystem.Create();
         _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
         _mgr = _sys.Manager;
       };
 
-      w.RunWorkerCompleted += (s,e) => { 
+      w.RunWorkerCompleted += (s, e) => {
 
         RestoreQueueButtonsState();
         this.IsEnabled = true;
@@ -146,17 +146,17 @@ namespace ServiceBusMQManager {
         btnSendCommand.IsEnabled = _sys.CanSendCommand;
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
-        lbItems.ItemsSource = _mgr.Items;
+        lbItems.ItemsSource = _sys.Items;
 
         SetupContextMenu();
 
         SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
 
         _notifyIcon.Text = GetQueueStatusString();
-        
+
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
-        
+
         } else if( _sys.Config.VersionCheck.Enabled ) {
           if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
             CheckIfLatestVersion(false);
@@ -170,21 +170,21 @@ namespace ServiceBusMQManager {
     private void RestartSystem() {
       _timer.Stop();
 
-      if( _sys != null )
-        _sys.Manager.Dispose();
+      //if( _sys != null )
+      //  _sys.Manager.Dispose();
 
       this.IsEnabled = false;
       lbItems.ItemsSource = null;
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s,e) => {       
+      w.DoWork += (s, e) => {
         _sys = SbmqSystem.Create();
         _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
         _mgr = _sys.Manager;
       };
 
-      w.RunWorkerCompleted += (s,e) => {
+      w.RunWorkerCompleted += (s, e) => {
 
         this.IsEnabled = true;
         RestoreMonitorQueueState();
@@ -192,7 +192,7 @@ namespace ServiceBusMQManager {
         btnSendCommand.IsEnabled = _sys.CanSendCommand;
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
-        lbItems.ItemsSource = _mgr.Items;
+        lbItems.ItemsSource = _sys.Items;
 
         timer_Tick(this, EventArgs.Empty);
 
@@ -204,10 +204,11 @@ namespace ServiceBusMQManager {
     }
 
     private void RestoreMonitorQueueState() {
-      _mgr.MonitorCommands = btnCmd.IsChecked == true;
-      _mgr.MonitorEvents = btnEvent.IsChecked == true;
-      _mgr.MonitorMessages = btnMsg.IsChecked == true;
-      _mgr.MonitorErrors = btnError.IsChecked == true;
+      
+      _sys.MonitorCommands = btnCmd.IsChecked == true;
+      _sys.MonitorEvents = btnEvent.IsChecked == true;
+      _sys.MonitorMessages = btnMsg.IsChecked == true;
+      _sys.MonitorErrors = btnError.IsChecked == true;
     }
 
 
@@ -217,7 +218,7 @@ namespace ServiceBusMQManager {
       if( startedByUser ) {
         miCheckVersion.IsEnabled = false;
         cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_RunWorkerCompleted);
-      
+
       } else cvt.RunWorkerCompleted += new RunWorkerCompletedEventHandler(cvt_HiddenRunWorkerCompleted);
 
       List<CheckVersionObject> list = new List<CheckVersionObject>();
@@ -234,7 +235,7 @@ namespace ServiceBusMQManager {
 
     void cvt_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
 
-      
+
       if( e.Error == null ) {
         List<HalanVersionInfo> inf = (List<HalanVersionInfo>)e.Result;
 
@@ -252,10 +253,10 @@ namespace ServiceBusMQManager {
       } else LogError("Failed to retrieve latest version information from server", e.Error);
 
 
-      if( !miCheckVersion.IsEnabled  ) {
+      if( !miCheckVersion.IsEnabled ) {
         miCheckVersion.IsEnabled = true;
       }
-     
+
     }
 
     private void LogError(string msg, Exception exception) {
@@ -385,7 +386,7 @@ namespace ServiceBusMQManager {
     }
 
     private string GetQueueStatusString() {
-      var itemTypes = _mgr.Items.Select( i => i.Queue.Type ).ToArray();
+      var itemTypes = _sys.Items.Select(i => i.Queue.Type).ToArray();
 
       return string.Format(" Commands: {0} \r\n Events: {1} \r\n Messages: {2} \r\n Errors: {3} ",
                   itemTypes.Count(i => i == QueueType.Command),
@@ -415,7 +416,7 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _sys.Manager.Items.Count(i => i.Queue.Type == type && !i.Processed);
+        int iCount = _sys.Items.Count(i => i.Queue.Type == type && !i.Processed);
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
@@ -447,13 +448,13 @@ namespace ServiceBusMQManager {
           this.Show();
 
         _firstLoad = false;
-        
+
       }));
     }
     private void timer_Tick(object sender, EventArgs e) {
-      try { 
-        _sys.Manager.RefreshQueueItems();
-      } catch(Exception ex) {
+      try {
+        _sys.UpdateUnprocessedQueueItemList();
+      } catch( Exception ex ) {
 #if DEBUG
         MessageBox.Show("Failed when fetching messages " + ex.Message);
 #endif
@@ -474,7 +475,7 @@ namespace ServiceBusMQManager {
       // Return All error messages
       var mi = (MenuItem)items[6];
       mi.Items.Clear();
-      foreach( var q in _mgr.MonitorQueues.Where( q => q.Type == QueueType.Error ) ) {
+      foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
         var m2 = new MenuItem() { Header = q.Name };
         m2.Click += (sender, e) => { _mgr.MoveAllErrorItemsToOriginQueue(q.Name); };
 
@@ -484,7 +485,7 @@ namespace ServiceBusMQManager {
       // Purge all error messages
       mi = (MenuItem)items[7];
       mi.Items.Clear();
-      foreach( var q in _mgr.MonitorQueues.Where( q => q.Type == QueueType.Error ) ) {
+      foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
         var m2 = new MenuItem() { Header = q.Name };
         m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(q.Name); };
 
@@ -543,8 +544,10 @@ namespace ServiceBusMQManager {
           UpdateContentWindow();
         }
 
-        
-        _dlg.SetContent(_mgr.GetMessageContent(itm), _mgr.MessageContentFormat, itm.Error);
+
+        var content = itm.Content == null ? _mgr.LoadMessageContent(itm) : itm.Content;
+
+        _dlg.SetContent(content, _mgr.MessageContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
 
         if( !_dlgShown ) {
@@ -583,10 +586,10 @@ namespace ServiceBusMQManager {
     }
     private void ChangedMonitorFlag(QueueType type, bool newState) {
       switch( type ) {
-        case QueueType.Command: _mgr.MonitorCommands = newState; break;
-        case QueueType.Event: _mgr.MonitorEvents = newState; break;
-        case QueueType.Message: _mgr.MonitorMessages = newState; break;
-        case QueueType.Error: _mgr.MonitorErrors = newState; break;
+        case QueueType.Command: _sys.MonitorCommands = newState; break;
+        case QueueType.Event: _sys.MonitorEvents = newState; break;
+        case QueueType.Message: _sys.MonitorMessages = newState; break;
+        case QueueType.Error: _sys.MonitorErrors = newState; break;
       }
     }
     private void SetDefaultWindowPosition() {
@@ -618,7 +621,7 @@ namespace ServiceBusMQManager {
 
     private void btnClearProcessed_Click(object sender, RoutedEventArgs e) {
 
-      _mgr.ClearProcessedItems();
+      _sys.ClearProcessedItems();
 
       lbItems.Items.Refresh();
     }
@@ -715,15 +718,15 @@ namespace ServiceBusMQManager {
 
       StoreUIState();
 
-      if( _sys != null )
-        _sys.Manager.Dispose();
+      //if( _sys != null )
+      //  _sys.Manager.Dispose();
     }
 
     private void StoreUIState() {
 
       if( _uiState != null ) {
 
-        _uiState.IsMinimized = _isMinimized; 
+        _uiState.IsMinimized = _isMinimized;
 
         _uiState.StoreControlState(btnCmd);
         _uiState.StoreControlState(btnEvent);
@@ -818,7 +821,7 @@ namespace ServiceBusMQManager {
 
     private void HandleMinimizeToTrayClick(Object sender, RoutedEventArgs e) {
       _isMinimized = true;
-      
+
       StoreUIState();
 
       Close();
@@ -862,7 +865,7 @@ namespace ServiceBusMQManager {
     }
 
     private void ShowProcessedMsg_Click(object sender, RoutedEventArgs e) {
-      var min = Convert.ToInt32((e.Source as MenuItem).Tag as string);
+      var min = Convert.ToInt32(( e.Source as MenuItem ).Tag as string);
       TimeSpan timeSpan = ( min != 0 ) ? new TimeSpan(0, min, 0) : TimeSpan.FromTicks(DateTime.Today.Ticks);
 
       LoadProcessedQueueItems(timeSpan);
@@ -881,7 +884,7 @@ namespace ServiceBusMQManager {
       lbLoading.Visibility = System.Windows.Visibility.Visible;
       WindowTools.Sleep(10);
       try {
-        _mgr.LoadProcessedQueueItems(timeSpan);
+        _sys.GetProcessedQueueItems(timeSpan);
       } finally {
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       }
@@ -908,14 +911,14 @@ namespace ServiceBusMQManager {
     }
 
     private void ContextMenu_Opened_1(object sender, RoutedEventArgs e) {
-      
+
       var btn = btnShowProcessed;
       var cm = ContextMenuService.GetContextMenu(btn as DependencyObject);
       if( cm != null ) {
 
         if( !_openedByButton ) {
           var offset = btn.TranslatePoint(new Point(0, 0), this);
-          
+
           cm.Placement = PlacementMode.AbsolutePoint;
           cm.HorizontalOffset = this.Left + offset.X;
           cm.VerticalOffset = this.Top + offset.Y + btn.ActualHeight;

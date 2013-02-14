@@ -31,7 +31,6 @@ namespace ServiceBusMQ.Manager {
     void MoveErrorItemToOriginQueue(QueueItem itm);
     void MoveAllErrorItemsToOriginQueue(string errorQueue);
 
-
     string GetMessageContent(QueueItem itm);
 
     string[] GetAllAvailableQueueNames(string server);

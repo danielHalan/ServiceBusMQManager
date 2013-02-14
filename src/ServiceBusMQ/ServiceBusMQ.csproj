@@ -68,6 +68,7 @@
     <Compile Include="CheckVersionThread.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Configuration\AssemblyCache.cs" />
     <Compile Include="Configuration\CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="Configuration\ConfigFactory.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="CommandHistoryManager.cs" />
     <Compile Include="ListExtensions.cs" />
+    <Compile Include="Manager\IServiceBus.cs" />
     <Compile Include="Manager\IServiceBusDiscovery.cs" />
     <Compile Include="Manager\IServiceBusManager.cs" />
     <Compile Include="Manager\MessageContentFormat.cs" />
@@ -91,9 +93,7 @@
     <Compile Include="HalanVersionInfo.cs" />
     <Compile Include="JsonFile.cs" />
     <Compile Include="Manager\ErrorArgs.cs" />
-    <Compile Include="Manager\IMessageManager.cs" />
     <Compile Include="Manager\MessageBusFactory.cs" />
-    <Compile Include="Manager\MessageManagerBase.cs" />
     <Compile Include="Manager\NoMessageBusManagerFound.cs" />
     <Compile Include="MessageSubscription.cs" />
     <Compile Include="Model\QueueItem.cs" />
@@ -110,7 +110,7 @@
     <Compile Include="Tools.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Configuration\UIStateConfig.cs" />
-    <Compile Include="ViewModel\QueueItemModel.cs" />
+    <Compile Include="ViewModel\QueueItemViewModel.cs" />
     <Compile Include="Web References\HalanService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

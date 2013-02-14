@@ -20,12 +20,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQ.Manager {
- 
-  public class MessageBusFactory {
- 
-    public class ServiceBusManagerType { 
+
+  public class ServiceBusFactory {
+
+    public class ServiceBusManagerType {
       public string Name { get; private set; }
       public List<string> QueueTypes { get; private set; }
 
@@ -36,53 +37,69 @@ namespace ServiceBusMQ.Manager {
       }
 
     }
- 
 
-    static Assembly[] GetAssemblies() {
-
-      List<Assembly> result = new List<Assembly>();
-      string path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
-
-      foreach( string asm in Directory.GetFiles(path, "ServiceBusMQ.*.dll") )
-        result.Add(Assembly.LoadFile(asm));
-    
-      return result.ToArray();
-    }
 
     public static ServiceBusManagerType[] AvailableServiceBusManagers() {
-      Type mgrInterface = typeof(IMessageManager);
-
       List<ServiceBusManagerType> r = new List<ServiceBusManagerType>();
 
-      foreach( Assembly asm in GetAssemblies() )
-        foreach( var tMgr in asm.GetTypes().Where(t => mgrInterface.IsAssignableFrom(t) && !t.IsAbstract) ) {
-          IMessageManager mgr = (IMessageManager)Activator.CreateInstance(tMgr);
 
-          ServiceBusManagerType t = r.SingleOrDefault( sb => sb.Name == mgr.BusName );
+      foreach( var asm in AsmCache.Assemblies ) {
+        foreach( var type in asm.Types.Where(t => t.Interfaces.Any(i => i.EndsWith("IServiceBusManager"))) ) {
+
+          ServiceBusManagerType t = r.SingleOrDefault(sb => sb.Name == type.ServiceBusName);
 
           if( t == null )
-            r.Add( new ServiceBusManagerType(mgr.BusName, mgr.BusQueueType) );
-          else t.QueueTypes.Add( mgr.BusQueueType);
+            r.Add(new ServiceBusManagerType(type.ServiceBusName, type.TransportationName));
+          else t.QueueTypes.Add(type.TransportationName);
+
         }
+      }
 
       return r.ToArray();
     }
 
 
+    internal static IServiceBusManager CreateManager(string name, string queueType) {
 
-    public static IMessageManager Create(string name, string queueType) {
-      Type mgrInterface = typeof(IMessageManager);
+      foreach( var asm in AsmCache.Assemblies ) {
+        var type = asm.Types.SingleOrDefault( t => 
+                                t.ServiceBusName == name && t.TransportationName == queueType && 
+                                t.Interfaces.Any( i => i.EndsWith("IServiceBusManager") ) );
+
+        if( type != null ) 
+          return (IServiceBusManager)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
       
-      foreach( Assembly asm in GetAssemblies() ) 
-        foreach( var tMgr in asm.GetTypes().Where( t => mgrInterface.IsAssignableFrom(t) && !t.IsAbstract ) ) {
-          IMessageManager mgr = (IMessageManager)Activator.CreateInstance(tMgr);
-      
-          if( string.Compare(mgr.BusName, name) == 0 && string.Compare(mgr.BusQueueType, queueType) == 0 ) 
-            return mgr;
-        }
+      }
 
       throw new NoMessageBusManagerFound(name, queueType);
     }
-  
+    internal static IServiceBusDiscovery CreateDiscovery(string name, string transportation) {
+      foreach( var asm in AsmCache.Assemblies ) {
+        var type = asm.Types.SingleOrDefault(t =>
+                                t.ServiceBusName == name && 
+                                ( t.TransportationName == null || t.TransportationName == transportation) && 
+                                t.Interfaces.Any(i => i.EndsWith("IServiceBusDiscovery")));
+
+        if( type != null )
+          return (IServiceBusDiscovery)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
+
+      }
+
+      throw new NoMessageBusManagerFound(name, transportation);
+    }
+
+
+    static AssemblyCache _asmCache = null;
+    static AssemblyCache AsmCache {
+      get {
+        if( _asmCache == null )
+          _asmCache = AssemblyCache.Create(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
+        return _asmCache;
+      }
+    }
+
+
+
   }
 }

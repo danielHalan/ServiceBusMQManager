@@ -49,7 +49,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     SbmqSystem _sys;
     SystemConfig2 _config;
-    MessageBusFactory.ServiceBusManagerType[] _managerTypes;
+    ServiceBusFactory.ServiceBusManagerType[] _managerTypes;
     Dictionary<string, string[]> _allQueueNames = new Dictionary<string, string[]>();
 
     bool _updatingServer = false;
@@ -67,7 +67,7 @@ namespace ServiceBusMQManager.Dialogs {
       _config = system.Config;
 
 
-      _managerTypes = MessageBusFactory.AvailableServiceBusManagers();
+      _managerTypes = ServiceBusFactory.AvailableServiceBusManagers();
 
       cbServiceBus.ItemsSource = _managerTypes;
       cbServiceBus.DisplayMemberPath = "Name";
@@ -122,16 +122,16 @@ namespace ServiceBusMQManager.Dialogs {
       GetAllAvailableQueueNamesForServer(_config.CurrentServer.Name);
     }
 
-    private void GetAllAvailableQueueNamesForServer(string name) {
+    private void GetAllAvailableQueueNamesForServer(string serverName) {
 
-      if( !_allQueueNames.ContainsKey(name) ) {
+      if( !_allQueueNames.ContainsKey(serverName) ) {
 
         _SetAccessingServer(true);
         UpdateConfigWindowUIState();
 
         BackgroundWorker w = new BackgroundWorker();
         w.DoWork += (s, arg) => {
-          _allQueueNames.Add(name, _sys.Manager.GetAllAvailableQueueNames(name));
+          _allQueueNames.Add(serverName, GetDiscoveryService().GetAllAvailableQueueNames(serverName));
         };
         w.RunWorkerCompleted += (s, arg) => {
           _SetAccessingServer(false);
@@ -167,10 +167,21 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
+    IServiceBusDiscovery _disc = null;
+
+    private IServiceBusDiscovery GetDiscoveryService() {
+      if( _disc == null )
+        _disc = _sys.GetDiscoveryService();
+
+      return _disc;
+    }
+
+
+
     private void Queue_AddItem_1(object sender, QueueListItemRoutedEventArgs e) {
       QueueListControl s = sender as QueueListControl;
 
-      SelectQueueDialog dlg = new SelectQueueDialog(_sys, cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select( i=>i.Name).ToList()).ToArray());
+      SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(), cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
 
@@ -342,15 +353,15 @@ namespace ServiceBusMQManager.Dialogs {
 
         tbInterval.UpdateValue(s.MonitorInterval);
 
-        queueCommands.BindItems(s.MonitorQueues.Where( q => q.Type == QueueType.Command).Select( 
-                                        q => new QueueListControl.QueueListItem(q.Name, q.Color) ) );
+        queueCommands.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Command).Select(
+                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
         queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
         queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
         queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
-        
+
         _updatingServer = false;
       }
 
@@ -416,7 +427,7 @@ namespace ServiceBusMQManager.Dialogs {
         if( _allQueueNames.ContainsKey(name) )
           _allQueueNames.Remove(name);
 
-        _allQueueNames.Add(name, _sys.Manager.GetAllAvailableQueueNames(name));
+        _allQueueNames.Add(name, GetDiscoveryService().GetAllAvailableQueueNames(name));
         e.Result = true;
 
       } catch {
@@ -581,15 +592,19 @@ namespace ServiceBusMQManager.Dialogs {
 
       if( !_updatingServer ) {
 
+
         SaveServerConfig(_config.MonitorServer);
 
         _config.MonitorServer = cbServers.SelectedValue as string;
 
         var s = e.AddedItems[0] as ServerConfig;
 
-        SelectServer(s.Name);
+        if( GetDiscoveryService().CanAccessServer(s.Name) ) {
 
-        GetAllAvailableQueueNamesForServer(s.Name);
+          SelectServer(s.Name);
+
+          GetAllAvailableQueueNamesForServer(s.Name);
+        } else throw new Exception("Can not access Server, " + s.Name);
       }
     }
 

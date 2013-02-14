@@ -19,12 +19,17 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ.Manager {
+
+  /// <summary>
+  /// Interface to Send Commands. 
+  /// ISendCommand should be implemented in same class as IServiceBusManager if it supports to send commands.
+  /// </summary>
   public interface ISendCommand {
 
     Type[] GetAvailableCommands(string[] asmPaths);
     Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef);
 
-    void SetupBus(string[] assemblyPaths);
+    void SetupServiceBus(string[] assemblyPaths);
     void SendCommand(string destinationServer, string destinationQueue, object message);
 
     string SerializeCommand(object cmd);

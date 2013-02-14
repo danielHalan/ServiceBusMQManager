@@ -29,23 +29,30 @@ using ServiceBusMQ.Manager;
 using System.Reflection;
 using ServiceBusMQ;
 using ServiceBusMQ.ViewModel;
+using System.Runtime.CompilerServices;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  public abstract class NServiceBusManagerBase : MessageManagerBase {
+  public abstract class NServiceBusManagerBase : IServiceBusManager {
+
+    static readonly string JSON_START = "\"$type\":\"";
+    static readonly string JSON_END = ",";
 
 
-    //protected string _ignoreMessageBody;
+    protected string _serverName;
+    protected CommandDefinition _commandDef;
 
     protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
 
     public NServiceBusManagerBase() {
     }
-    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, monitorQueues, commandDef);
+    public virtual void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
+      _serverName = serverName;
 
+      MonitorQueues = monitorQueues;
 
+      _commandDef = commandDef;
     }
 
 
@@ -59,7 +66,7 @@ namespace ServiceBusMQ.NServiceBus {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
-    public override void MoveErrorItemToOriginQueue(QueueItem itm) {
+    public void MoveErrorItemToOriginQueue(QueueItem itm) {
       if( string.IsNullOrEmpty(itm.Id) )
         throw new ArgumentException("MessageId can not be null or empty");
 
@@ -75,7 +82,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       mgr.ReturnMessageToSourceQueue(itm.Id);
     }
-    public override void MoveAllErrorItemsToOriginQueue(string errorQueue) {
+    public void MoveAllErrorItemsToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager();
 
       // TODO:
@@ -86,23 +93,10 @@ namespace ServiceBusMQ.NServiceBus {
       mgr.ReturnAll();
     }
 
-
     protected string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )
         return r.ReadToEnd().Replace("\0", "");
     }
-
-
-    protected override IEnumerable<QueueItem> FetchQueueItems(QueueType type, IEnumerable<QueueItem> currentItems) {
-      return DoFetchQueueItems(GetQueueListByType(type), currentItems);
-    }
-    protected abstract IEnumerable<QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, IEnumerable<QueueItem> currentItems);
-
-    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
-      return _monitorMsmqQueues.Where( q => q.Queue.Type == type );
-    }
-
-
     protected string GetSubscriptionType(string xml) {
       List<string> r = new List<string>();
       try {
@@ -116,6 +110,14 @@ namespace ServiceBusMQ.NServiceBus {
 
       return string.Empty;
     }
+    public abstract MessageSubscription[] GetMessageSubscriptions(string server);
+
+
+    public abstract string LoadMessageContent(QueueItem itm);
+
+    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
+      return _monitorMsmqQueues.Where(q => q.Queue.Type == type);
+    }
 
 
     protected string[] GetMessageNames(string content, bool includeNamespace) {
@@ -125,11 +127,6 @@ namespace ServiceBusMQ.NServiceBus {
       else return GetJsonMessageNames(content, includeNamespace);
 
     }
-
-
-    static readonly string JSON_START = "\"$type\":\"";
-    static readonly string JSON_END = ",";
-
     private string[] GetJsonMessageNames(string content, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
@@ -140,13 +137,12 @@ namespace ServiceBusMQ.NServiceBus {
           iStart = content.LastIndexOf(".", iEnd) + 1;
         }
 
-        r.Add( content.Substring(iStart, iEnd-iStart) );
+        r.Add(content.Substring(iStart, iEnd - iStart));
 
       } catch { }
 
       return r.ToArray();
     }
-
     protected string[] GetXmlMessageNames(string content, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
@@ -181,6 +177,61 @@ namespace ServiceBusMQ.NServiceBus {
 
     public abstract object DeserializeCommand(string cmd);
     public abstract string SerializeCommand(object cmd);
+
+
+    public abstract MessageContentFormat MessageContentFormat { get; }
+
+    public abstract IEnumerable<QueueItem> GetUnprocessedQueueItems(QueueType type, IEnumerable<QueueItem> currentItems);
+    public abstract IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
+
+    public abstract void PurgeMessage(QueueItem itm);
+    public abstract void PurgeAllMessages();
+
+    public abstract void PurgeErrorMessages(string queueName);
+    public abstract void PurgeErrorAllMessages();
+
+
+    public Queue[] MonitorQueues { get; private set; }
+
+
+    public event EventHandler<ErrorArgs> ErrorOccured;
+
+    protected void OnError(string message, string stackTrace, bool fatal) {
+      if( ErrorOccured != null )
+        ErrorOccured(this, new ErrorArgs(message, stackTrace, fatal));
+    }
+    protected void OnError(string message, Exception e, bool fatal) {
+      OnError(string.Format("{0}\n\r {1} ({2})", message, e.Message, e.GetType().Name), e.StackTrace, fatal);
+    }
+
+
+    public string ServiceBusName {
+      get { return "NServiceBus"; }
+    }
+
+    public abstract string TransportationName { get; }
+
+
+
+
+    protected EventHandler _itemsChanged;
+
+    public event EventHandler ItemsChanged {
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      add {
+        _itemsChanged = (EventHandler)Delegate.Combine(_itemsChanged, value);
+      }
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      remove {
+        _itemsChanged = (EventHandler)Delegate.Remove(_itemsChanged, value);
+      }
+    }
+
+    protected void OnItemsChanged() {
+      if( _itemsChanged != null )
+        _itemsChanged(this, EventArgs.Empty);
+    }
+
 
   }
 

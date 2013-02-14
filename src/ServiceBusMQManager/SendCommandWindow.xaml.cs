@@ -86,7 +86,7 @@ namespace ServiceBusMQManager {
       cbServer.SelectedIndex = 0;
 
       var s = _sys.Config.Servers[0];
-      cbQueue.ItemsSource = s.MonitorQueues.Where( q => q.Type == ServiceBusMQ.Model.QueueType.Command);
+      cbQueue.ItemsSource = s.MonitorQueues.Where( q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select( q => q.Name );
       cbQueue.SelectedIndex = 0;
     }
 
@@ -170,32 +170,45 @@ namespace ServiceBusMQManager {
       }
     }
 
-    void DoSetupBus(object sender, DoWorkEventArgs e) {
+    void DoSendCommand(object sender, DoWorkEventArgs e) {
+      //if( !_isBusStarted ) {
+      //  _sys.SetupServiceBus(_asmPath);
 
-      if( !_isBusStarted ) {
-        _sys.SetupBus(_asmPath);
+      //  _isBusStarted = true;
+      //}
+      SendCommandEnvelope env = e.Argument as SendCommandEnvelope;
+      
+      _sys.SendCommand(env.Server, env.Queue, env.Command);
 
-        _isBusStarted = true;
-      }
-
+      e.Result = env;
     }
-    void DoSendCommand(object sender, RunWorkerCompletedEventArgs e) {
+
+    void DoSendCommandCompleted(object sender, RunWorkerCompletedEventArgs e) {
+      btnSend.IsEnabled = true;
+      
+      if( e.Error != null )
+        throw e.Error;
 
       try {
-        var queue = cbQueue.SelectedItem as string;
-        _sys.SendCommand(cbServer.SelectedValue as string, queue, _cmd);
+        SendCommandEnvelope env = e.Result as SendCommandEnvelope;
+        //var queue = cbQueue.SelectedItem as string;
 
-        savedCommands.CommandSent(_cmd, _sys.Manager.BusName, _sys.Manager.BusQueueType, cbServer.SelectedValue as string, queue);
+        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Manager.TransportationName, env.Server, env.Queue);
 
         Close();
 
       } catch( Exception ex ) {
-        btnSend.IsEnabled = true;
         throw ex;
       }
     }
 
     object _cmd;
+
+    private class SendCommandEnvelope {
+      public string Server;
+      public string Queue;
+      public object Command;
+    }
 
     private void btnSend_Click(object sender, RoutedEventArgs e) {
 
@@ -204,15 +217,20 @@ namespace ServiceBusMQManager {
       if( btnSend.IsEnabled ) {
         btnSend.IsEnabled = false;
 
-        _cmd = cmdAttrib.CreateObject();
+        SendCommandEnvelope env = new SendCommandEnvelope();
 
-        if( _cmd != null ) {
+
+        env.Command = cmdAttrib.CreateObject();
+
+        if( env.Command != null ) {
+          env.Server = cbServer.SelectedValue as string;
+          env.Queue = cbQueue.SelectedItem as string;
 
           var thread = new BackgroundWorker();
-          thread.DoWork += DoSetupBus;
-          thread.RunWorkerCompleted += DoSendCommand;
+          thread.DoWork += DoSendCommand;
+          thread.RunWorkerCompleted += DoSendCommandCompleted;
 
-          thread.RunWorkerAsync(cbQueue.SelectedItem);
+          thread.RunWorkerAsync(env);
         
         } else btnSend.IsEnabled = true;
 

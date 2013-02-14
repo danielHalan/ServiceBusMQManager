@@ -41,6 +41,9 @@ namespace ServiceBusMQ.NServiceBus {
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
   public abstract class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
 
+    protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
+
+
     class PeekThreadParam {
       public Queue Queue { get; set; }
       public MessageQueue MsmqQueue { get; set; }
@@ -54,15 +57,19 @@ namespace ServiceBusMQ.NServiceBus {
     public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
       base.Init(serverName, monitorQueues, commandDef);
 
-      StartPeekThreads();
+      LoadQueues();
+
+      // TEMP Removed
+      // StartPeekThreads();
     }
 
-    public override void Dispose() {
-      base.Dispose();
+    //public override void Dispose() {
+    //  base.Dispose();
 
-      _disposed = true;
-    }
+    //  _disposed = true;
+    //}
 
+    /*
     void StartPeekThreads() {
       foreach( QueueType qt in Enum.GetValues(typeof(QueueType)) ) {
 
@@ -161,45 +168,21 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
     }
-
-    public override string[] GetAllAvailableQueueNames(string server) {
-      return MessageQueue.GetPrivateQueuesByMachine(server).Where(q => !IsIgnoredQueue(q.QueueName)).
-          Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
-    }
-    public override bool CanAccessQueue(string server, string queueName) {
-      var queue = CreateMessageQueue(server, queueName, QueueAccessMode.ReceiveAndAdmin);
-
-      return queue != null ? queue.CanRead : false;
-    }
+     */
 
 
-    private MessageQueue CreateMessageQueue(string serverName, string queueName, QueueAccessMode accessMode) {
-      if( !queueName.StartsWith("private$\\") )
-        queueName = "private$\\" + queueName;
-
-      queueName = string.Format("FormatName:DIRECT=OS:{0}\\{1}", !Tools.IsLocalHost(serverName) ? serverName : ".", queueName);
-
-      return new MessageQueue(queueName, false, true, accessMode);
-    }
-    private MessageQueue CreateMessageQueue(string queueFormatName, QueueAccessMode accessMode) {
-      return new MessageQueue(queueFormatName, false, true, accessMode);
-    }
-
-
-
-    protected override void LoadQueues() {
+    private void LoadQueues() {
       _monitorMsmqQueues.Clear();
 
-      foreach( var queue in _monitorQueues )
-        AddQueue(_monitorMsmqQueues, _serverName, queue);
+      foreach( var queue in MonitorQueues )
+        AddMsmqQueue(_serverName, queue);
 
     }
-
-    private void AddQueue(List<MsmqMessageQueue> queues, string _serverName, Queue queue) {
+    private void AddMsmqQueue(string serverName, Queue queue) {
       try {
-        queues.Add(new MsmqMessageQueue(_serverName, queue));
+        _monitorMsmqQueues.Add(new MsmqMessageQueue(serverName, queue));
       } catch( Exception e ) {
-        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(_serverName, queue.Name), e, false);
+        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverName, queue.Name), e, false);
       }
     }
 
@@ -249,7 +232,9 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected override IEnumerable<Model.QueueItem> DoFetchQueueItems(IEnumerable<MsmqMessageQueue> queues, IEnumerable<QueueItem> currentItems) {
+    public override IEnumerable<Model.QueueItem> GetUnprocessedQueueItems(QueueType type, IEnumerable<QueueItem> currentItems) {
+      var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == type);
+
       if( queues.Count() == 0 )
         return EMPTY_LIST;
 
@@ -285,7 +270,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    protected override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
+    public override IEnumerable<QueueItem> GetProcessedQueueItems(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
       List<QueueItem> r = new List<QueueItem>();
 
       var queues = GetQueueListByType(type);
@@ -316,7 +301,7 @@ namespace ServiceBusMQ.NServiceBus {
                   itm.Processed = true;
                 }
 
-                if( PrepareQueueItemForAdd(itm) ) 
+                if( PrepareQueueItemForAdd(itm) )
                   r.Insert(0, itm);
 
               }
@@ -409,14 +394,14 @@ namespace ServiceBusMQ.NServiceBus {
       return _monitorMsmqQueues.Single(i => i.Queue.Type == itm.Queue.Type && i.Queue.Name == itm.Queue.Name);
     }
 
-    public override string GetMessageContent(QueueItem itm) {
+    public override string LoadMessageContent(QueueItem itm) {
       if( itm.Content == null ) {
 
         MessageQueue mq = GetMessageQueue(itm);
 
         mq.MessageReadPropertyFilter.ArrivedTime = false;
         mq.MessageReadPropertyFilter.Body = true;
-        itm.Content = !itm.Processed ? ReadMessageStream(mq.PeekById(itm.Id).BodyStream) : "DELETED";
+        itm.Content = ReadMessageStream(mq.PeekById(itm.Id).BodyStream);
       }
 
       return itm.Content;
@@ -430,7 +415,7 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
                                             Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName) ) {
 
-        MessageQueue q = CreateMessageQueue(server, queueName, QueueAccessMode.ReceiveAndAdmin);
+        MessageQueue q = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
 
         q.MessageReadPropertyFilter.Label = true;
         q.MessageReadPropertyFilter.Body = true;
@@ -501,17 +486,15 @@ namespace ServiceBusMQ.NServiceBus {
       OnItemsChanged();
     }
 
-    public override string BusName { get { return "NServiceBus"; } }
-
 
     private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll", 
                                                                   "\\MongoDB.Driver.dll", "\\MongoDB.Bson.dll", 
                                                                   "\\NServiceBus.dll" };
 
-    public override Type[] GetAvailableCommands(string[] asmPaths) {
+    public Type[] GetAvailableCommands(string[] asmPaths) {
       return GetAvailableCommands(asmPaths, _commandDef);
     }
-    public override Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
+    public Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
       List<Type> arr = new List<Type>();
 
 
@@ -553,7 +536,8 @@ namespace ServiceBusMQ.NServiceBus {
     protected IBus _bus;
 
 
-    public override void SendCommand(string destinationServer, string destinationQueue, object message) {
+    public abstract void SetupServiceBus(string[] assemblyPaths);
+    public void SendCommand(string destinationServer, string destinationQueue, object message) {
 
       if( Tools.IsLocalHost(destinationServer) )
         destinationServer = null;
@@ -570,7 +554,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       if( message != null )
         _bus.Send(dest, message);
-      else OnError("Can not send an incomplete message", string.Empty, false);
+      else OnError("Can not send an incomp  lete message", string.Empty, false);
 
     }
 
