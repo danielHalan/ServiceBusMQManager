@@ -73,7 +73,7 @@
                 <Grid Name="theGrid" Background="#575757" RenderTransformOrigin="0.5,0.5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="0"/>
-                        <RowDefinition Height="161"/>
+                        <RowDefinition Height="166"/>
                         <RowDefinition Height="60"/>
                         <RowDefinition Height="70"/>
                         <RowDefinition Height="87"/>
@@ -88,31 +88,31 @@
                         <ColumnDefinition Width="332*" />
                         <ColumnDefinition Width="361*"/>
                     </Grid.ColumnDefinitions>
-                    <Rectangle Grid.Column="1" Fill="#FF686868" Height="77" Margin="0,85,0,0" Grid.Row="1" VerticalAlignment="Top" Grid.RowSpan="2"/>
+                    <Rectangle Grid.Column="1" Fill="#FF686868" Height="77" Margin="0,90,0,0" Grid.Row="1" VerticalAlignment="Top"/>
 
 
 
                     <Rectangle Fill="#333333" Grid.Row="2" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
                     <Rectangle Fill="#333333" Grid.Row="6" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
 
-                    <Label Content="Service Bus" HorizontalAlignment="Left" Margin="5,14,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="79" Grid.Column="1"/>
-                    <ComboBox x:Name="cbServiceBus" HorizontalAlignment="Left" Margin="5,40,0,0" Style="{DynamicResource ComboBoxStyle1}" VerticalAlignment="Top" Width="139" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
-                    <Label Content="Transportation " HorizontalAlignment="Left" Margin="162,14,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107" Grid.Column="1"/>
-                    <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="162,40,0,0" VerticalAlignment="Top" Width="154" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
+                    <Label Content="Service Bus" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="79" Grid.Column="1"/>
+                    <ComboBox x:Name="cbServiceBus" HorizontalAlignment="Left" Margin="5,46,0,0" Style="{DynamicResource ComboBoxStyle1}" VerticalAlignment="Top" Width="139" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
+                    <Label Content="Transportation " HorizontalAlignment="Left" Margin="162,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107" Grid.Column="1"/>
+                    <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="162,46,0,0" VerticalAlignment="Top" Width="154" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
                     <Label Content="Server" HorizontalAlignment="Left" Margin="52,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
 
                     <Controls:RoundMetroButton Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Click="AddServer_Click" Height="33"
                 		Source="/ServiceBusMQManager;component/Images/add-white.png" Margin="20,9,0,0" />
 
                     <Controls:RoundMetroButton x:Name="btnServerAction" Grid.Row="1" VerticalAlignment="Top" Click="ServerAction_Click" Height="33"
-                		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,38,9,0" HorizontalAlignment="Right" Width="30" />
+                		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,44,9,0" HorizontalAlignment="Right" Width="30" />
 
-                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Left" Height="32" Margin="307,37,0,0" Grid.Row="1" 
+                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Right" Height="32" Margin="306,43,8,0" Grid.Row="1" 
                 		VerticalAlignment="Top" Width="32"  Visibility="Visible"
                 		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading.gif" />
 
                     <Controls:TextInputControl x:Name="tbServer" 
-                                               Margin="55,38,47,0" 
+                                               Margin="32,44,45,0" 
                                                VerticalAlignment="Top" 
                                                Grid.Row="1" 
                                                Grid.Column="0" 
@@ -120,7 +120,7 @@
                                                FontFamily="Calibri" FontSize="16" />
                     
                     <ComboBox x:Name="cbServers" 
-                              Margin="55,39,47,0" Style="{DynamicResource ComboBoxStyle1}" 
+                              Margin="33,45,45,0" Style="{DynamicResource ComboBoxStyle1}" 
                               VerticalAlignment="Top" 
                               FontFamily="Calibri" FontSize="16" 
                               Grid.Row="1" 
@@ -128,12 +128,12 @@
                               Height="28" 
                               SelectionChanged="cbServers_SelectionChanged"/>
 
-                    <Label Content="Refresh Intervall" HorizontalAlignment="Left" Margin="54,76,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
-                    <Controls:TextInputControl x:Name="tbInterval" HorizontalAlignment="Left" Margin="55,104,0,0" VerticalAlignment="Top" Width="113" Grid.Row="1" Height="30"/>
+                    <Label Content="Refresh Intervall" HorizontalAlignment="Left" Margin="41,82,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
+                    <Controls:TextInputControl x:Name="tbInterval" HorizontalAlignment="Left" Margin="42,110,0,0" VerticalAlignment="Top" Width="113" Grid.Row="1" Height="30"/>
 
 
                     <CheckBox x:Name="cShowOnNewMessages" Content=" Popup when new messages arrive" 
-                		HorizontalAlignment="Left" Margin="55,100,0,0" 
+                		HorizontalAlignment="Left" Margin="55,106,0,0" 
                 		VerticalAlignment="Top" 
                 		FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF686868" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
                         <CheckBox.RenderTransform>
@@ -196,9 +196,9 @@
                     <Controls:QueueListControl Grid.Row="5" x:Name="queueMessages"  Title="Messages queues"  VerticalAlignment="Top" Margin="20,10,18,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem" />
                     <Controls:QueueListControl Grid.Row="5" x:Name="queueErrors" Title="Error queues" VerticalAlignment="Top" Margin="16,10,20,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" Grid.Column="1" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
                     <Label Content="or" HorizontalAlignment="Left" Margin="32,101,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="10" Height="42" Width="37"/>
-                    <Label Content="ms" HorizontalAlignment="Left" Margin="173,104,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="40" FontSize="18"/>
+                    <Label Content="ms" HorizontalAlignment="Left" Margin="160,110,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="40" FontSize="18"/>
                     <CheckBox x:Name="cCheckForNewVer" Content=" Check for new versions" 
-                		HorizontalAlignment="Left" Margin="55,130,0,0" 
+                		HorizontalAlignment="Left" Margin="55,136,0,0" 
                 		VerticalAlignment="Top" 
                 		FontFamily="Calibri" FontSize="14" Width="274" Grid.Row="1" Height="22" Foreground="White" Background="#FF686868" BorderBrush="White" RenderTransformOrigin="0.5,0.5" Grid.Column="1" >
                         <CheckBox.RenderTransform>

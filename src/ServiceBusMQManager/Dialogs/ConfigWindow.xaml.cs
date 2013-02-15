@@ -517,6 +517,19 @@ namespace ServiceBusMQManager.Dialogs {
     private void SaveNewServer() {
       string name = tbServer.RetrieveValue<string>();
 
+      if( _sys.Config.Servers.Any( s => string.Compare(s.Name, name, true) == 0 ) ) {
+        
+        MessageBox.Show("Connection for this server already exist, Aborting...", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+        cbServers.Visibility = System.Windows.Visibility.Visible;
+        tbServer.Visibility = System.Windows.Visibility.Hidden;
+        tbServer.UpdateValue(string.Empty);
+        _HideServerButton();
+
+        SelectServer(name);
+        return;
+      }
+
       TryAccessServer(name, () => { // Success
         var s = new ServerConfig2();
         s.Name = name;
@@ -576,9 +589,14 @@ namespace ServiceBusMQManager.Dialogs {
         if( !( (bool)e.Result ) ) { // failed
           lbServerInfo.Content = "Could not access server " + name;
 
-        } else onSuccess();
+          SelectServer(cbServers.SelectedValue as string);
 
-        SelectServer(name);
+        } else { 
+          onSuccess();
+          
+          SelectServer(name);
+        }
+
 
         imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
         this.IsEnabled = true;
