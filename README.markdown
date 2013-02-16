@@ -3,7 +3,7 @@ Service Bus MQ Manager - v2.xx
 An application to view and manage Service Bus messages.
 
 ## Overview
-Service Bus MQ Manager works by monitoring a Queue (currently MSMQ) and parsing the Messages presenting them in a list sorted by Commands, Events, Messages and Errors. Currently NServiceBus is supported, but its possible to [create a new Service Bus Adapter](https://github.com/danielHalan/ServiceBusMQManager/wiki/Building-an-Service-Bus-Adapter) for other Service Bus enviroments.
+Service Bus MQ Manager works by monitoring a Queue (currently MSMQ) and parsing the Messages presenting them in a list sorted by Commands, Events, Messages and Errors. Currently NServiceBus is supported, but its possible to [create a new Service Bus Adapter](https://github.com/danielHalan/ServiceBusMQManager/wiki/Building-a-Service-Bus-Adapter) for other Service Bus enviroments.
 
 The application is most useful when used in a [CQRS architecture](http://cqrsinfo.com), where its common to send Commands and Event messages using a Service Bus.
 
