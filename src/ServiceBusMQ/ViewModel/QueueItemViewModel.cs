@@ -27,13 +27,28 @@ namespace ServiceBusMQ.ViewModel {
 
   public class QueueItemViewModel : QueueItem {
 
+    static readonly Typeface TEXT_FONT = new Typeface("Calibri");
+
     public QueueItemViewModel(QueueItem item)
       : base(item.Queue) {
 
+      MapQueueItem(item);
+
+      ImagePath = "Images/" + Queue.Type + ".png";
+      SelectedImagePath = "Images/" + Queue.Type + ".selected.png";
+
+      if( ArrivedTime.Date == DateTime.Today.Date ) 
+        ArrivedTimeString = ArrivedTime.ToString("HH:mm:ss");
+      else ArrivedTimeString = string.Format("{1} {0} - {2}", Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], ArrivedTime.Day, ArrivedTime.ToString("HH:mm:ss"));
+
+      SetTextWidth();
+    }
+
+    private void MapQueueItem(QueueItem item) {
       Id = item.Id;
       DisplayName = item.DisplayName;
       MessageNames = item.MessageNames;
-      
+
       ArrivedTime = item.ArrivedTime;
       ProcessTime = item.ProcessTime;
       Processed = item.Processed;
@@ -45,32 +60,25 @@ namespace ServiceBusMQ.ViewModel {
       Error = item.Error;
     }
 
-    public double TextWidth {
-      get {
+    private void SetTextWidth() {
+      var formattedText = new System.Windows.Media.FormattedText(
+           DisplayName,
+           CultureInfo.CurrentCulture,
+           FlowDirection.LeftToRight,
+           TEXT_FONT,
+           15.5,
+           Brushes.Black);
 
-        var formattedText = new System.Windows.Media.FormattedText(
-             DisplayName,
-             CultureInfo.CurrentCulture,
-             FlowDirection.LeftToRight,
-             new Typeface("Calibri"),
-             15.5,
-             Brushes.Black);
-
-        return formattedText.Width + 20;
-
-      }
+      TextWidth = formattedText.Width + 20;
     }
 
-    public string ArrivedTimeString {
-      get {
-        if( ArrivedTime.Date == DateTime.Today.Date ) {
-          return ArrivedTime.ToString("HH:mm:ss");
-        } else return string.Format("{1} {0} - {2}", Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], ArrivedTime.Day, ArrivedTime.ToString("HH:mm:ss"));
-      }
-    }
 
-    public string ImagePath { get { return "Images/" + Queue.Type + ".png"; } }
-    public string SelectedImagePath { get { return "Images/" + Queue.Type + ".selected.png"; } }
+    public double TextWidth { get; private set; }
+
+    public string ArrivedTimeString { get; private set; }
+
+    public string ImagePath { get; private set; }
+    public string SelectedImagePath { get; private set; }
 
 
 
