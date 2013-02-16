@@ -23,11 +23,23 @@ namespace ServiceBusMQ {
   [Serializable]
   public class CommandDefinition {
 
+    /// <summary>
+    /// A string that should be in the commands namespace
+    /// </summary>
     public string NamespaceContains;
+
+    /// <summary>
+    /// A class or interface that the command should inherit/implement.
+    /// </summary>
     public string InheritsType;
 
+    /// <summary>
+    /// Function that checks if the type is a command
+    /// </summary>
+    /// <param name="commandType">Type to check</param>
+    /// <returns></returns>
     public bool IsCommand(Type commandType) {
-      Type t = GetBaseType();
+      Type t = GetInheritsType();
 
       if( t != null && t.IsAssignableFrom(commandType) ) {
         return true;
@@ -40,7 +52,7 @@ namespace ServiceBusMQ {
       return false;
     }
 
-    private Type GetBaseType() {
+    private Type GetInheritsType() {
       if( !string.IsNullOrEmpty(InheritsType) ) {
         return Type.GetType(InheritsType);
       } else return null;
