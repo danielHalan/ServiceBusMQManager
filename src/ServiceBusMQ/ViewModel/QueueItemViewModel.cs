@@ -34,12 +34,14 @@ namespace ServiceBusMQ.ViewModel {
 
       MapQueueItem(item);
 
-      ImagePath = "Images/" + Queue.Type + ".png";
-      SelectedImagePath = "Images/" + Queue.Type + ".selected.png";
-
+      ImagePath = "Images/{0}.png".With(Queue.Type);
+      SelectedImagePath = "Images/{0}.selected.png".With(Queue.Type);
+      
       if( ArrivedTime.Date == DateTime.Today.Date ) 
         ArrivedTimeString = ArrivedTime.ToString("HH:mm:ss");
-      else ArrivedTimeString = string.Format("{1} {0} - {2}", Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], ArrivedTime.Day, ArrivedTime.ToString("HH:mm:ss"));
+      else ArrivedTimeString = "{1} {0} - {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], 
+                                                      ArrivedTime.Day, 
+                                                      ArrivedTime.ToString("HH:mm:ss"));
 
       SetTextWidth();
     }
