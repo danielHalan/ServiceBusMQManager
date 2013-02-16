@@ -110,7 +110,7 @@ namespace ServiceBusMQManager {
 
 
     private void BindCommands() {
-      var cmdTypes = _sys.GetAvailableCommands(_asmPath);
+      var cmdTypes = _sys.GetAvailableCommands();
 
       _commands.Clear();
 

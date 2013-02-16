@@ -20,6 +20,9 @@ using System.Text;
 
 namespace ServiceBusMQ.Manager {
 
+  /// <summary>
+  /// Used for discovering a new service bus server.
+  /// </summary>
   public interface IServiceBusDiscovery : IServiceBus {
 
     /// <summary>
