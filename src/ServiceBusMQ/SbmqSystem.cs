@@ -72,8 +72,7 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += SbMgr_ErrorOccured;
       _mgr.ItemsChanged += SbMgr_ItemsChanged;
 
-      _mgr.Init(Config.MonitorServer, Config.MonitorQueues.Select( mq => new Queue(mq.Name, mq.Type, mq.Color) ).ToArray(), 
-                                          Config.CommandDefinition);
+      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select( mq => new Queue(mq.Name, mq.Type, mq.Color) ).ToArray());
 
       _history = new CommandHistoryManager(Config);
     }
@@ -238,10 +237,10 @@ namespace ServiceBusMQ {
     }
 
 
-    public Type[] GetAvailableCommands(string[] _asmPath) {
+    public Type[] GetAvailableCommands() {
       var sc = _mgr as ISendCommand;
-      if( sc != null ) 
-        return sc.GetAvailableCommands(_asmPath);
+      if( sc != null )
+        return sc.GetAvailableCommands(Config.CommandsAssemblyPaths, Config.CommandDefinition);
       else return new Type[0];
     }
     public Type[] GetAvailableCommands(string[] _asmPath, CommandDefinition cmdDef) {
@@ -265,7 +264,7 @@ namespace ServiceBusMQ {
       if( sc != null ) {
         
         if( !_isServiceBusStarted ) {
-          sc.SetupServiceBus(Config.CommandsAssemblyPaths);
+          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition);
           _isServiceBusStarted = true;
         }
 

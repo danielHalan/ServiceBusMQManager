@@ -29,7 +29,7 @@ namespace ServiceBusMQ.Manager {
     /// <param name="serverName">The Host name of the server</param>
     /// <param name="monitorQueues">Queues to monitor</param>
     /// <param name="commandDef">Command definition</param>
-    void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef);
+    void Initialize(string serverName, Queue[] monitorQueues);
 
     /// <summary>
     /// What type of message content to expect in queues
@@ -61,13 +61,38 @@ namespace ServiceBusMQ.Manager {
     IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
     
 
+    /// <summary>
+    /// Move Error message to Origin Queue.
+    /// </summary>
+    /// <param name="itm"></param>
     void MoveErrorMessageToOriginQueue(QueueItem itm);
+    
+    /// <summary>
+    /// Move all Error messages to their Origin Queues
+    /// </summary>
+    /// <param name="errorQueue">What error queue to process</param>
     void MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
+    /// <summary>
+    /// Purge message from Queue, removing the specified message.
+    /// </summary>
+    /// <param name="itm"></param>
     void PurgeMessage(QueueItem itm);
+
+    /// <summary>
+    /// Purge all messages from Queues, clearing the queues.
+    /// </summary>
     void PurgeAllMessages();
 
+    /// <summary>
+    /// Purge all Error messages from Queue with provided name, clearing the queue.
+    /// </summary>
+    /// <param name="queueName"></param>
     void PurgeErrorMessages(string queueName);
+    
+    /// <summary>
+    /// Purge all Error messages from all Queues.
+    /// </summary>
     void PurgeErrorAllMessages();
 
 
@@ -76,7 +101,14 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     Queue[] MonitorQueues { get; }
 
+    /// <summary>
+    /// Event triggered when the messages collection has changed.
+    /// </summary>
     event EventHandler ItemsChanged;
+    
+    /// <summary>
+    /// Called when any error inside the manager has occured, that should be presented to the user.
+    /// </summary>
     event EventHandler<ErrorArgs> ErrorOccured;
 
   }

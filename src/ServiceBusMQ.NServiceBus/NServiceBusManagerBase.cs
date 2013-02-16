@@ -47,12 +47,10 @@ namespace ServiceBusMQ.NServiceBus {
 
     public NServiceBusManagerBase() {
     }
-    public virtual void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
+    public virtual void Initialize(string serverName, Queue[] monitorQueues) {
       _serverName = serverName;
 
       MonitorQueues = monitorQueues;
-
-      _commandDef = commandDef;
     }
 
 

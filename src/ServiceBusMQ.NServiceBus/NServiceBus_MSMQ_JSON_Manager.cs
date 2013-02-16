@@ -28,14 +28,15 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override string TransportationName { get { return "MSMQ (JSON)"; } }
 
-    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, monitorQueues, commandDef);
+    public override void Initialize(string serverName, Queue[] monitorQueues) {
+      base.Initialize(serverName, monitorQueues);
 
       //_ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CompletionMessage.json")).ReadToEnd();
     }
 
 
-    public override void SetupServiceBus(string[] assemblyPaths) {
+    public override void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef) {
+      _commandDef = cmdDef;
 
       List<Assembly> asms = new List<Assembly>();
 

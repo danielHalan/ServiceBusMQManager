@@ -19,8 +19,17 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ.Manager {
+  
+  /// <summary>
+  /// Used to retrieve all Event Subscriptions
+  /// </summary>
   public interface IViewSubscriptions {
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="server"></param>
+    /// <returns></returns>
     MessageSubscription[] GetMessageSubscriptions(string server);
 
   }

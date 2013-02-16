@@ -54,8 +54,8 @@ namespace ServiceBusMQ.NServiceBus {
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Init(string serverName, Queue[] monitorQueues, CommandDefinition commandDef) {
-      base.Init(serverName, monitorQueues, commandDef);
+    public override void Initialize(string serverName, Queue[] monitorQueues) {
+      base.Initialize(serverName, monitorQueues);
 
       LoadQueues();
 
@@ -186,40 +186,6 @@ namespace ServiceBusMQ.NServiceBus {
       }
     }
 
-
-    /*
-    private List<QueueItem> LoadSubscriptionQueues(IList<MessageQueue> msmqQueues, Queue queue, IList<QueueItem> currentItems) {
-      if( msmqQueues.Count == 0 )
-        return EMPTY_LIST;
-
-      List<QueueItem> r = new List<QueueItem>();
-
-      foreach( var q in msmqQueues ) {
-        string qName = q.GetDisplayName();
-
-        if( !IsSubscriptionQueue(qName) )
-          continue;
-
-        SetupMessageReadPropertyFilters(q, queue.Type);
-
-        try {
-          foreach( var msg in q.GetAllMessages() ) {
-
-            QueueItem itm = currentItems.SingleOrDefault(i => i.Id == msg.Id);
-
-            if( itm == null )
-              itm = CreateQueueItem(queue, msg);
-
-            AddQueueItem(r, itm);
-          }
-        } catch( Exception e ) {
-          OnError("Error occured when processing subscription queue item", e, true);
-        }
-      }
-
-      return r;
-    }
-    */
 
     private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type) {
 
@@ -379,15 +345,11 @@ namespace ServiceBusMQ.NServiceBus {
         } catch {
           itm.Error = null;
         }
-        //}
       }
 
       return itm;
     }
 
-    private bool IsSubscriptionQueue(string queueName) {
-      return ( queueName.EndsWith("subscriptions") );
-    }
 
 
     private MsmqMessageQueue GetMessageQueue(QueueItem itm) {
@@ -467,23 +429,35 @@ namespace ServiceBusMQ.NServiceBus {
       OnItemsChanged();
     }
     public override void PurgeErrorAllMessages() {
-      _monitorMsmqQueues.Where(q => q.Queue.Type == QueueType.Error).ForEach(q => q.Purge());
+      var items = _monitorMsmqQueues.Where(q => q.Queue.Type == QueueType.Error);
 
-      OnItemsChanged();
+      if( items.Count() > 0 ) {
+        items.ForEach(q => q.Purge());
+
+        OnItemsChanged();
+      }
+
     }
 
     public override void PurgeMessage(QueueItem itm) {
       MessageQueue q = GetMessageQueue(itm);
-      q.ReceiveById(itm.Id);
 
-      itm.Processed = true;
+      if( q != null ) {
+        q.ReceiveById(itm.Id);
 
-      OnItemsChanged();
+        itm.Processed = true;
+
+        OnItemsChanged();
+      }
     }
     public override void PurgeAllMessages() {
-      _monitorMsmqQueues.ForEach(q => q.Purge());
+      bool hasItems = _monitorMsmqQueues.Any(q => q.Main.Peek() != null );
 
-      OnItemsChanged();
+      if( hasItems ) {
+        _monitorMsmqQueues.ForEach(q => q.Purge());
+
+        OnItemsChanged();
+      }
     }
 
 
@@ -536,7 +510,7 @@ namespace ServiceBusMQ.NServiceBus {
     protected IBus _bus;
 
 
-    public abstract void SetupServiceBus(string[] assemblyPaths);
+    public abstract void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef);
     public void SendCommand(string destinationServer, string destinationQueue, object message) {
 
       if( Tools.IsLocalHost(destinationServer) )
