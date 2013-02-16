@@ -171,7 +171,12 @@ namespace ServiceBusMQManager.Controls {
       var b = sender as Border;
 
       var c = ( b.Background as SolidColorBrush ).Color;
+
+      QueueColorManager.ReturnColor(SelectedColor);
+
       SelectedColor = System.Drawing.Color.FromArgb(c.R, c.G, c.B);
+      
+      QueueColorManager.UseColor(SelectedColor);
 
       HideControl();
     }

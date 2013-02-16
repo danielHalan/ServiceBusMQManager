@@ -46,7 +46,16 @@ namespace ServiceBusMQ {
     static QueueColorManager() {
 
       _unusedColors = new List<int>(COLORS);
+    }
 
+    public static void UseColor(Color c) {
+      _unusedColors.Remove(c.ToArgb());
+    }
+    public static void ReturnColor(Color c) {
+      int colorValue = c.ToArgb();
+
+      if( _unusedColors.IndexOf(colorValue) == -1 )
+        _unusedColors.Add(colorValue);
     }
 
     public static int GetRandomAvailableColorAsInt() {
