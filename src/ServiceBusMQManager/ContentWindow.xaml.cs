@@ -31,12 +31,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml;
-//using ScintillaNET;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQManager {
+
   /// <summary>
   /// Interaction logic for ContentWindow.xaml
   /// </summary>
@@ -60,8 +60,6 @@ namespace ServiceBusMQManager {
 
       SourceInitialized += ContentWindow_SourceInitialized;
 
-
-
       this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
     }
 
@@ -73,26 +71,7 @@ namespace ServiceBusMQManager {
 
 
 
-    private static FlowDocument GetFlowDocument(string xml) {
-      StringReader stringReader = new StringReader(xml);
-
-      XmlReader xmlReader = XmlReader.Create(stringReader);
-
-      Section sec = XamlReader.Load(xmlReader) as Section;
-
-      FlowDocument doc = new FlowDocument();
-
-      while( sec.Blocks.Count > 0 )
-        doc.Blocks.Add(sec.Blocks.FirstBlock);
-
-      return doc;
-    }
-
-
-
     public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {    
-
-
 
       switch(contentType) {
         case MessageContentFormat.Xml:

@@ -134,13 +134,12 @@ namespace ServiceBusMQManager {
 
     private void PrintHelp() {
 
-
-      Out(" Command Line: ServiceBusMQManager.exe --send <recentCommandName> [-s]");
-      //Out("                                [-px <name> <value>]");
+      Out(" Command Line: ServiceBusMQManager.exe --send <recentCommandName> [-s] [-m]");
 
       Out("");
       Out("  --send   = Send a saved command");
       Out("  -s       = Silent Mode");
+      Out("  -m       = Start minimized");
 
 
     }

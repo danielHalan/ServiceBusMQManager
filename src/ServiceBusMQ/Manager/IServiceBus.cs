@@ -19,7 +19,12 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ.Manager {
+  
+  /// <summary>
+  /// Base interface used in all Service Bus adapters
+  /// </summary>
   public interface IServiceBus {
+
     /// <summary>
     /// The name of the ServiceBus this Manager manages
     /// </summary>
