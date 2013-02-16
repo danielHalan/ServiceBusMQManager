@@ -72,9 +72,12 @@
     <Compile Include="Configuration\CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="Configuration\ConfigFactory.cs" />
+    <Compile Include="Configuration\SavedCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
-    <Compile Include="CommandHistoryManager.cs" />
+    <Compile Include="Configuration\CommandHistoryManager.cs" />
     <Compile Include="ListExtensions.cs" />
     <Compile Include="Manager\IServiceBus.cs" />
     <Compile Include="Manager\IServiceBusDiscovery.cs" />
@@ -100,7 +103,6 @@
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueColorManager.cs" />
-    <Compile Include="SavedCommand.cs" />
     <Compile Include="SbmqSystem.cs" />
     <Compile Include="Screen.cs" />
     <Compile Include="StringExtensions.cs" />
