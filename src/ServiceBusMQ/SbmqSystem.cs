@@ -50,17 +50,13 @@ namespace ServiceBusMQ {
 
     public List<QueueItemViewModel> Items { get { return _items; } }
 
-    public bool CanSendCommand {
-      get { return ( _mgr as ISendCommand ) != null; }
-    }
-    public bool CanViewSubscriptions {
-      get { return ( _mgr as IViewSubscriptions ) != null; }
-    }
+    public bool CanSendCommand { get; private set; }
+    public bool CanViewSubscriptions { get; private set; }
     
     private SbmqSystem() {
     }
 
-    private void Init() {
+    private void Initialize() {
       AppDomain.CurrentDomain.AssemblyResolve += SbmqmDomain_AssemblyResolve;
       MonitorQueueType = new bool[4];
 
@@ -74,13 +70,16 @@ namespace ServiceBusMQ {
 
       _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select( mq => new Queue(mq.Name, mq.Type, mq.Color) ).ToArray());
 
+      CanSendCommand = ( _mgr as ISendCommand ) != null;
+      CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null; 
+
       _history = new CommandHistoryManager(Config);
     }
 
     private static SbmqSystem _instance;
     public static SbmqSystem Create() {
       _instance = new SbmqSystem();
-      _instance.Init();
+      _instance.Initialize();
 
       return _instance;
     }

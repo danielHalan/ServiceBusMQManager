@@ -78,6 +78,22 @@ namespace ServiceBusMQManager {
       cmdAttrib.SendCommandManager = _sys.Manager as ISendCommand;
     }
 
+    public void SetCommand(object cmd) {
+
+      if( cmd != null ) {
+        var t = cmd.GetType();
+        cmdAttrib.SetDataType(t, cmd);
+
+        _recentUpdating = true;
+        cbCommands.SelectedValue = t.FullName;
+        _recentUpdating = false;
+        UpdateSendButton();        
+
+      }
+
+    
+    }
+
     private void BindServers() {
 
       cbServer.ItemsSource = _sys.Config.Servers;

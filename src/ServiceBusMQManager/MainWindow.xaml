@@ -339,12 +339,14 @@
                         <MenuItem Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
                         <MenuItem Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
                         <Separator />
+                        <MenuItem Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click_1" IsEnabled="False" />
+                        <Separator />
                         <MenuItem Name="miPurgeMsg" Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
                         <MenuItem Header="Purge All Messages" Click="miDeleteAllMessage_Click" />
                         <Separator />
                         <MenuItem Name="miReturnErrToOrgin" Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
-                        <MenuItem Header="Return All Error Messages to Source Queue"  />
-                        <MenuItem Header="Purge All Error Messages" />
+                        <MenuItem Name="miReturnAllErr" Header="Return All Error Messages to Source Queue"  />
+                        <MenuItem Name="miPurgeAllErr" Header="Purge All Error Messages" />
                         <Separator />
                         <MenuItem Header="Show Processed Messages" ItemsSource="{StaticResource ShowProcessMsgMenu}" />
 

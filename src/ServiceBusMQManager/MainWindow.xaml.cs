@@ -462,8 +462,8 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void _UpdateContextMenuItem(MenuItem mi, QueueItem itm) {
-      mi.IsEnabled = itm != null;
+    private void _BindContextMenuItem(MenuItem mi, QueueItem itm, Func<QueueItem, bool> eval = null) {
+      mi.IsEnabled = itm != null && (eval != null && eval(itm));
 
       if( itm != null )
         mi.Tag = itm;
@@ -473,7 +473,7 @@ namespace ServiceBusMQManager {
       var items = lbItems.ContextMenu.Items;
 
       // Return All error messages
-      var mi = (MenuItem)items[6];
+      var mi = miReturnAllErr;
       mi.Items.Clear();
       foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
         var m2 = new MenuItem() { Header = q.Name };
@@ -483,7 +483,7 @@ namespace ServiceBusMQManager {
       }
 
       // Purge all error messages
-      mi = (MenuItem)items[7];
+      mi = miPurgeAllErr;
       mi.Items.Clear();
       foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
         var m2 = new MenuItem() { Header = q.Name };
@@ -497,19 +497,15 @@ namespace ServiceBusMQManager {
       var items = lbItems.ContextMenu.Items;
 
       // Copy to Clipboard
-      _UpdateContextMenuItem(miCopyMsgId, itm);
-      _UpdateContextMenuItem(miCopyMsgContent, itm);
+      _BindContextMenuItem(miCopyMsgId, itm);
+      _BindContextMenuItem(miCopyMsgContent, itm);
+      _BindContextMenuItem(miResendCommand, itm, qi => _sys.CanSendCommand && qi.Queue.Type == QueueType.Command );
 
       // Remove message
-      var mi = miPurgeMsg;
-      _UpdateContextMenuItem(mi, itm);
-      mi.IsEnabled = itm != null && !itm.Processed;
+      _BindContextMenuItem(miPurgeMsg, itm, qi => !qi.Processed);
 
       // Return Error Message to Origin
-      mi = (MenuItem)miReturnErrToOrgin;
-      _UpdateContextMenuItem(mi, itm);
-
-      mi.IsEnabled = ( itm != null && itm.Queue.Type == QueueType.Error );
+      _BindContextMenuItem(miReturnErrToOrgin, itm, qi => qi.Queue.Type == QueueType.Error);
 
 #if DEBUG
       if( (items[items.Count-1] as MenuItem).Header != "Headers" ) { 
@@ -933,6 +929,18 @@ namespace ServiceBusMQManager {
     private void ContextMenu_Closed_1(object sender, RoutedEventArgs e) {
 
       _openedByButton = false;
+    }
+
+    private void miResendCommand_Click_1(object sender, RoutedEventArgs e) {
+      QueueItem itm = ((MenuItem)sender).Tag as QueueItem;
+      ISendCommand mgr = _sys.Manager as ISendCommand;
+
+      object cmd = mgr.DeserializeCommand(itm.Content);
+
+      var dlg = new SendCommandWindow(_sys);
+
+      dlg.Show();
+      dlg.SetCommand(cmd);
     }
 
 
