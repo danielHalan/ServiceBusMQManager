@@ -270,11 +270,13 @@ namespace ServiceBusMQ.NServiceBus {
                 if( itm == null ) {
                   itm = CreateQueueItem(q.Queue, msg);
                   itm.Processed = true;
+
+                  if( !PrepareQueueItemForAdd(itm) )
+                    itm = null;
                 }
 
-                if( PrepareQueueItemForAdd(itm) )
+                if( itm != null )
                   r.Insert(0, itm);
-
               }
             }
           } finally {
@@ -456,13 +458,9 @@ namespace ServiceBusMQ.NServiceBus {
       }
     }
     public override void PurgeAllMessages() {
-      bool hasItems = _monitorMsmqQueues.Any(q => q.Main.Peek() != null );
+      _monitorMsmqQueues.ForEach(q => q.Purge());
 
-      if( hasItems ) {
-        _monitorMsmqQueues.ForEach(q => q.Purge());
-
-        OnItemsChanged();
-      }
+      OnItemsChanged();
     }
 
 
