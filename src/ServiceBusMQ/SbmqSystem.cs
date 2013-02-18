@@ -107,7 +107,8 @@ namespace ServiceBusMQ {
 
       IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
+        if( MonitorQueueType[(int)t] )
+          items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
 
       // Oldest first
       if( items.Count > 1 )
