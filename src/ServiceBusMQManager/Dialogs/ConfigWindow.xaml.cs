@@ -131,7 +131,7 @@ namespace ServiceBusMQManager.Dialogs {
 
         BackgroundWorker w = new BackgroundWorker();
         w.DoWork += (s, arg) => {
-          _allQueueNames.Add(serverName, GetDiscoveryService().GetAllAvailableQueueNames(serverName));
+          _allQueueNames.Add(serverName, GetDiscoveryService().GetAllAvailableQueueNames(serverName) );
         };
         w.RunWorkerCompleted += (s, arg) => {
           _SetAccessingServer(false);
@@ -181,7 +181,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void Queue_AddItem_1(object sender, QueueListItemRoutedEventArgs e) {
       QueueListControl s = sender as QueueListControl;
 
-      SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(), cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).ToArray());
+      SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(), cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).OrderBy( name => name ).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
 
