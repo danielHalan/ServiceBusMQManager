@@ -301,7 +301,10 @@ namespace ServiceBusMQ.NServiceBus {
     /// <param name="itm"></param>
     /// <returns></returns>
     private bool PrepareQueueItemForAdd(QueueItem itm) {
-
+      
+      // Ignore control messages
+      if( itm.Headers.ContainsKey(Headers.ControlMessageHeader) && Convert.ToBoolean(itm.Headers[Headers.ControlMessageHeader]) )
+        return false;
 
       // Get Messages names
       if( itm.Headers.ContainsKey("NServiceBus.EnclosedMessageTypes") ) {
@@ -314,11 +317,6 @@ namespace ServiceBusMQ.NServiceBus {
         itm.Messages = GetMessageNames(itm.Content, false);
       }
       itm.DisplayName = MergeStringArray(itm.Messages).Default(itm.DisplayName).CutEnd(55);
-
-      // Check if is ignored item based on message names
-      if( IsIgnoredQueueItem(itm) )
-        return false;
-
       
       // Get process started time
       if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") ) {
@@ -346,7 +344,7 @@ namespace ServiceBusMQ.NServiceBus {
           if( itm.Headers.ContainsKey("NServiceBus.ExceptionInfo.StackTrace") )
             itm.Error.StackTrace = itm.Headers["NServiceBus.ExceptionInfo.StackTrace"];
 
-          itm.Error.Retries = Convert.ToInt32(itm.Headers["NServiceBus.Retries"]);
+          itm.Error.Retries = Convert.ToInt32(itm.Headers[Headers.Retries]);
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
           itm.Error = null;

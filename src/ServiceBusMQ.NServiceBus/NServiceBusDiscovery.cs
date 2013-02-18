@@ -48,7 +48,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     private bool IsIgnoredQueue(string queueName) {
-      return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
+      return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") || queueName.EndsWith(".timeoutsdispatcher") );
     }
 
   }

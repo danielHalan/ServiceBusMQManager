@@ -30,8 +30,6 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override void Initialize(string serverName, Queue[] monitorQueues) {
       base.Initialize(serverName, monitorQueues);
-
-      //_ignoreMessageBody = new StreamReader(this.GetType().Assembly.GetManifestResourceStream("ServiceBusMQ.NServiceBus.CompletionMessage.json")).ReadToEnd();
     }
 
 

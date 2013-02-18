@@ -54,12 +54,6 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-
-    private static readonly string NSERVICEBUS_INFRA_MESSAGE = "NServiceBus.Unicast.Transport.CompletionMessage";
-
-    public bool IsIgnoredQueueItem(QueueItem itm) {
-      return ( itm.Messages.Length == 1 && itm.Messages[0].Name == NSERVICEBUS_INFRA_MESSAGE );
-    }
     public bool IsIgnoredQueue(string queueName) {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }

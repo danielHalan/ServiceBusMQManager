@@ -501,6 +501,13 @@
     <Resource Include="Images\history.png" />
     <Resource Include="Images\StackTrace-white.png" />
     <Resource Include="Images\StackTrace.png" />
+    <Resource Include="Images\Command-Processed.png" />
+    <Resource Include="Images\Command-Processed.selected.png" />
+    <Resource Include="Images\Event-Processed.png" />
+    <Resource Include="Images\Event-Processed.selected.png" />
+    <Resource Include="Images\message-Processed.png" />
+    <Resource Include="Images\message-Processed.selected.png" />
+    <Resource Include="Images\message.selected.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
