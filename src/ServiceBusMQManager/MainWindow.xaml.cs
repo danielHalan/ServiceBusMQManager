@@ -524,9 +524,14 @@ namespace ServiceBusMQManager {
 #endif
 
     }
+
+    private string GetQueueItemContent(QueueItem itm) {
+      return itm.Content == null ? _mgr.LoadMessageContent(itm) : itm.Content;
+    }
+
     private void SetSelectedItem(QueueItem itm) {
 
-      if( itm != null && itm.Content != null ) {
+      if( itm != null ) {
 
         if( _isMinimized )
           return;
@@ -542,9 +547,8 @@ namespace ServiceBusMQManager {
         }
 
 
-        var content = itm.Content == null ? _mgr.LoadMessageContent(itm) : itm.Content;
 
-        _dlg.SetContent(content, _mgr.MessageContentFormat, itm.Error);
+        _dlg.SetContent(GetQueueItemContent(itm), _mgr.MessageContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
 
         if( !_dlgShown ) {
@@ -799,7 +803,7 @@ namespace ServiceBusMQManager {
     private void miCopyMessageContent_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
-      Clipboard.SetData(DataFormats.Text, itm.Content);
+      Clipboard.SetData(DataFormats.Text, GetQueueItemContent(itm));
     }
     private void miDeleteMessage_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
@@ -936,7 +940,7 @@ namespace ServiceBusMQManager {
       QueueItem itm = ((MenuItem)sender).Tag as QueueItem;
       ISendCommand mgr = _sys.Manager as ISendCommand;
 
-      object cmd = mgr.DeserializeCommand(itm.Content);
+      object cmd = mgr.DeserializeCommand(GetQueueItemContent(itm));
 
       var dlg = new SendCommandWindow(_sys);
 

@@ -189,9 +189,10 @@ namespace ServiceBusMQ.NServiceBus {
 
     private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type) {
 
+      q.MessageReadPropertyFilter.Id = true;
       q.MessageReadPropertyFilter.ArrivedTime = true;
       q.MessageReadPropertyFilter.Label = true;
-      q.MessageReadPropertyFilter.Body = true;
+      q.MessageReadPropertyFilter.Body = false;
 
       //if( type == QueueType.Error )
       q.MessageReadPropertyFilter.Extension = true;
@@ -221,12 +222,12 @@ namespace ServiceBusMQ.NServiceBus {
 
             if( itm == null ) {
               itm = CreateQueueItem(q.Queue, msg);
-             
+
               // Load Content and check if its not an infra-message
               if( !PrepareQueueItemForAdd(itm) )
                 itm = null;
-            } 
-            
+            }
+
             if( itm != null )
               r.Insert(0, itm);
           }
@@ -294,16 +295,67 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
+    /// <summary>
+    /// Called when we know that we actually shall add the item, and here we can execute processes that takes extra time
+    /// </summary>
+    /// <param name="itm"></param>
+    /// <returns></returns>
     private bool PrepareQueueItemForAdd(QueueItem itm) {
-      itm.MessageNames = GetMessageNames(itm.Content, true);
 
-      if( !IsIgnoredQueueItem(itm) ) {
-        itm.DisplayName = MergeStringArray(GetMessageNames(itm.Content, false)).Default(itm.DisplayName).CutEnd(55);
 
-        return true;
+      // Get Messages names
+      if( itm.Headers.ContainsKey("NServiceBus.EnclosedMessageTypes") ) {
+        itm.MessageNames = ExtractEnclosedMessageTypeNames(itm.Headers["NServiceBus.EnclosedMessageTypes"]);
+
+      } else { // Get from Message body
+        if( itm.Content == null )
+          LoadMessageContent(itm);
+
+        itm.MessageNames = GetMessageNames(itm.Content, false);
+      }
+      itm.DisplayName = MergeStringArray(itm.MessageNames).Default(itm.DisplayName).CutEnd(55);
+
+      // Check if is ignored item based on message names
+      if( IsIgnoredQueueItem(itm) )
+        return false;
+
+      
+      // Get process started time
+      if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") ) {
+
+        try {
+          itm.ProcessTime = Convert.ToInt32(( Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) -
+                            Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"]) ).TotalSeconds);
+
+        } catch {
+#if DEBUG
+          Console.WriteLine("Failed to parse NServiceBus.ProcessingStarted");
+#endif
+        }
+
       }
 
-      return false;
+      // Get Error message info
+      if( itm.Headers.ContainsKey("NServiceBus.ExceptionInfo.Message") ) {
+
+        itm.Error = new QueueItemError();
+        try {
+          itm.Error.State = itm.Queue.Type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
+          itm.Error.Message = itm.Headers["NServiceBus.ExceptionInfo.Message"];
+
+          if( itm.Headers.ContainsKey("NServiceBus.ExceptionInfo.StackTrace") )
+            itm.Error.StackTrace = itm.Headers["NServiceBus.ExceptionInfo.StackTrace"];
+
+          itm.Error.Retries = Convert.ToInt32(itm.Headers["NServiceBus.Retries"]);
+          //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
+        } catch {
+          itm.Error = null;
+        }
+      }
+
+
+
+      return true;
     }
 
     private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
@@ -313,7 +365,7 @@ namespace ServiceBusMQ.NServiceBus {
       itm.DisplayName = msg.Label;
       itm.Id = msg.Id;
       itm.ArrivedTime = msg.ArrivedTime;
-      itm.Content = ReadMessageStream(msg.BodyStream);
+      //itm.Content = ReadMessageStream(msg.BodyStream);
 
       itm.Headers = new Dictionary<string, string>();
       if( msg.Extension.Length > 0 ) {
@@ -325,36 +377,26 @@ namespace ServiceBusMQ.NServiceBus {
             itm.Headers.Add(pair.Key, pair.Value);
       }
 
-      if( itm.Headers.Any(k => k.Key == "NServiceBus.ProcessingStarted") ) {
-
-        try {
-          itm.ProcessTime = Convert.ToInt32(( Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) -
-                            Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"]) ).TotalSeconds);
-
-        } catch { }
-
-      }
-
-
-      if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.Message") ) {
-
-        itm.Error = new QueueItemError();
-        try {
-          itm.Error.State = queue.Type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
-
-          itm.Error.Message = itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.ExceptionInfo.Message").Value;
-
-          if( itm.Headers.Any(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace") )
-            itm.Error.StackTrace = itm.Headers.Single(k => k.Key == "NServiceBus.ExceptionInfo.StackTrace").Value;
-
-          itm.Error.Retries = Convert.ToInt32(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.Retries").Value);
-          //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
-        } catch {
-          itm.Error = null;
-        }
-      }
 
       return itm;
+    }
+
+    private string[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
+      string[] types = content.Split(';');
+      List<string> r = new List<string>(types.Length);
+
+      foreach( string type in types ) {
+
+        int start = 0;
+        int end = type.IndexOf(',', start);
+
+        if( !includeNamespace ) {
+          start = type.LastIndexOf('.', end) + 1;
+        }
+        r.Add(type.Substring(start, end - start));
+      }
+
+      return r.ToArray();
     }
 
 
@@ -366,11 +408,9 @@ namespace ServiceBusMQ.NServiceBus {
     public override string LoadMessageContent(QueueItem itm) {
       if( itm.Content == null ) {
 
-        MessageQueue mq = GetMessageQueue(itm);
+        MsmqMessageQueue msmq = GetMessageQueue(itm);
 
-        mq.MessageReadPropertyFilter.ArrivedTime = false;
-        mq.MessageReadPropertyFilter.Body = true;
-        itm.Content = ReadMessageStream(mq.PeekById(itm.Id).BodyStream);
+        msmq.LoadMessageContent(itm);
       }
 
       return itm.Content;
