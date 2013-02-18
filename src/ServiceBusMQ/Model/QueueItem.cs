@@ -34,7 +34,7 @@ namespace ServiceBusMQ.Model {
 
     public string Id { get; set; }
     public string DisplayName { get; set; }
-    public string[] MessageNames { get; set; }
+    public MessageInfo[] Messages { get; set; }
 
     public Queue Queue { get; private set; }
 

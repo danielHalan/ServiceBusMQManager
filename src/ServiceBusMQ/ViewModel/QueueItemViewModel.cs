@@ -49,7 +49,7 @@ namespace ServiceBusMQ.ViewModel {
     private void MapQueueItem(QueueItem item) {
       Id = item.Id;
       DisplayName = item.DisplayName;
-      MessageNames = item.MessageNames;
+      Messages = item.Messages;
 
       ArrivedTime = item.ArrivedTime;
       ProcessTime = item.ProcessTime;

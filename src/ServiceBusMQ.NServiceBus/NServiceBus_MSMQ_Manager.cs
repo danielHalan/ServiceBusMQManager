@@ -305,15 +305,15 @@ namespace ServiceBusMQ.NServiceBus {
 
       // Get Messages names
       if( itm.Headers.ContainsKey("NServiceBus.EnclosedMessageTypes") ) {
-        itm.MessageNames = ExtractEnclosedMessageTypeNames(itm.Headers["NServiceBus.EnclosedMessageTypes"]);
+        itm.Messages = ExtractEnclosedMessageTypeNames(itm.Headers["NServiceBus.EnclosedMessageTypes"]);
 
       } else { // Get from Message body
         if( itm.Content == null )
           LoadMessageContent(itm);
 
-        itm.MessageNames = GetMessageNames(itm.Content, false);
+        itm.Messages = GetMessageNames(itm.Content, false);
       }
-      itm.DisplayName = MergeStringArray(itm.MessageNames).Default(itm.DisplayName).CutEnd(55);
+      itm.DisplayName = MergeStringArray(itm.Messages).Default(itm.DisplayName).CutEnd(55);
 
       // Check if is ignored item based on message names
       if( IsIgnoredQueueItem(itm) )
@@ -381,9 +381,9 @@ namespace ServiceBusMQ.NServiceBus {
       return itm;
     }
 
-    private string[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
+    private MessageInfo[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
       string[] types = content.Split(';');
-      List<string> r = new List<string>(types.Length);
+      List<MessageInfo> r = new List<MessageInfo>(types.Length);
 
       foreach( string type in types ) {
 
@@ -393,7 +393,7 @@ namespace ServiceBusMQ.NServiceBus {
         if( !includeNamespace ) {
           start = type.LastIndexOf('.', end) + 1;
         }
-        r.Add(type.Substring(start, end - start));
+        r.Add( new MessageInfo(type.Substring(start, end - start), type) );
       }
 
       return r.ToArray();

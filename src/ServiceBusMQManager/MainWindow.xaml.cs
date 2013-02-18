@@ -204,7 +204,7 @@ namespace ServiceBusMQManager {
     }
 
     private void RestoreMonitorQueueState() {
-      
+
       _sys.MonitorCommands = btnCmd.IsChecked == true;
       _sys.MonitorEvents = btnEvent.IsChecked == true;
       _sys.MonitorMessages = btnMsg.IsChecked == true;
@@ -463,7 +463,7 @@ namespace ServiceBusMQManager {
 
 
     private void _BindContextMenuItem(MenuItem mi, QueueItem itm, Func<QueueItem, bool> eval = null) {
-      mi.IsEnabled = itm != null && (eval != null && eval(itm));
+      mi.IsEnabled = itm != null && ( eval != null && eval(itm) );
 
       if( itm != null )
         mi.Tag = itm;
@@ -499,7 +499,7 @@ namespace ServiceBusMQManager {
       // Copy to Clipboard
       _BindContextMenuItem(miCopyMsgId, itm);
       _BindContextMenuItem(miCopyMsgContent, itm);
-      _BindContextMenuItem(miResendCommand, itm, qi => _sys.CanSendCommand && qi.Queue.Type == QueueType.Command );
+      _BindContextMenuItem(miResendCommand, itm, qi => _sys.CanSendCommand && qi.Queue.Type == QueueType.Command);
 
       // Remove message
       _BindContextMenuItem(miPurgeMsg, itm, qi => !qi.Processed);
@@ -937,15 +937,21 @@ namespace ServiceBusMQManager {
     }
 
     private void miResendCommand_Click_1(object sender, RoutedEventArgs e) {
-      QueueItem itm = ((MenuItem)sender).Tag as QueueItem;
+      QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
       ISendCommand mgr = _sys.Manager as ISendCommand;
 
-      object cmd = mgr.DeserializeCommand(GetQueueItemContent(itm));
+      if( itm.Messages.Length == 1 ) {
 
-      var dlg = new SendCommandWindow(_sys);
+        object cmd = mgr.DeserializeCommand(GetQueueItemContent(itm), Type.GetType(itm.Messages[0].AssemblyQualifiedName));
 
-      dlg.Show();
-      dlg.SetCommand(cmd);
+        if( cmd != null ) {
+          var dlg = new SendCommandWindow(_sys);
+
+          dlg.Show();
+          dlg.SetCommand(cmd);
+        }
+
+      } else MessageBox.Show("ServiceBus MQ Manager Don't support messages with multiple commands yet.", "Resend Command", MessageBoxButton.OK, MessageBoxImage.Asterisk);
     }
 
 

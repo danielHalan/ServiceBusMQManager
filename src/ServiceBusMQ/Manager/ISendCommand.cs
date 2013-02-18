@@ -61,7 +61,7 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <param name="cmd"></param>
     /// <returns></returns>
-    object DeserializeCommand(string cmd);
+    object DeserializeCommand(string cmd, Type cmdType);
 
     /// <summary>
     /// Property that indicates what transportation format the Message content is being stored in.

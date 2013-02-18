@@ -463,7 +463,8 @@ namespace ServiceBusMQManager.Controls {
                 MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes );
     }
     private object CreateTypeInstance(StackPanel panel) {
-      if( !( panel.Tag as PanelInfo ).EditAsText ) {
+      var pi = ( panel.Tag as PanelInfo );
+      if( !pi.EditAsText ) {
 
         Dictionary<string, object> values = new Dictionary<string, object>();
 
@@ -471,16 +472,14 @@ namespace ServiceBusMQManager.Controls {
           values.Add(atr.DisplayName, atr.Value);
         }
 
-        Type type = ( panel.Tag as PanelInfo ).DataType;
-
-        return Tools.CreateInstance(type, values);
+        return Tools.CreateInstance(pi.DataType, values);
       } else {
 
         var editor = panel.Children.OfType<CommandTextEditor>().SingleOrDefault();
 
         try {
           if( editor != null )
-            return SendCommandManager.DeserializeCommand(editor.Text);
+            return SendCommandManager.DeserializeCommand(editor.Text, pi.DataType);
           else throw new Exception("Could not find Text Editor Control");
         
         } catch( Exception ex ) {

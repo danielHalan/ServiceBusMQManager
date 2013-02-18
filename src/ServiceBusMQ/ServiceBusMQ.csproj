@@ -85,6 +85,7 @@
     <Compile Include="Manager\MessageContentFormat.cs" />
     <Compile Include="Manager\ISendCommand.cs" />
     <Compile Include="Manager\IViewSubscriptions.cs" />
+    <Compile Include="Model\MessageInfo.cs" />
     <Compile Include="Model\Queue.cs" />
     <Compile Include="Model\QueueItemError.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

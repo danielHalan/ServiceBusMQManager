@@ -80,7 +80,7 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
     }
-    public override object DeserializeCommand(string cmd) {
+    public override object DeserializeCommand(string cmd, Type cmdType) {
       var types = new List<Type> { cmd.GetType() };
 
       var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();

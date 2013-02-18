@@ -58,7 +58,7 @@ namespace ServiceBusMQ.NServiceBus {
     private static readonly string NSERVICEBUS_INFRA_MESSAGE = "NServiceBus.Unicast.Transport.CompletionMessage";
 
     public bool IsIgnoredQueueItem(QueueItem itm) {
-      return ( itm.MessageNames.Length == 1 && itm.MessageNames[0] == NSERVICEBUS_INFRA_MESSAGE );
+      return ( itm.Messages.Length == 1 && itm.Messages[0].Name == NSERVICEBUS_INFRA_MESSAGE );
     }
     public bool IsIgnoredQueue(string queueName) {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
@@ -117,16 +117,15 @@ namespace ServiceBusMQ.NServiceBus {
       return _monitorMsmqQueues.Where(q => q.Queue.Type == type);
     }
 
-
-    protected string[] GetMessageNames(string content, bool includeNamespace) {
+    protected MessageInfo[] GetMessageNames(string content, bool includeNamespace) {
 
       if( content.StartsWith("<?xml version=\"1.0\"") )
         return GetXmlMessageNames(content, includeNamespace);
       else return GetJsonMessageNames(content, includeNamespace);
 
     }
-    private string[] GetJsonMessageNames(string content, bool includeNamespace) {
-      List<string> r = new List<string>();
+    private MessageInfo[] GetJsonMessageNames(string content, bool includeNamespace) {
+      List<MessageInfo> r = new List<MessageInfo>();
       try {
         foreach( var msg in GetAllRootCurlyBrackers(content) ) {
 
@@ -137,14 +136,14 @@ namespace ServiceBusMQ.NServiceBus {
             iStart = msg.LastIndexOf(".", iEnd) + 1;
           }
 
-          r.Add(msg.Substring(iStart, iEnd - iStart));
+          r.Add( new MessageInfo(msg.Substring(iStart, iEnd - iStart)));
         }
       } catch { }
 
       return r.ToArray();
     }
-    private string[] GetXmlMessageNames(string content, bool includeNamespace) {
-      List<string> r = new List<string>();
+    private MessageInfo[] GetXmlMessageNames(string content, bool includeNamespace) {
+      List<MessageInfo> r = new List<MessageInfo>();
       try {
         XDocument doc = XDocument.Parse(content);
         string ns = string.Empty;
@@ -154,7 +153,7 @@ namespace ServiceBusMQ.NServiceBus {
         }
 
         foreach( XElement e in doc.Root.Elements() ) {
-          r.Add(ns + e.Name.LocalName);
+          r.Add( new MessageInfo( ns + e.Name.LocalName ));
         }
 
       } catch { }
@@ -188,19 +187,19 @@ namespace ServiceBusMQ.NServiceBus {
 
       return r;
     }
-    protected string MergeStringArray(string[] arr) {
+    protected string MergeStringArray(MessageInfo[] arr) {
       StringBuilder sb = new StringBuilder();
-      foreach( var str in arr ) {
+      foreach( var msg in arr ) {
         if( sb.Length > 0 ) sb.Append(", ");
 
-        sb.Append(str);
+        sb.Append(msg.Name);
       }
 
       return sb.ToString();
     }
 
 
-    public abstract object DeserializeCommand(string cmd);
+    public abstract object DeserializeCommand(string cmd, Type cmdType);
     public abstract string SerializeCommand(object cmd);
 
 
@@ -221,11 +220,11 @@ namespace ServiceBusMQ.NServiceBus {
 
     public event EventHandler<ErrorArgs> ErrorOccured;
 
-    protected void OnError(string message, string stackTrace, bool fatal) {
+    protected void OnError(string message, string stackTrace, bool fatal = false) {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, stackTrace, fatal));
     }
-    protected void OnError(string message, Exception e, bool fatal) {
+    protected void OnError(string message, Exception e, bool fatal = false) {
       OnError(string.Format("{0}\n\r {1} ({2})", message, e.Message, e.GetType().Name), e.StackTrace, fatal);
     }
 

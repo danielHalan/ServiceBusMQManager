@@ -82,19 +82,24 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
     }
-    public override object DeserializeCommand(string cmd) {
-      var types = new List<Type> { cmd.GetType() };
+    public override object DeserializeCommand(string cmd, Type cmdType) {
+      try {
+        var types = new List<Type> { cmdType };
 
-      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
-      mapper.Initialize(types);
+        var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+        mapper.Initialize(types);
 
-      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
-      serializr.Initialize(types);
+        var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
+        serializr.Initialize(types);
 
-      using( Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(cmd)) ) {
-        var obj = serializr.Deserialize(stream);
+        using( Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(cmd)) ) {
+          var obj = serializr.Deserialize(stream);
 
-        return obj[0];
+          return obj[0];
+        }
+      } catch( Exception e ) {
+        OnError("Failed to parse command string as XML", e);
+        return null;
       }
 
     }
