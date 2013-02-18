@@ -219,13 +219,18 @@ namespace ServiceBusMQ.NServiceBus {
 
             QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
-            if( itm == null )
+            if( itm == null ) {
               itm = CreateQueueItem(q.Queue, msg);
-
-            if( PrepareQueueItemForAdd(itm) )
+             
+              // Load Content and check if its not an infra-message
+              if( !PrepareQueueItemForAdd(itm) )
+                itm = null;
+            } 
+            
+            if( itm != null )
               r.Insert(0, itm);
-
           }
+
         } catch( Exception e ) {
           OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
         }
