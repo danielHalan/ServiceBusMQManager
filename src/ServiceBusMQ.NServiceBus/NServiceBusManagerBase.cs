@@ -128,20 +128,22 @@ namespace ServiceBusMQ.NServiceBus {
     private string[] GetJsonMessageNames(string content, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
-        int iStart = content.IndexOf(JSON_START) + JSON_START.Length;
-        int iEnd = content.IndexOf(JSON_END, iStart);
+        foreach( var msg in GetAllRootCurlyBrackers(content) ) {
 
-        if( !includeNamespace ) {
-          iStart = content.LastIndexOf(".", iEnd) + 1;
+          int iStart = msg.IndexOf(JSON_START) + JSON_START.Length;
+          int iEnd = msg.IndexOf(JSON_END, iStart);
+
+          if( !includeNamespace ) {
+            iStart = msg.LastIndexOf(".", iEnd) + 1;
+          }
+
+          r.Add(msg.Substring(iStart, iEnd - iStart));
         }
-
-        r.Add(content.Substring(iStart, iEnd - iStart));
-
       } catch { }
 
       return r.ToArray();
     }
-    protected string[] GetXmlMessageNames(string content, bool includeNamespace) {
+    private string[] GetXmlMessageNames(string content, bool includeNamespace) {
       List<string> r = new List<string>();
       try {
         XDocument doc = XDocument.Parse(content);
@@ -159,9 +161,33 @@ namespace ServiceBusMQ.NServiceBus {
 
       return r.ToArray();
     }
+    
+    private IEnumerable<string> GetAllRootCurlyBrackers(string content) {
+      int start = -1;
+      int stack = 0;
+      List<string> r = new List<string>();
 
+      int i = 0;
+      do {
+        if( content[i] == '{' ) {
+          if( stack == 0 )
+            start = i;
 
+          stack++;
+        }
 
+        if( content[i] == '}' ) {
+          stack--;
+
+          if( stack == 0 ) {
+            r.Add(content.Substring(start, i - start));
+          }
+        }
+
+      } while( ++i < content.Length );
+
+      return r;
+    }
     protected string MergeStringArray(string[] arr) {
       StringBuilder sb = new StringBuilder();
       foreach( var str in arr ) {
@@ -172,6 +198,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       return sb.ToString();
     }
+
 
     public abstract object DeserializeCommand(string cmd);
     public abstract string SerializeCommand(object cmd);
