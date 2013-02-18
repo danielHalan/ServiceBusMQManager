@@ -453,7 +453,7 @@ namespace ServiceBusMQManager {
     }
     private void timer_Tick(object sender, EventArgs e) {
       try {
-        _sys.UpdateUnprocessedQueueItemList();
+        _sys.RefreshUnprocessedQueueItemList();
       } catch( Exception ex ) {
 #if DEBUG
         MessageBox.Show("Failed when fetching messages " + ex.Message);
@@ -508,6 +508,7 @@ namespace ServiceBusMQManager {
       _BindContextMenuItem(miReturnErrToOrgin, itm, qi => qi.Queue.Type == QueueType.Error);
 
 #if DEBUG
+      MenuItem mi = null;
       if( (items[items.Count-1] as MenuItem).Header != "Headers" ) { 
         mi = new MenuItem();
         mi.Header = "Headers";
@@ -880,7 +881,7 @@ namespace ServiceBusMQManager {
       lbLoading.Visibility = System.Windows.Visibility.Visible;
       WindowTools.Sleep(10);
       try {
-        _sys.GetProcessedQueueItems(timeSpan);
+        _sys.RetrieveProcessedQueueItems(timeSpan);
       } finally {
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       }

@@ -91,7 +91,8 @@ namespace ServiceBusMQ {
 
 
     protected volatile object _itemsLock = new object();
-    public void UpdateUnprocessedQueueItemList() {
+    
+    public void RefreshUnprocessedQueueItemList() {
 
       if( !MonitorQueueType.Any( mq => mq ) || _mgr.MonitorQueues.Length == 0 )
         return;
@@ -108,9 +109,9 @@ namespace ServiceBusMQ {
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
         items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
 
-      // Newest first
+      // Oldest first
       if( items.Count > 1 )
-        items.Sort((a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime));
+        items.Sort((a, b) => a.ArrivedTime.CompareTo(b.ArrivedTime));
 
       bool changed = false;
       lock( _itemsLock ) {
@@ -151,8 +152,7 @@ namespace ServiceBusMQ {
         OnItemsChanged();
 
     }
-
-    public void GetProcessedQueueItems(TimeSpan timeSpan) {
+    public void RetrieveProcessedQueueItems(TimeSpan timeSpan) {
       if( _mgr.MonitorQueues.Length == 0 )
         return;
 
@@ -319,17 +319,14 @@ namespace ServiceBusMQ {
       get { return (bool)MonitorQueueType[(int)QueueType.Command]; }
       set { MonitorQueueType[(int)QueueType.Command] = value; UpdateItems(QueueType.Command, value); }
     }
-
     public bool MonitorEvents {
       get { return (bool)MonitorQueueType[(int)QueueType.Event]; }
       set { MonitorQueueType[(int)QueueType.Event] = value; UpdateItems(QueueType.Event, value); }
     }
-
     public bool MonitorMessages {
       get { return (bool)MonitorQueueType[(int)QueueType.Message]; }
       set { MonitorQueueType[(int)QueueType.Message] = value; UpdateItems(QueueType.Message, value); }
     }
-
     public bool MonitorErrors {
       get { return (bool)MonitorQueueType[(int)QueueType.Error]; ; }
       set { MonitorQueueType[(int)QueueType.Error] = value; UpdateItems(QueueType.Error, value); }
