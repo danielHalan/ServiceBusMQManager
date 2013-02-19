@@ -52,7 +52,7 @@ namespace ServiceBusMQ {
 
     public bool CanSendCommand { get; private set; }
     public bool CanViewSubscriptions { get; private set; }
-    
+
     private SbmqSystem() {
     }
 
@@ -68,10 +68,10 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += SbMgr_ErrorOccured;
       _mgr.ItemsChanged += SbMgr_ItemsChanged;
 
-      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select( mq => new Queue(mq.Name, mq.Type, mq.Color) ).ToArray());
+      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray());
 
       CanSendCommand = ( _mgr as ISendCommand ) != null;
-      CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null; 
+      CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null;
 
       _history = new CommandHistoryManager(Config);
     }
@@ -91,10 +91,10 @@ namespace ServiceBusMQ {
 
 
     protected volatile object _itemsLock = new object();
-    
+
     public void RefreshUnprocessedQueueItemList() {
 
-      if( !MonitorQueueType.Any( mq => mq ) || _mgr.MonitorQueues.Length == 0 )
+      if( !MonitorQueueType.Any(mq => mq) || _mgr.MonitorQueues.Length == 0 )
         return;
 
       List<QueueItem> items = new List<QueueItem>();
@@ -178,17 +178,9 @@ namespace ServiceBusMQ {
           if( !_items.Any(i => i.Id == itm.Id) ) {
 
             _items.Insert(0, new QueueItemViewModel(itm));
-            changed = true;
-          }
 
-        // Mark removed as deleted messages
-        foreach( var itm in _items )
-          if( !items.Any(i2 => i2.Id == itm.Id) ) {
-
-            if( !itm.Processed ) {
-              itm.Processed = true;
+            if( !changed )
               changed = true;
-            }
           }
 
       }
@@ -250,7 +242,7 @@ namespace ServiceBusMQ {
       else return new Type[0];
     }
 
-    
+
     public MessageSubscription[] GetMessageSubscriptions(string serverName) {
       var sc = _mgr as IViewSubscriptions;
       if( sc != null )
@@ -262,7 +254,7 @@ namespace ServiceBusMQ {
     public void SendCommand(string destinationServer, string destinationQueue, object message) {
       var sc = _mgr as ISendCommand;
       if( sc != null ) {
-        
+
         if( !_isServiceBusStarted ) {
           sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition);
           _isServiceBusStarted = true;
