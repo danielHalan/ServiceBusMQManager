@@ -344,7 +344,9 @@ namespace ServiceBusMQ.NServiceBus {
           if( itm.Headers.ContainsKey("NServiceBus.ExceptionInfo.StackTrace") )
             itm.Error.StackTrace = itm.Headers["NServiceBus.ExceptionInfo.StackTrace"];
 
-          itm.Error.Retries = Convert.ToInt32(itm.Headers[Headers.Retries]);
+          if( itm.Headers.ContainsKey(Headers.Retries) )
+            itm.Error.Retries = Convert.ToInt32(itm.Headers[Headers.Retries]);
+          
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
           itm.Error = null;
