@@ -124,15 +124,20 @@ namespace ServiceBusMQ {
           if( existingItem == null ) {
 
             _items.Insert(0, new QueueItemViewModel(itm));
-            changed = true;
+            
+            if( !changed )
+              changed = true;
 
           } else if( existingItem.Processed ) {
 
+            // It has been retried, move to top
             _items.Remove(existingItem);
-            itm.Processed = false;
+            existingItem.Processed = false;
 
-            _items.Insert(0, new QueueItemViewModel(itm));
-            changed = true;
+            _items.Insert(0, existingItem);
+            
+            if( !changed )
+              changed = true;
           }
 
         }
@@ -143,7 +148,9 @@ namespace ServiceBusMQ {
 
             if( !itm.Processed ) {
               itm.Processed = true;
-              changed = true;
+              
+              if( !changed )
+                changed = true;
             }
           }
 
@@ -177,7 +184,7 @@ namespace ServiceBusMQ {
         foreach( var itm in items )
           if( !_items.Any(i => i.Id == itm.Id) ) {
 
-            _items.Insert(0, new QueueItemViewModel(itm));
+            _items.Add(new QueueItemViewModel(itm));
 
             if( !changed )
               changed = true;
