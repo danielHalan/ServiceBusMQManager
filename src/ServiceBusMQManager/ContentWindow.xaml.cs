@@ -71,19 +71,19 @@ namespace ServiceBusMQManager {
 
 
 
-    public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {    
+    public void SetContent(string content, MessageContentFormat contentType, QueueItemError errorMsg = null) {
 
-      switch(contentType) {
-        case MessageContentFormat.Xml:
+      if( content.IsValid() && !content.StartsWith("**") ) {
+
+        if( contentType == MessageContentFormat.Xml )
           tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Xml;
-          tbContent.Text = content;
-          break;
 
-        case MessageContentFormat.Json:
+        else if( contentType == MessageContentFormat.Json )
           tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Json;
-          tbContent.Text = content;
-          break;
-      }
+
+      } else tbContent.CodeLanguage = NServiceBus.Profiler.Common.CodeParser.CodeLanguage.Plain;
+
+      tbContent.Text = content;
 
       if( errorMsg != null ) {
         theGrid.RowDefinitions[1].Height = new GridLength(61);

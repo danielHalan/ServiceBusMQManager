@@ -61,9 +61,43 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public void LoadMessageContent(QueueItem itm) {
-      Message msg = ( itm.Processed ) ? _journalContent.ReceiveById(itm.Id) : _mainContent.PeekById(itm.Id);
+      Message msg = null;
 
-      itm.Content = ReadMessageStream(msg.BodyStream);
+      if( !itm.Processed ) {
+        try { 
+          msg = _mainContent.PeekById(itm.Id);
+        
+        } catch { 
+
+          if( _journalContent != null ) {
+            try { 
+              msg = _journalContent.ReceiveById(itm.Id);
+          
+            } catch { 
+              itm.Content = "**MESSAGE HAS BEEN PROCESSED OR PURGED**";
+            }
+
+          } else itm.Content = "**MESSAGE HAS BEEN PROCESSED OR PURGED AND JOURNALING IS TURNED OFF**";
+
+        }
+      } else {
+
+        if( _journalContent != null ) {
+        
+          try { 
+            msg = _journalContent.ReceiveById(itm.Id);
+          } catch { 
+            itm.Content = "**MESSAGE HAS BEEN PURGED FROM JOURNAL**";
+          }
+
+        } else { 
+            itm.Content = "**MESSAGE HAS BEEN PROCESSED OR PURGED AND JOURNALING IS TURNED OFF**";
+        }
+
+      }
+
+      if( msg != null )
+        itm.Content = ReadMessageStream(msg.BodyStream);
     }
     private string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )
