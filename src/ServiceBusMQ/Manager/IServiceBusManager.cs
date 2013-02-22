@@ -29,7 +29,13 @@ namespace ServiceBusMQ.Manager {
     /// <param name="serverName">The Host name of the server</param>
     /// <param name="monitorQueues">Queues to monitor</param>
     /// <param name="commandDef">Command definition</param>
-    void Initialize(string serverName, Queue[] monitorQueues);
+    void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState);
+
+    /// <summary>
+    /// Called when manager should shut-down and free all resources
+    /// </summary>
+    void Terminate();
+
 
     /// <summary>
     /// What type of message content to expect in queues

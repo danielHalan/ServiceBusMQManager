@@ -40,6 +40,7 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     protected string _serverName;
+    protected SbmqmMonitorState _monitorState;
     protected CommandDefinition _commandDef;
 
     protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
@@ -47,10 +48,11 @@ namespace ServiceBusMQ.NServiceBus {
 
     public NServiceBusManagerBase() {
     }
-    public virtual void Initialize(string serverName, Queue[] monitorQueues) {
+    public virtual void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       _serverName = serverName;
 
       MonitorQueues = monitorQueues;
+      _monitorState = monitorState;
     }
 
 
@@ -251,6 +253,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
+    public abstract void Terminate();
   }
 
 }

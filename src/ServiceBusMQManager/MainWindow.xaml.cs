@@ -170,8 +170,8 @@ namespace ServiceBusMQManager {
     private void RestartSystem() {
       _timer.Stop();
 
-      //if( _sys != null )
-      //  _sys.Manager.Dispose();
+      if( _sys != null )
+        _sys.Manager.Terminate();
 
       this.IsEnabled = false;
       lbItems.ItemsSource = null;
@@ -526,7 +526,7 @@ namespace ServiceBusMQManager {
     }
 
     private string GetQueueItemContent(QueueItem itm) {
-      return itm.Content == null ? _mgr.LoadMessageContent(itm) : itm.Content;
+      return itm.Content == null || itm.Content.StartsWith("**") ? _mgr.LoadMessageContent(itm) : itm.Content;
     }
 
     private void SetSelectedItem(QueueItem itm) {
@@ -719,8 +719,8 @@ namespace ServiceBusMQManager {
 
       StoreUIState();
 
-      //if( _sys != null )
-      //  _sys.Manager.Dispose();
+      if( _sys != null )
+        _sys.Manager.Terminate();
     }
 
     private void StoreUIState() {

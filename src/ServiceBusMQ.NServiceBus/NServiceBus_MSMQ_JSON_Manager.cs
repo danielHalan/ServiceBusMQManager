@@ -28,8 +28,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override string TransportationName { get { return "MSMQ (JSON)"; } }
 
-    public override void Initialize(string serverName, Queue[] monitorQueues) {
-      base.Initialize(serverName, monitorQueues);
+    public override void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+      base.Initialize(serverName, monitorQueues, monitorState);
     }
 
 

@@ -39,6 +39,7 @@ namespace ServiceBusMQ {
     IServiceBusManager _mgr;
     CommandHistoryManager _history;
     static UIStateConfig _uiState = new UIStateConfig();
+    private SbmqmMonitorState _monitorState;
 
 
     List<QueueItemViewModel> _items = new List<QueueItemViewModel>();
@@ -58,7 +59,7 @@ namespace ServiceBusMQ {
 
     private void Initialize() {
       AppDomain.CurrentDomain.AssemblyResolve += SbmqmDomain_AssemblyResolve;
-      MonitorQueueType = new bool[4];
+      _monitorState = new SbmqmMonitorState();
 
       Config = SystemConfig.Load();
 
@@ -68,12 +69,13 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += SbMgr_ErrorOccured;
       _mgr.ItemsChanged += SbMgr_ItemsChanged;
 
-      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray());
+      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
 
       CanSendCommand = ( _mgr as ISendCommand ) != null;
       CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null;
 
       _history = new CommandHistoryManager(Config);
+
     }
 
     private static SbmqSystem _instance;
@@ -94,7 +96,7 @@ namespace ServiceBusMQ {
 
     public void RefreshUnprocessedQueueItemList() {
 
-      if( !MonitorQueueType.Any(mq => mq) || _mgr.MonitorQueues.Length == 0 )
+      if( !_monitorState.MonitorQueueType.Any(mq => mq) || _mgr.MonitorQueues.Length == 0 )
         return;
 
       List<QueueItem> items = new List<QueueItem>();
@@ -107,7 +109,7 @@ namespace ServiceBusMQ {
 
       IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        if( MonitorQueueType[(int)t] )
+        if( _monitorState.MonitorQueueType[(int)t] )
           items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
 
       // Oldest first
@@ -174,7 +176,7 @@ namespace ServiceBusMQ {
       DateTime since = DateTime.Now - timeSpan;
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        if( MonitorQueueType[(int)t] )
+        if( _monitorState.MonitorQueueType[(int)t] )
           items.AddRange(_mgr.GetProcessedMessages(t, since, _items.AsEnumerable<QueueItem>()));
 
       bool changed = false;
@@ -313,27 +315,26 @@ namespace ServiceBusMQ {
     }
 
 
-    bool[] MonitorQueueType { get; set; }
-
     public bool MonitorCommands {
-      get { return (bool)MonitorQueueType[(int)QueueType.Command]; }
-      set { MonitorQueueType[(int)QueueType.Command] = value; UpdateItems(QueueType.Command, value); }
+      get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Command]; }
+      set { MonitorStateChanged(QueueType.Command, value); }
     }
     public bool MonitorEvents {
-      get { return (bool)MonitorQueueType[(int)QueueType.Event]; }
-      set { MonitorQueueType[(int)QueueType.Event] = value; UpdateItems(QueueType.Event, value); }
+      get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Event]; }
+      set { MonitorStateChanged(QueueType.Event, value); }
     }
     public bool MonitorMessages {
-      get { return (bool)MonitorQueueType[(int)QueueType.Message]; }
-      set { MonitorQueueType[(int)QueueType.Message] = value; UpdateItems(QueueType.Message, value); }
+      get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Message]; }
+      set {  MonitorStateChanged(QueueType.Message, value); }
     }
     public bool MonitorErrors {
-      get { return (bool)MonitorQueueType[(int)QueueType.Error]; ; }
-      set { MonitorQueueType[(int)QueueType.Error] = value; UpdateItems(QueueType.Error, value); }
+      get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Error]; ; }
+      set { MonitorStateChanged(QueueType.Error, value); }
     }
 
 
-    private void UpdateItems(QueueType type, bool value) {
+    private void MonitorStateChanged(QueueType type, bool value) {
+      _monitorState.MonitorQueueType[(int)type] = value;
 
       if( !value )
         foreach( var itm in _items.Where(i => i.Queue.Type == type).ToArray() )

@@ -29,8 +29,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override string TransportationName { get { return "MSMQ (XML)"; } }
 
-    public override void Initialize(string serverName, Queue[] monitorQueues) {
-      base.Initialize(serverName, monitorQueues);
+    public override void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+      base.Initialize(serverName, monitorQueues, monitorState);
     }
 
     public override void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef) {

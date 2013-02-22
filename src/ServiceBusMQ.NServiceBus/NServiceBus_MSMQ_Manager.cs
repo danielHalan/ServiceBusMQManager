@@ -49,27 +49,26 @@ namespace ServiceBusMQ.NServiceBus {
       public MessageQueue MsmqQueue { get; set; }
     }
 
-    bool _disposed = false;
+    bool _terminated = false;
 
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Initialize(string serverName, Queue[] monitorQueues) {
-      base.Initialize(serverName, monitorQueues);
+    public override void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+      base.Initialize(serverName, monitorQueues, monitorState);
 
       LoadQueues();
 
-      // TEMP Removed
-      // StartPeekThreads();
+      StartPeekThreads();
     }
 
-    //public override void Dispose() {
-    //  base.Dispose();
 
-    //  _disposed = true;
-    //}
+    public override void Terminate() {
+      _terminated = true;
+    }
 
-    /*
+
+
     void StartPeekThreads() {
       foreach( QueueType qt in Enum.GetValues(typeof(QueueType)) ) {
 
@@ -87,6 +86,10 @@ namespace ServiceBusMQ.NServiceBus {
       }
     }
 
+    object _peekItemsLock = new object();
+    List<QueueItem> _peekedItems = new List<QueueItem>();
+
+
     public void PeekMessages(object prm) {
       PeekThreadParam p = prm as PeekThreadParam;
       string qName = p.MsmqQueue.GetDisplayName();
@@ -98,7 +101,7 @@ namespace ServiceBusMQ.NServiceBus {
       SetupMessageReadPropertyFilters(p.MsmqQueue, p.Queue.Type);
 
       p.MsmqQueue.PeekCompleted += (source, asyncResult) => {
-        if( IsMonitoring(p.Queue.Type) ) {
+        if( _monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
           Message msg = p.MsmqQueue.EndPeek(asyncResult.AsyncResult);
 
           if( msg.Id == lastId )
@@ -116,12 +119,12 @@ namespace ServiceBusMQ.NServiceBus {
         _isPeeking = false;
       };
 
-      while( !_disposed ) {
+      while( !_terminated ) {
 
-        while( !IsMonitoring(p.Queue.Type) ) {
+        while( !_monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
           Thread.Sleep(1000);
 
-          if( _disposed )
+          if( _terminated )
             return;
         }
 
@@ -150,17 +153,15 @@ namespace ServiceBusMQ.NServiceBus {
 
     private bool TryAddItem(Message msg, Queue q) {
 
-      lock( _itemsLock ) {
+      lock( _peekItemsLock ) {
 
-        if( !_items.Any(i => i.Id == msg.Id) ) {
+        if( !_peekedItems.Any(i => i.Id == msg.Id) ) {
 
           var itm = CreateQueueItem(q, msg);
 
-          // TODO: Refactor, should not use internal _items list
           if( PrepareQueueItemForAdd(itm) )
-            _items.Insert(0, new QueueItemViewModel(itm));
+            _peekedItems.Add(itm);
 
-          OnItemsChanged();
 
           return true;
 
@@ -168,7 +169,7 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
     }
-     */
+
 
 
     private void LoadQueues() {
@@ -215,15 +216,24 @@ namespace ServiceBusMQ.NServiceBus {
 
         SetupMessageReadPropertyFilters(q.Main, q.Queue.Type);
 
+        // Add peaked items
+        lock( _peekItemsLock ) {
+          if( _peekedItems.Count > 0 ) {
+
+            r.AddRange(_peekedItems);
+            _peekedItems.Clear();
+          }
+        }
+
         try {
           foreach( var msg in q.Main.GetAllMessages() ) {
 
             QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
-            if( itm == null ) {
+            if( itm == null && !r.Any( i => i.Id == msg.Id ) ) {
               itm = CreateQueueItem(q.Queue, msg);
 
-              // Load Content and check if its not an infra-message
+              // Load Message names and check if its not an infra-message
               if( !PrepareQueueItemForAdd(itm) )
                 itm = null;
             }
@@ -301,7 +311,7 @@ namespace ServiceBusMQ.NServiceBus {
     /// <param name="itm"></param>
     /// <returns></returns>
     private bool PrepareQueueItemForAdd(QueueItem itm) {
-      
+
       // Ignore control messages
       if( itm.Headers.ContainsKey(Headers.ControlMessageHeader) && Convert.ToBoolean(itm.Headers[Headers.ControlMessageHeader]) )
         return false;
@@ -317,7 +327,7 @@ namespace ServiceBusMQ.NServiceBus {
         itm.Messages = GetMessageNames(itm.Content, false);
       }
       itm.DisplayName = MergeStringArray(itm.Messages).Default(itm.DisplayName).CutEnd(55);
-      
+
       // Get process started time
       if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") ) {
 
@@ -346,7 +356,7 @@ namespace ServiceBusMQ.NServiceBus {
 
           if( itm.Headers.ContainsKey(Headers.Retries) )
             itm.Error.Retries = Convert.ToInt32(itm.Headers[Headers.Retries]);
-          
+
           //itm.Error.TimeOfFailure = Convert.ToDateTime(itm.Headers.SingleOrDefault(k => k.Key == "NServiceBus.TimeOfFailure").Value);
         } catch {
           itm.Error = null;
@@ -393,7 +403,7 @@ namespace ServiceBusMQ.NServiceBus {
         if( !includeNamespace ) {
           start = type.LastIndexOf('.', end) + 1;
         }
-        r.Add( new MessageInfo(type.Substring(start, end - start), type) );
+        r.Add(new MessageInfo(type.Substring(start, end - start), type));
       }
 
       return r.ToArray();
