@@ -80,9 +80,6 @@
       <HintPath>bin\Interop.MSMQ.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Microsoft.Expression.Drawing">
-      <HintPath>..\..\..\..\..\..\..\..\Users\thanan.CORP\Downloads\Microsoft.Expression.Drawing.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Profiler.Common">
       <HintPath>..\packages\NServiceBus\NServiceBus.Profiler.Common.dll</HintPath>
     </Reference>
