@@ -57,6 +57,8 @@ namespace ServiceBusMQ {
     }
 
     SavedCommand2 _sentCommand = null;
+    
+    [JsonIgnore]
     public SavedCommand2 SentCommand {
       get {
         if( _sentCommand == null )
@@ -124,10 +126,16 @@ namespace ServiceBusMQ {
         var file = JsonFile.Read<SavedCommandItems>(_itemsFile);
 
         _items = new List<SavedCommandItem>(file.Items);
-
+        RemoveDeletedItems();
 
       } else Load1(); // v1
 
+    }
+
+    private void RemoveDeletedItems() {
+      SavedCommandItem[] removed = _items.Where( i => !File.Exists(i.FileName) ).ToArray();
+
+      removed.ForEach( i => _items.Remove(i) );
     }
 
     private void Load1() {
