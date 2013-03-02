@@ -14,18 +14,10 @@
 #endregion
 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.ComponentModel;
-using System.Windows.Threading;
-using System.Windows.Media.Animation;
-using System.Windows.Controls;
 using System.Diagnostics;
-using System.Windows.Media;
+using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media.Animation;
 
 namespace ServiceBusMQManager {
   /// <summary>

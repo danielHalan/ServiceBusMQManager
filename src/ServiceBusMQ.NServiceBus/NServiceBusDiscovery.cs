@@ -13,11 +13,8 @@
 ********************************************************************/
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
-using System.Text;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.NServiceBus {

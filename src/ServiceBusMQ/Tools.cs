@@ -21,8 +21,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ServiceBusMQ {
   public static class Tools {

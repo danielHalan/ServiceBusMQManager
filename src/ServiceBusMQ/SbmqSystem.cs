@@ -15,15 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Windows;
-using System.Windows.Threading;
 using ServiceBusMQ.Configuration;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;

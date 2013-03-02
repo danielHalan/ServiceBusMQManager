@@ -17,8 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
 using ServiceBusMQ.Configuration;
