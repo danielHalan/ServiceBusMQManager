@@ -2,11 +2,12 @@
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Dialogs {
 
-  public enum MessageType { Error }
+  public enum MessageType { Error, Info }
 
   /// <summary>
   /// Interaction logic for MessageDialog.xaml
@@ -24,6 +25,21 @@ namespace ServiceBusMQManager.Dialogs {
       _text = text;
       _e = e;
 
+      switch(_type) {
+        case MessageType.Info:
+          ImageSource = "/ServiceBusMQManager;component/Images/info.circle.png";
+          img.Margin = new Thickness(15, 50, 0, 0);
+          img.Width = 40;
+          btnCancel.Visibility = System.Windows.Visibility.Collapsed;
+          lbSendReportText.Visibility = System.Windows.Visibility.Collapsed;
+          btnOK.Content = "CLOSE";
+          break;
+
+        case MessageType.Error:
+          ImageSource = "/ServiceBusMQManager;component/Images/Error.png";
+          break;
+      }
+
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
       lbTitle.Content = string.Format("{0} - Service Bus MQ Manager", type);
@@ -32,6 +48,15 @@ namespace ServiceBusMQManager.Dialogs {
 
       BindMessage();
     }
+
+    public static readonly DependencyProperty ImageSourceProperty =
+      DependencyProperty.Register("ImageSource", typeof(string), typeof(MessageDialog), new UIPropertyMetadata(string.Empty));
+
+    public string ImageSource {
+      get { return (string)GetValue(ImageSourceProperty); }
+      set { SetValue(ImageSourceProperty, value); }
+    }
+
 
     private void UpdateStackTraceButton() {
       if( _type == MessageType.Error && _e != null ) {

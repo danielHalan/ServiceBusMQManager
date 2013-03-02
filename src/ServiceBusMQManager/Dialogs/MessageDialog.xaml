@@ -42,7 +42,7 @@
             </Button>
 
 
-            <Button HorizontalAlignment="Right" Margin="0,0,137,14" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
+            <Button x:Name="btnCancel" HorizontalAlignment="Right" Margin="0,0,137,14" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
@@ -65,11 +65,11 @@
 
 
 
-            <Button x:Name="btnOK"  HorizontalAlignment="Right" Margin="0,0,17,14" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="True" >
+            <Button x:Name="btnOK"  Content="YES" HorizontalAlignment="Right" Margin="0,0,17,14" VerticalAlignment="Bottom"  IsDefault="True" Click="btnOK_Click" Width="94" Height="29" FontFamily="Segoe UI" IsEnabled="True" >
                 <Button.Template>
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
-                            <TextBlock x:Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0" HorizontalAlignment="Center"><Run Text="YES"/></TextBlock>
+                            <TextBlock x:Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0" HorizontalAlignment="Center"><Run Text="{Binding Path=Content, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}"/></TextBlock>
                         </Border>
 
                         <ControlTemplate.Triggers>
@@ -88,13 +88,14 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Label x:Name="lbInfo" HorizontalContentAlignment="Right" Content="Do you want to send Error report?" Margin="0,0,17,52" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" HorizontalAlignment="Right" Width="346"/>
+            <Label x:Name="lbSendReportText" HorizontalContentAlignment="Right" Content="Do you want to send Error report?" Margin="0,0,17,52" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" HorizontalAlignment="Right" Width="346"/>
             <RichTextBox x:Name="tbMessage" Margin="65,56,28,87" FontFamily="Calibri" FontSize="16"
                          BorderThickness="0,0,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <FlowDocument>
                 </FlowDocument>
             </RichTextBox>
-            <Image HorizontalAlignment="Left" Height="53" Margin="7,50,0,0" VerticalAlignment="Top" Width="50" Source="/ServiceBusMQManager;component/Images/Error.png"/>
+            <Image x:Name="img" HorizontalAlignment="Left" Height="53" Margin="7,50,0,0" VerticalAlignment="Top" Width="50" 
+                   Source="{Binding ImageSource, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
 
 
             <Image x:Name="imgStackTrace" Source="/ServiceBusMQManager;component/Images/StackTrace.png" Width="20" Height="20" Margin="16,0,0,15" HorizontalAlignment="Left" VerticalAlignment="Bottom" >

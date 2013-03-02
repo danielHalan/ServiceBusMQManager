@@ -276,7 +276,7 @@ namespace ServiceBusMQManager {
         System.Diagnostics.Process.GetCurrentProcess().Kill();
     }
     private void LogInfo(string msg) {
-      MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+      MessageDialog.Show(MessageType.Info, msg);
     }
 
     void cvt_HiddenRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
