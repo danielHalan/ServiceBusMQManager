@@ -13,22 +13,6 @@
 ********************************************************************/
 #endregion
 
-using System.Windows.Media;
-#region File Information
-/********************************************************************
-  Project: ServiceBusMQManager
-  File:    TextInputControl.xaml.cs
-  Created: 2012-11-22
-
-  Author(s):
-    Daniel Halan
-
- (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
-     all rights reserved
-
-********************************************************************/
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -444,7 +428,6 @@ namespace ServiceBusMQManager.Controls {
     private void tb_LostFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
     }
-
     private void tb_GotFocus(object sender, RoutedEventArgs e) {
       UpdateBorder();
     }
@@ -480,7 +463,6 @@ namespace ServiceBusMQManager.Controls {
       }
 
     }
-
     private void tb_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
 
 
@@ -495,7 +477,6 @@ namespace ServiceBusMQManager.Controls {
         theGrid.Background = BACKGROUND_LISTITEM_HOVER;
       }
     }
-
     private void tb_MouseLeave(object sender, MouseEventArgs e) {
       if( _isListItem ) {
         theGrid.Background = Brushes.Transparent;

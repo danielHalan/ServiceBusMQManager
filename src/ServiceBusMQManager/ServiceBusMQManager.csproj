@@ -155,6 +155,9 @@
       <DependentUpon>ComplexDataViewControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FailedDeserializingCommandException.cs" />
+    <Compile Include="Controls\FilterTextBox.xaml.cs">
+      <DependentUpon>FilterTextBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\IInputControl.cs" />
     <Compile Include="Controls\QueueListControl.xaml.cs">
       <DependentUpon>QueueListControl.xaml</DependentUpon>
@@ -260,6 +263,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ComplexDataViewControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\FilterTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -505,6 +512,19 @@
     <Resource Include="Images\message-Processed.png" />
     <Resource Include="Images\message-Processed.selected.png" />
     <Resource Include="Images\message.selected.png" />
+    <Resource Include="Images\Command-processed-warn.png" />
+    <Resource Include="Images\Command-processed-warn.selected.png" />
+    <Resource Include="Images\Command-warn.png" />
+    <Resource Include="Images\Command-warn.selected.png" />
+    <Resource Include="Images\Event-Processed-warn.png" />
+    <Resource Include="Images\Event-Processed-warn.selected.png" />
+    <Resource Include="Images\Event-warn.png" />
+    <Resource Include="Images\Event-warn.selected.png" />
+    <Resource Include="Images\message-Processed-warn.png" />
+    <Resource Include="Images\message-Processed-warn.selected.png" />
+    <Resource Include="Images\message-warn.png" />
+    <Resource Include="Images\message-warn.selected.png" />
+    <Resource Include="Images\search-filter.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

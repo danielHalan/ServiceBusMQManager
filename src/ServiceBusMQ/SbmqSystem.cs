@@ -49,7 +49,9 @@ namespace ServiceBusMQ {
     public CommandHistoryManager SavedCommands { get { return _history; } }
     public static UIStateConfig UIState { get { return _uiState; } }
 
-    public List<QueueItemViewModel> Items { get { return _items; } }
+    string _filter = null;
+
+    public IEnumerable<QueueItemViewModel> Items { get { return _items.Where( i => _filter == null || i.DisplayName.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) != -1); } }
 
     public bool CanSendCommand { get; private set; }
     public bool CanViewSubscriptions { get; private set; }
@@ -66,8 +68,8 @@ namespace ServiceBusMQ {
       Config.StartCount += 1;
 
       _mgr = ServiceBusFactory.CreateManager(Config.MessageBus, Config.MessageBusQueueType);
-      _mgr.ErrorOccured += SbMgr_ErrorOccured;
-      _mgr.ItemsChanged += SbMgr_ItemsChanged;
+      _mgr.ErrorOccured += System_ErrorOccured;
+      _mgr.ItemsChanged += System_ItemsChanged;
 
       _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
 
@@ -207,7 +209,7 @@ namespace ServiceBusMQ {
     }
 
 
-    private void SbMgr_ErrorOccured(object sender, ErrorArgs e) {
+    private void System_ErrorOccured(object sender, ErrorArgs e) {
 
       MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -215,7 +217,7 @@ namespace ServiceBusMQ {
         Application.Current.Shutdown();
 
     }
-    private void SbMgr_ItemsChanged(object sender, EventArgs e) {
+    private void System_ItemsChanged(object sender, EventArgs e) {
       _itemsChanged.Invoke(sender, e);
       //Dispatcher.CurrentDispatcher.BeginInvoke( _itemsChanged );
     }
@@ -343,6 +345,21 @@ namespace ServiceBusMQ {
 
 
 
+
+    public void FilterItems(string str) {
+
+      if( str.IsValid() ) {
+        _filter = str;
+        OnItemsChanged();
+      
+      } else ClearFilter();
+
+    }
+
+    public void ClearFilter() {
+      _filter = null;
+      OnItemsChanged();
+    }
   }
 
 }

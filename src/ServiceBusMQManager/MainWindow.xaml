@@ -1,4 +1,5 @@
-﻿<Window
+﻿<Window 
+        xmlns:Controls="clr-namespace:ServiceBusMQManager.Controls" 
         xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,7 +18,7 @@
         MouseDown="Grid_MouseLeftButtonDown" MouseMove="Window_MouseMove" LocationChanged="Window_LocationChanged"
         MinHeight="300"
         MinWidth="600" IsVisibleChanged="Window_IsVisibleChanged" SourceInitialized="Window_SourceInitialized" 
-     Activated="frmMain_Activated"
+        Activated="frmMain_Activated" 
         >
     <Window.Resources>
         <c:ArrayList x:Key="ShowProcessMsgMenu" x:Shared="false">
@@ -103,6 +104,7 @@
                 </Style>
 
                 <Style TargetType="{x:Type ListBox}">
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                     <Setter Property="BorderThickness"  Value="0" />
                     <Setter Property="BorderBrush"  Value="Transparent" />
                     <Setter Property="Padding" Value="8,0,0,0" />
@@ -293,36 +295,6 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Rectangle
-                    Height="28"
-                    VerticalAlignment="Top"
-                    Fill="White" Grid.RowSpan="2"
-             >
-
-            </Rectangle>
-            <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
-            <Label Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" FontFamily="Calibri" FontSize="13" />
-            <Button
-                HorizontalAlignment="Right"
-                Margin="0,6,32,0"
-                VerticalAlignment="Top"
-                Width="13"
-                Style="{StaticResource ChromeButtonStyle}"
-                Click="miToggleAlwaysOnTop_Click"
-                ToolTip="Toggle always on top" Height="13"
-                >
-                <Image Name="imgAlwaysOnTop" Source="Images/pinned.png" />
-            </Button>
-            <Button
-                HorizontalAlignment="Right"
-                Margin="0,6,10,0"
-                Width="18"
-                VerticalAlignment="Top"
-                Style="{StaticResource ChromeButtonStyle}"
-                Click="HandleMinimizeToTrayClick" Height="17">
-                <Image Source="Images/minimize.png" />
-            </Button>
-
             <ListBox Margin="2,10,0,10" x:Name="lbItems" 
 		                        SelectionChanged="lbItems_SelectionChanged" Grid.Row="3" SelectedIndex="0" MouseDoubleClick="lbItems_MouseDoubleClick" >
 
@@ -336,17 +308,17 @@
 
                 <ListBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
-                        <MenuItem Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
                         <Separator />
-                        <MenuItem Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click_1" IsEnabled="False" />
+                        <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click_1" IsEnabled="False" />
                         <Separator />
-                        <MenuItem Name="miPurgeMsg" Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miPurgeMsg" Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
                         <MenuItem Header="Purge All Messages" Click="miDeleteAllMessage_Click" />
                         <Separator />
-                        <MenuItem Name="miReturnErrToOrgin" Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
-                        <MenuItem Name="miReturnAllErr" Header="Return All Error Messages to Source Queue"  />
-                        <MenuItem Name="miPurgeAllErr" Header="Purge All Error Messages" />
+                        <MenuItem x:Name="miReturnErrToOrgin" Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miReturnAllErr" Header="Return All Error Messages to Source Queue"  />
+                        <MenuItem x:Name="miPurgeAllErr" Header="Purge All Error Messages" />
                         <Separator />
                         <MenuItem Header="Show Processed Messages" ItemsSource="{StaticResource ShowProcessMsgMenu}" />
 
@@ -354,6 +326,34 @@
                 </ListBox.ContextMenu>
 
             </ListBox>
+
+            <Rectangle
+                    Height="28"
+                    VerticalAlignment="Top"
+                    Fill="White" Grid.RowSpan="2"
+             />
+            <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
+            <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" FontFamily="Calibri" FontSize="13" />
+            <Button
+                HorizontalAlignment="Right"
+                Margin="0,6,32,0"
+                VerticalAlignment="Top"
+                Width="13"
+                Style="{StaticResource ChromeButtonStyle}"
+                Click="miToggleAlwaysOnTop_Click"
+                ToolTip="Toggle always on top" Height="13"
+                >
+                <Image x:Name="imgAlwaysOnTop" Source="Images/pinned.png" />
+            </Button>
+            <Button
+                HorizontalAlignment="Right"
+                Margin="0,6,10,0"
+                Width="18"
+                VerticalAlignment="Top"
+                Style="{StaticResource ChromeButtonStyle}"
+                Click="HandleMinimizeToTrayClick" Height="17">
+                <Image Source="Images/minimize.png" />
+            </Button>
             <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="0" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="140,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="1" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="270,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="2" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
@@ -364,7 +364,7 @@
             <Button x:Name="btnSettings" Grid.Row="1" Click="btnSettings_Click" HorizontalAlignment="Right" Margin="0,0,10,8" ToolTip="Remove list items that has been deleted in their Queue" Width="35" Grid.RowSpan="1" >
                 <Button.Template>
                     <ControlTemplate>
-                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
+                        <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="Images/Settings.png" HorizontalAlignment="Center" />
                             </StackPanel>
@@ -375,7 +375,7 @@
                                 <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
                                 <Setter Property="Cursor" Value="Hand" />
                             </Trigger>
-                            <Trigger Property="Button.IsPressed" Value="True">
+                            <Trigger Property="ButtonBase.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -388,13 +388,12 @@
                     ToolTip="Show processed messages" Width="40" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.ContextMenu>
                     <ContextMenu HasDropShadow="False"  Opened="ContextMenu_Opened_1" Closed="ContextMenu_Closed_1"
-                                 ItemsSource="{StaticResource ShowProcessMsgDropDown}">
-                    </ContextMenu>
+                                 ItemsSource="{StaticResource ShowProcessMsgDropDown}"/>
 
                 </Button.ContextMenu>
                 <Button.Template>
                     <ControlTemplate>
-                        <Border Name="btnBorder" BorderBrush="#35D119" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
+                        <Border x:Name="btnBorder" BorderBrush="#35D119" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,0,0" >
                             <Image Source="Images/History.png" />
                         </Border>
 
@@ -403,7 +402,7 @@
                                 <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
                                 <Setter Property="Cursor" Value="Hand" />
                             </Trigger>
-                            <Trigger Property="Button.IsPressed" Value="True">
+                            <Trigger Property="ButtonBase.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -415,10 +414,10 @@
             <Button x:Name="btnClearProcessed" Click="btnClearProcessed_Click" HorizontalAlignment="Right" Margin="0,0,60,8" ToolTip="Remove list items that has been deleted in their Queue" Width="135" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.Template>
                     <ControlTemplate>
-                        <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,-6,0" >
+                        <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="2,0,0,0" Background="#f4f4f6" Margin="0,0,-6,0" >
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="Images/Delete.png" />
-                                <TextBlock Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0">Clear Processed</TextBlock>
+                                <TextBlock x:Name="btnText" VerticalAlignment="Center" Padding="0,0,6,0"><Run Text="Clear Processed"/></TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -427,7 +426,7 @@
                                 <Setter Property="Background" Value="#E0E0E0" TargetName="btnBorder" />
                                 <Setter Property="Cursor" Value="Hand" />
                             </Trigger>
-                            <Trigger Property="Button.IsPressed" Value="True">
+                            <Trigger Property="ButtonBase.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#C4C4C4" TargetName="btnBorder" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -485,8 +484,8 @@
                 </Button.Template>
             </Button>
             <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="10,46,10,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="White"/>
-
-
+            <!--<TextBox x:Name="tbSearchString" HorizontalAlignment="Right" Height="22" Margin="0,2,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="153" BorderBrush="#FF0017FF" FontFamily="Calibri" FontSize="15" Text="Filter string" IsReadOnly="True"/>-->
+            <Controls:FilterTextBox x:Name="tbSearchString" HorizontalAlignment="Right" Margin="0,0,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="180" FilterChanged="tbSearchString_FilterChanged" FilterCleared="tbSearchString_FilterCleared" Height="28" />
         </Grid>
     </Border>
 </Window>

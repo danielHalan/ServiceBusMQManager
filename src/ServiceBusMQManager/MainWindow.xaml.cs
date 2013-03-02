@@ -72,6 +72,8 @@ namespace ServiceBusMQManager {
       CreateNotifyIcon();
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+
+      tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
     }
 
 
@@ -105,6 +107,7 @@ namespace ServiceBusMQManager {
       if( _uiState.IsMinimized || App.StartMinimized )
         Close();
 
+      this.Focus();
     }
 
     private void ShowConfigDialog() {
@@ -119,8 +122,6 @@ namespace ServiceBusMQManager {
     private void InitSystem() {
 
       this.Icon = BitmapFrame.Create(this.GetImageResourceStream("main.ico"));
-
-      _dlg = new ContentWindow();
 
       _uiState = SbmqSystem.UIState;
       RestoreWindowState();
@@ -152,7 +153,7 @@ namespace ServiceBusMQManager {
 
         SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
 
-        _notifyIcon.Text = GetQueueStatusString();
+        UpdateNotifyIconText();
 
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
@@ -324,7 +325,7 @@ namespace ServiceBusMQManager {
 
     private void CreateNotifyIcon() {
       _notifyIcon = new System.Windows.Forms.NotifyIcon();
-
+      _notifyIcon.MouseMove += _notifyIcon_MouseMove;
       //ServiceBusMQManager.Properties.Resources.
       var mi = new System.Windows.Forms.MenuItem[1];
 
@@ -338,6 +339,7 @@ namespace ServiceBusMQManager {
 
       _notifyIcon.Visible = true;
     }
+
 
     private void ShowMainWindow() {
       if( !this.IsVisible ) {
@@ -360,11 +362,12 @@ namespace ServiceBusMQManager {
       if( !_showingActivityTrayIcon ) {
         _showingActivityTrayIcon = true;
 
-        _notifyIcon.Text = GetQueueStatusString();
+        if( !_notifyIconTextDirty )
+          _notifyIconTextDirty = true;
 
         Thread thread = new Thread(new ThreadStart(delegate() {
 
-          Thread.Sleep(200); // this is important ...
+          Thread.Sleep(200); // wait a bit..
           try {
             this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
                 new Action(delegate() {
@@ -384,6 +387,20 @@ namespace ServiceBusMQManager {
         thread.Start();
       }
     }
+
+    bool _notifyIconTextDirty = true;
+    void _notifyIcon_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e) {
+
+      if( _notifyIconTextDirty ) 
+        UpdateNotifyIconText();
+      
+    }
+
+    void UpdateNotifyIconText() {
+      _notifyIcon.Text = GetQueueStatusString();
+      _notifyIconTextDirty = false;
+    }
+
 
     private string GetQueueStatusString() {
       var itemTypes = _sys.Items.Select(i => i.Queue.Type).ToArray();
@@ -439,6 +456,7 @@ namespace ServiceBusMQManager {
         UpdateButtonLabel(btnError);
 
         // Update List View
+        lbItems.ItemsSource = _sys.Items;
         lbItems.Items.Refresh();
 
         ShowActivityTrayIcon();
@@ -529,6 +547,16 @@ namespace ServiceBusMQManager {
       return itm.Content == null || itm.Content.StartsWith("**") ? _mgr.LoadMessageContent(itm) : itm.Content;
     }
 
+    ContentWindow CreateContentWindow() {
+      ContentWindow w = new ContentWindow();
+      w.Closed += _dlg_Closed;
+      w.Topmost = Topmost;
+
+      _uiState.RestoreWindowState(w);
+
+      return w;
+    }
+
     private void SetSelectedItem(QueueItem itm) {
 
       if( itm != null ) {
@@ -536,17 +564,12 @@ namespace ServiceBusMQManager {
         if( _isMinimized )
           return;
 
-        if( _dlgShown && !_dlg.IsVisible ) {
-          _dlg = new ContentWindow();
-          _dlg.Topmost = Topmost;
-
-          _uiState.RestoreWindowState(_dlg);
+        if( _dlg == null || ( _dlgShown && !_dlg.IsVisible ) ) {
+          _dlg = CreateContentWindow();
 
           _dlgShown = false;
           UpdateContentWindow();
         }
-
-
 
         _dlg.SetContent(GetQueueItemContent(itm), _mgr.MessageContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
@@ -555,6 +578,8 @@ namespace ServiceBusMQManager {
           _dlg.Show();
 
           _dlgShown = true;
+
+          this.Focus();
         } else {
           if( !Topmost ) {
             _dlg.Activate(); // Make sure its visible
@@ -572,6 +597,10 @@ namespace ServiceBusMQManager {
 
       }
 
+    }
+
+    void _dlg_Closed(object sender, EventArgs e) {
+      lbItems.SelectedIndex = -1;
     }
     private void SetAlwaysOnTop(bool value) {
       Topmost = value;
@@ -624,6 +653,7 @@ namespace ServiceBusMQManager {
 
       _sys.ClearProcessedItems();
 
+      lbItems.ItemsSource = _sys.Items;
       lbItems.Items.Refresh();
     }
 
@@ -734,10 +764,10 @@ namespace ServiceBusMQManager {
         _uiState.StoreControlState(btnMsg);
         _uiState.StoreControlState(btnError);
 
-        //_uiCfg.UpdateButtonState(btnCmd.IsChecked, btnEvent.IsChecked, btnMsg.IsChecked, btnError.IsChecked);
-
         _uiState.StoreWindowState(this);
-        _uiState.StoreWindowState(_dlg);
+
+        if( _dlg != null )
+          _uiState.StoreWindowState(_dlg);
 
         _uiState.AlwaysOnTop = Topmost;
 
@@ -751,7 +781,8 @@ namespace ServiceBusMQManager {
 
       SetAlwaysOnTop(_uiState.AlwaysOnTop);
 
-      _uiState.RestoreWindowState(_dlg);
+      if( _dlg != null )
+        _uiState.RestoreWindowState(_dlg);
 
       if( !_uiState.RestoreWindowState(this) )
         SetDefaultWindowPosition();
@@ -837,6 +868,7 @@ namespace ServiceBusMQManager {
 
       UpdateButtonLabel(btn);
 
+      lbItems.ItemsSource = _sys.Items;
       lbItems.Items.Refresh();
     }
     private void btn_Checked(object sender, RoutedEventArgs e) {
@@ -953,6 +985,20 @@ namespace ServiceBusMQManager {
 
       } else MessageBox.Show("ServiceBus MQ Manager Don't support messages with multiple commands yet.", "Resend Command", MessageBoxButton.OK, MessageBoxImage.Asterisk);
     }
+
+    private void tbSearchString_FilterChanged(object sender, Controls.FilterChangedRoutedEventArgs e) {
+      if( tbSearchString.Visibility == System.Windows.Visibility.Collapsed )
+        tbSearchString.Visibility = System.Windows.Visibility.Visible;
+
+      _sys.FilterItems(e.Filter);
+    }
+    private void tbSearchString_FilterCleared(object sender, RoutedEventArgs e) {
+      if( tbSearchString.Visibility == System.Windows.Visibility.Visible )
+        tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
+
+      _sys.ClearFilter();
+    }
+
 
 
   }
