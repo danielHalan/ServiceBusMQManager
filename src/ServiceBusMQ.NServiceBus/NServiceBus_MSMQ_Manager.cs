@@ -545,7 +545,7 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
       if( nonExistingPaths.Count > 0 )
-        OnError("The paths '{0}' doesn't exist, could not search for commands.".With(nonExistingPaths.Concat()), "mgr::GetAvailableCommands", false);
+        OnError("The paths '{0}' doesn't exist, could not search for commands.".With(nonExistingPaths.Concat()));
 
 
       return arr.ToArray();
@@ -572,7 +572,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       if( message != null )
         _bus.Send(dest, message);
-      else OnError("Can not send an incomp  lete message", string.Empty, false);
+      else OnError("Can not send an incomplete message");
 
     }
 

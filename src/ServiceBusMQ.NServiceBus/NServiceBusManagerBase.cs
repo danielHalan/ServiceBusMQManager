@@ -210,14 +210,10 @@ namespace ServiceBusMQ.NServiceBus {
 
     public event EventHandler<ErrorArgs> ErrorOccured;
 
-    protected void OnError(string message, string stackTrace, bool fatal = false) {
+    protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
-        ErrorOccured(this, new ErrorArgs(message, stackTrace, fatal));
+        ErrorOccured(this, new ErrorArgs(message, exception, fatal));
     }
-    protected void OnError(string message, Exception e, bool fatal = false) {
-      OnError(string.Format("{0}\n\r {1} ({2})", message, e.Message, e.GetType().Name), e.StackTrace, fatal);
-    }
-
 
     public string ServiceBusName {
       get { return "NServiceBus"; }

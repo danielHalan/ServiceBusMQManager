@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using ServiceBusMQ;
+using ServiceBusMQManager.Dialogs;
 
 namespace ServiceBusMQManager {
   /// <summary>
@@ -182,7 +183,7 @@ namespace ServiceBusMQManager {
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
 #if !DEBUG
-      MessageBox.Show(e.Exception.Message + "\n\r" + e.Exception.StackTrace, "Exception Caught", MessageBoxButton.OK, MessageBoxImage.Error);
+      MessageDialog.Show(MessageType.Error,null, e.Exception);
       e.Handled = true;
 #endif
 

@@ -16,17 +16,19 @@
 using System;
 
 namespace ServiceBusMQ.Manager {
+  
   public class ErrorArgs : EventArgs {
 
     public string Message { get; private set; }
+    public Exception Exception { get; set; }
+    
     public bool Fatal { get; private set; }
-    public string StackTrace { get; set; }
 
-    public ErrorArgs(string message, string stackTrace, bool fatal) {
+    public ErrorArgs(string message, Exception exception, bool fatal = false) {
     
       Message = message;
       Fatal = fatal;
-      StackTrace = stackTrace;
+      Exception = exception;
     }
   
   }

@@ -128,10 +128,18 @@ namespace ServiceBusMQManager {
 
       BackgroundWorker w = new BackgroundWorker();
       w.DoWork += (s, e) => {
-        _sys = SbmqSystem.Create();
-        _sys.ItemsChanged += MessageMgr_ItemsChanged;
+        try {
+          _sys = SbmqSystem.Create();
+          _sys.ItemsChanged += MessageMgr_ItemsChanged;
+          _sys.ErrorOccured += _sys_ErrorOccured;
+          _mgr = _sys.Manager;
 
-        _mgr = _sys.Manager;
+        } catch( Exception ex ) {
+
+          Dispatcher.Invoke(DispatcherPriority.Normal,
+                            new Action(() => { LogError("Failed to initialize System", ex, true); }));
+
+        }
       };
 
       w.RunWorkerCompleted += (s, e) => {
@@ -163,6 +171,10 @@ namespace ServiceBusMQManager {
       };
 
       w.RunWorkerAsync();
+    }
+
+    void _sys_ErrorOccured(object sender, ErrorArgs e) {
+      MessageDialog.Show(MessageType.Error, e.Message, e.Exception);
     }
 
     private void RestartSystem() {
@@ -257,8 +269,11 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void LogError(string msg, Exception exception) {
-      MessageBox.Show(msg + ", " + exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    private void LogError(string msg, Exception exception, bool fatal = false) {
+      MessageDialog.Show(MessageType.Error, msg, exception);
+
+      if( fatal )
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
     }
     private void LogInfo(string msg) {
       MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -388,9 +403,9 @@ namespace ServiceBusMQManager {
     bool _notifyIconTextDirty = true;
     void _notifyIcon_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e) {
 
-      if( _notifyIconTextDirty ) 
+      if( _notifyIconTextDirty )
         UpdateNotifyIconText();
-      
+
     }
 
     void UpdateNotifyIconText() {
@@ -469,9 +484,11 @@ namespace ServiceBusMQManager {
     private void timer_Tick(object sender, EventArgs e) {
       try {
         _sys.RefreshUnprocessedQueueItemList();
-      } catch( Exception ex ) {
 #if DEBUG
+      } catch( Exception ex ) {
         MessageBox.Show("Failed when fetching messages " + ex.Message);
+#else
+      } catch {
 #endif
       }
     }
@@ -984,16 +1001,20 @@ namespace ServiceBusMQManager {
     }
 
     private void tbSearchString_FilterChanged(object sender, Controls.FilterChangedRoutedEventArgs e) {
-      if( tbSearchString.Visibility == System.Windows.Visibility.Collapsed )
-        tbSearchString.Visibility = System.Windows.Visibility.Visible;
+      if( _sys != null ) {
+        if( tbSearchString.Visibility == System.Windows.Visibility.Collapsed )
+          tbSearchString.Visibility = System.Windows.Visibility.Visible;
 
-      _sys.FilterItems(e.Filter);
+        _sys.FilterItems(e.Filter);
+      }
     }
     private void tbSearchString_FilterCleared(object sender, RoutedEventArgs e) {
-      if( tbSearchString.Visibility == System.Windows.Visibility.Visible )
-        tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
+      if( _sys != null ) {
+        if( tbSearchString.Visibility == System.Windows.Visibility.Visible )
+          tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
 
-      _sys.ClearFilter();
+        _sys.ClearFilter();
+      }
     }
 
 

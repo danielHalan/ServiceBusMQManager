@@ -207,11 +207,10 @@ namespace ServiceBusMQ {
 
     private void System_ErrorOccured(object sender, ErrorArgs e) {
 
-      MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      OnError(e);
 
       if( e.Fatal )
         Application.Current.Shutdown();
-
     }
     private void System_ItemsChanged(object sender, EventArgs e) {
       _itemsChanged.Invoke(sender, e);
@@ -339,7 +338,17 @@ namespace ServiceBusMQ {
           _items.Remove(itm);
     }
 
+    public event EventHandler<ErrorArgs> ErrorOccured;
 
+    protected void OnError(string message, Exception exception = null, bool fatal = false) {
+      if( ErrorOccured != null )
+        ErrorOccured(this, new ErrorArgs(message, exception, fatal));
+    }
+    protected void OnError(ErrorArgs arg) {
+      if( ErrorOccured != null )
+        ErrorOccured(this, arg);
+    }
+ 
 
 
     public void FilterItems(string str) {
