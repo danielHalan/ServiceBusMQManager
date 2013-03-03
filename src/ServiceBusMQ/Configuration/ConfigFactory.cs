@@ -37,7 +37,6 @@ namespace ServiceBusMQ.Configuration {
     public SystemConfig2 Create() {
       SystemConfig2 cfg = null;
 
-      bool loaded = false;
 
       if( File.Exists(_configFileV2) ) {
         try {
@@ -45,6 +44,7 @@ namespace ServiceBusMQ.Configuration {
         } catch { }
 
       } else if( File.Exists(_configFileV1) ) {
+        bool loaded = false;
         SystemConfig1 cfg1 = null;
         try {
           cfg1 = JsonFile.Read<SystemConfig1>(_configFileV1);
@@ -59,6 +59,8 @@ namespace ServiceBusMQ.Configuration {
 
 
         Store(cfg);
+      } else  {
+        cfg = new SystemConfig2();
       }
 
       return cfg;
