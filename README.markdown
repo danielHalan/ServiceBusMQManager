@@ -8,7 +8,7 @@ Service Bus MQ Manager works by monitoring a Queue (currently MSMQ) and parsing 
 The application is most useful when used in a [CQRS architecture](http://cqrsinfo.com), where its common to send Commands and Event messages using a Service Bus.
 
 - **Monitor Queues**, Monitor queues for incoming Commands, Events and Messages envelops, also possible to monitor Error Queue
-- **Purge message(s)**, remove messages from queues
+- **Purge messages**, remove messages from queues
 - **Retry failed messages**, Move messages from Error queue to its original queue
 - **View Processed Messages**, Load messages from the Journal queues. For use cases such as, show messages that got processed before Service Bus MQ Manager was started, or messages that where added and processed before the Service Bus monitor process discovered them.
 - **Send Command**, Build and send commands in an user friendly interface The commands can later be sent directly from command prompt
