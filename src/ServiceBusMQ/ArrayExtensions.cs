@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ServiceBusMQ {
   public static class ArrayExtensions {
@@ -26,6 +27,19 @@ namespace ServiceBusMQ {
       foreach( T item in sequence )
         action(item);
     }
+
+    public static string Concat<T>(this T[] list, string separator = ", ") {
+      var sb = new StringBuilder(list.Length * 100);
+      foreach( T itm in list ) {
+      
+        if( sb.Length > 0 ) 
+          sb.Append(separator).Append(itm);
+        else sb.Append(itm);
+      }
+
+      return sb.ToString();
+    }
+
 
 
   

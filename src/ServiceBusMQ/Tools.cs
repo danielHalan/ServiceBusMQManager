@@ -310,8 +310,6 @@ namespace ServiceBusMQ {
       }
     }
 
-
-
     private const string INDENT_STRING = "    ";
     public static string _FormatJson(string str) {
       var indent = 0;
@@ -371,6 +369,31 @@ namespace ServiceBusMQ {
       }
       return sb.ToString();
     }
+
+
+
+    public static string EncryptSimple(string input) {
+      byte[] data = new byte[input.Length];
+      for( int i = 0; i < input.Length; i++ ) {
+        data[i] = ShuffleByte((byte)input[i]);
+      }
+
+      return EncodeHex(data);
+    }
+    public static string EncodeHex(byte[] input) {
+      StringBuilder sb = new StringBuilder();
+      for( int i = 0; i < input.Length; i++ ) {
+        sb.Append(System.Convert.ToString(input[i], 16).PadLeft(2, '0'));
+      }
+      return sb.ToString();
+    }
+    public static byte ShuffleByte(byte b8) {
+      int a = ( ( (int)b8 & 0xF0 ) >> 4 );
+      int b = ( ( (int)b8 & 0x0F ) << 4 );
+
+      return System.Convert.ToByte(( a & 0x0F ) | ( b & 0xF0 ));
+    }
+
 
   }
 }

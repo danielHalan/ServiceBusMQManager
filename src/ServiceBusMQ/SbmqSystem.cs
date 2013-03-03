@@ -52,8 +52,11 @@ namespace ServiceBusMQ {
     public bool CanSendCommand { get; private set; }
     public bool CanViewSubscriptions { get; private set; }
 
+    public static ApplicationInfo AppInfo { get; set; }
+
     private SbmqSystem() {
     }
+
 
     private void Initialize() {
       AppDomain.CurrentDomain.AssemblyResolve += SbmqmDomain_AssemblyResolve;
@@ -74,6 +77,7 @@ namespace ServiceBusMQ {
 
       _history = new CommandHistoryManager(Config);
 
+      AppInfo = new ApplicationInfo(Config.Id, Assembly.GetEntryAssembly());
     }
 
     private static SbmqSystem _instance;
@@ -365,6 +369,7 @@ namespace ServiceBusMQ {
       _filter = null;
       OnItemsChanged();
     }
+
   }
 
 }

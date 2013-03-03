@@ -89,12 +89,12 @@
                 </Button.Template>
             </Button>
             <Label x:Name="lbSendReportText" HorizontalContentAlignment="Right" Content="Do you want to send Error report?" Margin="0,0,17,52" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" HorizontalAlignment="Right" Width="346"/>
-            <RichTextBox x:Name="tbMessage" Margin="65,56,28,87" FontFamily="Calibri" FontSize="16"
+            <RichTextBox x:Name="tbMessage" Margin="63,48,30,83" FontFamily="Calibri" FontSize="16"
                          BorderThickness="0,0,0,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <FlowDocument>
                 </FlowDocument>
             </RichTextBox>
-            <Image x:Name="img" HorizontalAlignment="Left" Height="53" Margin="7,50,0,0" VerticalAlignment="Top" Width="50" 
+            <Image x:Name="img" HorizontalAlignment="Left" Height="42" Margin="18,44,0,0" VerticalAlignment="Top" Width="42" 
                    Source="{Binding ImageSource, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
 
 

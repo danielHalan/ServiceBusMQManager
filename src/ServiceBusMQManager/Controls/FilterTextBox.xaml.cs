@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQManager
+  File:    FilterTextBox.xaml.cs
+  Created: 2013-03-01
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;

@@ -1,8 +1,8 @@
 #region File Information
 /********************************************************************
   Project: ServiceBusMQ
-  File:    ListExtensions.cs
-  Created: 2013-02-11
+  File:    FailedToSendErrorReportException.cs
+  Created: 2013-03-03
 
   Author(s):
     Daniel Halan
@@ -13,16 +13,14 @@
 ********************************************************************/
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ServiceBusMQ {
-  public static class ListExtensions {
-  
-    public static string Concat<T>(this List<T> list, string separator = ", ") {
-      return list.Aggregate(new StringBuilder(), (sb, name) => sb.Length > 0 ? sb.Append(separator).Append(name) : sb.Append(name)).ToString();
+namespace ServiceBusMQ.Model.HalanService {
+  public class FailedToSendErrorReportException : Exception {
+    public FailedToSendErrorReportException(string reason): base(reason) {
     }
-  
   }
 }

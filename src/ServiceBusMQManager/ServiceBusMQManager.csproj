@@ -486,7 +486,6 @@
     <Resource Include="Images\info1.png" />
     <Resource Include="Images\info-white.png" />
     <Resource Include="Images\info.circle-white.png" />
-    <Resource Include="Images\info.circle.png" />
     <Resource Include="Images\info.png" />
     <Resource Include="Images\search-white.png" />
     <Resource Include="Images\search.png" />
@@ -532,6 +531,8 @@
     <Resource Include="Images\message-warn.png" />
     <Resource Include="Images\message-warn.selected.png" />
     <Resource Include="Images\search-filter.png" />
+    <Resource Include="Images\Msg.Error.png" />
+    <Resource Include="Images\Msg.Info.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

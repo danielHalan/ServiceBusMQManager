@@ -78,6 +78,9 @@
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="Configuration\CommandHistoryManager.cs" />
+    <Compile Include="ApplicationInfo.cs" />
+    <Compile Include="Model\HalanService\Error.cs" />
+    <Compile Include="Model\HalanService\ErrorReport.cs" />
     <Compile Include="ListExtensions.cs" />
     <Compile Include="Manager\IServiceBus.cs" />
     <Compile Include="Manager\IServiceBusDiscovery.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="Manager\MessageContentFormat.cs" />
     <Compile Include="Manager\ISendCommand.cs" />
     <Compile Include="Manager\IViewSubscriptions.cs" />
+    <Compile Include="Model\HalanService\FailedToSendErrorReportException.cs" />
     <Compile Include="Model\MessageInfo.cs" />
     <Compile Include="Model\Queue.cs" />
     <Compile Include="Model\QueueItemError.cs" />
@@ -107,6 +111,11 @@
     <Compile Include="SbmqmMonitorState.cs" />
     <Compile Include="SbmqSystem.cs" />
     <Compile Include="Screen.cs" />
+    <Compile Include="Service References\HalanService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Configuration\SystemConfig.cs" />
     <Compile Include="Configuration\SystemConfig1.cs" />
@@ -115,11 +124,6 @@
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Configuration\UIStateConfig.cs" />
     <Compile Include="ViewModel\QueueItemViewModel.cs" />
-    <Compile Include="Web References\HalanService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="WindowTools.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -137,52 +141,50 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Service References\HalanService\ProductManager.wsdl" />
+    <None Include="Service References\HalanService\ProductManager.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HalanService\ProductManager1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HalanService\ProductManager2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HalanService\ProductManager3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HalanService\ServiceBusMQ.HalanService.ErrorReportResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\HalanService\ServiceBusMQ.HalanService.LatestVersionResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\HalanService\ServiceBusMQ.HalanService.ReportAttachmentResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="ServiceBusMQ.snk" />
-    <None Include="Web References\HalanService\ErrorReportResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\HalanService\LatestVersionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\HalanService\ProductManager.wsdl" />
-    <None Include="Web References\HalanService\ProductManager.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\HalanService\ProductManager0.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\HalanService\ProductManager1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\HalanService\ProductManager2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\HalanService\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\HalanService\ReportAttachmentResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://www.halan.se/service/ProductManager.svc">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\HalanService\</RelPath>
-      <UpdateFromURL>http://www.halan.se/service/ProductManager.svc</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ServiceBusMQ_HalanService_ProductManager</CachedSettingsPropName>
-    </WebReferenceUrl>
+    <WCFMetadataStorage Include="Service References\HalanService\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\HalanService\ProductManager.disco" />
+    <None Include="Service References\HalanService\ProductManager.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HalanService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HalanService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HalanService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

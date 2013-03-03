@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="3422ebb3-1a5f-41ee-9873-7dbb788c9afd" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://www.halan.se/service/ProductManager.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ProductManager.wsdl" MetadataType="Wsdl" ID="2ba64936-9d37-4f1d-8b9c-c3cab775fcef" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?wsdl" />
+    <MetadataFile FileName="ProductManager.xsd" MetadataType="Schema" ID="647c9ce8-a709-4410-a525-01b5c4f08b24" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd2" />
+    <MetadataFile FileName="ProductManager1.xsd" MetadataType="Schema" ID="85842e2b-6829-43ba-b35a-176a1073d0a6" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd3" />
+    <MetadataFile FileName="ProductManager.disco" MetadataType="Disco" ID="8ff161d4-5db7-4ccd-904a-98a6c778bb51" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?disco" />
+    <MetadataFile FileName="ProductManager2.xsd" MetadataType="Schema" ID="14b1953d-14f4-4c54-9022-04f41114b823" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd0" />
+    <MetadataFile FileName="ProductManager3.xsd" MetadataType="Schema" ID="72eaf6ec-e917-4643-97db-4e40f029bdf4" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd1" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

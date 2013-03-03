@@ -99,6 +99,9 @@ namespace ServiceBusMQ.Configuration {
 
     protected override void FillDefaulValues() {
 
+      if( Id == null )
+        Id = Guid.NewGuid().ToString();
+
       if( VersionCheck == null )
         VersionCheck = new VersionCheck();
 
@@ -122,5 +125,6 @@ namespace ServiceBusMQ.Configuration {
 
     public int StartCount { get; set; }
 
+    public string Id { get; set; }
   }
 }

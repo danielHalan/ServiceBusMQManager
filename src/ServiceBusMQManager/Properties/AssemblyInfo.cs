@@ -27,7 +27,7 @@ using System.Windows;
 [assembly: AssemblyDescription("Service Bus MQ Manager")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ITQ.COM")]
-[assembly: AssemblyProduct("Service Bus MQ Manager")]
+[assembly: AssemblyProduct("ServiceBusMQManager")]
 [assembly: AssemblyCopyright("Copyright ©2012-2013 ITQ.COM, all rights reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
