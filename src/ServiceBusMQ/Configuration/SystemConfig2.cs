@@ -47,6 +47,16 @@ namespace ServiceBusMQ.Configuration {
     public int MonitorInterval { get; set; }
 
     public QueueConfig[] MonitorQueues { get; set; }
+
+    public static ServerConfig2 Default { 
+      get { 
+        return new ServerConfig2() { 
+              MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ (XML)", 
+              MonitorInterval = 700,
+              Name = Environment.MachineName,
+              MonitorQueues = new QueueConfig[0] };
+      }
+    }
   }
 
   [Serializable]
@@ -104,6 +114,13 @@ namespace ServiceBusMQ.Configuration {
 
       if( VersionCheck == null )
         VersionCheck = new VersionCheck();
+
+      if( Servers == null ) {
+        Servers = new List<ServerConfig2>();
+        Servers.Add(ServerConfig2.Default);
+
+        MonitorServer = Servers[0].Name;
+      }
 
       // Convert MSMQ plain to XML, as we now support more then one content serializer
       foreach( var srv in this.Servers ) {
