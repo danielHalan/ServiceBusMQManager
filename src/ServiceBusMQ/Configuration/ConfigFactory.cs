@@ -60,7 +60,7 @@ namespace ServiceBusMQ.Configuration {
 
         Store(cfg);
       } else  {
-        cfg = new SystemConfig2();
+        cfg = MapConfig1ToConfig2(LoadConfig0As1());
       }
 
       return cfg;
