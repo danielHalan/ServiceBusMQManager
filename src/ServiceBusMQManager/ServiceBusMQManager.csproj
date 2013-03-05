@@ -533,6 +533,8 @@
     <Resource Include="Images\search-filter.png" />
     <Resource Include="Images\Msg.Error.png" />
     <Resource Include="Images\Msg.Info.png" />
+    <Resource Include="Images\Error-Processed.png" />
+    <Resource Include="Images\Error-Processed.selected.png" />
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
