@@ -68,7 +68,7 @@
             </Button>
 
 
-            <ScrollViewer x:Name="scroller" Margin="0,54,5,70" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="scroller" Margin="0,54,0,70" VerticalScrollBarVisibility="Auto">
 
                 <Grid Name="theGrid" Background="#575757" RenderTransformOrigin="0.5,0.5">
                     <Grid.RowDefinitions>
