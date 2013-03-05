@@ -33,8 +33,8 @@ namespace ServiceBusMQManager {
 
     readonly SolidColorBrush ERROR_BACKGROUND = new SolidColorBrush(Color.FromRgb(173, 28, 59));
     readonly SolidColorBrush ERROR_SPLITHANDLE = new SolidColorBrush(Color.FromRgb(227, 152, 168)); // #E398A8
-    readonly SolidColorBrush WARNING_BACKGROUND = new SolidColorBrush(Color.FromRgb(130, 128, 62)); // #82803E
-    readonly SolidColorBrush WARNING_SPLITHANDLE = new SolidColorBrush(Color.FromRgb(176, 175, 134)); // #B0AF86
+    readonly SolidColorBrush WARNING_BACKGROUND = new SolidColorBrush(Color.FromRgb(157, 155, 0)); // #9d9b00
+    readonly SolidColorBrush WARNING_SPLITHANDLE = new SolidColorBrush(Color.FromRgb(208, 181, 100)); // #828000
 
     readonly BitmapImage WARNING_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/warning-white.png", UriKind.Relative));
     readonly BitmapImage ERROR_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/Error.selected.png", UriKind.Relative));
