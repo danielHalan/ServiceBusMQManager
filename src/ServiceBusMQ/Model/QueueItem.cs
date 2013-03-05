@@ -27,6 +27,7 @@ namespace ServiceBusMQ.Model {
   public enum QueueType { Command = 0, Event = 1, Message = 2, Error = 3 }
 
   public class QueueItem {
+    private bool _processed;
 
     public QueueItem(Queue queue) {
       Queue = queue;
@@ -40,12 +41,22 @@ namespace ServiceBusMQ.Model {
 
     public DateTime ArrivedTime { get; set; }
     public int ProcessTime { get; set; }
-    public bool Processed { get; set; }
+    public bool Processed {
+      get { return _processed; }
+      set {
+        if( _processed != value ) { 
+          _processed = value; 
+          ProcessedChanged(); 
+        }
+      }
+    }
 
     public string Content { get; set; }
 
     public Dictionary<string, string> Headers { get; set; }
 
     public QueueItemError Error { get; set; }
+
+    protected virtual void ProcessedChanged() { }
   }
 }

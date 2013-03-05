@@ -34,9 +34,7 @@ namespace ServiceBusMQ.ViewModel {
 
       MapQueueItem(item);
 
-      string imageName = GetImageName();
-      ImagePath = "Images/{0}.png".With(imageName);
-      SelectedImagePath = "Images/{0}.selected.png".With(imageName);
+      BindImage();
       
       if( ArrivedTime.Date == DateTime.Today.Date ) 
         ArrivedTimeString = ArrivedTime.ToString("HH:mm:ss");
@@ -45,6 +43,17 @@ namespace ServiceBusMQ.ViewModel {
                                                       ArrivedTime.ToString("HH:mm:ss"));
 
       SetTextWidth();
+    }
+
+    protected override void ProcessedChanged() {
+
+      BindImage();
+    }
+
+    private void BindImage() {
+      string imageName = GetImageName();
+      ImagePath = "Images/{0}.png".With(imageName);
+      SelectedImagePath = "Images/{0}.selected.png".With(imageName);
     }
 
     private string GetImageName() {
