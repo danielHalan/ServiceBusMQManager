@@ -51,7 +51,7 @@ namespace ServiceBusMQ.Manager {
     /// Return new unprocessed messages that are in queue(s) of specified type
     /// </summary>
     /// <param name="type">Type of queues to scan</param>
-    /// <param name="currentItems">Already fetched items, that doesn't need to be return</param>
+    /// <param name="currentItems">Already fetched items, that should be reused in result if still not processed.</param>
     /// <returns></returns>
     IEnumerable<QueueItem> GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
 
@@ -60,7 +60,7 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <param name="type">Type of queues to scan</param>
     /// <param name="since">Items to return since specifed DateTime</param>
-    /// <param name="currentItems">Already fetched items, that doesn't need to be return</param>
+    /// <param name="currentItems">Already fetched items, that should be reused in result if exist in specified selection</param>
     /// <returns></returns>
     IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
     

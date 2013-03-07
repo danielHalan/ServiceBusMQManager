@@ -30,6 +30,7 @@ using Microsoft.Win32;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
+using ServiceBusMQ.ViewModel;
 using ServiceBusMQManager.Dialogs;
 
 namespace ServiceBusMQManager {
@@ -415,7 +416,10 @@ namespace ServiceBusMQManager {
 
 
     private string GetQueueStatusString() {
-      var itemTypes = _sys.Items.Select(i => i.Queue.Type).ToArray();
+      QueueType[] itemTypes = null;
+      if( _sys != null ) 
+        itemTypes = _sys.Items.Select(i => i.Queue.Type).ToArray();
+      else itemTypes = new QueueType[0];
 
       return string.Format(" Commands: {0} \r\n Events: {1} \r\n Messages: {2} \r\n Errors: {3} ",
                   itemTypes.Count(i => i == QueueType.Command),
