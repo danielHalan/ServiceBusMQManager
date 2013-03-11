@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Simple Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- CHROME BUTTON -->
             <ControlTemplate
                 x:Key="ChromeButtonControlTemplate"
                 TargetType="{x:Type ButtonBase}">
@@ -112,6 +113,7 @@
             </Style>
 
 
+            <!-- COMBOBOX -->
             <Style x:Key="ComboBoxFocusVisual">
                 <Setter Property="Control.Template">
                     <Setter.Value>

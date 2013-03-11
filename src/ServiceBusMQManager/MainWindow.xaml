@@ -4,7 +4,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        mc:Ignorable="d" 
         x:Class="ServiceBusMQManager.MainWindow"
         x:Name="frmMain"
         Height="314.55" Width="620" 
@@ -333,7 +334,7 @@
                     Fill="White" Grid.RowSpan="2"
              />
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
-            <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" Grid.RowSpan="2" FontFamily="Calibri" FontSize="13" />
+            <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" FontFamily="Calibri" FontSize="13" />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,32,0"
