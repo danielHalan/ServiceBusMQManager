@@ -37,6 +37,8 @@ namespace ServiceBusMQ {
                                       0xE51400  // red
     };
 
+    public static readonly int RED = 0xE51400;
+
     static List<int> _unusedColors;
 
     static Random _rnd = new Random();

@@ -114,7 +114,7 @@ namespace ServiceBusMQ.Configuration {
         r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Message, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
 
       foreach( string q in errorQueues )
-        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Error, Color = QueueColorManager.GetRandomAvailableColorAsInt() });
+        r.Add(new QueueConfig() { Name = q, Type = Model.QueueType.Error, Color = QueueColorManager.RED });
 
       return r.ToArray();
     }

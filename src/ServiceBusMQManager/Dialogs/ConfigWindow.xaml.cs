@@ -180,10 +180,13 @@ namespace ServiceBusMQManager.Dialogs {
       SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(), cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).OrderBy( name => name ).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
-
+      
       if( dlg.ShowDialog() == true ) {
         e.Handled = true;
-        e.Item = new QueueListControl.QueueListItem(dlg.SelectedQueueName, QueueColorManager.GetRandomAvailableColor());
+
+
+        var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : System.Drawing.Color.FromArgb(QueueColorManager.RED);
+        e.Item = new QueueListControl.QueueListItem(dlg.SelectedQueueName, color);
       }
 
 
