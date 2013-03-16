@@ -52,57 +52,23 @@ namespace ServiceBusMQManager.Controls {
       InitializeComponent();
 
       this.Visibility = System.Windows.Visibility.Hidden;
-
-      //BindColors();
     }
-
-    private void BindColors(System.Drawing.Color selectedColor) {
-      List<ColorItem> list = new List<ColorItem>(QueueColorManager.COLORS.Length);
-
-      foreach( var color in QueueColorManager.COLORS.Select(c => System.Drawing.Color.FromArgb(c |  0xFF << 24 )) ) {
-        list.Add(new ColorItem(new SolidColorBrush(Color.FromRgb(color.R, color.G, color.B)), selectedColor == color));
-      }
-
-      theList.ItemsSource = list;
-    }
-
-
 
     public void Show(System.Drawing.Color color) {
 
       BindColors(color);
 
-      SelectedColor = color;
-
-      /*
-      Border selected = null;
-      foreach( Border b in thePanel.Children ) {
-        var c = ( b.Background as SolidColorBrush ).Color;
-
-        if( c.R == color.R && c.G == color.G && c.B == color.B ) {
-          b.BorderThickness = BORDER_THICKNESS_SELECTED;
-          b.BorderBrush = BORDER_SELECTED;
-          selected = b;
-        } else {
-          b.BorderThickness = BORDER_THICKNESS_UNSELECTED;
-          b.BorderBrush = BORDER_UNSELECTED;
-        }
-      }
-
-      if( selected != null ) {
-        thePanel.Children.Remove(selected);
-        thePanel.Children.Insert(0, selected);
-      }
-      */
-
       this.Visibility = System.Windows.Visibility.Visible;
     }
 
-    private void UserControl_GotFocus_1(object sender, RoutedEventArgs e) {
-      //this.Focus();
-    }
+    private void BindColors(System.Drawing.Color selectedColor) {
+      List<ColorItem> list = new List<ColorItem>(QueueColorManager.COLORS.Length);
 
-    private void UserControl_LostFocus_1(object sender, RoutedEventArgs e) {
+      foreach( var color in QueueColorManager.COLORS.Select(c => System.Drawing.Color.FromArgb(c | 0xFF << 24)) ) {
+        list.Add(new ColorItem(new SolidColorBrush(Color.FromRgb(color.R, color.G, color.B)), selectedColor == color));
+      }
+
+      theList.ItemsSource = list;
     }
 
     private void UserControl_LostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
@@ -114,11 +80,7 @@ namespace ServiceBusMQManager.Controls {
         if( ( pt.X > 0 && pt.X < this.Width ) &&
             ( pt.Y > 0 && pt.Y < this.Height ) ) {
 
-          //if( clock.SelectedArm == TimeArm.Hour )
-          //  tbHour.Focus();
-          //else tbMin.Focus();
-
-          return; // ignore ScrollViewer control, as it always selected when moving time-arms
+          return; 
         }
       }
 
@@ -158,18 +120,6 @@ namespace ServiceBusMQManager.Controls {
     }
 
 
-    private void UserControl_PreviewLostKeyboardFocus_1(object sender, KeyboardFocusChangedEventArgs e) {
-
-      //if( e.OldFocus == btnTimeOfDay && !this.IsChildControl((DependencyObject)e.NewFocus) ) {
-
-      //  if( clock.SelectedArm == TimeArm.Hour )
-      //    tbHour.Focus();
-      //  else tbMin.Focus();
-
-      //  e.Handled = true;
-      //}
-    }
-
     private void TextInputLabelButton_Click_1(object sender, RoutedEventArgs e) {
       HideControl();
     }
@@ -187,22 +137,6 @@ namespace ServiceBusMQManager.Controls {
         HideControl();
       }
     }
-
-    private void Color_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-      var b = sender as Border;
-
-      var c = ( b.Background as SolidColorBrush ).Color;
-
-      QueueColorManager.ReturnColor(SelectedColor);
-
-      SelectedColor = System.Drawing.Color.FromArgb(c.R, c.G, c.B);
-
-      QueueColorManager.UseColor(SelectedColor);
-
-      HideControl();
-    }
-
-
 
 
     public static readonly DependencyProperty SelectedColorProperty =

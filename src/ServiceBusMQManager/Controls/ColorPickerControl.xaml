@@ -10,8 +10,6 @@
              
              Focusable="True" 
              FocusManager.IsFocusScope="True" 
-             LostKeyboardFocus="UserControl_LostKeyboardFocus_1" 
-             PreviewLostKeyboardFocus="UserControl_PreviewLostKeyboardFocus_1"
              Height="35" 
    >
     <UserControl.Resources>
