@@ -24,8 +24,8 @@
     <Window.Resources>
         <c:ArrayList x:Key="ShowProcessMsgMenu" x:Shared="false">
             <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click" />
+            <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
+            <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Hours">
@@ -49,8 +49,8 @@
         <c:ArrayList x:Key="ShowProcessMsgDropDown" x:Shared="false">
             <MenuItem Header="Show Processed Messages" Focusable="False"  IsEnabled="False" FontSize="13" FontFamily="Segoe UI"  />
             <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 3 minutes" Tag="3" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 10 minutes" Tag="10" Click="ShowProcessedMsg_Click" />
+            <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
+            <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
             <MenuItem Header="Hours">

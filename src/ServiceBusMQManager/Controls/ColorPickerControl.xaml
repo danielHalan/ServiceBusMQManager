@@ -4,6 +4,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ServiceBusMQManager.Controls"
+             
              mc:Ignorable="d" Width="380"
              
              Focusable="True" 
@@ -12,15 +14,43 @@
              PreviewLostKeyboardFocus="UserControl_PreviewLostKeyboardFocus_1"
              Height="35" 
    >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ColorPickerControlListBoxDict.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+
+            <DataTemplate DataType="{x:Type local:ColorItem}" >
+                <Border x:Name="Border" 
+                        BorderBrush="{Binding BorderBrush}" 
+                        BorderThickness="{Binding BorderThickness}" 
+                        
+                        Width="20" Height="20"
+                        Margin="0,5,2,0" Cursor="Hand"
+                        Background="{Binding Color}">
+                </Border>
+
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="True" >
+                        <Setter TargetName="Border" Property="Background" Value="{Binding Color}" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="88*"/>
-            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="25"/>
         </Grid.ColumnDefinitions>
         <Border BorderBrush="#FF959595" BorderThickness="0" Background="#FF8B8B8B" Grid.ColumnSpan="2" >
             <Grid>
-                <WrapPanel x:Name="thePanel">
-                </WrapPanel>
+                <ListBox x:Name="theList" Style="{ StaticResource ListBoxWithAutoScroll_Horizontal }" Grid.Column="0"
+                                                 Selector.SelectionChanged="Color_SelectionChanged" Margin="0,0,25,0">
+                </ListBox>
             </Grid>
         </Border>
 
