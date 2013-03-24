@@ -395,5 +395,9 @@ namespace ServiceBusMQ {
     }
 
 
+    public static System.Windows.Media.Color ColorFromInt(int color) {
+      return System.Windows.Media.Color.FromRgb((byte)( ( color >> 16 ) & 0x0000FF ), (byte)( ( color >> 8 ) & 0x0000FF ), (byte)( color & 0x0000FF ));
+    }
+
   }
 }
