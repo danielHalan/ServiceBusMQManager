@@ -30,8 +30,8 @@ namespace ServiceBusMQManager.Controls {
   public partial class TextInputControl : UserControl, IInputControl {
 
     readonly SolidColorBrush BACKGROUND_LISTITEM_HOVER = new SolidColorBrush(Color.FromRgb(139, 139, 139));
-
-    readonly SolidColorBrush BORDER_SELECTED = new SolidColorBrush(Color.FromRgb(78, 166, 234));
+    
+    readonly SolidColorBrush BORDER_SELECTED =  new SolidColorBrush(Color.FromRgb(78, 166, 234));
     readonly SolidColorBrush BORDER_NORMAL = new SolidColorBrush(Colors.DarkGray);
     readonly SolidColorBrush BORDER_LISTITEM = Brushes.Transparent; //new SolidColorBrush(Color.FromRgb(201, 201, 201));
 
