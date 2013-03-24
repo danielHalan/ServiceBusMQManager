@@ -8,7 +8,7 @@
         mc:Ignorable="d" 
         x:Class="ServiceBusMQManager.MainWindow"
         x:Name="frmMain"
-        Height="314.55" Width="620" 
+        Height="315" Width="620" 
         Topmost="True" 
         
         Loaded="Window_Loaded" 
@@ -22,54 +22,6 @@
         Activated="frmMain_Activated" 
         >
     <Window.Resources>
-        <c:ArrayList x:Key="ShowProcessMsgMenu" x:Shared="false">
-            <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Hours">
-                <MenuItem Header="Past 2 hours" Tag="2*60" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 3 hours" Tag="3*60" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 8 hours" Tag="8*60" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 12 hours" Tag="12*60" Click="ShowProcessedMsg_Click"   />
-            </MenuItem>
-            <MenuItem Header="Days">
-                <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
-            </MenuItem>
-            <Separator />
-            <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click"   />
-        </c:ArrayList>
-
-
-        <c:ArrayList x:Key="ShowProcessMsgDropDown" x:Shared="false">
-            <MenuItem Header="Show Processed Messages" Focusable="False"  IsEnabled="False" FontSize="13" FontFamily="Segoe UI"  />
-            <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
-            <MenuItem Header="Hours">
-                <MenuItem Header="Past 2 hours" Tag="120" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 3 hours" Tag="180" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 8 hours" Tag="480" Click="ShowProcessedMsg_Click"   />
-                <MenuItem Header="Past 12 hours" Tag="720" Click="ShowProcessedMsg_Click"   />
-            </MenuItem>
-            <MenuItem Header="Days">
-                <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
-                <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
-            </MenuItem>
-            <Separator />
-            <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click"   />
-        </c:ArrayList>
-
         <!--<local:QueueItem x:Key="QueueItemDataSource" d:IsDataSource="True"/>-->
     </Window.Resources>
 
@@ -312,16 +264,37 @@
                         <MenuItem x:Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
                         <MenuItem x:Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
                         <Separator />
-                        <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click_1" IsEnabled="False" />
+                        <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click" IsEnabled="False" />
                         <Separator />
                         <MenuItem x:Name="miPurgeMsg" Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
                         <MenuItem Header="Purge All Messages" Click="miDeleteAllMessage_Click" />
+                        <MenuItem x:Name="miPurgeAllErr" Header="Purge All Error Messages" />
                         <Separator />
                         <MenuItem x:Name="miReturnErrToOrgin" Header="Return Error message to Source Queue" Click="miReturnErrorMsg_Click" IsEnabled="False" />
                         <MenuItem x:Name="miReturnAllErr" Header="Return All Error Messages to Source Queue"  />
-                        <MenuItem x:Name="miPurgeAllErr" Header="Purge All Error Messages" />
                         <Separator />
-                        <MenuItem Header="Show Processed Messages" ItemsSource="{StaticResource ShowProcessMsgMenu}" />
+                        <MenuItem Header="Show Processed Messages" >
+                            <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
+                            <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
+                            <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
+                            <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
+                            <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
+                            <MenuItem Header="Hours">
+                                <MenuItem Header="Past 2 hours" Tag="2*60" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 3 hours" Tag="3*60" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 8 hours" Tag="8*60" Click="ShowProcessedMsg_Click"   />
+                                <MenuItem Header="Past 12 hours" Tag="12*60" Click="ShowProcessedMsg_Click"   />
+                            </MenuItem>
+                            <MenuItem Header="Days">
+                                <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
+                                <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click"   />
+                        </MenuItem>
 
                     </ContextMenu>
                 </ListBox.ContextMenu>
@@ -334,7 +307,9 @@
                     Fill="White" Grid.RowSpan="2"
              />
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
-            <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" Foreground="#595959" FontFamily="Calibri" FontSize="13" />
+            <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" 
+                   Foreground="#595959" FontFamily="Calibri" FontSize="13" 
+                   />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,32,0"
@@ -385,11 +360,32 @@
                 </Button.Template>
             </Button>
 
-            <Button x:Name="btnShowProcessed" Click="btnShowProcessed_Click_1" HorizontalAlignment="Right" Margin="0,0,200,8" 
+            <Button x:Name="btnShowProcessed" Click="btnShowProcessed_Click" HorizontalAlignment="Right" Margin="0,0,200,8" 
                     ToolTip="Show processed messages" Width="40" Grid.Row="1" FontFamily="Segoe UI" FontSize="13" >
                 <Button.ContextMenu>
-                    <ContextMenu HasDropShadow="False"  Opened="ContextMenu_Opened_1" Closed="ContextMenu_Closed_1"
-                                 ItemsSource="{StaticResource ShowProcessMsgDropDown}"/>
+                    <ContextMenu HasDropShadow="False"  Opened="ContextMenu_Opened" Closed="ContextMenu_Closed">
+                        <MenuItem Header="Show Processed Messages" Focusable="False"  IsEnabled="False" FontSize="13" FontFamily="Segoe UI"  />
+                        <MenuItem Header="Past minute" Tag="1" Click="ShowProcessedMsg_Click" />
+                        <MenuItem Header="Past 5 minutes" Tag="5" Click="ShowProcessedMsg_Click" />
+                        <MenuItem Header="Past 15 minutes" Tag="15" Click="ShowProcessedMsg_Click" />
+                        <MenuItem Header="Past 30 minutes" Tag="30" Click="ShowProcessedMsg_Click" />
+                        <MenuItem Header="Past 60 minutes" Tag="60" Click="ShowProcessedMsg_Click" />
+                        <MenuItem Header="Hours">
+                            <MenuItem Header="Past 2 hours" Tag="120" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 3 hours" Tag="180" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 8 hours" Tag="480" Click="ShowProcessedMsg_Click"   />
+                            <MenuItem Header="Past 12 hours" Tag="720" Click="ShowProcessedMsg_Click"   />
+                        </MenuItem>
+                        <MenuItem Header="Days">
+                            <MenuItem Header="Past day" Tag="1" Click="ShowProcessedMsgPastDays_Click"   />
+                            <MenuItem Header="Past 5 days" Tag="5" Click="ShowProcessedMsgPastDays_Click"   />
+                            <MenuItem Header="Past 7 days" Tag="7" Click="ShowProcessedMsgPastDays_Click"   />
+                            <MenuItem Header="Past 14 days" Tag="14" Click="ShowProcessedMsgPastDays_Click"   />
+                            <MenuItem Header="Past 31 days" Tag="31" Click="ShowProcessedMsgPastDays_Click"   />
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="All messages" Tag="0" Click="ShowProcessedMsg_Click" />
+                    </ContextMenu>
 
                 </Button.ContextMenu>
                 <Button.Template>

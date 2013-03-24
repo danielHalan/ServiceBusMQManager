@@ -298,7 +298,10 @@ namespace ServiceBusMQ {
         return Assembly.LoadFrom(fn);
       }
 
-      throw new ApplicationException("Failed resolving assembly, " + args.Name);
+      if( !args.Name.StartsWith("mscorlib.XmlSerializers") )
+        throw new ApplicationException("Failed resolving assembly, " + args.Name);
+
+      return null;
     }
 
     static string _appDataPath = null;
