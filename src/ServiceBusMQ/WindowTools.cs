@@ -40,8 +40,9 @@ namespace ServiceBusMQ {
 
 
     public static CursorPosition GetCursorPosition(this Window window) {
-      var x = Mouse.GetPosition(window).X;
-      var y = Mouse.GetPosition(window).Y;
+      var pt = Mouse.GetPosition(window);
+      var x = pt.X;
+      var y = pt.Y;
       CursorPosition pos = CursorPosition.Body;
 
       int THRESHOLD = 5;
@@ -115,7 +116,7 @@ namespace ServiceBusMQ {
 
     static Dictionary<Window, IntPtr> _winHandles = new Dictionary<Window,IntPtr>();
 
-    private static void ResizeWindow(Window window, CursorPosition pos) {
+    public static void ResizeWindow(Window window, CursorPosition pos) {
       IntPtr handle;
       
       if( _winHandles.ContainsKey(window) ) 
