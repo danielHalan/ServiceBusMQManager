@@ -175,18 +175,30 @@ namespace ServiceBusMQ {
     }
 
     public static string ToUpperFirst(this string str) {
-      if( !string.IsNullOrEmpty( str ) ) {
+      if( !string.IsNullOrEmpty(str) ) {
         StringBuilder sb = new StringBuilder(str);
         sb[0] = char.ToUpper(sb[0]);
 
         return sb.ToString();
-      
+
       } else return str;
     }
 
     public static string With(this string str, params object[] prms) {
       return string.Format(str, prms);
     }
+    public static bool Contains(this string str, string[] values) {
+      if( str.IsValid() ) {
+        foreach( string v in values ) {
+          if( str.IndexOf(v, StringComparison.OrdinalIgnoreCase) == -1 )
+            return false;
+        }
+
+        return true;
+
+      } else return false;
+    }
+
 
   }
 }

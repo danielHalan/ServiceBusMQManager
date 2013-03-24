@@ -464,7 +464,7 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void MessageMgr_ItemsChanged(object sender, EventArgs e) {
+    private void MessageMgr_ItemsChanged(object sender, ServiceBusMQ.ItemsChangedEventArgs e) {
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
@@ -478,7 +478,8 @@ namespace ServiceBusMQManager {
         lbItems.ItemsSource = _sys.Items;
         lbItems.Items.Refresh();
 
-        ShowActivityTrayIcon();
+        if( e.Origin == ItemChangeOrigin.Queue )
+          ShowActivityTrayIcon();
 
         // Show Window
         if( _sys.Config.ShowOnNewMessages && !_firstLoad && !this.IsVisible )

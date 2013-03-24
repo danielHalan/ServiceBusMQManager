@@ -62,7 +62,14 @@ namespace ServiceBusMQManager.Controls {
         SearchStringChanged();
 
         e.Handled = true;
+
+      } else if( e.Key == Key.Space ) {
+        _searchString.Append(' ');
+        SearchStringChanged();
+
+        e.Handled = true;
       }
+
     }
 
     private bool IsCharKey(Key key) {

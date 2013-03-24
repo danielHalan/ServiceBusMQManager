@@ -27,8 +27,14 @@ using ServiceBusMQ.ViewModel;
 
 namespace ServiceBusMQ {
 
-  public class SbmqSystem {
+  public enum ItemChangeOrigin { Queue, Filter }
+  public class ItemsChangedEventArgs : EventArgs {
 
+    public ItemChangeOrigin Origin { get; set; }
+
+  }
+
+  public class SbmqSystem {
 
     bool _isServiceBusStarted = false;
 
@@ -47,7 +53,12 @@ namespace ServiceBusMQ {
 
     string _filter = null;
 
-    public IEnumerable<QueueItemViewModel> Items { get { return _items.Where( i => _filter == null || i.DisplayName.IndexOf(_filter, StringComparison.OrdinalIgnoreCase) != -1); } }
+    public IEnumerable<QueueItemViewModel> Items {
+      get {
+        return _items.Where(i => _filter == null ||
+          i.DisplayName.Contains(_filter.Split(' ')));
+      }
+    }
 
     public bool CanSendCommand { get; private set; }
     public bool CanViewSubscriptions { get; private set; }
@@ -128,7 +139,7 @@ namespace ServiceBusMQ {
           if( existingItem == null ) {
 
             _items.Insert(0, new QueueItemViewModel(itm));
-            
+
             if( !changed )
               changed = true;
 
@@ -139,7 +150,7 @@ namespace ServiceBusMQ {
             existingItem.Processed = false;
 
             _items.Insert(0, existingItem);
-            
+
             if( !changed )
               changed = true;
           }
@@ -152,7 +163,7 @@ namespace ServiceBusMQ {
 
             if( !itm.Processed ) {
               itm.Processed = true;
-              
+
               if( !changed )
                 changed = true;
             }
@@ -161,7 +172,7 @@ namespace ServiceBusMQ {
       }
 
       if( changed )
-        OnItemsChanged();
+        OnItemsChanged(ItemChangeOrigin.Queue);
 
     }
     public void RetrieveProcessedQueueItems(TimeSpan timeSpan) {
@@ -199,7 +210,7 @@ namespace ServiceBusMQ {
       if( changed ) {
         _items.Sort((a, b) => b.ArrivedTime.CompareTo(a.ArrivedTime));
 
-        OnItemsChanged();
+        OnItemsChanged(ItemChangeOrigin.Queue);
       }
     }
 
@@ -217,24 +228,24 @@ namespace ServiceBusMQ {
         Application.Current.Shutdown();
     }
     private void System_ItemsChanged(object sender, EventArgs e) {
-      _itemsChanged.Invoke(sender, e);
-      //Dispatcher.CurrentDispatcher.BeginInvoke( _itemsChanged );
+      OnItemsChanged(ItemChangeOrigin.Queue);
+      //_itemsChanged.Invoke(sender, e);
     }
 
-    protected void OnItemsChanged() {
+    protected void OnItemsChanged(ItemChangeOrigin origin) {
       if( _itemsChanged != null )
-        _itemsChanged(this, EventArgs.Empty);
+        _itemsChanged(this, new ItemsChangedEventArgs() { Origin = origin } );
     }
 
-    protected EventHandler _itemsChanged;
-    public event EventHandler ItemsChanged {
+    protected EventHandler<ItemsChangedEventArgs> _itemsChanged;
+    public event EventHandler<ItemsChangedEventArgs> ItemsChanged {
       [MethodImpl(MethodImplOptions.Synchronized)]
       add {
-        _itemsChanged = (EventHandler)Delegate.Combine(_itemsChanged, value);
+        _itemsChanged = (EventHandler<ItemsChangedEventArgs>)Delegate.Combine(_itemsChanged, value);
       }
       [MethodImpl(MethodImplOptions.Synchronized)]
       remove {
-        _itemsChanged = (EventHandler)Delegate.Remove(_itemsChanged, value);
+        _itemsChanged = (EventHandler<ItemsChangedEventArgs>)Delegate.Remove(_itemsChanged, value);
       }
     }
 
@@ -329,7 +340,7 @@ namespace ServiceBusMQ {
     }
     public bool MonitorMessages {
       get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Message]; }
-      set {  MonitorStateChanged(QueueType.Message, value); }
+      set { MonitorStateChanged(QueueType.Message, value); }
     }
     public bool MonitorErrors {
       get { return (bool)_monitorState.MonitorQueueType[(int)QueueType.Error]; ; }
@@ -355,22 +366,22 @@ namespace ServiceBusMQ {
       if( ErrorOccured != null )
         ErrorOccured(this, arg);
     }
- 
+
 
 
     public void FilterItems(string str) {
 
       if( str.IsValid() ) {
         _filter = str;
-        OnItemsChanged();
-      
+        OnItemsChanged(ItemChangeOrigin.Filter);
+
       } else ClearFilter();
 
     }
 
     public void ClearFilter() {
       _filter = null;
-      OnItemsChanged();
+      OnItemsChanged(ItemChangeOrigin.Filter);
     }
 
   }
