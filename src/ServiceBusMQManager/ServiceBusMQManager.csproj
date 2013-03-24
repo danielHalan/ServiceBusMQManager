@@ -80,6 +80,9 @@
       <HintPath>bin\Interop.MSMQ.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Profiler.Common">
       <HintPath>..\packages\NServiceBus\NServiceBus.Profiler.Common.dll</HintPath>
     </Reference>
@@ -219,6 +222,10 @@
     <Compile Include="SendCommandWindow.xaml.cs">
       <DependentUpon>SendCommandWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StickyWindowLibrary\IFormAdapter.cs" />
+    <Compile Include="StickyWindowLibrary\StickyWindow.cs" />
+    <Compile Include="StickyWindowLibrary\WinFormAdapter.cs" />
+    <Compile Include="StickyWindowLibrary\WpfFormAdapter.cs" />
     <Compile Include="TriggerTracing.cs" />
     <Compile Include="UIControlFactory.cs" />
     <Page Include="Controls\ColorPickerControlListBoxDict.xaml">
@@ -369,10 +376,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Simple Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -392,6 +395,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">

@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="AppDomainBinder.cs" />
     <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="Bit.cs" />
     <Compile Include="CheckVersionThread.cs">
       <SubType>Component</SubType>
     </Compile>
