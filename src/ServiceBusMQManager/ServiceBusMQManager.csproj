@@ -222,10 +222,6 @@
     <Compile Include="SendCommandWindow.xaml.cs">
       <DependentUpon>SendCommandWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StickyWindowLibrary\IFormAdapter.cs" />
-    <Compile Include="StickyWindowLibrary\StickyWindow.cs" />
-    <Compile Include="StickyWindowLibrary\WinFormAdapter.cs" />
-    <Compile Include="StickyWindowLibrary\WpfFormAdapter.cs" />
     <Compile Include="TriggerTracing.cs" />
     <Compile Include="UIControlFactory.cs" />
     <Page Include="Controls\ColorPickerControlListBoxDict.xaml">
