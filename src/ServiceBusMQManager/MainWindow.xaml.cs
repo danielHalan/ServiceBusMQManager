@@ -27,6 +27,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using NLog;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
@@ -46,6 +47,8 @@ namespace ServiceBusMQManager {
     private static readonly string[] BUTTON_LABELS = new string[] { "COMMANDS", "EVENTS", "MESSAGES", "ERRORS" };
     private static readonly char SPACE_SEPARATOR = ' ';
     private static readonly List<QueueItem> EMPTY_LIST = new List<QueueItem>();
+
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     private SbmqSystem _sys;
     private IServiceBusManager _mgr;
@@ -74,11 +77,9 @@ namespace ServiceBusMQManager {
       tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
     }
 
-
     private void Window_SourceInitialized(object sender, EventArgs e) {
 
       InitSystem();
-
 
       HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
       source.AddHook(WndProc);
@@ -93,12 +94,12 @@ namespace ServiceBusMQManager {
 
           handled = true;
           return new IntPtr(1);
-
-        default:
-          handled = false;
-          return IntPtr.Zero;
       }
+
+
+      return IntPtr.Zero;
     }
+    */ 
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
@@ -204,6 +205,8 @@ namespace ServiceBusMQManager {
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
         lbItems.ItemsSource = _sys.Items;
+
+        SetupContextMenu();
 
         timer_Tick(this, EventArgs.Empty);
 
@@ -417,7 +420,7 @@ namespace ServiceBusMQManager {
 
     private string GetQueueStatusString() {
       QueueType[] itemTypes = null;
-      if( _sys != null ) 
+      if( _sys != null )
         itemTypes = _sys.Items.Select(i => i.Queue.Type).ToArray();
       else itemTypes = new QueueType[0];
 
@@ -508,24 +511,33 @@ namespace ServiceBusMQManager {
     private void SetupContextMenu() {
       var items = lbItems.ContextMenu.Items;
 
-      // Return All error messages
-      var mi = miReturnAllErr;
-      mi.Items.Clear();
-      foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
-        var m2 = new MenuItem() { Header = q.Name };
-        m2.Click += (sender, e) => { _mgr.MoveAllErrorMessagesToOriginQueue(q.Name); };
+      if( _mgr.MonitorQueues.Any(q => q.Type == QueueType.Error) ) {
+        miReturnAllErr.IsEnabled = true;
+        miPurgeAllErr.IsEnabled = true;
 
-        mi.Items.Add(m2);
-      }
+        // Return All error messages
+        var mi = miReturnAllErr;
+        mi.Items.Clear();
+        foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
+          var m2 = new MenuItem() { Header = q.Name };
+          m2.Click += (sender, e) => { _mgr.MoveAllErrorMessagesToOriginQueue(q.Name); };
 
-      // Purge all error messages
-      mi = miPurgeAllErr;
-      mi.Items.Clear();
-      foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
-        var m2 = new MenuItem() { Header = q.Name };
-        m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(q.Name); };
+          mi.Items.Add(m2);
+        }
 
-        mi.Items.Add(m2);
+        // Purge all error messages
+        mi = miPurgeAllErr;
+        mi.Items.Clear();
+        foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
+          var m2 = new MenuItem() { Header = q.Name };
+          m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(q.Name); };
+
+          mi.Items.Add(m2);
+        }
+
+      } else {
+        miReturnAllErr.IsEnabled = false;
+        miPurgeAllErr.IsEnabled = false;
       }
 
     }
@@ -537,6 +549,9 @@ namespace ServiceBusMQManager {
       _BindContextMenuItem(miCopyMsgContent, itm);
       _BindContextMenuItem(miResendCommand, itm, qi => _sys.CanSendCommand && qi.Queue.Type == QueueType.Command);
 
+      if( itm != null )
+        miReturnErrToOrgin.FontWeight = itm.Queue.Type == QueueType.Error ? FontWeights.Bold : FontWeights.Normal;
+
       // Remove message
       _BindContextMenuItem(miPurgeMsg, itm, qi => !qi.Processed);
 
@@ -545,7 +560,7 @@ namespace ServiceBusMQManager {
 
 #if DEBUG
       MenuItem mi = null;
-      if( (items[items.Count-1] as MenuItem).Header != "Headers" ) { 
+      if( ( items[items.Count - 1] as MenuItem ).Header != "Headers" ) {
         mi = new MenuItem();
         mi.Header = "Headers";
         items.Add(mi);
@@ -556,7 +571,7 @@ namespace ServiceBusMQManager {
 
       if( itm != null && itm.Headers != null )
         foreach( var head in itm.Headers )
-          mi.Items.Add( new MenuItem() { Header = string.Concat(head.Key, '=', head.Value) } );
+          mi.Items.Add(new MenuItem() { Header = string.Concat(head.Key, '=', head.Value) });
 #endif
 
     }
@@ -664,6 +679,10 @@ namespace ServiceBusMQManager {
         SetSelectedItem(itm);
       }
 
+      if( itm.Queue.Type == QueueType.Error ) { // Move back to origin
+        _mgr.MoveErrorMessageToOriginQueue(itm);
+      }
+
     }
 
 
@@ -679,10 +698,11 @@ namespace ServiceBusMQManager {
       ShowConfigDialog();
     }
 
+   
     private void SnapWindowToEdge() {
       var s = WpfScreen.GetScreenFrom(this);
 
-      var treshold = 7;
+      var treshold = 30;
 
       // End Right
       var right = this.Left + this.Width;
@@ -708,12 +728,14 @@ namespace ServiceBusMQManager {
 
 
     }
+
     private void Window_MouseMove(object sender, MouseEventArgs e) {
       Cursor = this.GetBorderCursor();
     }
+
     private void Window_LocationChanged(object sender, EventArgs e) {
 
-      SnapWindowToEdge();
+      //SnapWindowToEdge();
 
       UpdateContentWindow();
     }
@@ -749,7 +771,19 @@ namespace ServiceBusMQManager {
     }
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-      this.MoveOrResizeWindow(e);
+
+      CursorPosition pos = this.GetCursorPosition();
+
+      if( e.LeftButton == MouseButtonState.Pressed ) {
+        if( pos == CursorPosition.Body ) {
+          this.DragMove();
+          SnapWindowToEdge(); 
+
+        } else WindowTools.ResizeWindow(this, pos);
+      }
+
+
+      //this.MoveOrResizeWindow(e);
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
@@ -921,7 +955,6 @@ namespace ServiceBusMQManager {
 
       LoadProcessedQueueItems(timeSpan);
     }
-
     private void ShowProcessedMsgPastDays_Click(object sender, RoutedEventArgs e) {
       var days = Convert.ToInt32(( e.Source as MenuItem ).Tag as string);
 
@@ -941,7 +974,7 @@ namespace ServiceBusMQManager {
       }
     }
 
-    private void btnShowProcessed_Click_1(object sender, RoutedEventArgs e) {
+    private void btnShowProcessed_Click(object sender, RoutedEventArgs e) {
       var btn = sender as Button;
       var cm = ContextMenuService.GetContextMenu(sender as DependencyObject);
       if( cm != null ) {
@@ -961,7 +994,7 @@ namespace ServiceBusMQManager {
       }
     }
 
-    private void ContextMenu_Opened_1(object sender, RoutedEventArgs e) {
+    private void ContextMenu_Opened(object sender, RoutedEventArgs e) {
 
       var btn = btnShowProcessed;
       var cm = ContextMenuService.GetContextMenu(btn as DependencyObject);
@@ -980,13 +1013,12 @@ namespace ServiceBusMQManager {
 
       }
     }
-
-    private void ContextMenu_Closed_1(object sender, RoutedEventArgs e) {
+    private void ContextMenu_Closed(object sender, RoutedEventArgs e) {
 
       _openedByButton = false;
     }
 
-    private void miResendCommand_Click_1(object sender, RoutedEventArgs e) {
+    private void miResendCommand_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
       ISendCommand mgr = _sys.Manager as ISendCommand;
 
@@ -1020,7 +1052,6 @@ namespace ServiceBusMQManager {
         _sys.ClearFilter();
       }
     }
-
 
 
   }
