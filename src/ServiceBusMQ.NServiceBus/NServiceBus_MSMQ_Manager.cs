@@ -320,7 +320,7 @@ namespace ServiceBusMQ.NServiceBus {
       itm.DisplayName = MergeStringArray(itm.Messages).Default(itm.DisplayName).CutEnd(55);
 
       // Get process started time
-      if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") ) {
+      if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") && itm.Headers.ContainsKey("NServiceBus.ProcessingEnded") ) {
 
         try {
           itm.ProcessTime = Convert.ToInt32(( Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) -
