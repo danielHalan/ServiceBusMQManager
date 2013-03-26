@@ -21,6 +21,7 @@ using System.Messaging;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
+using NLog;
 using NServiceBus;
 using NServiceBus.Utils;
 using ServiceBusMQ.Manager;
@@ -31,6 +32,8 @@ namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
   public abstract class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
+
+    protected Logger _log = LogManager.GetCurrentClassLogger();
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
@@ -221,7 +224,7 @@ namespace ServiceBusMQ.NServiceBus {
 
             QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
-            if( itm == null && !r.Any( i => i.Id == msg.Id ) ) {
+            if( itm == null && !r.Any(i => i.Id == msg.Id) ) {
               itm = CreateQueueItem(q.Queue, msg);
 
               // Load Message names and check if its not an infra-message
@@ -259,31 +262,36 @@ namespace ServiceBusMQ.NServiceBus {
         SetupMessageReadPropertyFilters(q.Journal, type);
 
         try {
+          List<Message> messages = new List<Message>();
 
+          // Enumete from the earliest item
           MessageEnumerator msgs = q.Journal.GetMessageEnumerator2();
           try {
             while( msgs.MoveNext() ) {
               Message msg = msgs.Current;
 
-              if( msg.ArrivedTime >= since ) {
-
-                QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
-
-                if( itm == null ) {
-                  itm = CreateQueueItem(q.Queue, msg);
-                  itm.Processed = true;
-
-                  if( !PrepareQueueItemForAdd(itm) )
-                    itm = null;
-                }
-
-                if( itm != null )
-                  r.Insert(0, itm);
-              }
+              if( msg.ArrivedTime >= since )
+                messages.Add(msg);
             }
           } finally {
             msgs.Close();
           }
+
+          foreach( var msg in messages ) {
+            QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
+
+            if( itm == null ) {
+              itm = CreateQueueItem(q.Queue, msg);
+              itm.Processed = true;
+
+              if( !PrepareQueueItemForAdd(itm) )
+                itm = null;
+            }
+
+            if( itm != null )
+              r.Insert(0, itm);
+          }
+
 
 
         } catch( Exception e ) {
