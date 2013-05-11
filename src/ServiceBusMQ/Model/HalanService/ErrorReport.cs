@@ -66,9 +66,10 @@ namespace ServiceBusMQ.Model.HalanService {
         req.Reference = id.ToString();
         req.Message = _error.Message;
         if( _error.Exception != null ) {
+          
           Exception e = _error.Exception;
-          ErrorReportException errorRepExcept = new ErrorReportException();
-          req.Exception = errorRepExcept;
+
+          ErrorReportException errorRepExcept = req.Exception = new ErrorReportException();
           while( e != null ) {
             errorRepExcept.Message = e.Message;
             errorRepExcept.StackTrace = e.StackTrace;
@@ -77,8 +78,7 @@ namespace ServiceBusMQ.Model.HalanService {
 
             e = e.InnerException;
             if( e != null ) {
-              errorRepExcept.InnerException = new ErrorReportException();
-              errorRepExcept = errorRepExcept.InnerException;
+              errorRepExcept = errorRepExcept.InnerException = new ErrorReportException();
             }
           }
         }
@@ -90,7 +90,7 @@ namespace ServiceBusMQ.Model.HalanService {
         req.ReportID = Tools.EncryptSimple(_appData.Id);
 
         if( _managerState != null && _managerState.Length > 0 )
-          req.ManagerState = Tools.EncryptSimple(_managerState.Concat(" "));
+          req.ManagerState = Tools.EncryptSimple(_managerState.AsString(" "));
 
         ErrorReportResponse resp = pm.ReportError(req);
 
