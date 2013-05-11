@@ -47,6 +47,8 @@
                        Padding="50,10,10,10" FontFamily="Calibri" FontSize="16" Grid.Row="1" >
                 <TextBlock.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Copy Exception to Clipboard" Click="CopyException_Click"  />
+                        <Separator /> 
                         <MenuItem Header="Copy Message to Clipboard" Click="CopyMessage_Click" />
                         <MenuItem Header="Copy Stack Trace to Clipboard" Click="CopyCallStack_Click" />
                     </ContextMenu>
@@ -79,6 +81,8 @@
             <Image x:Name="imgStackTrace" Source="Images/StackTrace-white.png" Width="20" Height="20" Grid.Row="1" Margin="0,0,6,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" >
                 <Image.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Copy Exception to Clipboard" Click="CopyException_Click"  />
+                        <Separator />
                         <MenuItem Header="Copy Stack Trace to Clipboard" Click="CopyCallStack_Click" />
                     </ContextMenu>
                 </Image.ContextMenu>

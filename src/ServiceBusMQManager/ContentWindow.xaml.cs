@@ -126,5 +126,9 @@ namespace ServiceBusMQManager {
     private void CopyMessage_Click(object sender, RoutedEventArgs e) {
       Clipboard.SetData(DataFormats.Text, lbError.Text);
     }
+
+    private void CopyException_Click(object sender, RoutedEventArgs e) {
+      Clipboard.SetData(DataFormats.Text, lbError.Text + "\n" + imgStackTrace.ToolTip);
+    }
   }
 }
