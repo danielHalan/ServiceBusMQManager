@@ -82,9 +82,21 @@ namespace ServiceBusMQ {
         else return null;
 
       } else {
-        if( obj != null )
-          return System.Convert.ChangeType(obj, type);
-        else return GetDefault(type);
+        if( obj != null ) { 
+          
+          if( type.FullName.StartsWith("System.Collections.Generic.Dictionary") ) {
+          
+            object dic = Activator.CreateInstance(type);
+            foreach( object kv in (Array)obj  ) {
+            
+              type.GetMethod("Add").Invoke( dic, new object[] {
+                                          kv.GetType().GetProperty("Key").GetValue(kv, null), 
+                                          kv.GetType().GetProperty("Value").GetValue(kv, null) }); 
+            }
+            return dic;
+
+          } else return System.Convert.ChangeType(obj, type);
+        } else return GetDefault(type);
       }
     }
 
@@ -234,11 +246,12 @@ namespace ServiceBusMQ {
     public static object CreateInstance(Type type, Dictionary<string, object> attributes) {
       object i = null;
 
+      /*
       try {
         i = Activator.CreateInstance(type);
 
       } catch( MissingMethodException e ) {
-        // try match parameters
+       */ // try match parameters
 
         foreach( var construct in type.GetConstructors().OrderBy(c => c.GetParameters().Length) ) {
 
@@ -262,7 +275,7 @@ namespace ServiceBusMQ {
           }
 
         }
-      }
+      //}
 
       if( attributes != null )
         foreach( var v in attributes ) {

@@ -67,18 +67,38 @@ namespace ServiceBusMQ {
                          || t == typeof(DateTime?);
     }
 
+    public static bool IsComplexArray(this Type t) {
+      if( t.FullName.StartsWith("System.Collections.Generic.Dictionary") )
+        return true;
+
+      return false;
+    }
+
     public static string GetDisplayName(this Type type, object value) {
 
-      if( value == null ) 
+      if( value == null )
         return string.Format("{0} (Undefined)", type.Name);
       else {
+        StringBuilder props;
 
-        var props = type.GetProperties().OrderBy( p => p.Name ).Aggregate(new StringBuilder(),
-                      (sb, p) => sb.Length > 0 ? sb.Append(", " + GetAttribValue(p, value)) : sb.Append(GetAttribValue(p, value)));
+        if( !value.GetType().IsArray ) {
 
+          props = type.GetProperties().OrderBy(p => p.Name).Aggregate(new StringBuilder(),
+                        (sb, p) => sb.Length > 0 ? sb.Append(", " + GetAttribValue(p, value)) : sb.Append(GetAttribValue(p, value)));
+
+        } else {
+          props = new StringBuilder();
+          foreach( object valueObj in (Array)value ) {
+
+            props.Append( type.GetProperties().OrderBy(p => p.Name).Aggregate(new StringBuilder(),
+                        (sb, p) => sb.Length > 0 ? sb.Append(", " + GetAttribValue(p, value)) : sb.Append(GetAttribValue(p, value))).ToString()
+                        );
+          }
+        
+        }
         return string.Format("{0} ({1})", type.Name, props.ToString());
       }
-    
+
     }
 
     private static string GetAttribValue(System.Reflection.PropertyInfo p, object obj) {
@@ -88,8 +108,8 @@ namespace ServiceBusMQ {
 
       Type t = p.PropertyType;
 
-      if( t == typeof(string) )  
-        res = ((string)value).RemoveNonChars();
+      if( t == typeof(string) )
+        res = ( (string)value ).RemoveNonChars();
 
       else if( t.IsClass && !t.IsPrimitive ) {
 
@@ -105,6 +125,6 @@ namespace ServiceBusMQ {
       return res.CutEnd(16);
     }
 
-  
+
   }
 }

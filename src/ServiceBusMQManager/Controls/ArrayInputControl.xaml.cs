@@ -14,9 +14,13 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ServiceBusMQ;
 
 namespace ServiceBusMQManager.Controls {
   /// <summary>
@@ -37,6 +41,11 @@ namespace ServiceBusMQManager.Controls {
 
       if( type.IsArray ) {
         _type = type.GetElementType();
+
+      } else if( type.FullName.StartsWith("System.Collections.Generic.Dictionary") ) {
+        
+        Type generic = typeof(KeyValuePair<,>);    
+        _type = generic.MakeGenericType( type.GetGenericArguments() );    
 
       } else throw new Exception("Not an array type");
 
@@ -84,8 +93,9 @@ namespace ServiceBusMQManager.Controls {
     public void UpdateValue(object value) {
 
       if( value != null ) { 
-      
-        if( value.GetType().IsArray ) 
+        var type = value.GetType();
+
+        if( type.IsArray || type.IsComplexArray() ) 
           LoadArray(value);
         else { 
           
@@ -108,12 +118,27 @@ namespace ServiceBusMQManager.Controls {
 
       if( !_isNull ) {
 
-        if( value.GetType().IsArray ) {
+        var type = value.GetType();
 
-          foreach( var obj in (Array)value ) {
+        if( type.IsArray ) {
+
+          foreach( var obj in (Array)value ) 
             AddListItem(obj);
+          
+        } else if( type.IsComplexArray() ) {
+        
+          if( type.FullName.StartsWith("System.Collections.Generic.Dictionary") ) {
+            
+            var i = ((IEnumerator)type.GetMethod("GetEnumerator").Invoke(value, null));
+            while( i.MoveNext() ) { 
+              if( i.Current != null )
+                AddListItem(i.Current);
+            }
           }
+
         }
+
+
       }
 
       UpdateCountLabel();

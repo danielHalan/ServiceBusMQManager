@@ -321,8 +321,7 @@ namespace ServiceBusMQManager.Controls {
       Updating = true;
       try {
 
-        _recent.Remove(recent);
-        _mgr.Remove(recent);
+        Remove(recent);
 
         CollectionViewSource.GetDefaultView(cbRecent.ItemsSource).Refresh();
 
@@ -335,6 +334,13 @@ namespace ServiceBusMQManager.Controls {
         cbRecent.SelectedIndex = 0;
       else cbRecent.SelectedIndex = -1;
 
+    }
+
+    public void Remove(SavedCommandItem item) {
+      if( item != null ) {
+        _recent.Remove(item);
+        _mgr.Remove(item);
+      }
     }
 
     public bool Updating { get; set; }

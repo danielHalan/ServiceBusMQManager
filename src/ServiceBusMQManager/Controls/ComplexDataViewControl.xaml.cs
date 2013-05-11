@@ -333,6 +333,7 @@ namespace ServiceBusMQManager.Controls {
             return;
           } else inst = pi.InitialObject;
         }
+        
         UpdateDataPanel(p, pi.DataType, inst);
 
         foreach( var ctl in p.Children.OfType<UserControl>() )

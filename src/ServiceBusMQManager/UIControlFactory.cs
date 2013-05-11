@@ -14,6 +14,8 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using ServiceBusMQ;
@@ -73,13 +75,19 @@ namespace ServiceBusMQManager {
         res.Control = new TextInputControl(value, t, res.IsNullable);
         res.DataType = DataType.Guid;
 
+      } else if( t.FullName.StartsWith("System.Collections.Generic.Dictionary") ) {
+
+        res.Control = new ArrayInputControl(t, value, name);
+        res.DataType = DataType.Array;
+        res.IsNullable = true;
+
       } else if( t.IsArray ) {
 
         res.Control = new ArrayInputControl(t, value, name);
         res.DataType = DataType.Array;
         res.IsNullable = true;
 
-      } else if( t.IsClass ) {
+      } else if( t.IsClass || t.IsValueType ) {
 
         res.Control = new ComplexDataInputControl(name, t, value);
         res.DataType = DataType.Complex;

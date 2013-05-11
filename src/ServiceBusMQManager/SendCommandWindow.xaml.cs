@@ -75,11 +75,11 @@ namespace ServiceBusMQManager {
         _recentUpdating = true;
         cbCommands.SelectedValue = t.FullName;
         _recentUpdating = false;
-        UpdateSendButton();        
+        UpdateSendButton();
 
       }
 
-    
+
     }
 
     private void BindServers() {
@@ -90,7 +90,7 @@ namespace ServiceBusMQManager {
       cbServer.SelectedIndex = 0;
 
       var s = _sys.Config.Servers[0];
-      cbQueue.ItemsSource = s.MonitorQueues.Where( q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select( q => q.Name );
+      cbQueue.ItemsSource = s.MonitorQueues.Where(q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select(q => q.Name);
       cbQueue.SelectedIndex = 0;
     }
 
@@ -159,11 +159,16 @@ namespace ServiceBusMQManager {
       try {
         if( !savedCommands.Updating ) {
 
-          if( recent != null ) {
-            var t = recent.SentCommand.Command.GetType();
-            cmdAttrib.SetDataType(t, recent.SentCommand.Command);
-            cbCommands.SelectedValue = t.FullName;
+          try {
+            if( recent != null ) {
+              var t = recent.SentCommand.Command.GetType();
+              cmdAttrib.SetDataType(t, recent.SentCommand.Command);
+              cbCommands.SelectedValue = t.FullName;
+            }
 
+          } catch(Exception ex) {
+            System.Diagnostics.Debug.WriteLine("Failed to load saved command, " + ex.Message);
+            savedCommands.Remove(recent);
           }
 
         }
@@ -181,7 +186,7 @@ namespace ServiceBusMQManager {
       //  _isBusStarted = true;
       //}
       SendCommandEnvelope env = e.Argument as SendCommandEnvelope;
-      
+
       _sys.SendCommand(env.Server, env.Queue, env.Command);
 
       e.Result = env;
@@ -189,7 +194,7 @@ namespace ServiceBusMQManager {
 
     void DoSendCommandCompleted(object sender, RunWorkerCompletedEventArgs e) {
       btnSend.IsEnabled = true;
-      
+
       if( e.Error != null )
         throw e.Error;
 
@@ -235,7 +240,7 @@ namespace ServiceBusMQManager {
           thread.RunWorkerCompleted += DoSendCommandCompleted;
 
           thread.RunWorkerAsync(env);
-        
+
         } else btnSend.IsEnabled = true;
 
       }
