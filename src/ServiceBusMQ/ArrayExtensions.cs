@@ -28,7 +28,7 @@ namespace ServiceBusMQ {
         action(item);
     }
 
-    public static string Concat<T>(this T[] list, string separator = ", ") {
+    public static string AsString<T>(this T[] list, string separator = ", ") {
       var sb = new StringBuilder(list.Length * 100);
       foreach( T itm in list ) {
       
