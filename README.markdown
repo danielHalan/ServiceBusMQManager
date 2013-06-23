@@ -20,6 +20,6 @@ More information can be found at http://blog.halan.se/page/Service-Bus-MQ-Manage
 
 ## License
 
-The source code is released under the GPL License, 
-http://www.gnu.org/licenses/gpl.html
+The source code is released under the RPL License, 
+http://opensource.org/licenses/rpl1.5.txt
 
