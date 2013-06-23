@@ -16,3 +16,10 @@ The application is most useful when used in a [CQRS architecture](http://cqrsinf
 - **Service Bus Integration**, Supports NServiceBus with MSMQ XML and JSON Transportation, with possibility to extend to other service buses or new transportation methods.
 
 More information can be found at http://blog.halan.se/page/Service-Bus-MQ-Manager.aspx
+
+
+## License
+
+The source code is released under the GPL License, 
+http://www.gnu.org/licenses/gpl.html
+
