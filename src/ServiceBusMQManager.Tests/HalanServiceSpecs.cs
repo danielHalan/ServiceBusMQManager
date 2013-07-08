@@ -27,6 +27,9 @@ namespace ServiceBusMQManager.Tests {
   [Subject("halan service")]
   public abstract class with_halan_service {
 
+
+    protected static readonly Version CURRENT_VERSION = new Version(3,02);
+
     protected static ApplicationInfo AppInfo;
 
     Establish context = () => {
