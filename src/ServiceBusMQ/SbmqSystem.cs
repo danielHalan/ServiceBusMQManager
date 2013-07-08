@@ -56,7 +56,7 @@ namespace ServiceBusMQ {
     public IEnumerable<QueueItemViewModel> Items {
       get {
         return _items.Where(i => _filter == null ||
-          i.DisplayName.Contains(_filter.Split(' ')));
+          i.DisplayName.Contains(_filter.Split(' '))).Take(1000);
       }
     }
 
