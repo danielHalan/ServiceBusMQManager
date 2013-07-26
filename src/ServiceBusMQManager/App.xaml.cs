@@ -63,18 +63,20 @@ namespace ServiceBusMQManager {
 
         PrintHeader();
 
-        string cmdName = arg.Param;
+        string[] cmds = arg.Param.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
         var sys = SbmqSystem.Create();
         try {
-          var itm = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmdName);
+          foreach( var cmd in cmds ) {
+            var itm = sys.SavedCommands.Items.FirstOrDefault(c => c.DisplayName == cmd);
 
-          if( itm != null ) {
-            Out(string.Format("Sending Command '{0}'...", cmdName));
-            sys.SendCommand(itm.SentCommand.Server, itm.SentCommand.Transport, itm.SentCommand.Command);
+            if( itm != null ) {
+              Out(string.Format("Sending Command '{0}'...", cmd));
+              sys.SendCommand(itm.SentCommand.Server, itm.SentCommand.Queue, itm.SentCommand.Command);
 
-          } else {
-            Out(string.Format("No Command with name '{0}' found, exiting...", cmdName));
+            } else {
+              Out(string.Format("No Command with name '{0}' found, exiting...", cmd));
+            }
           }
 
         } finally {
@@ -125,17 +127,18 @@ namespace ServiceBusMQManager {
       var ver = App.Info.Version;
       Out(string.Empty);
       Out("===============================================================================");
-      Out("  Service Bus MQ Manager v2.{0}.{1} ".With(ver.Major, ver.Minor.ToString("D2")));
+      Out("  Service Bus MQ Manager v{0}.{1} ".With(ver.Major, ver.Minor.ToString("D2")));
       Out("  (c)2012-2013 ITQ.COM, Daniel Halan http://halan.se");
       Out("===============================================================================");
     }
 
     private void PrintHelp() {
 
-      Out(" Command Line: ServiceBusMQManager.exe --send <recentCommandName> [-s] [-m]");
+      Out(" Command Line: ServiceBusMQManager.exe --send <recentCommandName;recentCommandName> [-s] [-m]");
 
       Out("");
-      Out("  --send   = Send a saved command");
+      Out("  --send   = Send one or more saved command, ");
+      Out("             semicolon separated and specified by name set in Send Command Dialog");
       Out("  -s       = Silent Mode");
       Out("  -m       = Start minimized");
 
