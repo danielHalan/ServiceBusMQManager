@@ -158,7 +158,7 @@ namespace ServiceBusMQManager {
 
         SetupContextMenu();
 
-        SetupQueueMonitorTimer(_sys.Config.MonitorInterval);
+        StartMonitoring();
 
         UpdateNotifyIconText();
 
@@ -175,12 +175,15 @@ namespace ServiceBusMQManager {
       w.RunWorkerAsync();
     }
 
+    public bool HideErrors { get; set; }
+
     void _sys_ErrorOccured(object sender, ErrorArgs e) {
-      MessageDialog.Show(MessageType.Error, e.Message, e.Exception);
+      if( !HideErrors )
+        MessageDialog.Show(MessageType.Error, e.Message, e.Exception);
     }
 
     private void RestartSystem() {
-      _timer.Stop();
+      StopMonitoring();
 
       if( _sys != null )
         _sys.Manager.Terminate();
@@ -208,14 +211,39 @@ namespace ServiceBusMQManager {
 
         SetupContextMenu();
 
-        timer_Tick(this, EventArgs.Empty);
-
-        _timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
-        _timer.Start();
+        RestartMonitoring();
       };
 
       w.RunWorkerAsync();
     }
+
+    private void StopMonitoring() {
+      _sys.StopMonitoring();
+      //_timer.Stop();
+    }
+
+    private void RestartMonitoring() {
+      _sys.StartMonitoring();
+
+      //timer_Tick(this, EventArgs.Empty);
+
+      //_timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
+      //_timer.Start();
+    }
+    private void StartMonitoring() {
+      _sys.StartMonitoring();
+
+      //// Begin with a refresh
+      //timer_Tick(this, EventArgs.Empty);
+
+      //// now setup the timer...
+      //_timer = new DispatcherTimer();
+      //_timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
+      //_timer.Tick += timer_Tick;
+
+      //_timer.Start();
+    }
+
 
     private void RestoreMonitorQueueState() {
 
@@ -433,18 +461,6 @@ namespace ServiceBusMQManager {
     }
 
 
-    private void SetupQueueMonitorTimer(int ms) {
-
-      // Begin with a refresh
-      timer_Tick(this, EventArgs.Empty);
-
-      // now setup the timer...
-      _timer = new DispatcherTimer();
-      _timer.Interval = TimeSpan.FromMilliseconds(ms);
-      _timer.Tick += timer_Tick;
-
-      _timer.Start();
-    }
 
     private void UpdateButtonLabel(ToggleButton btn) {
       int iType = Convert.ToInt32(btn.Tag);
@@ -863,6 +879,8 @@ namespace ServiceBusMQManager {
     }
 
     private void miClose_Click(object sender, EventArgs e) {
+      _sys.StopMonitoring();
+
       Application.Current.Shutdown();
     }
 

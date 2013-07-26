@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using ServiceBusMQ.Configuration;
 using ServiceBusMQ.Manager;
@@ -56,7 +58,7 @@ namespace ServiceBusMQ {
     public IEnumerable<QueueItemViewModel> Items {
       get {
         return _items.Where(i => _filter == null ||
-          i.DisplayName.Contains(_filter.Split(' '))).Take(1000);
+          i.DisplayName.Contains(_filter.Split(' ')));
       }
     }
 
@@ -107,10 +109,36 @@ namespace ServiceBusMQ {
 
     protected volatile object _itemsLock = new object();
 
-    public void RefreshUnprocessedQueueItemList() {
+
+    bool _monitoring = false;
+    public void StartMonitoring() {
+    
+      _monitoring = true;
+      new Thread(ExecMonitor).Start();
+      
+    }
+    public void StopMonitoring() {
+      _monitoring = false;
+    }
+
+    public void ExecMonitor(object prm) {
+
+      while( _monitoring ) {
+
+        if( RefreshUnprocessedQueueItemList() )
+          OnItemsChanged(ItemChangeOrigin.Queue);
+
+        Thread.Sleep(Config.MonitorInterval);
+      }
+
+    }
+
+
+
+    public bool RefreshUnprocessedQueueItemList() {
 
       if( !_monitorState.MonitorQueueType.Any(mq => mq) || _mgr.MonitorQueues.Length == 0 )
-        return;
+        return false;
 
       List<QueueItem> items = new List<QueueItem>();
 
@@ -171,9 +199,7 @@ namespace ServiceBusMQ {
 
       }
 
-      if( changed )
-        OnItemsChanged(ItemChangeOrigin.Queue);
-
+      return changed;
     }
     public void RetrieveProcessedQueueItems(TimeSpan timeSpan) {
       if( _mgr.MonitorQueues.Length == 0 )
