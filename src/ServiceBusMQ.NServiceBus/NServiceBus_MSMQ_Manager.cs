@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Messaging;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
 using NLog;
@@ -231,9 +232,13 @@ namespace ServiceBusMQ.NServiceBus {
               if( !PrepareQueueItemForAdd(itm) )
                 itm = null;
             }
-
+            
             if( itm != null )
               r.Insert(0, itm);
+
+            // Just fetch first 500
+            if( r.Count > 500 ) 
+              break;
           }
 
         } catch( Exception e ) {
@@ -538,6 +543,7 @@ namespace ServiceBusMQ.NServiceBus {
 
             try {
               var asm = Assembly.LoadFrom(dll);
+              //var asm = Assembly.ReflectionOnlyLoadFrom(dll);
 
               foreach( Type t in asm.GetTypes() ) {
 
@@ -545,6 +551,23 @@ namespace ServiceBusMQ.NServiceBus {
                   arr.Add(t);
 
               }
+
+            } catch(ReflectionTypeLoadException fte) {
+
+              StringBuilder sb = new StringBuilder("Could not search for Commands in Assembly '{0}'\n\n".With(Path.GetFileName(dll)) );
+              if( fte.LoaderExceptions != null ) {
+                
+                //if( fte.LoaderExceptions.All( a => a.Message.EndsWith("does not have an implementation.") ) )
+                //  continue;
+                
+                string lastMsg = null;
+                foreach( var ex in fte.LoaderExceptions ) {
+                  if( ex.Message != lastMsg )
+                    sb.AppendFormat(" - {0}\n\n", lastMsg = ex.Message);
+                }
+              }
+
+              OnError(sb.ToString());
 
             } catch { }
 
