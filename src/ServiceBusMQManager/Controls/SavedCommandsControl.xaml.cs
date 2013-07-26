@@ -110,14 +110,14 @@ namespace ServiceBusMQManager.Controls {
 
     private bool _editMode;
 
-    private void OnSavedCommandSelected(SavedCommand cmd) {
+    private void OnSavedCommandSelected(SavedCommandItem cmd) {
 
       RaiseEvent(new RoutedEventArgs(SavedCommandSelectedEvent));
     }
 
 
     private void cbRecent_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommand;
+      var recent = cbRecent.SelectedItem as SavedCommandItem;
 
       btnEdit.IsEnabled = recent != null;
 
@@ -146,7 +146,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void btnEdit_Click(object sender, RoutedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommand;
+      var recent = cbRecent.SelectedItem as SavedCommandItem;
 
       if( recent != null ) {
         tbName.UpdateValue(recent.DisplayName);
@@ -298,7 +298,7 @@ namespace ServiceBusMQManager.Controls {
     }
 
     private void btnSave_Click(object sender, RoutedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommand;
+      var recent = cbRecent.SelectedItem as SavedCommandItem;
 
       Updating = true;
       try {
@@ -307,7 +307,7 @@ namespace ServiceBusMQManager.Controls {
 
         cbRecent.SelectedIndex = -1;
         CollectionViewSource.GetDefaultView(cbRecent.ItemsSource).Refresh();
-        cbRecent.SelectedValue = recent.Command;
+        cbRecent.SelectedItem = recent;
 
         Collapse();
 
