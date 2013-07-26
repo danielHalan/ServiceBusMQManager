@@ -128,7 +128,7 @@
                               Height="28" 
                               SelectionChanged="cbServers_SelectionChanged"/>
 
-                    <Label Content="Refresh Intervall" HorizontalAlignment="Left" Margin="41,82,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
+                    <Label Content="Refresh Interval" HorizontalAlignment="Left" Margin="41,82,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="113"/>
                     <Controls:TextInputControl x:Name="tbInterval" HorizontalAlignment="Left" Margin="42,110,0,0" VerticalAlignment="Top" Width="113" Grid.Row="1" Height="30"/>
 
 
@@ -148,6 +148,7 @@
 
                     <Label x:Name="lbQueues" Content="Queues" HorizontalAlignment="Left" Margin="20,14,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="2" Height="42" Width="87"/>
                     <Label Content="Send Command" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="6" Height="42" Width="173"/>
+                    <Label x:Name="lbCmdsFound" Content="xx Commands found" HorizontalAlignment="Right" HorizontalContentAlignment="Right"   Margin="0,0,20,0" VerticalAlignment="Bottom" FontFamily="Segoe UI Light" FontSize="18" Grid.Row="6" Height="36" Width="354" Grid.Column="1" Foreground="#FFB2B2B2"/>
                     <Label Content="Command definition" HorizontalAlignment="Left" Margin="53,10,0,0" VerticalAlignment="Top" Width="218" FontSize="20" Grid.Row="10" Height="35" FontFamily="Segoe UI"/>
                     <TextBox x:Name="tbCmdInherits" Foreground="Black"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" BorderBrush="Gray" Height="27" Margin="75,84,0,0" TextWrapping="Wrap" Width="349" Grid.Row="10" IsEnabled="False" FontSize="16" Grid.ColumnSpan="2"/>
 
