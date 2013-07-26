@@ -114,17 +114,24 @@ namespace ServiceBusMQManager {
 
 
     private void BindCommands() {
-      var cmdTypes = _sys.GetAvailableCommands();
+      var mw = App.Current.MainWindow as MainWindow;
+      mw.HideErrors = true;
+      
+      try {
+        var cmdTypes = _sys.GetAvailableCommands();
 
-      _commands.Clear();
+        _commands.Clear();
 
-      foreach( Type t in cmdTypes.OrderBy(t => t.Name) ) {
-        var cmd = new CommandItem();
-        cmd.Type = t;
-        cmd.DisplayName = string.Format("{0} ({1})", t.Name, t.Namespace);
-        cmd.FullName = t.FullName;
+        foreach( Type t in cmdTypes.OrderBy(t => t.Name) ) {
+          var cmd = new CommandItem();
+          cmd.Type = t;
+          cmd.DisplayName = string.Format("{0} ({1})", t.Name, t.Namespace);
+          cmd.FullName = t.FullName;
 
-        _commands.Add(cmd);
+          _commands.Add(cmd);
+        }
+      } finally {
+        mw.HideErrors = false;
       }
 
       cbCommands.ItemsSource = _commands;
@@ -166,7 +173,7 @@ namespace ServiceBusMQManager {
               cbCommands.SelectedValue = t.FullName;
             }
 
-          } catch(Exception ex) {
+          } catch( Exception ex ) {
             System.Diagnostics.Debug.WriteLine("Failed to load saved command, " + ex.Message);
             savedCommands.Remove(recent);
           }
@@ -180,11 +187,6 @@ namespace ServiceBusMQManager {
     }
 
     void DoSendCommand(object sender, DoWorkEventArgs e) {
-      //if( !_isBusStarted ) {
-      //  _sys.SetupServiceBus(_asmPath);
-
-      //  _isBusStarted = true;
-      //}
       SendCommandEnvelope env = e.Argument as SendCommandEnvelope;
 
       _sys.SendCommand(env.Server, env.Queue, env.Command);
