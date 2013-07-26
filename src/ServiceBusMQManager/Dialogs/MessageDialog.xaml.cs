@@ -14,6 +14,8 @@
 #endregion
 
 using System;
+using System.ComponentModel;
+using System.Threading;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -115,17 +117,27 @@ namespace ServiceBusMQManager.Dialogs {
 
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {
-      if( _type == MessageType.Error ) {
-        try {
+      if( _type == MessageType.Error && _text.IsValid() ) {
+
+        BackgroundWorker bw = new BackgroundWorker();
+        bw.DoWork += (object s, DoWorkEventArgs ev) => {
           ErrorReport rep = new ErrorReport(SbmqSystem.AppInfo, new Error(_text, _e), new string[0]);
           rep.Send();
-        } catch( FailedToSendErrorReportException ex ) {
-          MessageBox.Show("Error occured when trying to send report, " + ex.Message, "Error Sendng Report", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        };
+
+        bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
+          if( ev.Error is FailedToSendErrorReportException )
+            MessageBox.Show("Error occured when trying to send report, " + ev.Error.Message, "Error Sendng Report", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        };
+
+        bw.RunWorkerAsync();
       }
 
       Close();
     }
+
+
 
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
