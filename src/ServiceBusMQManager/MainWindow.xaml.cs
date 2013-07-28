@@ -99,7 +99,7 @@ namespace ServiceBusMQManager {
 
       return IntPtr.Zero;
     }
-    
+
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
 
@@ -175,11 +175,13 @@ namespace ServiceBusMQManager {
       w.RunWorkerAsync();
     }
 
-    public bool HideErrors { get; set; }
-
     void _sys_ErrorOccured(object sender, ErrorArgs e) {
-      if( !HideErrors )
+
+      Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+
         MessageDialog.Show(MessageType.Error, e.Message, e.Exception);
+
+      }));
     }
 
     private void RestartSystem() {
@@ -468,7 +470,8 @@ namespace ServiceBusMQManager {
 
       if( btn.IsChecked == true ) {
 
-        int iCount = _sys.Items.Count(i => i.Queue.Type == type && !i.Processed);
+        uint iCount = _sys.GetUnprocessedItemsCount(type);
+        //int iCount = _sys.Items.Count(i => i.Queue.Type == type && !i.Processed);
 
         string count = string.Format("({0})", iCount);
         if( !( btn.Content as string ).Contains(count) )
@@ -715,7 +718,7 @@ namespace ServiceBusMQManager {
       ShowConfigDialog();
     }
 
-   
+
     private void SnapWindowToEdge() {
       var s = WpfScreen.GetScreenFrom(this);
 
@@ -794,7 +797,7 @@ namespace ServiceBusMQManager {
       if( e.LeftButton == MouseButtonState.Pressed ) {
         if( pos == CursorPosition.Body ) {
           this.DragMove();
-          SnapWindowToEdge(); 
+          SnapWindowToEdge();
 
         } else WindowTools.ResizeWindow(this, pos);
       }
@@ -910,15 +913,14 @@ namespace ServiceBusMQManager {
     private void miDeleteMessage_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
-      _mgr.PurgeMessage(itm);
+      _sys.PurgeMessage(itm);
     }
     private void miDeleteAllMessage_Click(object sender, RoutedEventArgs e) {
-
-      _mgr.PurgeAllMessages();
+      _sys.PurgeAllMessages();
     }
     private void miDeleteAllErrorMessage_Click(object sender, RoutedEventArgs e) {
 
-      _mgr.PurgeErrorAllMessages();
+      _sys.PurgeErrorAllMessages();
     }
 
 

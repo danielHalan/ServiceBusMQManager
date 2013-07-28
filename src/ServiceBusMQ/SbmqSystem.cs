@@ -38,6 +38,8 @@ namespace ServiceBusMQ {
 
   public class SbmqSystem {
 
+    public static readonly int MAX_ITEMS_PER_QUEUE = 500;
+
     bool _isServiceBusStarted = false;
 
     IServiceBusManager _mgr;
@@ -68,6 +70,7 @@ namespace ServiceBusMQ {
     public static ApplicationInfo AppInfo { get; set; }
 
     private SbmqSystem() {
+      _UnprocessedItemsCount = new uint[4];
     }
 
 
@@ -110,29 +113,57 @@ namespace ServiceBusMQ {
     protected volatile object _itemsLock = new object();
 
 
-    bool _monitoring = false;
+    volatile ThreadState _currentMonitor = null;
+    //bool _monitoring = false;
     public void StartMonitoring() {
-    
-      _monitoring = true;
-      new Thread(ExecMonitor).Start();
-      
+
+      //_monitoring = true;
+      _currentMonitor = new ThreadState();
+      var t = new Thread(ExecMonitor);
+      t.Name = "Queue Monitoring";
+      t.Start(_currentMonitor);
+
     }
     public void StopMonitoring() {
-      _monitoring = false;
+      //_monitoring = false;
+      _currentMonitor.Executing = false;
+      _currentMonitor = null;
+    }
+
+    internal class ThreadState {
+      public bool Executing { get; set; }
+
+      public bool Stopped { get; set; }
+
+      internal ThreadState() {
+        Executing = true;
+      }
     }
 
     public void ExecMonitor(object prm) {
+      var state = prm as ThreadState;
 
-      while( _monitoring ) {
+      try {
+        while( state.Executing ) {
 
-        if( RefreshUnprocessedQueueItemList() )
-          OnItemsChanged(ItemChangeOrigin.Queue);
+          if( RefreshUnprocessedQueueItemList() )
+            OnItemsChanged(ItemChangeOrigin.Queue);
 
-        Thread.Sleep(Config.MonitorInterval);
+          Thread.Sleep(Config.MonitorInterval);
+        }
+
+      } finally {
+        state.Stopped = true;
       }
-
     }
 
+
+    uint[] _UnprocessedItemsCount { get; set; }
+
+
+    public uint GetUnprocessedItemsCount(QueueType qt) {
+      return _UnprocessedItemsCount[(int)qt];
+    }
 
 
     public bool RefreshUnprocessedQueueItemList() {
@@ -147,11 +178,21 @@ namespace ServiceBusMQ {
       // Remote computer and direct format name, but returns zero (0) messages in some cases
       //if( !Tools.IsLocalHost(_serverName) )
       //  return;
+      bool changedItemsCount = false;
 
       IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
-      foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        if( _monitorState.MonitorQueueType[(int)t] )
-          items.AddRange(_mgr.GetUnprocessedMessages(t, currentItems));
+      foreach( QueueType t in Enum.GetValues(typeof(QueueType)) ) {
+        int typeIndex = (int)t;
+        if( _monitorState.MonitorQueueType[typeIndex] ) {
+          var r = _mgr.GetUnprocessedMessages(t, currentItems);
+          items.AddRange(r.Items);
+
+          if( _UnprocessedItemsCount[typeIndex] != r.Count )
+            changedItemsCount = true;
+
+          _UnprocessedItemsCount[typeIndex] = r.Count;
+        }
+      }
 
       // Oldest first
       if( items.Count > 1 )
@@ -199,7 +240,7 @@ namespace ServiceBusMQ {
 
       }
 
-      return changed;
+      return changed || changedItemsCount;
     }
     public void RetrieveProcessedQueueItems(TimeSpan timeSpan) {
       if( _mgr.MonitorQueues.Length == 0 )
@@ -215,8 +256,10 @@ namespace ServiceBusMQ {
       DateTime since = DateTime.Now - timeSpan;
 
       foreach( QueueType t in Enum.GetValues(typeof(QueueType)) )
-        if( _monitorState.MonitorQueueType[(int)t] )
-          items.AddRange(_mgr.GetProcessedMessages(t, since, _items.AsEnumerable<QueueItem>()));
+        if( _monitorState.MonitorQueueType[(int)t] ) {
+          var r = _mgr.GetProcessedMessages(t, since, _items.AsEnumerable<QueueItem>());
+          items.AddRange(r.Items);
+        }
 
       bool changed = false;
       lock( _itemsLock ) {
@@ -260,7 +303,7 @@ namespace ServiceBusMQ {
 
     protected void OnItemsChanged(ItemChangeOrigin origin) {
       if( _itemsChanged != null )
-        _itemsChanged(this, new ItemsChangedEventArgs() { Origin = origin } );
+        _itemsChanged(this, new ItemsChangedEventArgs() { Origin = origin });
     }
 
     protected EventHandler<ItemsChangedEventArgs> _itemsChanged;
@@ -276,16 +319,16 @@ namespace ServiceBusMQ {
     }
 
 
-    public Type[] GetAvailableCommands() {
+    public Type[] GetAvailableCommands(bool suppressErrors = false) {
       var sc = _mgr as ISendCommand;
       if( sc != null )
-        return sc.GetAvailableCommands(Config.CommandsAssemblyPaths, Config.CommandDefinition);
+        return sc.GetAvailableCommands(Config.CommandsAssemblyPaths, Config.CommandDefinition, suppressErrors);
       else return new Type[0];
     }
-    public Type[] GetAvailableCommands(string[] _asmPath, CommandDefinition cmdDef) {
+    public Type[] GetAvailableCommands(string[] _asmPath, CommandDefinition cmdDef, bool suppressErrors = false) {
       var sc = _mgr as ISendCommand;
       if( sc != null )
-        return sc.GetAvailableCommands(_asmPath, cmdDef);
+        return sc.GetAvailableCommands(_asmPath, cmdDef, suppressErrors);
       else return new Type[0];
     }
 
@@ -410,6 +453,53 @@ namespace ServiceBusMQ {
       OnItemsChanged(ItemChangeOrigin.Filter);
     }
 
+
+
+
+    public void PurgeAllMessages() {
+
+      Task.Factory.StartNew((data) => {
+        ThreadState s = data as ThreadState;
+
+        StopMonitoring();
+        while( !s.Stopped )
+          Thread.Sleep(100);
+
+        try {
+          _mgr.PurgeAllMessages();
+
+        } finally {
+          StartMonitoring();
+        }
+
+      }, _currentMonitor);
+
+
+    }
+
+    public void PurgeErrorAllMessages() {
+
+      Task.Factory.StartNew((data) => {
+        ThreadState s = data as ThreadState;
+
+        StopMonitoring();
+        while( !s.Stopped )
+          Thread.Sleep(100);
+
+        try {
+          _mgr.PurgeErrorAllMessages();
+
+        } finally {
+          StartMonitoring();
+        }
+
+      }, _currentMonitor);
+
+    }
+
+    public void PurgeMessage(QueueItem itm) {
+      _mgr.PurgeMessage(itm);
+    }
   }
 
 }

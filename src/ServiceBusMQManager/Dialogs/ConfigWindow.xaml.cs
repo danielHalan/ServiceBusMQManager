@@ -262,10 +262,8 @@ namespace ServiceBusMQManager.Dialogs {
           cmdDef.NamespaceContains = cmdNamespace;
 
         var mw = App.Current.MainWindow as MainWindow;
-        if( !animate )  // on startup
-          mw.HideErrors = true;
-        
-        var cmds = _sys.GetAvailableCommands(asmPaths.GetItems(), cmdDef);
+
+        var cmds = _sys.GetAvailableCommands(asmPaths.GetItems(), cmdDef, !animate); // !animate = on dialog startup
 
         lbCmdsFound.Content = "{0} Commands Found".With(cmds.Length);
           
@@ -288,9 +286,6 @@ namespace ServiceBusMQManager.Dialogs {
 
           sb.Append(", make sure your Command Definition is correct");
         }
-
-        if( mw.HideErrors )  
-          mw.HideErrors = false;
 
       } else {
         sb.Append("You need to add atleast one assembly path to be able to send commands");
