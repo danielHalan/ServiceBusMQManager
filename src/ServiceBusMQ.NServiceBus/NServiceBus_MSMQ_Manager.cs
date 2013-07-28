@@ -195,13 +195,17 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override IEnumerable<Model.QueueItem> GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
+    public override QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
+      var result = new QueueFetchResult();
       var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == type);
 
-      if( queues.Count() == 0 )
-        return EMPTY_LIST;
+      if( queues.Count() == 0 ) {
+        result.Items = EMPTY_LIST;
+        return result;
+      }
 
       List<QueueItem> r = new List<QueueItem>();
+      result.Items = r;
 
       foreach( var q in queues ) {
         var msmqQueue = q.Main;
@@ -221,7 +225,10 @@ namespace ServiceBusMQ.NServiceBus {
         }
 
         try {
-          foreach( var msg in q.Main.GetAllMessages() ) {
+          var msgs = q.Main.GetAllMessages();
+          result.Count = (uint)msgs.Length;
+
+          foreach( var msg in msgs ) {
 
             QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
 
@@ -237,8 +244,8 @@ namespace ServiceBusMQ.NServiceBus {
               r.Insert(0, itm);
 
             // Just fetch first 500
-            if( r.Count > 500 ) 
-              break;
+            if( r.Count > SbmqSystem.MAX_ITEMS_PER_QUEUE )  
+              break;            
           }
 
         } catch( Exception e ) {
@@ -247,16 +254,20 @@ namespace ServiceBusMQ.NServiceBus {
 
       }
 
-      return r;
+      return result;
     }
 
 
-    public override IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
-      List<QueueItem> r = new List<QueueItem>();
+    public override QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
+      var result = new QueueFetchResult();
 
       var queues = GetQueueListByType(type);
-      if( queues.Count() == 0 )
-        return EMPTY_LIST;
+      if( queues.Count() == 0 ) {
+        result.Items = EMPTY_LIST;
+        return result;
+      }
+      List<QueueItem> r = new List<QueueItem>();
+      result.Items = r;
 
       foreach( var q in queues ) {
         string qName = q.GetDisplayName();
@@ -305,7 +316,9 @@ namespace ServiceBusMQ.NServiceBus {
 
       }
 
-      return r;
+      result.Count = (uint)r.Count;
+      
+      return result;
     }
 
 
@@ -523,9 +536,9 @@ namespace ServiceBusMQ.NServiceBus {
                                                                   "\\NServiceBus.dll" };
 
     public Type[] GetAvailableCommands(string[] asmPaths) {
-      return GetAvailableCommands(asmPaths, _commandDef);
+      return GetAvailableCommands(asmPaths, _commandDef, false);
     }
-    public Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef) {
+    public Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef, bool suppressErrors) {
       List<Type> arr = new List<Type>();
 
 
@@ -554,6 +567,9 @@ namespace ServiceBusMQ.NServiceBus {
 
             } catch(ReflectionTypeLoadException fte) {
 
+              if( suppressErrors ) 
+                continue;
+
               StringBuilder sb = new StringBuilder("Could not search for Commands in Assembly '{0}'\n\n".With(Path.GetFileName(dll)) );
               if( fte.LoaderExceptions != null ) {
                 
@@ -569,7 +585,7 @@ namespace ServiceBusMQ.NServiceBus {
 
               OnError(sb.ToString());
 
-            } catch { }
+            } catch {  }
 
           }
         } else nonExistingPaths.Add(path);

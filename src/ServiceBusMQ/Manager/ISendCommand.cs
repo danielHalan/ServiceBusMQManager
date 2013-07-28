@@ -28,8 +28,9 @@ namespace ServiceBusMQ.Manager {
     /// Use provided CommandDefinition class to determinate what classes are commands.
     /// </summary>
     /// <param name="asmPaths">Array of assembly paths to look for commands in</param>
+    /// <param name="suppressErrors">If errors in finding commands should be reported or not, if true no errors should be raised</param>
     /// <returns></returns>
-    Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef);
+    Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors);
 
 
     /// <summary>

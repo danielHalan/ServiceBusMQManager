@@ -195,8 +195,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public abstract MessageContentFormat MessageContentFormat { get; }
 
-    public abstract IEnumerable<QueueItem> GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
-    public abstract IEnumerable<QueueItem> GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
+    public abstract QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
+    public abstract QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
 
     public abstract void PurgeMessage(QueueItem itm);
     public abstract void PurgeAllMessages();
