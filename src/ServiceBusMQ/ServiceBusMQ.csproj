@@ -129,6 +129,7 @@
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Configuration\UIStateConfig.cs" />
     <Compile Include="ViewModel\QueueItemViewModel.cs" />
+    <Compile Include="WarningException.cs" />
     <Compile Include="WindowTools.cs" />
   </ItemGroup>
   <ItemGroup>

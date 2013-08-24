@@ -169,7 +169,8 @@ namespace ServiceBusMQManager {
             }
 
           } catch( Exception ex ) {
-            System.Diagnostics.Debug.WriteLine("Failed to load saved command, " + ex.Message);
+            //System.Diagnostics.Debug.WriteLine("Failed to load saved command, " + ex.Message);
+            MessageDialog.Show(MessageType.Warn, "Failed to load sent Command '{0}'".With(recent.DisplayName.CutEnd(20)), ex.Message);
             savedCommands.Remove(recent);
           }
 
@@ -199,7 +200,7 @@ namespace ServiceBusMQManager {
         SendCommandEnvelope env = e.Result as SendCommandEnvelope;
         //var queue = cbQueue.SelectedItem as string;
 
-        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Manager.TransportationName, env.Server, env.Queue);
+        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Config.CommandContentType, env.Server, env.Queue);
 
         Close();
 

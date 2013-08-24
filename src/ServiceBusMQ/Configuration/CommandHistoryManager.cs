@@ -59,9 +59,10 @@ namespace ServiceBusMQ {
     [JsonIgnore]
     public SavedCommand2 SentCommand {
       get {
-        if( _sentCommand == null )
+        if( _sentCommand == null ) { 
           _sentCommand = JsonFile.Read<SavedCommand2>(FileName);
-        
+        }
+
         return _sentCommand;
       }
     }

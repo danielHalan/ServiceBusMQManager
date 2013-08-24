@@ -32,12 +32,13 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public abstract class NServiceBus_MSMQ_Manager : NServiceBusManagerBase, ISendCommand, IViewSubscriptions {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase,  ISendCommand, IViewSubscriptions {
 
     protected Logger _log = LogManager.GetCurrentClassLogger();
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
+    public string CommandContentFormat { get; set; }
 
     class PeekThreadParam {
       public Queue Queue { get; set; }
@@ -56,12 +57,9 @@ namespace ServiceBusMQ.NServiceBus {
 
       StartPeekThreads();
     }
-
-
     public override void Terminate() {
       _terminated = true;
     }
-
 
 
     void StartPeekThreads() {
@@ -239,13 +237,13 @@ namespace ServiceBusMQ.NServiceBus {
               if( !PrepareQueueItemForAdd(itm) )
                 itm = null;
             }
-            
+
             if( itm != null )
               r.Insert(0, itm);
 
             // Just fetch first 500
-            if( r.Count > SbmqSystem.MAX_ITEMS_PER_QUEUE )  
-              break;            
+            if( r.Count > SbmqSystem.MAX_ITEMS_PER_QUEUE )
+              break;
           }
 
         } catch( Exception e ) {
@@ -256,8 +254,6 @@ namespace ServiceBusMQ.NServiceBus {
 
       return result;
     }
-
-
     public override QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
       var result = new QueueFetchResult();
 
@@ -317,7 +313,7 @@ namespace ServiceBusMQ.NServiceBus {
       }
 
       result.Count = (uint)r.Count;
-      
+
       return result;
     }
 
@@ -535,6 +531,9 @@ namespace ServiceBusMQ.NServiceBus {
                                                                   "\\MongoDB.Driver.dll", "\\MongoDB.Bson.dll", 
                                                                   "\\NServiceBus.dll" };
 
+    #region Send Command
+
+
     public Type[] GetAvailableCommands(string[] asmPaths) {
       return GetAvailableCommands(asmPaths, _commandDef, false);
     }
@@ -565,9 +564,9 @@ namespace ServiceBusMQ.NServiceBus {
 
               }
 
-            } catch(ReflectionTypeLoadException fte) {
+            } catch( ReflectionTypeLoadException fte ) {
 
-              if( suppressErrors ) 
+              if( suppressErrors )
                 continue;
 
               StringBuilder sb = new StringBuilder();
@@ -575,7 +574,7 @@ namespace ServiceBusMQ.NServiceBus {
 
                 if( fte.LoaderExceptions.All(a => a.Message.EndsWith("does not have an implementation.")) )
                   continue;
-                
+
                 string lastMsg = null;
                 foreach( var ex in fte.LoaderExceptions ) {
                   if( ex.Message != lastMsg )
@@ -585,7 +584,7 @@ namespace ServiceBusMQ.NServiceBus {
 
               OnWarning("Could not search for Commands in Assembly '{0}'".With(Path.GetFileName(dll)), sb.ToString());
 
-            } catch {  }
+            } catch { }
 
           }
         } else nonExistingPaths.Add(path);
@@ -598,10 +597,149 @@ namespace ServiceBusMQ.NServiceBus {
       return arr.ToArray();
     }
 
+
+
     protected IBus _bus;
 
 
-    public abstract void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef);
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef) {
+      _commandDef = cmdDef;
+
+      List<Assembly> asms = new List<Assembly>();
+
+      foreach( string path in assemblyPaths ) {
+
+        foreach( string file in Directory.GetFiles(path, "*.dll") ) {
+          try {
+            asms.Add(Assembly.LoadFrom(file));
+          } catch { }
+        }
+
+      }
+
+      if( CommandContentFormat == "XML" ) {
+
+        _bus = Configure.With(asms)
+                  .DefineEndpointName("SBMQM_NSB")
+                  .DefaultBuilder()
+          //.MsmqSubscriptionStorage()
+            .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+                  .XmlSerializer()
+                  .MsmqTransport()
+                  .UnicastBus()
+              .SendOnly();
+      
+      } else if( CommandContentFormat == "JSON" ) {
+
+        _bus = Configure.With(asms)
+                .DefineEndpointName("SBMQM_NSB")
+                .DefaultBuilder()
+          //.MsmqSubscriptionStorage()
+          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+                .XmlSerializer()
+                .MsmqTransport()
+                .UnicastBus()
+            .SendOnly();
+      }
+
+    }
+
+
+    string SerializeCommand_XML(object cmd) {
+      var types = new List<Type> { cmd.GetType() };
+
+      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+      mapper.Initialize(types);
+
+      var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
+      serializr.Initialize(types);
+
+      using( Stream stream = new MemoryStream() ) {
+        serializr.Serialize(new[] { cmd }, stream);
+        stream.Position = 0;
+
+        return new StreamReader(stream).ReadToEnd();
+      }
+    
+    }
+    public object DeserializeCommand_XML(string cmd, Type cmdType) {
+      try {
+        var types = new List<Type> { cmdType };
+
+        var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+        mapper.Initialize(types);
+
+        var serializr = new global::NServiceBus.Serializers.XML.XmlMessageSerializer(mapper);
+        serializr.Initialize(types);
+
+        using( Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(cmd)) ) {
+          var obj = serializr.Deserialize(stream);
+
+          return obj[0];
+        }
+      } catch( Exception e ) {
+        OnError("Failed to parse command string as XML", e);
+        return null;
+      }
+
+    }
+    public string SerializeCommand_JSON(object cmd) {
+
+      var types = new List<Type> { cmd.GetType() };
+
+      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+      mapper.Initialize(types);
+
+      var serializr = new global::NServiceBus.Serializers.Json.JsonMessageSerializer(mapper);
+
+      using( Stream stream = new MemoryStream() ) {
+        serializr.Serialize(new[] { cmd }, stream);
+        stream.Position = 0;
+
+        return new StreamReader(stream).ReadToEnd();
+      }
+
+    }
+    public object DeserializeCommand_JSON(string cmd, Type cmdType) {
+      var types = new List<Type> { cmd.GetType() };
+
+      var mapper = new global::NServiceBus.MessageInterfaces.MessageMapper.Reflection.MessageMapper();
+      mapper.Initialize(types);
+
+      var serializr = new global::NServiceBus.Serializers.Json.JsonMessageSerializer(mapper);
+
+      using( Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(cmd)) ) {
+        var obj = serializr.Deserialize(stream);
+
+        return obj[0];
+      }
+
+    }
+
+
+    public override string SerializeCommand(object cmd) {
+
+      if( CommandContentFormat == "XML" )
+        return SerializeCommand_XML(cmd);
+
+      else if( CommandContentFormat == "JSON" )
+        return SerializeCommand_JSON(cmd);
+      
+      else throw new Exception("Unknown Command Content Format, " + CommandContentFormat);
+
+    }
+    public override object DeserializeCommand(string cmd, Type cmdType) {
+      
+      if( CommandContentFormat == "XML" )
+        return DeserializeCommand_XML(cmd, cmdType);
+
+      else if( CommandContentFormat == "JSON" )
+        return DeserializeCommand_JSON(cmd, cmdType);
+
+      else throw new Exception("Unknown Command Content Format, " + CommandContentFormat);
+    }
+
+
     public void SendCommand(string destinationServer, string destinationQueue, object message) {
 
       if( Tools.IsLocalHost(destinationServer) )
@@ -623,6 +761,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     }
 
+    #endregion
 
   }
 }

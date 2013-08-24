@@ -27,8 +27,15 @@ namespace ServiceBusMQ.Manager {
     string ServiceBusName { get; }
 
     /// <summary>
-    /// The name of message transportation, and if have multiple formats, message format, i e "MSMQ (XML)"
+    /// Get available transport modes, MSMQ, RabbitMQ etc
     /// </summary>
-    string TransportationName { get; }
+    string[] AvailableMessageQueueTypes { get; }
+
+
+    /// <summary>
+    /// What type of mesage content types the Service Bus supports, XML, Json etc
+    /// </summary>
+    string[] AvailableMessageContentTypes { get; }
+
   }
 }

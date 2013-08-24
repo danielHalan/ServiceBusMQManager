@@ -109,8 +109,15 @@ namespace ServiceBusMQ {
 
       // Convert MSMQ plain to XML, as we now support more then one content serializer
       foreach( var srv in this.Servers ) {
-        if( srv.MessageBus == "NServiceBus" && srv.MessageBusQueueType == "MSMQ" )
-          srv.MessageBusQueueType = "MSMQ (XML)";
+        if( srv.MessageBus == "NServiceBus" ) {
+
+          if( srv.MessageBusQueueType == "MSMQ (XML)" )
+            srv.MessageBusQueueType = "MSMQ";
+
+          else if( srv.MessageBusQueueType == "MSMQ (JSON)" )
+            srv.MessageBusQueueType = "MSMQ";
+
+        }
       }
 
       if( CommandDefinition == null ) {

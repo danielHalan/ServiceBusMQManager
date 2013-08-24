@@ -15,5 +15,5 @@
 
 
 namespace ServiceBusMQ.Manager {
-  public enum MessageContentFormat  { Xml, Json, Other=0xFF }
+  public enum MessageContentFormat { Xml, Json, Other, Unknown = 0xFF }
 }

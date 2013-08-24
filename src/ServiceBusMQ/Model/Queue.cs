@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.Model {
   
@@ -31,6 +32,8 @@ namespace ServiceBusMQ.Model {
     public string ColorString { get; private set; }
     public string SelectedColorString { get; private set; }
 
+    public MessageContentFormat ContentFormat { get; private set; }
+
     public Queue(string name, QueueType type, int color = 0) {
     
       Name = name;
@@ -39,6 +42,8 @@ namespace ServiceBusMQ.Model {
       DisplayName = name.CutBeginning(46);
 
       Color = color;
+
+      ContentFormat = MessageContentFormat.Unknown;
       
       ColorString = "#" + color.ToString("X");
       SelectedColorString = "#" + GetSelectedColor(color).ToString("X");
@@ -52,6 +57,16 @@ namespace ServiceBusMQ.Model {
       return ( Math.Min(r + 50, 0xFF) << 16 ) | ( Math.Min(g + 50, 0xFF) << 8 ) | Math.Min(b + 50, 0xFF);
     }
 
+    public void SetContentFormat(string content) {
 
+      if( content.StartsWith("<xml") )
+        ContentFormat = MessageContentFormat.Xml;
+      
+      else if( content.StartsWith("[") )
+        ContentFormat = MessageContentFormat.Json;
+
+      else ContentFormat = MessageContentFormat.Other;
+
+    }
   }
 }

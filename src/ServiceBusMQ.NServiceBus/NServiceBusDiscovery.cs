@@ -25,9 +25,14 @@ namespace ServiceBusMQ.NServiceBus {
       get { return "NServiceBus"; }
     }
 
-    public string TransportationName {
-      get { return null; }
+    public string[] AvailableMessageQueueTypes { 
+      get { return new string[] { "MSMQ" }; } 
     }
+
+    public string[] AvailableMessageContentTypes {
+      get { return new string[] { "XML", "JSON" }; } 
+    }
+
 
     public bool CanAccessServer(string server) {
       return true;

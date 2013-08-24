@@ -185,9 +185,16 @@ namespace ServiceBusMQManager {
 
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
-#if !DEBUG
-      MessageDialog.Show(MessageType.Error,null, e.Exception);
-      e.Handled = true;
+#if !DEBUG2
+      if( e.Exception is WarningException ) {
+        var warn  = e.Exception as WarningException;
+        MessageDialog.Show(MessageType.Warn, warn.Message, warn.Content);
+        e.Handled = true;
+
+      } else { 
+        MessageDialog.Show(MessageType.Error,null, e.Exception);
+        e.Handled = true;
+      }
 #endif
 
     }

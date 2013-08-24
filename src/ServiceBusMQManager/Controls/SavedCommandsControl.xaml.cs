@@ -75,7 +75,7 @@ namespace ServiceBusMQManager.Controls {
       cbRecent.DisplayMemberPath = "DisplayName";
       cbRecent.SelectedValuePath = "SentCommand";
 
-      cbRecent.SelectedValue = null;
+      //cbRecent.SelectedValue = null;
     }
 
 

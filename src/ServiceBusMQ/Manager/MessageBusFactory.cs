@@ -27,11 +27,12 @@ namespace ServiceBusMQ.Manager {
     public class ServiceBusManagerType {
       public string Name { get; private set; }
       public List<string> QueueTypes { get; private set; }
+      public string[] MessageContentTypes { get; set; }
 
-      public ServiceBusManagerType(string name, string queueType) {
+      public ServiceBusManagerType(string name, string[] queueTypes, string[] msgContentTypes) {
         Name = name;
-        QueueTypes = new List<string>();
-        QueueTypes.Add(queueType);
+        QueueTypes = new List<string>(queueTypes);
+        MessageContentTypes = msgContentTypes;
       }
 
     }
@@ -47,8 +48,7 @@ namespace ServiceBusMQ.Manager {
           ServiceBusManagerType t = r.SingleOrDefault(sb => sb.Name == type.ServiceBusName);
 
           if( t == null )
-            r.Add(new ServiceBusManagerType(type.ServiceBusName, type.TransportationName));
-          else t.QueueTypes.Add(type.TransportationName);
+            r.Add(new ServiceBusManagerType(type.ServiceBusName, type.AvailableMessageQueueTypes, type.AvailableMessageContentTypes));
 
         }
       }
@@ -61,7 +61,8 @@ namespace ServiceBusMQ.Manager {
 
       foreach( var asm in AsmCache.Assemblies ) {
         var type = asm.Types.SingleOrDefault( t => 
-                                t.ServiceBusName == name && t.TransportationName == queueType && 
+                                t.ServiceBusName == name && 
+                                t.AvailableMessageQueueTypes.Contains(queueType) && 
                                 t.Interfaces.Any( i => i.EndsWith("IServiceBusManager") ) );
 
         if( type != null ) 
@@ -75,7 +76,7 @@ namespace ServiceBusMQ.Manager {
       foreach( var asm in AsmCache.Assemblies ) {
         var type = asm.Types.SingleOrDefault(t =>
                                 t.ServiceBusName == name && 
-                                ( t.TransportationName == null || t.TransportationName == transportation) && 
+                                t.AvailableMessageQueueTypes.Contains(transportation) && 
                                 t.Interfaces.Any(i => i.EndsWith("IServiceBusDiscovery")));
 
         if( type != null )

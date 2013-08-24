@@ -302,11 +302,11 @@ namespace ServiceBusMQManager.Controls {
           editor = new CommandTextEditor();
           editor.Height = 400;
 
-          switch(SendCommandManager.MessageContentFormat) {
-            case ServiceBusMQ.Manager.MessageContentFormat.Xml: 
+          switch(SendCommandManager.CommandContentFormat) {
+            case "XML": 
               editor.TextType = CommandTextType.Xml;
               break;
-            case ServiceBusMQ.Manager.MessageContentFormat.Json:
+            case "JSON":
               editor.TextType = CommandTextType.Json;
               break;
           }

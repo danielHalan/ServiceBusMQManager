@@ -64,7 +64,8 @@ namespace ServiceBusMQ.Manager {
     /// <summary>
     /// Property that indicates what transportation format the Message content is being stored in.
     /// </summary>
-    MessageContentFormat MessageContentFormat { get; }
+    string CommandContentFormat { set; get; }
+    string[] AvailableMessageContentTypes { get; }
 
   }
 }

@@ -606,7 +606,22 @@ namespace ServiceBusMQManager {
     }
 
     private string GetQueueItemContent(QueueItem itm) {
-      return itm.Content == null || itm.Content.StartsWith("**") ? _mgr.LoadMessageContent(itm) : itm.Content;
+      var content = string.Empty;
+      
+      if( itm.Content == null || itm.Content.StartsWith("**") )
+          content = _mgr.LoadMessageContent(itm) ;
+      else 
+        content = itm.Content;
+    
+
+      if( content != null && !itm.Content.StartsWith("**") ) {
+      
+        if( itm.Queue.ContentFormat == MessageContentFormat.Unknown ) {
+          itm.Queue.SetContentFormat(content);
+        }
+      }
+
+      return content;
     }
 
     ContentWindow CreateContentWindow() {
@@ -633,7 +648,10 @@ namespace ServiceBusMQManager {
           UpdateContentWindow();
         }
 
-        _dlg.SetContent(GetQueueItemContent(itm), _mgr.MessageContentFormat, itm.Error);
+        var content = GetQueueItemContent(itm);
+
+        //_mgr.MessageContentFormat
+        _dlg.SetContent(content, itm.Queue.ContentFormat, itm.Error);
         _dlg.SetTitle(itm.DisplayName);
 
         if( !_dlgShown ) {

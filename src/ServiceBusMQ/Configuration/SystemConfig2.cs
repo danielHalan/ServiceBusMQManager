@@ -51,7 +51,7 @@ namespace ServiceBusMQ.Configuration {
     public static ServerConfig2 Default { 
       get { 
         return new ServerConfig2() { 
-              MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ (XML)", 
+              MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ", 
               MonitorInterval = 700,
               Name = Environment.MachineName,
               MonitorQueues = new QueueConfig[0] };
@@ -104,6 +104,7 @@ namespace ServiceBusMQ.Configuration {
     public string[] CommandsAssemblyPaths { get; set; }
 
     public CommandDefinition CommandDefinition { get; set; }
+    public string CommandContentType { get; set; }
 
     public VersionCheck VersionCheck { get; set; }
 
@@ -124,8 +125,19 @@ namespace ServiceBusMQ.Configuration {
 
       // Convert MSMQ plain to XML, as we now support more then one content serializer
       foreach( var srv in this.Servers ) {
-        if( srv.MessageBus == "NServiceBus" && srv.MessageBusQueueType == "MSMQ" )
-          srv.MessageBusQueueType = "MSMQ (XML)";
+        if( srv.MessageBus == "NServiceBus" ) {
+          
+          if( srv.MessageBusQueueType == "MSMQ (XML)" ) {
+            srv.MessageBusQueueType = "MSMQ";
+            CommandContentType = "XML";
+          }
+          
+          else if( srv.MessageBusQueueType == "MSMQ (JSON)" ) {
+            srv.MessageBusQueueType = "MSMQ";
+            CommandContentType = "JSON";
+          }
+
+        }
       }
 
       if( CommandDefinition == null ) {
@@ -137,6 +149,9 @@ namespace ServiceBusMQ.Configuration {
           CommandDefinition.InheritsType = "NServiceBus.ICommand, NServiceBus";
 
       }
+
+      if( !CommandContentType.IsValid() ) 
+        CommandContentType = "XML";
 
     }
 

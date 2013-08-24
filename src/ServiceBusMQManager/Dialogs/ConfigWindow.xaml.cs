@@ -68,8 +68,12 @@ namespace ServiceBusMQManager.Dialogs {
       cbServiceBus.ItemsSource = _managerTypes;
       cbServiceBus.DisplayMemberPath = "Name";
       cbServiceBus.SelectedValuePath = "Name";
+      cbServiceBus.SelectedIndex = 0;
 
       cbTransport.ItemsSource = _managerTypes[0].QueueTypes;
+
+      cbContentFormat.ItemsSource = _managerTypes[0].MessageContentTypes;
+      cbContentFormat.SelectedItem = _config.CommandContentType;
 
       cShowOnNewMessages.IsChecked = _config.ShowOnNewMessages;
       cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
@@ -406,6 +410,7 @@ namespace ServiceBusMQManager.Dialogs {
       _config.CommandDefinition.NamespaceContains = tbNamespace.RetrieveValue() as string;
 
       _config.CommandsAssemblyPaths = asmPaths.GetItems();
+      _config.CommandContentType = cbContentFormat.SelectedItem as string;
 
       _config.Save();
 

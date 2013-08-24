@@ -33,9 +33,9 @@ namespace ServiceBusMQ {
     public static string CutEnd(this string str, int length) {
       if( str.IsValid() ) {
         length -= 3;
-        if( str.Length > length && !str.EndsWith("...") ) {
-          return str.Substring(0, length) + "...";
-        }
+        if( str.Length > length )
+            return str.Substring(0, length) + "...";
+        
       }
 
       return str;

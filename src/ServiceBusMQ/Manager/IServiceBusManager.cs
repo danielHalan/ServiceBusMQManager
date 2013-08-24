@@ -36,11 +36,6 @@ namespace ServiceBusMQ.Manager {
 
 
     /// <summary>
-    /// What type of message content to expect in queues
-    /// </summary>
-    MessageContentFormat MessageContentFormat { get; }
-    
-    /// <summary>
     /// If messages Arrived Date contains milliseconds
     /// </summary>
     bool MessagesHasMilliSecondPrecision { get; }

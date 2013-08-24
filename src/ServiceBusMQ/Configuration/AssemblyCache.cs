@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,15 +25,20 @@ namespace ServiceBusMQ.Configuration {
   
   public class AssemblyCache {
 
+
     static Type INTERFACE = typeof(IServiceBus);
 
     public class SbmqmServiceBusType {
       public string ServiceBusName { get; set; }
-      public string TransportationName { get; set; }
+      
+      public string[] AvailableMessageQueueTypes { get; set; }
+      public string[] AvailableMessageContentTypes { get; set; }
       
       public string[] Interfaces { get; set; }
 
       public string TypeName { get; set; }
+
+
     }
 
     public class SbmqmAssembly {
@@ -110,8 +116,14 @@ namespace ServiceBusMQ.Configuration {
 
       int hash = files.Length;
 
-      foreach( var file in files )
+      foreach( var file in files ) {
         hash += file.Length;
+      
+        if( file.EndsWith(".dll") ) { 
+          var fi = FileVersionInfo.GetVersionInfo(file);
+          hash += fi.FileMajorPart + fi.FileMinorPart + fi.FileBuildPart;
+        }
+      }
 
       return hash;
     }
@@ -132,8 +144,9 @@ namespace ServiceBusMQ.Configuration {
             SbmqmServiceBusType t = new SbmqmServiceBusType();
 
             IServiceBus mgr = (IServiceBus)Activator.CreateInstance(type);
-            t.ServiceBusName = mgr.ServiceBusName; 
-            t.TransportationName = mgr.TransportationName; 
+            t.ServiceBusName = mgr.ServiceBusName;
+            t.AvailableMessageQueueTypes = mgr.AvailableMessageQueueTypes; 
+            t.AvailableMessageContentTypes = mgr.AvailableMessageContentTypes;
             t.Interfaces = type.GetInterfaces().Select( i => i.Name ).ToArray();
             t.TypeName = type.FullName;
 

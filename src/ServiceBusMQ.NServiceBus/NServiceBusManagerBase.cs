@@ -39,6 +39,14 @@ namespace ServiceBusMQ.NServiceBus {
 
     protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
+    public string[] AvailableMessageQueueTypes { 
+      get { return new string[] { "MSMQ" }; } 
+    }
+
+    public string[] AvailableMessageContentTypes {
+      get { return new string[] { "XML", "JSON" }; }
+    }
+
 
     public NServiceBusManagerBase() {
     }
@@ -193,7 +201,6 @@ namespace ServiceBusMQ.NServiceBus {
     public abstract string SerializeCommand(object cmd);
 
 
-    public abstract MessageContentFormat MessageContentFormat { get; }
     public bool MessagesHasMilliSecondPrecision { get { return false; } }
 
 
@@ -225,10 +232,6 @@ namespace ServiceBusMQ.NServiceBus {
     public string ServiceBusName {
       get { return "NServiceBus"; }
     }
-
-    public abstract string TransportationName { get; }
-
-
 
 
     protected EventHandler _itemsChanged;

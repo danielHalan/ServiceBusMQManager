@@ -36,9 +36,7 @@
                     VerticalAlignment="Top"
                     Fill="Transparent"
 />
-            <Label Name="lbTitle" Margin="10,0,0,0" Foreground="White" FontFamily="Segoe UI Light" FontSize="24"  >
-                   Configuration
-            </Label>
+            <Label x:Name="lbTitle" Margin="10,0,0,0" Foreground="White" FontFamily="Segoe UI Light" FontSize="24"  Content="Configurations"  />
             <Button
                 HorizontalAlignment="Right"
                 Margin="0,6,8,0"
@@ -97,7 +95,7 @@
 
                     <Label Content="Service Bus" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="79" Grid.Column="1"/>
                     <ComboBox x:Name="cbServiceBus" HorizontalAlignment="Left" Margin="5,46,0,0" Style="{DynamicResource ComboBoxStyle1}" VerticalAlignment="Top" Width="139" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
-                    <Label Content="Transportation " HorizontalAlignment="Left" Margin="162,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107" Grid.Column="1"/>
+                    <Label Content="Message Queue " HorizontalAlignment="Left" Margin="162,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="28" Width="107" Grid.Column="1"/>
                     <ComboBox x:Name="cbTransport" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="162,46,0,0" VerticalAlignment="Top" Width="154" FontFamily="Calibri" FontSize="16" Grid.Row="1" Height="28" Grid.Column="1"/>
                     <Label Content="Server" HorizontalAlignment="Left" Margin="52,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
 
@@ -150,10 +148,10 @@
                     <Label Content="Send Command" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="6" Height="42" Width="173"/>
                     <Label x:Name="lbCmdsFound" Content="xx Commands found" HorizontalAlignment="Right" HorizontalContentAlignment="Right"   Margin="0,0,20,0" VerticalAlignment="Bottom" FontFamily="Segoe UI Light" FontSize="18" Grid.Row="6" Height="36" Width="354" Grid.Column="1" Foreground="#FFB2B2B2"/>
                     <Label Content="Command definition" HorizontalAlignment="Left" Margin="53,10,0,0" VerticalAlignment="Top" Width="218" FontSize="20" Grid.Row="10" Height="35" FontFamily="Segoe UI"/>
-                    <TextBox x:Name="tbCmdInherits" Foreground="Black"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" BorderBrush="Gray" Height="27" Margin="75,84,0,0" TextWrapping="Wrap" Width="349" Grid.Row="10" IsEnabled="False" FontSize="16" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="tbCmdInherits" Foreground="Black"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" BorderBrush="Gray" Height="27" Margin="75,82,0,0" TextWrapping="Wrap" Width="303" Grid.Row="10" IsEnabled="False" FontSize="16" Grid.ColumnSpan="2"/>
 
 
-                    <Button x:Name="btnSelectType" HorizontalAlignment="Left" Margin="430,76,0,0" VerticalAlignment="Top" Width="42" Grid.Row="10" Height="42" Click="Button_Click_1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Button x:Name="btnSelectType" HorizontalAlignment="Left" Margin="45,74,0,0" VerticalAlignment="Top" Width="42" Grid.Row="10" Height="42" Click="Button_Click_1" Grid.Column="1">
                         <Button.Template>
                             <ControlTemplate>
                                 <Image x:Name="img" HorizontalAlignment="Left"  Source="/ServiceBusMQManager;component/Images/search-item-white.png" Margin="0,-1,0,1" />
@@ -173,10 +171,10 @@
                     </Button>
 
 
-                    <Label Content="Inherits:" HorizontalAlignment="Left" Margin="77,60,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="61" FontSize="16"/>
+                    <Label Content="Inherits / Implements" HorizontalAlignment="Left" Margin="77,56,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="154" FontSize="16"/>
 
-                    <Controls:TextInputControl x:Name="tbNamespace" HorizontalAlignment="Left" Height="27" Margin="77,157,0,0" VerticalAlignment="Top" Width="347" Grid.Row="10" FontFamily="Calibri" FontSize="16" Grid.ColumnSpan="2" LostFocus="tbNamespace_LostFocus" />
-                    <Label Content="Namespace contains" HorizontalAlignment="Left" Margin="74,131,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="157" FontSize="16"/>
+                    <Controls:TextInputControl x:Name="tbNamespace" HorizontalAlignment="Left" Height="27" Margin="77,155,0,0" VerticalAlignment="Top" Width="301" Grid.Row="10" FontFamily="Calibri" FontSize="16" LostFocus="tbNamespace_LostFocus" Grid.ColumnSpan="2" />
+                    <Label Content="Namespace contains string" HorizontalAlignment="Left" Margin="74,129,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="274" FontSize="16"/>
 
 
                     <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="#FFFFFFA2" Height="60" Margin="10,5,10,0" Stroke="White" VerticalAlignment="Top" StrokeThickness="0" />
@@ -196,7 +194,7 @@
                     <Controls:StringListControl x:Name="asmPaths" Title="Assembly paths" Margin="20,0,20,0" VerticalAlignment="Top" Grid.Row="8" Height="70" SizeChanged="asmPaths_SizeChanged" AddItem="asmPaths_AddItem" Grid.ColumnSpan="2" Grid.RowSpan="3" RemovedItem="asmPaths_RemovedItem" AddedItem="asmPaths_AddedItem"/>
                     <Controls:QueueListControl Grid.Row="5" x:Name="queueMessages"  Title="Messages queues"  VerticalAlignment="Top" Margin="20,10,18,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem" />
                     <Controls:QueueListControl Grid.Row="5" x:Name="queueErrors" Title="Error queues" VerticalAlignment="Top" Margin="16,10,20,0"  AddItem="Queue_AddItem_1" SizeChanged="QueueListControl_SizeChanged" Height="80" Grid.Column="1" RemovedItem="queue_RemovedItem" AddedItem="queue_AddedItem"/>
-                    <Label Content="or" HorizontalAlignment="Left" Margin="32,101,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="10" Height="42" Width="37"/>
+                    <Label Content="or" HorizontalAlignment="Left" Margin="32,99,0,0" VerticalAlignment="Top" FontFamily="Segoe UI Light" FontSize="24" Grid.Row="10" Height="42" Width="37"/>
                     <Label Content="ms" HorizontalAlignment="Left" Margin="160,110,0,0" VerticalAlignment="Top" Grid.Row="1" Height="28" Width="40" FontSize="18"/>
                     <CheckBox x:Name="cCheckForNewVer" Content=" Check for new versions" 
                 		HorizontalAlignment="Left" Margin="55,136,0,0" 
@@ -212,6 +210,9 @@
                         </CheckBox.RenderTransform>
                     </CheckBox>
                     <Label x:Name="lbServerInfo" Content="" Margin="118,14,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalContentAlignment="Right" RenderTransformOrigin="1.619,0.5" Foreground="#FFC3C3C3" Height="28"/>
+                    <ComboBox x:Name="cbContentFormat" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="154,81,0,0" VerticalAlignment="Top" Width="149" FontFamily="Calibri" FontSize="16" Grid.Row="10" Height="28" Grid.Column="1"/>
+                    <Label Content="Content Format" HorizontalAlignment="Left" Margin="154,53,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="191" FontSize="16" Grid.Column="1"/>
+                    <Rectangle Grid.Column="1" HorizontalAlignment="Left" Height="157" Margin="110,53,0,0" Grid.Row="10" VerticalAlignment="Top" Width="9" Fill="#FF4F4F4F"/>
 
 
 
