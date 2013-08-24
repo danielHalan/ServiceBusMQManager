@@ -29,7 +29,7 @@ namespace ServiceBusMQ.ViewModel {
 
     static readonly Typeface TEXT_FONT = new Typeface("Calibri");
 
-    public QueueItemViewModel(QueueItem item)
+    public QueueItemViewModel(QueueItem item, bool showMilliSeconds)
       : base(item.Queue) {
 
       MapQueueItem(item);
@@ -41,6 +41,9 @@ namespace ServiceBusMQ.ViewModel {
       else ArrivedTimeString = "{1} {0} - {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], 
                                                       ArrivedTime.Day, 
                                                       ArrivedTime.ToString("HH:mm:ss"));
+      
+      if( showMilliSeconds )
+        ArrivedTimeMSString = ArrivedTime.ToString(".fff");
 
       SetTextWidth();
     }
@@ -98,7 +101,8 @@ namespace ServiceBusMQ.ViewModel {
 
     public double TextWidth { get; private set; }
 
-    public string ArrivedTimeString { get; private set; }
+    public string ArrivedTimeString { get; set; }
+    public string ArrivedTimeMSString { get; set; }
 
     public string ImagePath { get; private set; }
     public string SelectedImagePath { get; private set; }

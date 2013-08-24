@@ -570,11 +570,11 @@ namespace ServiceBusMQ.NServiceBus {
               if( suppressErrors ) 
                 continue;
 
-              StringBuilder sb = new StringBuilder("Could not search for Commands in Assembly '{0}'\n\n".With(Path.GetFileName(dll)) );
+              StringBuilder sb = new StringBuilder();
               if( fte.LoaderExceptions != null ) {
-                
-                //if( fte.LoaderExceptions.All( a => a.Message.EndsWith("does not have an implementation.") ) )
-                //  continue;
+
+                if( fte.LoaderExceptions.All(a => a.Message.EndsWith("does not have an implementation.")) )
+                  continue;
                 
                 string lastMsg = null;
                 foreach( var ex in fte.LoaderExceptions ) {
@@ -583,7 +583,7 @@ namespace ServiceBusMQ.NServiceBus {
                 }
               }
 
-              OnError(sb.ToString());
+              OnWarning("Could not search for Commands in Assembly '{0}'".With(Path.GetFileName(dll)), sb.ToString());
 
             } catch {  }
 

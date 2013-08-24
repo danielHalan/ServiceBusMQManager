@@ -39,6 +39,11 @@ namespace ServiceBusMQ.Manager {
     /// What type of message content to expect in queues
     /// </summary>
     MessageContentFormat MessageContentFormat { get; }
+    
+    /// <summary>
+    /// If messages Arrived Date contains milliseconds
+    /// </summary>
+    bool MessagesHasMilliSecondPrecision { get; }
 
     /// <summary>
     /// Load message content if not already loaded
@@ -114,6 +119,6 @@ namespace ServiceBusMQ.Manager {
     /// Called when any error inside the manager has occured, that should be presented to the user.
     /// </summary>
     event EventHandler<ErrorArgs> ErrorOccured;
-
+    event EventHandler<WarningArgs> WarningOccured;
   }
 }

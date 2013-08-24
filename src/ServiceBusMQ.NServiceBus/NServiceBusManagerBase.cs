@@ -194,6 +194,8 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     public abstract MessageContentFormat MessageContentFormat { get; }
+    public bool MessagesHasMilliSecondPrecision { get { return false; } }
+
 
     public abstract QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
     public abstract QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
@@ -209,10 +211,15 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     public event EventHandler<ErrorArgs> ErrorOccured;
+    public event EventHandler<WarningArgs> WarningOccured;
 
     protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, exception, fatal));
+    }
+    protected void OnWarning(string message, string content) {
+      if( WarningOccured != null )
+        WarningOccured(this, new WarningArgs(message, content));
     }
 
     public string ServiceBusName {

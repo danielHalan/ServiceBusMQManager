@@ -82,6 +82,7 @@
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="Configuration\CommandHistoryManager.cs" />
     <Compile Include="ApplicationInfo.cs" />
+    <Compile Include="Manager\WarningArgs.cs" />
     <Compile Include="Model\HalanService\Error.cs" />
     <Compile Include="Model\HalanService\ErrorReport.cs" />
     <Compile Include="ListExtensions.cs" />

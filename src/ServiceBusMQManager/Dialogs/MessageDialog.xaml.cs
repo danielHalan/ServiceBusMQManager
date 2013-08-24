@@ -26,7 +26,7 @@ using ServiceBusMQ.Model.HalanService;
 
 namespace ServiceBusMQManager.Dialogs {
 
-  public enum MessageType { Error, Info }
+  public enum MessageType { Error, Warn, Info }
 
   /// <summary>
   /// Interaction logic for MessageDialog.xaml
@@ -34,8 +34,20 @@ namespace ServiceBusMQManager.Dialogs {
   public partial class MessageDialog : Window {
 
     string _text;
+    string _content;
     Exception _e;
     private MessageType _type;
+
+    public MessageDialog(MessageType type, string text, string content) {
+      InitializeComponent();
+
+      _type = type;
+      _text = text;
+      _content = content;
+
+      InitializeDialogUI();
+    }
+
 
     public MessageDialog(MessageType type, string text, Exception e) {
       InitializeComponent();
@@ -44,11 +56,25 @@ namespace ServiceBusMQManager.Dialogs {
       _text = text;
       _e = e;
 
+      InitializeDialogUI();
+
+    }
+
+
+    void InitializeDialogUI() {
+
       switch( _type ) {
         case MessageType.Info:
           ImageSource = "/ServiceBusMQManager;component/Images/Msg.Info.png";
           img.Margin = new Thickness(15, 50, 0, 0);
           img.Width = 40;
+          btnCancel.Visibility = System.Windows.Visibility.Collapsed;
+          lbSendReportText.Visibility = System.Windows.Visibility.Collapsed;
+          btnOK.Content = "CLOSE";
+          break;
+
+        case MessageType.Warn:
+          ImageSource = "/ServiceBusMQManager;component/Images/Msg.Warn.png";
           btnCancel.Visibility = System.Windows.Visibility.Collapsed;
           lbSendReportText.Visibility = System.Windows.Visibility.Collapsed;
           btnOK.Content = "CLOSE";
@@ -61,12 +87,13 @@ namespace ServiceBusMQManager.Dialogs {
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
-      lbTitle.Content = string.Format("{0} - Service Bus MQ Manager", type);
+      lbTitle.Content = Title = string.Format("{0} - Service Bus MQ Manager", _type);
 
       UpdateStackTraceButton();
 
       BindMessage();
     }
+
 
     public static readonly DependencyProperty ImageSourceProperty =
       DependencyProperty.Register("ImageSource", typeof(string), typeof(MessageDialog), new UIPropertyMetadata(string.Empty));
@@ -97,10 +124,26 @@ namespace ServiceBusMQManager.Dialogs {
 
       tbMessage.Document.Blocks.Add(para);
 
-      if( _e != null && _text != null ) {
-        para = new Paragraph();
-        para.Inlines.Add(new Run(_e.Message) { FontSize = 15 });
-        tbMessage.Document.Blocks.Add(para);
+      if( _type == MessageType.Error ) {
+
+        if( _e != null && _text != null ) {
+          para = new Paragraph();
+          para.Inlines.Add(new Run(_e.Message) { FontSize = 15 });
+          tbMessage.Document.Blocks.Add(para);
+        }
+
+      } else if( _type == MessageType.Warn ) {
+
+        if( _content.IsValid() ) {
+
+          para = new Paragraph();
+          para.Inlines.Add(new Run(_content) { FontSize = 15 });
+          tbMessage.Document.Blocks.Add(para);
+
+        }
+
+      
+      
       }
 
       //if( !_url.IsValid() )
@@ -108,12 +151,16 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     public static void Show(MessageType type, string text, Exception e = null) {
-
       var dlg = new MessageDialog(type, text, e);
 
       dlg.ShowDialog();
     }
 
+    public static void Show(MessageType type, string text, string content) {
+      var dlg = new MessageDialog(type, text, content);
+
+      dlg.ShowDialog();
+    }
 
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {

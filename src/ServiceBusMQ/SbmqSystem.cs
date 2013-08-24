@@ -84,7 +84,9 @@ namespace ServiceBusMQ {
 
       _mgr = ServiceBusFactory.CreateManager(Config.MessageBus, Config.MessageBusQueueType);
       _mgr.ErrorOccured += System_ErrorOccured;
+      _mgr.WarningOccured += System_WarningOccured;
       _mgr.ItemsChanged += System_ItemsChanged;
+
 
       _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
 
@@ -95,6 +97,8 @@ namespace ServiceBusMQ {
 
       AppInfo = new ApplicationInfo(Config.Id, Assembly.GetEntryAssembly());
     }
+
+
 
     private static SbmqSystem _instance;
     public static SbmqSystem Create() {
@@ -207,7 +211,7 @@ namespace ServiceBusMQ {
 
           if( existingItem == null ) {
 
-            _items.Insert(0, new QueueItemViewModel(itm));
+            _items.Insert(0, new QueueItemViewModel(itm, _mgr.MessagesHasMilliSecondPrecision));
 
             if( !changed )
               changed = true;
@@ -268,7 +272,7 @@ namespace ServiceBusMQ {
         foreach( var itm in items )
           if( !_items.Any(i => i.Id == itm.Id) ) {
 
-            _items.Add(new QueueItemViewModel(itm));
+            _items.Add(new QueueItemViewModel(itm, _mgr.MessagesHasMilliSecondPrecision));
 
             if( !changed )
               changed = true;
@@ -290,12 +294,16 @@ namespace ServiceBusMQ {
 
 
     private void System_ErrorOccured(object sender, ErrorArgs e) {
-
       OnError(e);
 
       if( e.Fatal )
         Application.Current.Shutdown();
     }
+
+    void System_WarningOccured(object sender, WarningArgs e) {
+      OnWarning(e);
+    }
+
     private void System_ItemsChanged(object sender, EventArgs e) {
       OnItemsChanged(ItemChangeOrigin.Queue);
       //_itemsChanged.Invoke(sender, e);
@@ -426,6 +434,7 @@ namespace ServiceBusMQ {
     }
 
     public event EventHandler<ErrorArgs> ErrorOccured;
+    public event EventHandler<WarningArgs> WarningOccured;
 
     protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
@@ -436,6 +445,10 @@ namespace ServiceBusMQ {
         ErrorOccured(this, arg);
     }
 
+    protected void OnWarning(WarningArgs arg) {
+      if( WarningOccured != null )
+        WarningOccured(this, arg);
+    }
 
 
     public void FilterItems(string str) {

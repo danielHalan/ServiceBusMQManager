@@ -134,6 +134,7 @@ namespace ServiceBusMQManager {
           _sys = SbmqSystem.Create();
           _sys.ItemsChanged += MessageMgr_ItemsChanged;
           _sys.ErrorOccured += _sys_ErrorOccured;
+          _sys.WarningOccured += _sys_WarningOccured;
           _mgr = _sys.Manager;
 
         } catch( Exception ex ) {
@@ -175,6 +176,7 @@ namespace ServiceBusMQManager {
       w.RunWorkerAsync();
     }
 
+
     void _sys_ErrorOccured(object sender, ErrorArgs e) {
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
@@ -182,6 +184,13 @@ namespace ServiceBusMQManager {
         MessageDialog.Show(MessageType.Error, e.Message, e.Exception);
 
       }));
+    }
+    void _sys_WarningOccured(object sender, WarningArgs e) {
+      Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+
+        MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
+
+      }));    
     }
 
     private void RestartSystem() {

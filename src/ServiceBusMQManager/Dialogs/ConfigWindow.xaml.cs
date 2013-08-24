@@ -241,8 +241,12 @@ namespace ServiceBusMQManager.Dialogs {
 
       if( (bool)dialog.ShowDialog(this) ) {
 
-        e.Item = dialog.SelectedPath;
-        e.Handled = true;
+
+        if( !asmPaths.GetItems().Any( p => string.Compare(p, dialog.SelectedPath, true) == 0 ) ) {
+
+          e.Item = dialog.SelectedPath;
+          e.Handled = true;
+        }
       }
 
     }
