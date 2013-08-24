@@ -14,12 +14,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
+using System.Linq;
 
 namespace ServiceBusMQManager.Dialogs {
   /// <summary>
@@ -41,11 +43,10 @@ namespace ServiceBusMQManager.Dialogs {
       lbQueues.ItemsSource = queueNames;
     }
 
-    public string SelectedQueueName { get; set; }
+    public List<string> SelectedQueueNames { get; set; }
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {
-
-      SelectedQueueName = lbQueues.SelectedItem as string;
+      SelectedQueueNames = lbQueues.SelectedItems.Cast<string>().ToList();
       DialogResult = true;
     }
 
@@ -71,7 +72,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void lbQueues_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
 
       if( btnOK.IsEnabled ) {
-        SelectedQueueName = lbQueues.SelectedItem as string;
+        SelectedQueueNames = lbQueues.SelectedItems.Cast<string>().ToList();
         DialogResult = true;
       }
 
