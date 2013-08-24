@@ -56,7 +56,7 @@
 
 
 
-            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,76" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged"/>
+            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,76" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged" SelectionMode="Multiple"/>
 
             <Button HorizontalAlignment="Left" Margin="11,0,0,14" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
                 <Button.Template>
