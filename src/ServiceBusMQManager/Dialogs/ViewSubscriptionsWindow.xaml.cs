@@ -46,7 +46,7 @@ namespace ServiceBusMQManager.Dialogs {
       _sys = system;
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
-      
+
       BindServers();
 
       lvTypes.ItemsSource = _items;
@@ -78,7 +78,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void LoadSubscriptionTypes(string serverName = null) {
       if( serverName == null )
         serverName = cbServer.SelectedValue as string;
-      
+
       if( !Tools.IsLocalHost(serverName) ) {
         imgServerLoading.Visibility = System.Windows.Visibility.Visible;
         btnRefresh.Visibility = System.Windows.Visibility.Hidden;
@@ -86,8 +86,8 @@ namespace ServiceBusMQManager.Dialogs {
       }
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s,e) =>  {  e.Result = _sys.GetMessageSubscriptions(serverName); };
-      w.RunWorkerCompleted += (s,e) => { 
+      w.DoWork += (s, e) => { e.Result = _sys.GetMessageSubscriptions(serverName); };
+      w.RunWorkerCompleted += (s, e) => {
         MessageSubscription[] subs = e.Result as MessageSubscription[];
 
         _allItems.Clear();
@@ -104,36 +104,52 @@ namespace ServiceBusMQManager.Dialogs {
           btnRefresh.Visibility = System.Windows.Visibility.Visible;
           cbServer.IsEnabled = true;
         }
+
+        Filter();
       };
       w.RunWorkerAsync();
-      
+
     }
 
     void GridViewColumnHeaderClickedHandler(object sender, RoutedEventArgs e) {
       GridViewColumnHeader h = e.OriginalSource as GridViewColumnHeader;
 
-      if( (h != null) && (h.Role != GridViewColumnHeaderRole.Padding)) {
-        WindowTools.SetSortColumn(lvTypes, (h.Column.DisplayMemberBinding as Binding).Path.Path );
+      if( ( h != null ) && ( h.Role != GridViewColumnHeaderRole.Padding ) ) {
+        WindowTools.SetSortColumn(lvTypes, ( h.Column.DisplayMemberBinding as Binding ).Path.Path);
       }
 
     }
 
 
+    string _filter = null;
     private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e) {
       Filter(tbFilter.Text);
     }
 
     private void Filter(string str) {
-      str = str.ToLower();
+      _filter = str.ToLower();
 
-      foreach( var itm in _allItems.Where(t => !t.Key.Contains(str)) )
-        _items.Remove(itm.Value);
+      Filter();
+    }
 
-      foreach( var itm in _allItems.Where(t => t.Key.Contains(str)) ) {
-        if( _items.IndexOf(itm.Value) == -1 )
-          _items.Add(itm.Value);
+    private void Filter() {
+      if( _filter.IsValid() ) {
+
+        foreach( var itm in _allItems.Where(t => !t.Key.Contains(_filter)) )
+          _items.Remove(itm.Value);
+
+        foreach( var itm in _allItems.Where(t => t.Key.Contains(_filter)) ) {
+          if( _items.IndexOf(itm.Value) == -1 )
+            _items.Add(itm.Value);
+        }
+
+      } else {
+
+        foreach( var itm in _allItems ) {
+          if( _items.IndexOf(itm.Value) == -1 )
+            _items.Add(itm.Value);
+        }
       }
-
     }
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
@@ -180,9 +196,9 @@ namespace ServiceBusMQManager.Dialogs {
     private void btnRefresh_Click(object sender, RoutedEventArgs e) {
       LoadSubscriptionTypes();
 
-      if( _sys.Config.CurrentServer.Name == (string)cbServer.SelectedValue ) {  
+      if( _sys.Config.CurrentServer.Name == (string)cbServer.SelectedValue ) {
         lbInfo.Content = "Subscription list refreshed";
-        _t = new System.Threading.Timer( (o) => { ClearInfo(); }, null, 2000, Timeout.Infinite);
+        _t = new System.Threading.Timer((o) => { ClearInfo(); }, null, 2000, Timeout.Infinite);
       }
     }
 
@@ -194,7 +210,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 
-      LoadSubscriptionTypes((e.AddedItems[0] as ServerConfig2).Name);
+      LoadSubscriptionTypes(( e.AddedItems[0] as ServerConfig2 ).Name);
     }
 
 
