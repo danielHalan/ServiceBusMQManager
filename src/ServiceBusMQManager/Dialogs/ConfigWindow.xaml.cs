@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -188,12 +189,12 @@ namespace ServiceBusMQManager.Dialogs {
       if( dlg.ShowDialog() == true ) {
         e.Handled = true;
 
-
-        var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : System.Drawing.Color.FromArgb(QueueColorManager.RED);
-        e.Item = new QueueListControl.QueueListItem(dlg.SelectedQueueName, color);
+        dlg.SelectedQueueNames.ForEach(queueName =>
+            {
+                var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : Color.FromArgb(QueueColorManager.RED);
+                e.Items.Add(new QueueListControl.QueueListItem(queueName, color));
+            });
       }
-
-
     }
 
     private string[] GetAllQueueNames() {

@@ -26,11 +26,9 @@ namespace ServiceBusMQManager.Controls {
   /// </summary>
   public class QueueListItemRoutedEventArgs : RoutedEventArgs {
 
-    public QueueListControl.QueueListItem Item { get; set; }
+    public List<QueueListControl.QueueListItem> Items = new List<QueueListControl.QueueListItem>();
 
-    public QueueListItemRoutedEventArgs(RoutedEvent e)
-      : base(e) {
-    }
+    public QueueListItemRoutedEventArgs(RoutedEvent e) : base(e) { }
   }
 
 
@@ -99,10 +97,10 @@ namespace ServiceBusMQManager.Controls {
       RaiseEvent(e2);
 
       if( e2.Handled ) {
-        AddListItem(e2.Item);
+        e2.Items.ForEach(AddListItem);
 
         var e3 = new QueueListItemRoutedEventArgs(AddedItemEvent);
-        e3.Item = e2.Item;
+        e3.Items = e2.Items;
         RaiseEvent(e3);
 
       }
@@ -145,7 +143,7 @@ namespace ServiceBusMQManager.Controls {
 
       var e2 = new QueueListItemRoutedEventArgs(RemovedItemEvent);
 
-      e2.Item = _items[(int)e.Id];
+      e2.Items = new List<QueueListItem> {_items[e.Id]};
 
       RemoveListItem(itm, e.Id);
 
