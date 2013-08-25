@@ -22,12 +22,32 @@ using System.Windows.Input;
 using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using System.Linq;
+using System.ComponentModel;
 
 namespace ServiceBusMQManager.Dialogs {
+
+  public class QueueListItem {
+    public string Name { get; set; }
+    public SelectQueueDialog.QueueAccess Access { get; set; }
+
+    public string AccessString {
+      get {
+        return Access == SelectQueueDialog.QueueAccess.None ? "Permission Denied" : string.Empty;
+      }
+    }
+
+    public override string ToString() {
+      return Name;
+    }
+  }
+
   /// <summary>
   /// Interaction logic for SelectQueueDialog.xaml
   /// </summary>
   public partial class SelectQueueDialog : Window {
+
+    public enum QueueAccess { Unknown, None, RW }
+
 
     IServiceBusDiscovery _disc;
     string _server;
@@ -40,13 +60,32 @@ namespace ServiceBusMQManager.Dialogs {
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
-      lbQueues.ItemsSource = queueNames;
+      var qItems = queueNames.Select(n => new QueueListItem() { Name = n, Access = QueueAccess.Unknown }).ToList();
+      lbQueues.ItemsSource = qItems;
+
+      BackgroundWorker bw = new BackgroundWorker();
+      bw.DoWork += (s, e) => {
+
+        foreach( var q in qItems ) {
+          if( _disc.CanAccessQueue(_server, q.Name) )
+            q.Access = QueueAccess.RW;
+          else {
+            q.Access = QueueAccess.None;
+          }
+        }
+      };
+      bw.RunWorkerCompleted += (s, e) => {
+        lbQueues.Items.Refresh();
+      };
+
+      bw.RunWorkerAsync();
+
     }
 
     public List<string> SelectedQueueNames { get; set; }
 
     private void btnOK_Click(object sender, RoutedEventArgs e) {
-      SelectedQueueNames = lbQueues.SelectedItems.Cast<string>().ToList();
+      SelectedQueueNames = lbQueues.SelectedItems.Cast<QueueListItem>().Where( l => l.Access == QueueAccess.RW ).Select( l => l.Name).ToList();
       DialogResult = true;
     }
 
@@ -58,7 +97,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void Window_MouseMove(object sender, MouseEventArgs e) {
       Cursor = this.GetBorderCursor();
     }
-    
+
     private void HandleMaximizeClick(object sender, RoutedEventArgs e) {
       var s = WpfScreen.GetScreenFrom(this);
 
@@ -71,31 +110,25 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void lbQueues_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
 
-      if( btnOK.IsEnabled ) {
-        SelectedQueueNames = lbQueues.SelectedItems.Cast<string>().ToList();
-        DialogResult = true;
-      }
+      //if( btnOK.IsEnabled ) {
+      //  SelectedQueueNames = lbQueues.SelectedItems.Cast<string>().ToList();
+      //  DialogResult = true;
+      //}
 
     }
 
     private void lbQueues_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-    
-      if( lbQueues.SelectedItem != null ) {
-        if( !_disc.CanAccessQueue(_server, lbQueues.SelectedItem as string ) ) {
-          lbInfo.Content = "You don't have read access to queue " + lbQueues.SelectedItem;
-          btnOK.IsEnabled = false;
 
-        } else { 
-          btnOK.IsEnabled = true;
-          lbInfo.Content = string.Empty;
-        }
-
-      } else { 
+      if( lbQueues.SelectedItems.Cast<QueueListItem>().Any( q => q.Access == QueueAccess.RW) ) 
+        btnOK.IsEnabled = true;
+      else 
         btnOK.IsEnabled = false;
+      
+
+      if( lbQueues.SelectedItems.Cast<QueueListItem>().Any( q => q.Access == QueueAccess.None) ) 
+        lbInfo.Content = "You don't have read access to some of the selected queues";
+      else
         lbInfo.Content = string.Empty;
-      }
     }
-
-
   }
 }

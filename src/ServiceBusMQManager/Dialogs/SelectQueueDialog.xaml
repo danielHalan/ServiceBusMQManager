@@ -1,7 +1,8 @@
 ﻿<Window x:Name="frmSelectQueue" x:Class="ServiceBusMQManager.Dialogs.SelectQueueDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Select Queue..." Height="377" Width="416" 
+        xmlns:local="clr-namespace:ServiceBusMQManager.Dialogs"
+        Title="Select Queue..." Height="380" Width="470" 
         WindowStartupLocation="CenterOwner"
         
         WindowStyle="None" 
@@ -56,7 +57,46 @@
 
 
 
-            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,76" FontFamily="Calibri" FontSize="16" MouseDoubleClick="lbQueues_MouseDoubleClick" SelectionChanged="lbQueues_SelectionChanged" SelectionMode="Multiple"/>
+            <ListBox x:Name="lbQueues" BorderBrush="LightGray" Margin="11,56,15,78" FontFamily="Calibri" 
+                     FontSize="16" HorizontalContentAlignment="Stretch" 
+                     MouseDoubleClick="lbQueues_MouseDoubleClick" 
+                     SelectionChanged="lbQueues_SelectionChanged" 
+                     SelectionMode="Multiple">
+
+                <ListBox.Resources>
+
+                    <DataTemplate DataType="{x:Type local:QueueListItem}">
+                        <Grid Name="Item" HorizontalAlignment="Stretch" >
+                            <TextBlock Name="Name" Text="{Binding Name}" HorizontalAlignment="Stretch" Margin="5,0,0,0"/>
+                            <TextBlock Name="HaveAccess" Text="{Binding AccessString}" Foreground="White" Visibility="Hidden" Background="#A82525" HorizontalAlignment="Right" Padding="5,0,5,0" Margin="0,0,5,0"/>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Access}" Value="None"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="HaveAccess" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Name" Property="Foreground" Value="#919191"/>
+                            </MultiDataTrigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding
+                                                      RelativeSource={
+                                                        RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBoxItem}},
+                                                        Path=IsSelected}" Value="True"/>
+                                    <Condition Binding="{Binding Access}" Value="None"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter TargetName="Item" Property="Background" Value="#8988A8"/>
+                                <Setter TargetName="Name" Property="Foreground" Value="#E8E8E8"/>
+                            </MultiDataTrigger>
+
+
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                    
+                </ListBox.Resources>
+            </ListBox>
 
             <Button HorizontalAlignment="Left" Margin="11,0,0,14" VerticalAlignment="Bottom"  IsCancel="True" Width="94" Height="29" FontFamily="Segoe UI" >
                 <Button.Template>
@@ -104,7 +144,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="19,299,0,0" VerticalAlignment="Top" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" Width="370"/>
+            <Label x:Name="lbInfo" Content="" Margin="19,297,28,0" VerticalAlignment="Top" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B"/>
 
         </Grid>
     </Border>
