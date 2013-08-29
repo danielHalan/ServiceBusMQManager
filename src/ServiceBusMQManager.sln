@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ", "ServiceBusMQ\ServiceBusMQ.csproj", "{A8780696-12F3-4795-9FEE-93F6CBBD900E}"
-EndProject
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus", "ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj", "{621B324B-DD0A-4485-B98B-04F4B5AA40A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQManager", "ServiceBusMQManager\ServiceBusMQManager.csproj", "{10452F03-D000-484F-A8CD-3FC5A10ABB84}"
@@ -16,16 +14,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQManager.Tests", "ServiceBusMQManager.Tests\ServiceBusMQManager.Tests.csproj", "{440319EF-B3CA-4E11-A76D-78F97B47C93A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.MassTransit", "ServiceBusMQ.MassTransit\ServiceBusMQ.MassTransit.csproj", "{0B5C7307-0B10-4584-B483-C67756864D09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ", "ServiceBusMQ\ServiceBusMQ.csproj", "{A8780696-12F3-4795-9FEE-93F6CBBD900E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,6 +40,14 @@ Global
 		{440319EF-B3CA-4E11-A76D-78F97B47C93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{440319EF-B3CA-4E11-A76D-78F97B47C93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{440319EF-B3CA-4E11-A76D-78F97B47C93A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B5C7307-0B10-4584-B483-C67756864D09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B5C7307-0B10-4584-B483-C67756864D09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B5C7307-0B10-4584-B483-C67756864D09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B5C7307-0B10-4584-B483-C67756864D09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

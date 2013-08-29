@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Magnum</id>
+    <version>2.1.0</version>
+    <authors>Chris Patterson,  Dru Sellers</authors>
+    <owners>Chris Patterson,  Dru Sellers</owners>
+    <licenseUrl>https://github.com/phatboyg/Magnum/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/phatboyg/Magnum</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Magnum is a library for the larger than average developer</description>
+    <language>en-US</language>
+  </metadata>
+</package>
