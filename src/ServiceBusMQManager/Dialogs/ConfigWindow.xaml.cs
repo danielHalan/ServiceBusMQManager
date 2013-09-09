@@ -97,6 +97,8 @@ namespace ServiceBusMQManager.Dialogs {
 
       tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
 
+	  tbSubscriptionServiceQueue.Text = _config.MassTransitServiceSubscriptionQueue;
+
       UpdateSendCommandInfo(false);
       UpdateQueueuInfo(false);
 
@@ -412,6 +414,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.CommandsAssemblyPaths = asmPaths.GetItems();
       _config.CommandContentType = cbContentFormat.SelectedItem as string;
+	  _config.MassTransitServiceSubscriptionQueue = tbSubscriptionServiceQueue.Text;
 
       _config.Save();
 

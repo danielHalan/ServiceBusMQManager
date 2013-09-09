@@ -613,6 +613,7 @@ namespace ServiceBusMQ.MassTransit
 
 		public void Terminate()
 		{
+			_subscriptionQueueService = "";
 			if(_bus != null)
 				_bus.Dispose();
 		}
@@ -668,7 +669,6 @@ namespace ServiceBusMQ.MassTransit
 			if (WarningOccured != null)
 				WarningOccured(this, new WarningArgs(message, content));
 		}
-
 
 		private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\NLog.dll", 
                                                                   "\\Magnum.dll", "\\MassTransit.Transports.Msmq.dll", 
@@ -744,11 +744,12 @@ namespace ServiceBusMQ.MassTransit
 			return arr.ToArray();
 		}
 
-
 		protected IServiceBus _bus;
-
-		public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef)
+		private string _subscriptionQueueService;
+		public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, string subscriptionQueueService = "")
 		{
+			_subscriptionQueueService = subscriptionQueueService;
+
 			if (CommandContentFormat == "JSON")
 			{
 
@@ -772,19 +773,42 @@ namespace ServiceBusMQ.MassTransit
 		{
 			if (_bus == null)
 			{
-				var subscriptionServiceUriString = string.Format("msmq://{0}/{1}", destinationServer, destinationQueue);
-
-				_bus = ServiceBusFactory.New(sbc =>
+				if (_subscriptionQueueService != string.Empty)
 				{
-					sbc.UseMsmq(x => x.UseSubscriptionService(subscriptionServiceUriString));
-					sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
-					sbc.UseControlBus();
-				});
+
+					_bus = ServiceBusFactory.New(sbc =>
+					{
+						sbc.UseMsmq();
+						sbc.UseMsmq(x => x.UseSubscriptionService(_subscriptionQueueService));
+						sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+						sbc.UseControlBus();
+					});
+				}
+				else
+				{
+					_bus = ServiceBusFactory.New(sbc =>
+					{
+						sbc.UseMsmq();
+						//sbc.UseMsmq(x => x.UseSubscriptionService(subscriptionServiceUriString));
+						sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+						sbc.UseControlBus();
+					});
+				}
 
 				Thread.Sleep(TimeSpan.FromSeconds(10));
 			}
+
+			if (_subscriptionQueueService != string.Empty)
+			{
+				_bus.Publish(message);
+			}
+			else
+			{
+				var sendTo = string.Format("msmq://{0}/{1}", destinationServer, destinationQueue);
+				_bus.GetEndpoint(new Uri(sendTo)).Send(message);
+			}
 			
-			_bus.Publish(message);
+			
 		}
 
 		public string SerializeCommand(object cmd)

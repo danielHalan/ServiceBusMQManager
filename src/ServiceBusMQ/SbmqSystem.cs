@@ -354,7 +354,7 @@ namespace ServiceBusMQ {
       if( sc != null ) {
 
         if( !_isServiceBusStarted ) {
-          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition);
+          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition, Config.MassTransitServiceSubscriptionQueue);
           _isServiceBusStarted = true;
         }
 
