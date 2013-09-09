@@ -82,9 +82,8 @@
     <AssemblyOriginatorKeyFile>ServiceBusMQ.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Interop.MSMQ">
-      <HintPath>bin\Interop.MSMQ.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
@@ -467,13 +466,9 @@
     <EmbeddedResource Include="Images\unpinned.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Newtonsoft.Json\Newtonsoft.Json.csproj">
-      <Project>{a9ae40ff-1a21-414a-9fe7-3be13644cc6d}</Project>
-      <Name>Newtonsoft.Json</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj">
-      <Project>{621b324b-dd0a-4485-b98b-04f4b5aa40a5}</Project>
-      <Name>ServiceBusMQ.NServiceBus</Name>
+    <ProjectReference Include="..\ServiceBusMQ.MassTransit\ServiceBusMQ.MassTransit.csproj">
+      <Project>{0B5C7307-0B10-4584-B483-C67756864D09}</Project>
+      <Name>ServiceBusMQ.MassTransit</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
       <Project>{a8780696-12f3-4795-9fee-93f6cbbd900e}</Project>
@@ -581,6 +576,17 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="MSMQ">
+      <Guid>{D7D6E071-DCCD-11D0-AA4B-0060970DEBAE}</Guid>
+      <VersionMajor>3</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

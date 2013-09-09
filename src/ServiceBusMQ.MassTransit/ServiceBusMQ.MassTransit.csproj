@@ -41,14 +41,10 @@
       <HintPath>..\packages\MassTransit.2.8.0\lib\net40\MassTransit.Transports.MSMQ.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.1.2\lib\net40\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceBusMQ">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Service Bus MQ Manager\ServiceBusMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,15 +57,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ErrorManager.cs" />
     <Compile Include="MassTransitBusDiscovery.cs" />
     <Compile Include="MassTransitServiceBusManager.cs" />
     <Compile Include="Msmq.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MsmqMessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransportsCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
+      <Project>{A8780696-12F3-4795-9FEE-93F6CBBD900E}</Project>
+      <Name>ServiceBusMQ</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -46,7 +46,7 @@ namespace ServiceBusMQ.MassTransit
 
 		private bool IsIgnoredQueue(string queueName)
 		{
-			return (queueName.EndsWith("_subscriptions") || queueName.EndsWith("_retries") || queueName.EndsWith("_timeouts") || queueName.EndsWith("_timeoutsdispatcher"));
+			return (queueName.EndsWith("_retries") || queueName.EndsWith("_timeouts") || queueName.EndsWith("_timeoutsdispatcher"));
 		}
 	}
 }

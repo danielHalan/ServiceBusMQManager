@@ -1,7 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Messaging;
+using MassTransit;
 using System.Transactions;
-using MassTransit.
+using MassTransit.Transports.Msmq;
+using MassTransit.Serialization;
+using MassTransit.Context;
+using MassTransit.Transports;
+using Magnum.Extensions;
 
 namespace ServiceBusMQ.MassTransit
 {
@@ -18,15 +26,15 @@ namespace ServiceBusMQ.MassTransit
 		/// </summary>
 		private const string FAILEDQUEUE = "FailedQ";
 
-		public virtual Address InputQueue
+		public virtual IEndpointAddress InputQueue
 		{
 			set
 			{
-				var path = MsmqUtilities.GetFullPath(value);
+				var path = value.Uri.GetLocalName();
 				var q = new MessageQueue(path);
 
-				if ((!ClusteredQueue) && (!q.Transactional))
-					throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
+				//if ((!ClusteredQueue) && (!q.Transactional))
+				//    throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
 
 				queue = q;
 
@@ -39,84 +47,90 @@ namespace ServiceBusMQ.MassTransit
 
 		public void ReturnAll()
 		{
-			foreach (var m in queue.GetAllMessages())
-				ReturnMessageToSourceQueue(m.Id);
+			//foreach (var m in queue.GetAllMessages())
+			//    ReturnMessageToSourceQueue(m.Id, null);
 		}
+
+		public ErrorManager()
+		{
+			Transports = new TransportCache();
+			Transports.AddTransportFactory(new MsmqTransportFactory());
+		}
+
+
+		public static TransportCache Transports { get; private set; }
 
 		/// <summary>
 		/// May throw a timeout exception if a message with the given id cannot be found.
 		/// </summary>
 		/// <param name="messageId"></param>
-		public void ReturnMessageToSourceQueue(string messageId)
+		public void ReturnMessageToSourceQueue(string messageId, IReceiveContext context)
 		{
-			using (var scope = new TransactionScope())
+			try
 			{
-				try
+				var query = context.DestinationAddress.Query;
+				var errorQueue = context.DestinationAddress.OriginalString.Replace(query, "") + "_error";
+
+				Uri fromUri = new Uri(errorQueue);
+				Uri toUri = context.DestinationAddress;
+
+				IInboundTransport fromTransport = Transports.GetInboundTransport(fromUri);
+				IOutboundTransport toTransport = Transports.GetOutboundTransport(toUri);
+
+				fromTransport.Receive(receiveContext =>
 				{
-					var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
-
-					var tm = MsmqUtilities.Convert(message);
-					string failedQ;
-					if (tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
-						failedQ = tm.Headers[Faults.FaultsHeaderKeys.FailedQ];
-					else // try to bring failedQ from label, v2.6 style.
+					if (receiveContext.MessageId == messageId)
 					{
-						failedQ = GetFailedQueueFromLabel(message);
-						if (!string.IsNullOrEmpty(failedQ))
-							message.Label = GetLabelWithoutFailedQueue(message);
-					}
-
-					if (string.IsNullOrEmpty(failedQ))
-					{
-						Console.WriteLine("ERROR: Message does not have a header (or label) indicating from which queue it came. Cannot be automatically returned to queue.");
-						return;
-					}
-
-					using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
-						q.Send(message, MessageQueueTransactionType.Automatic);
-
-					Console.WriteLine("Success.");
-					scope.Complete();
-				}
-				catch (MessageQueueException ex)
-				{
-					if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-					{
-						Console.WriteLine(NoMessageFoundErrorFormat, messageId);
-
-						foreach (var m in queue.GetAllMessages())
+						return ctx =>
 						{
-							var tm = MsmqUtilities.Convert(m);
+							var moveContext = new MoveMessageSendContext(ctx);
+							toTransport.Send(moveContext);
+						};
+					}
 
-							if (tm.Headers.ContainsKey(TransportHeaderKeys.OriginalId))
+					return null;
+
+				}, 5.Seconds());
+
+				Console.WriteLine("Success.");
+			}
+			catch (MessageQueueException ex)
+			{
+				if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+				{
+					Console.WriteLine(NoMessageFoundErrorFormat, context.Id);
+
+					foreach (var m in queue.GetAllMessages())
+					{
+						var tm = TransportMessageHeaders.Create(m.Extension);
+
+						if (tm[""] != null)
+						{
+							//if (messageId != tm[""])
+							//    continue;
+
+							Console.WriteLine("Found message - going to return to queue.");
+
+							using (var tx = new TransactionScope())
 							{
-								if (messageId != tm.Headers[TransportHeaderKeys.OriginalId])
-									continue;
+								using (var q = new MessageQueue(new EndpointAddress(tm[""]).Path))
+									q.Send(m, MessageQueueTransactionType.Automatic);
 
-								Console.WriteLine("Found message - going to return to queue.");
+								queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
+														MessageQueueTransactionType.Automatic);
 
-								using (var tx = new TransactionScope())
-								{
-									using (var q = new MessageQueue(
-												MsmqUtilities.GetFullPath(
-													Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
-										q.Send(m, MessageQueueTransactionType.Automatic);
-
-									queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
-															MessageQueueTransactionType.Automatic);
-
-									tx.Complete();
-								}
-
-								Console.WriteLine("Success.");
-								scope.Complete();
-
-								return;
+								tx.Complete();
 							}
+
+							Console.WriteLine("Success.");
+							//scope.Complete();
+
+							return;
 						}
 					}
 				}
 			}
+			//}
 		}
 
 		/// <summary>
