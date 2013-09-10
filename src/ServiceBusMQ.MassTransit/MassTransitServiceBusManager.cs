@@ -20,6 +20,7 @@ using System.Reflection;
 using MassTransit;
 using IServiceBus = MassTransit.IServiceBus;
 using ServiceBusFactory = MassTransit.ServiceBusFactory;
+using Newtonsoft.Json;
 
 namespace ServiceBusMQ.MassTransit
 {
@@ -750,54 +751,64 @@ namespace ServiceBusMQ.MassTransit
 		{
 			_subscriptionQueueService = subscriptionQueueService;
 
-			if (CommandContentFormat == "JSON")
+			if (_bus == null)
 			{
+				if (CommandContentFormat == "JSON")
+				{
+					if (_subscriptionQueueService != string.Empty)
+					{
 
-				//_bus = ServiceBusFactory.New(sbc =>
-				//{
-				//    sbc.UseMsmq(x => x.UseSubscriptionService("msmq://localhost/mt_subscriptions"));
-				//    sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
-				//    sbc.UseControlBus();
-				//    sbc.UseJsonSerializer();
-				//});
+						_bus = ServiceBusFactory.New(sbc =>
+						{
+							sbc.UseMsmq();
+							sbc.UseMsmq(x => x.UseSubscriptionService(_subscriptionQueueService));
+							sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+							sbc.UseJsonSerializer();
+							sbc.UseControlBus();
+						});
+					}
+					else
+					{
+						_bus = ServiceBusFactory.New(sbc =>
+						{
+							sbc.UseMsmq();
+							//sbc.UseMsmq(x => x.UseSubscriptionService(subscriptionServiceUriString));
+							sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+							sbc.UseJsonSerializer();
+							sbc.UseControlBus();
+						});
+					}
+				}
+				else
+				{
+					if (_subscriptionQueueService != string.Empty)
+					{
+
+						_bus = ServiceBusFactory.New(sbc =>
+						{
+							sbc.UseMsmq();
+							sbc.UseMsmq(x => x.UseSubscriptionService(_subscriptionQueueService));
+							sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+							sbc.UseControlBus();
+						});
+					}
+					else
+					{
+						_bus = ServiceBusFactory.New(sbc =>
+						{
+							sbc.UseMsmq();
+							//sbc.UseMsmq(x => x.UseSubscriptionService(subscriptionServiceUriString));
+							sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
+							sbc.UseControlBus();
+						});
+					}
+				}
+				Thread.Sleep(TimeSpan.FromSeconds(10));
 			}
-			else
-			{
-				
-			}
-
-
 		}
 
 		public void SendCommand(string destinationServer, string destinationQueue, object message)
 		{
-			if (_bus == null)
-			{
-				if (_subscriptionQueueService != string.Empty)
-				{
-
-					_bus = ServiceBusFactory.New(sbc =>
-					{
-						sbc.UseMsmq();
-						sbc.UseMsmq(x => x.UseSubscriptionService(_subscriptionQueueService));
-						sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
-						sbc.UseControlBus();
-					});
-				}
-				else
-				{
-					_bus = ServiceBusFactory.New(sbc =>
-					{
-						sbc.UseMsmq();
-						//sbc.UseMsmq(x => x.UseSubscriptionService(subscriptionServiceUriString));
-						sbc.ReceiveFrom("msmq://localhost/ServiceBusMQ");
-						sbc.UseControlBus();
-					});
-				}
-
-				Thread.Sleep(TimeSpan.FromSeconds(10));
-			}
-
 			if (_subscriptionQueueService != string.Empty)
 			{
 				_bus.Publish(message);
@@ -807,24 +818,72 @@ namespace ServiceBusMQ.MassTransit
 				var sendTo = string.Format("msmq://{0}/{1}", destinationServer, destinationQueue);
 				_bus.GetEndpoint(new Uri(sendTo)).Send(message);
 			}
-			
-			
+		}
+
+		public string SerializeCommand_JSON(object cmd)
+		{
+			return JsonConvert.SerializeObject(cmd);
+		}
+
+		string SerializeCommand_XML(object cmd)
+		{
+
+			using (StringWriter stringWriter = new StringWriter())
+			using (XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter))
+			{
+				System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(cmd.GetType());
+				x.Serialize(xmlTextWriter, cmd);
+				return stringWriter.ToString();
+			}
 		}
 
 		public string SerializeCommand(object cmd)
 		{
-			throw new NotImplementedException();
+			if (CommandContentFormat == "XML")
+				return SerializeCommand_XML(cmd);
+
+			else if (CommandContentFormat == "JSON")
+				return SerializeCommand_JSON(cmd);
+
+			else throw new Exception("Unknown Command Content Format, " + CommandContentFormat);
 		}
 
 		public object DeserializeCommand(string cmd, Type cmdType)
 		{
-			throw new NotImplementedException();
+			if (CommandContentFormat == "XML")
+				return DeserializeCommand_XML(cmd, cmdType);
+
+			else if (CommandContentFormat == "JSON")
+				return DeserializeCommand_JSON(cmd, cmdType);
+
+			else throw new Exception("Unknown Command Content Format, " + CommandContentFormat);
 		}
+
+		private object DeserializeCommand_XML(string cmd, Type cmdType)
+		{
+			using (StringReader stringReader = new StringReader(cmd))
+			using (XmlTextReader xmlTextReader = new XmlTextReader(stringReader))
+			{
+				System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(cmdType);
+				return x.Deserialize(xmlTextReader);
+			}
+		}
+
+		private object DeserializeCommand_JSON(string cmd, Type cmdType)
+		{
+			return JsonConvert.DeserializeObject(cmd, cmdType);
+		}
+
+		string _commandContentFormat;
 
 		public string CommandContentFormat
 		{
-			get;
-			set;
+			get { 
+				return _commandContentFormat; 
+			}
+			set { 
+				_commandContentFormat = value; 
+			}
 		}
 
 		public MessageSubscription[] GetMessageSubscriptions(string server)

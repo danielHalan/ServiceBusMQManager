@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using ServiceBusMQ.Manager;
 using System.Messaging;
-using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.MassTransit
 {

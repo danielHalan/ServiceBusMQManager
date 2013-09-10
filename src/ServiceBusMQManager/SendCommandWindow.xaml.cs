@@ -45,7 +45,6 @@ namespace ServiceBusMQManager {
     ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
 
     bool _recentUpdating = false;
-    bool _isBusStarted = false;
 
 
     public SendCommandWindow(SbmqSystem system) {
@@ -219,8 +218,6 @@ namespace ServiceBusMQManager {
         throw ex;
       }
     }
-
-    object _cmd;
 
     private class SendCommandEnvelope {
       public string Server;

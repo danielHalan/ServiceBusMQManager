@@ -411,7 +411,7 @@ namespace ServiceBusMQManager {
     }
 
     bool _showingActivityTrayIcon;
-    private DispatcherTimer _timer;
+
     void ShowActivityTrayIcon() {
 
       if( !_showingActivityTrayIcon ) {
@@ -589,7 +589,7 @@ namespace ServiceBusMQManager {
 
 #if DEBUG
       MenuItem mi = null;
-      if( ( items[items.Count - 1] as MenuItem ).Header != "Headers" ) {
+      if( (( items[items.Count - 1] as MenuItem ).Header as string) != "Headers" ) {
         mi = new MenuItem();
         mi.Header = "Headers";
         items.Add(mi);
