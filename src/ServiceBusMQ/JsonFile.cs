@@ -39,7 +39,7 @@ namespace ServiceBusMQ {
           TypeNameHandling = TypeNameHandling.All,
           TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
           ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-          ConstructorHandlingFallback = CtorFallback,
+          //ConstructorHandlingFallback = CtorFallback,
           Binder = binder
         };
 
@@ -50,18 +50,18 @@ namespace ServiceBusMQ {
       return default(T);
     }
 
-    private static void CtorFallback(object sender, ConstructorHandlingFallbackEventArgs e) {
+	//private static void CtorFallback(object sender, ConstructorHandlingFallbackEventArgs e) {
 
-      Dictionary<string, object> props = new Dictionary<string, object>();
-      foreach( var p in e.ObjectContract.Properties ) {
-        props.Add(p.PropertyName, Tools.GetDefault(p.PropertyType));
-      }
+	//  Dictionary<string, object> props = new Dictionary<string, object>();
+	//  foreach( var p in e.ObjectContract.Properties ) {
+	//    props.Add(p.PropertyName, Tools.GetDefault(p.PropertyType));
+	//  }
 
-      e.Object = Tools.CreateInstance(e.ObjectContract.UnderlyingType, props);
+	//  e.Object = Tools.CreateInstance(e.ObjectContract.UnderlyingType, props);
 
-      e.Handled = true;
+	//  e.Handled = true;
 
-    }
+	//}
 
 
 

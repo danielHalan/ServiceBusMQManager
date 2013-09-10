@@ -22,8 +22,6 @@ using Newtonsoft.Json;
 namespace ServiceBusMQ {
   public class DataTemplateManager {
 
-    string _templateFile;
-
     public class DataTemplate {
 
       public string Name { get; set; }

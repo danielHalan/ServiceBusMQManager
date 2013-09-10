@@ -602,7 +602,7 @@ namespace ServiceBusMQ.NServiceBus {
     protected IBus _bus;
 
 
-    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef) {
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, string subscriptionQueueService = "") {
       _commandDef = cmdDef;
 
       List<Assembly> asms = new List<Assembly>();

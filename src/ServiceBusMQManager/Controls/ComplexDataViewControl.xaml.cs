@@ -43,8 +43,6 @@ namespace ServiceBusMQManager.Controls {
 
     StackPanel _mainPanel;
 
-    private bool _isListItem;
-
     class PanelInfo {
       public Type DataType;
       public string AttributeName;
