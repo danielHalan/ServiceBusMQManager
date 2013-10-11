@@ -45,7 +45,6 @@ namespace ServiceBusMQManager {
     ObservableCollection<CommandItem> _commands = new ObservableCollection<CommandItem>();
 
     bool _recentUpdating = false;
-    bool _isBusStarted = false;
 
 
     public SendCommandWindow(SbmqSystem system) {
@@ -64,6 +63,17 @@ namespace ServiceBusMQManager {
       BindServers();
 
       cmdAttrib.SendCommandManager = _sys.Manager as ISendCommand;
+
+
+	  if (_sys.Config.MassTransitServiceSubscriptionQueue != string.Empty)
+	  {
+		  cbServer.IsEnabled = false;
+		  cbQueue.IsEnabled = false;
+		  lblServer.Content = string.Format("_{0}: {1}", "Using subscription service", _sys.Config.MassTransitServiceSubscriptionQueue);
+		  lblServer.Margin = new Thickness(0, 0, 100, 42);
+		  lblQueue.Visibility = Visibility.Hidden;
+		  //lblServer.FontFamily = new System.Windows.Media.FontFamily("Arial");
+	  }
     }
 
     public void SetCommand(object cmd) {
@@ -208,8 +218,6 @@ namespace ServiceBusMQManager {
         throw ex;
       }
     }
-
-    object _cmd;
 
     private class SendCommandEnvelope {
       public string Server;

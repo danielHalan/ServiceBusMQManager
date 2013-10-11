@@ -37,7 +37,7 @@ namespace ServiceBusMQ.Manager {
     /// Initialize Service Bus. Called once, before first command is sent.
     /// </summary>
     /// <param name="assemblyPaths"></param>
-    void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef);
+    void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, string subscriptionQueueService = "");
     
     /// <summary>
     /// Send provided Command object to destination Server and Queue.

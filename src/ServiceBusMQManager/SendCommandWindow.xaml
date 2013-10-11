@@ -145,8 +145,8 @@
             </Grid>
             <ComboBox Name="cbServer" HorizontalAlignment="Right" Margin="0,0,357,17" Width="121" VerticalAlignment="Bottom" Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" SelectionChanged="cbServer_SelectionChanged" />
             <ComboBox Name="cbQueue" HorizontalAlignment="Right" Margin="0,0,140,17" VerticalAlignment="Bottom" Width="201"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" />
-            <Label Content="Server:" HorizontalAlignment="Right" Margin="0,0,431,42" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1"/>
-            <Label Content="Queue:" HorizontalAlignment="Right" Margin="0,0,293,34" Height="37" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
+			<Label Name="lblServer" Content="Server:" HorizontalAlignment="Right" Margin="0,0,431,42" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1"/>
+            <Label Name="lblQueue" Content="Queue:" HorizontalAlignment="Right" Margin="0,0,293,34" Height="37" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
                 <Label.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>

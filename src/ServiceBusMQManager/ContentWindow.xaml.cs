@@ -39,10 +39,6 @@ namespace ServiceBusMQManager {
     readonly BitmapImage WARNING_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/warning-white.png", UriKind.Relative));
     readonly BitmapImage ERROR_BMP = new BitmapImage(new Uri(@"/ServiceBusMQManager;component/Images/Error.selected.png", UriKind.Relative));
 
-
-    private HwndSource _hwndSource;
-
-
     public ContentWindow() {
       InitializeComponent();
 

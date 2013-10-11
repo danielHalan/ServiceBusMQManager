@@ -86,6 +86,7 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += System_ErrorOccured;
       _mgr.WarningOccured += System_WarningOccured;
       _mgr.ItemsChanged += System_ItemsChanged;
+	  (_mgr as ISendCommand).CommandContentFormat = Config.CommandContentType;
 
 
       _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
@@ -354,7 +355,7 @@ namespace ServiceBusMQ {
       if( sc != null ) {
 
         if( !_isServiceBusStarted ) {
-          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition);
+          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition, Config.MassTransitServiceSubscriptionQueue);
           _isServiceBusStarted = true;
         }
 
