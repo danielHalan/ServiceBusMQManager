@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Magnum</id>
     <version>2.1.0</version>
@@ -10,5 +10,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Magnum is a library for the larger than average developer</description>
     <language>en-US</language>
+    <references>
+      <reference file="Magnum.dll" />
+    </references>
   </metadata>
 </package>

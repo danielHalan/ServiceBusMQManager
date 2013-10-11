@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQ.MassTransit
+  File:    TransportsCache.cs
+  Created: 2013-10-11
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using Magnum.Extensions;
 using MassTransit;
