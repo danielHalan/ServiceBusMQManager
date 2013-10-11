@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQ.MassTransit
+  File:    MassTransitServiceBusManager.cs
+  Created: 2013-10-11
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -822,7 +837,7 @@ namespace ServiceBusMQ.MassTransit
 
 		public string SerializeCommand_JSON(object cmd)
 		{
-			return JsonConvert.SerializeObject(cmd);
+      return JsonConvert.SerializeObject(cmd);
 		}
 
 		string SerializeCommand_XML(object cmd)

@@ -26,7 +26,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public string[] AvailableMessageQueueTypes { 
-      get { return new string[] { "MSMQ" }; } 
+      get { return new string[] { "MSMQ", "AzureMQ" }; } 
     }
 
     public string[] AvailableMessageContentTypes {
