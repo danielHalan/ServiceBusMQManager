@@ -23,6 +23,7 @@ using ServiceBusMQ;
 using ServiceBusMQ.Manager;
 using System.Linq;
 using System.ComponentModel;
+using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQManager.Dialogs {
 
@@ -50,13 +51,13 @@ namespace ServiceBusMQManager.Dialogs {
 
 
     IServiceBusDiscovery _disc;
-    string _server;
+    Dictionary<string, string> _serverSettings;
 
-    public SelectQueueDialog(IServiceBusDiscovery discovery, string server, string[] queueNames) {
+    public SelectQueueDialog(IServiceBusDiscovery discovery, ServerConfig3 serverCfg, string[] queueNames) {
       InitializeComponent();
 
       _disc = discovery;
-      _server = server;
+      _serverSettings = serverCfg.ConnectionSettings;
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
@@ -67,7 +68,7 @@ namespace ServiceBusMQManager.Dialogs {
       bw.DoWork += (s, e) => {
 
         foreach( var q in qItems ) {
-          if( _disc.CanAccessQueue(_server, q.Name) )
+          if( _disc.CanAccessQueue(_serverSettings, q.Name) )
             q.Access = QueueAccess.RW;
           else {
             q.Access = QueueAccess.None;

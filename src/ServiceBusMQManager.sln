@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus", "ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj", "{621B324B-DD0A-4485-B98B-04F4B5AA40A5}"
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus3", "ServiceBusMQ.NServiceBus3\ServiceBusMQ.NServiceBus3.csproj", "{621B324B-DD0A-4485-B98B-04F4B5AA40A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQManager", "ServiceBusMQManager\ServiceBusMQManager.csproj", "{10452F03-D000-484F-A8CD-3FC5A10ABB84}"
 EndProject
@@ -16,6 +16,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.MassTransit", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ", "ServiceBusMQ\ServiceBusMQ.csproj", "{A8780696-12F3-4795-9FEE-93F6CBBD900E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus4.Azure", "ServiceBusMQ.NServiceBus4.Azure\ServiceBusMQ.NServiceBus4.Azure.csproj", "{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus", "ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj", "{4DE54781-BE52-4961-99FB-05C48AE6F8E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus4", "ServiceBusMQ.NServiceBus4\ServiceBusMQ.NServiceBus4.csproj", "{6270AB82-9445-478F-9DEE-B172840C6869}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,7 +29,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{621B324B-DD0A-4485-B98B-04F4B5AA40A5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{10452F03-D000-484F-A8CD-3FC5A10ABB84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -42,6 +47,18 @@ Global
 		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8780696-12F3-4795-9FEE-93F6CBBD900E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DE54781-BE52-4961-99FB-05C48AE6F8E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DE54781-BE52-4961-99FB-05C48AE6F8E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DE54781-BE52-4961-99FB-05C48AE6F8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DE54781-BE52-4961-99FB-05C48AE6F8E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6270AB82-9445-478F-9DEE-B172840C6869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6270AB82-9445-478F-9DEE-B172840C6869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6270AB82-9445-478F-9DEE-B172840C6869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6270AB82-9445-478F-9DEE-B172840C6869}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

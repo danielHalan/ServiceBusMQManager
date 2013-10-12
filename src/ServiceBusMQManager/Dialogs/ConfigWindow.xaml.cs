@@ -38,6 +38,13 @@ namespace ServiceBusMQManager.Dialogs {
   /// </summary>
   public partial class ConfigWindow : Window {
 
+    public class AddServerResult {
+      public string Name { get { return Server.Name; } }
+      public string[] AllQueueNames { get; set; }
+
+      public ServerConfig3 Server { get; set; }
+    }
+
     const int ROW_QUEUES_INFO = 3;
     const int ROW_QUEUES1 = 4;
     const int ROW_QUEUES2 = 5;
@@ -45,14 +52,14 @@ namespace ServiceBusMQManager.Dialogs {
     const int ROW_ASMPATH = 8;
 
     SbmqSystem _sys;
-    SystemConfig2 _config;
+    SystemConfig3 _config;
     ServiceBusFactory.ServiceBusManagerType[] _managerTypes;
     Dictionary<string, string[]> _allQueueNames = new Dictionary<string, string[]>();
 
     bool _updatingServer = false;
 
 
-    ObservableCollection<ServerConfig2> _servers = new ObservableCollection<ServerConfig2>();
+    ObservableCollection<ServerConfig3> _servers = new ObservableCollection<ServerConfig3>();
 
 
     public ConfigWindow(SbmqSystem system, bool showSendCommand = false) {
@@ -66,12 +73,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       _managerTypes = ServiceBusFactory.AvailableServiceBusManagers();
 
-      cbServiceBus.ItemsSource = _managerTypes;
-      cbServiceBus.DisplayMemberPath = "Name";
-      cbServiceBus.SelectedValuePath = "Name";
-      cbServiceBus.SelectedIndex = 0;
-
-      cbTransport.ItemsSource = _managerTypes[0].QueueTypes;
 
       cbContentFormat.ItemsSource = _managerTypes[0].MessageContentTypes;
       cbContentFormat.SelectedItem = _config.CommandContentType;
@@ -85,19 +86,15 @@ namespace ServiceBusMQManager.Dialogs {
 
       BindServers(_config.Servers);
 
-      tbInterval.Init(750, typeof(int), false);
 
-      SelectServer(_config.MonitorServer);
+      SelectServer(_config.MonitorServerName);
 
-
-      tbServer.Init(string.Empty, typeof(string), false);
-      tbServer.Visibility = System.Windows.Visibility.Hidden;
+      //tbServer.Init(string.Empty, typeof(string), false);
+      //tbServer.Visibility = System.Windows.Visibility.Hidden;
 
       tbNamespace.Init(_config.CommandDefinition.NamespaceContains, typeof(string), true);
 
       tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
-
-	  tbSubscriptionServiceQueue.Text = _config.MassTransitServiceSubscriptionQueue;
 
       UpdateSendCommandInfo(false);
       UpdateQueueuInfo(false);
@@ -107,7 +104,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
-    private void BindServers(List<ServerConfig2> list) {
+    private void BindServers(List<ServerConfig3> list) {
       _servers.Clear();
 
       list.ForEach(s => _servers.Add(s));
@@ -122,19 +119,19 @@ namespace ServiceBusMQManager.Dialogs {
 
       ValidateHeight();
 
-      GetAllAvailableQueueNamesForServer(_config.CurrentServer.Name);
+      GetAllAvailableQueueNamesForServer(_config.CurrentServer);
     }
 
-    private void GetAllAvailableQueueNamesForServer(string serverName) {
+    private void GetAllAvailableQueueNamesForServer(ServerConfig3 server) {
 
-      if( !_allQueueNames.ContainsKey(serverName) ) {
+      if( !_allQueueNames.ContainsKey(server.Name) ) {
 
         _SetAccessingServer(true);
         UpdateConfigWindowUIState();
 
         BackgroundWorker w = new BackgroundWorker();
         w.DoWork += (s, arg) => {
-          _allQueueNames.Add(serverName, GetDiscoveryService().GetAllAvailableQueueNames(serverName) );
+          _allQueueNames.Add(server.Name, GetDiscoveryService(server).GetAllAvailableQueueNames(server.ConnectionSettings));
         };
         w.RunWorkerCompleted += (s, arg) => {
           _SetAccessingServer(false);
@@ -144,6 +141,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       }
     }
+
 
     private void ValidateHeight() {
       var s = WpfScreen.GetScreenFrom(this);
@@ -170,21 +168,30 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    IServiceBusDiscovery _disc = null;
+    Dictionary<string,IServiceBusDiscovery> _disc = new Dictionary<string,IServiceBusDiscovery>();
 
-    private IServiceBusDiscovery GetDiscoveryService() {
-      if( _disc == null )
-        _disc = _sys.GetDiscoveryService();
+    private IServiceBusDiscovery GetDiscoveryService(string messageBus, string queueType) {
+      var disc = _disc.GetValue(messageBus+queueType);
 
-      return _disc;
+      if( disc == null ) {
+        disc = _sys.GetDiscoveryService(messageBus, queueType);
+        _disc.Add(messageBus+queueType, disc);
+      }
+
+      return disc;
     }
+    private IServiceBusDiscovery GetDiscoveryService(ServerConfig3 s) {
+      return GetDiscoveryService(s.MessageBus, s.MessageBusQueueType);
+    }
+
 
 
 
     private void Queue_AddItem_1(object sender, QueueListItemRoutedEventArgs e) {
       QueueListControl s = sender as QueueListControl;
+      var srv = cbServers.SelectedItem as ServerConfig3;
 
-      SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(), cbServers.SelectedValue as string, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).OrderBy( name => name ).ToArray());
+      SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(srv), srv, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).OrderBy(name => name).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
       
@@ -362,10 +369,10 @@ namespace ServiceBusMQManager.Dialogs {
 
         cbServers.SelectedValue = name;
 
-        cbServiceBus.SelectedValue = s.MessageBus;
-        cbTransport.SelectedValue = s.MessageBusQueueType;
+        //cbServiceBus.SelectedValue = s.MessageBus;
+        //cbTransport.SelectedValue = s.MessageBusQueueType;
 
-        tbInterval.UpdateValue(s.MonitorInterval);
+        //tbInterval.UpdateValue(s.MonitorInterval);
 
         queueCommands.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Command).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
@@ -379,17 +386,16 @@ namespace ServiceBusMQManager.Dialogs {
         _updatingServer = false;
       }
 
-      UpdateServerButtonState(name);
     }
 
 
     private void SaveServerConfig(string name) {
       var currServer = _config.Servers.Single(s => s.Name == name);
 
-      currServer.MessageBus = cbServiceBus.SelectedValue as string;
-      currServer.MessageBusQueueType = cbTransport.SelectedItem as string;
+      //currServer.MessageBus = cbServiceBus.SelectedValue as string;
+      //currServer.MessageBusQueueType = cbTransport.SelectedItem as string;
 
-      currServer.MonitorInterval = (int)tbInterval.RetrieveValue();
+      //currServer.MonitorInterval = (int)tbInterval.RetrieveValue();
 
       List<QueueConfig> monitorQueues = new List<QueueConfig>();
       monitorQueues.AddRange(queueCommands.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Command, n.Color.ToArgb())));
@@ -404,7 +410,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       var serverName = cbServers.SelectedValue as string;
       SaveServerConfig(serverName);
-      _config.MonitorServer = serverName;
+      _config.MonitorServerName = serverName;
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
       _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
@@ -414,13 +420,12 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.CommandsAssemblyPaths = asmPaths.GetItems();
       _config.CommandContentType = cbContentFormat.SelectedItem as string;
-	  _config.MassTransitServiceSubscriptionQueue = tbSubscriptionServiceQueue.Text;
 
       _config.Save();
 
     }
 
-    private void Button_Click_1(object sender, RoutedEventArgs e) {
+    private void SelectDataType_Click(object sender, RoutedEventArgs e) {
       SelectDataTypeDialog dlg = new SelectDataTypeDialog(_sys, asmPaths.GetItems());
       dlg.Owner = this;
 
@@ -437,43 +442,54 @@ namespace ServiceBusMQManager.Dialogs {
       SbmqSystem.UIState.StoreWindowState(this);
     }
 
-    void worker_TryAccessServer(object sender, DoWorkEventArgs e) {
-      var name = e.Argument as string;
-      try {
-        if( _allQueueNames.ContainsKey(name) )
-          _allQueueNames.Remove(name);
-
-        _allQueueNames.Add(name, GetDiscoveryService().GetAllAvailableQueueNames(name));
-        e.Result = true;
-
-      } catch {
-        e.Result = false;
-      }
-    }
 
 
     bool _creatingServer = false;
     private bool _accessingServer;
 
     private void AddServer_Click(object sender, RoutedEventArgs e) {
-      tbServer.Visibility = System.Windows.Visibility.Visible;
-      cbServers.Visibility = System.Windows.Visibility.Hidden;
+      //tbServer.Visibility = System.Windows.Visibility.Visible;
+      //cbServers.Visibility = System.Windows.Visibility.Hidden;
       lbServerInfo.Content = string.Empty;
 
       _creatingServer = true;
 
-      queueCommands.BindItems(null);
-      queueEvents.BindItems(null);
-      queueMessages.BindItems(null);
-      queueErrors.BindItems(null);
-
-      UpdateServerButtonState(string.Empty);
-
       UpdateConfigWindowUIState();
 
+      var dlg = new ManageServerDialog(_sys, null);
+      if( dlg.ShowDialog() == true ) { 
+        var s = dlg.Result.Server;
 
-      tbServer.Focus();
+        //queueCommands.BindItems(null);
+        //queueEvents.BindItems(null);
+        //queueMessages.BindItems(null);
+        //queueErrors.BindItems(null);
+
+        _allQueueNames.Add(s.Name, dlg.Result.AllQueueNames);
+        _servers.Add(s);
+
+        UpdateServerButtonState();
+
+        SelectServer(s.Name);
+      }
+
+      _creatingServer = false;
+      UpdateConfigWindowUIState();
+      //tbServer.Focus();
     }
+    private void EditServer_Click(object sender, RoutedEventArgs e) {
+
+      var dlg = new ManageServerDialog(_sys, _config.CurrentServer);
+      if( dlg.ShowDialog() == true ) {
+
+        _config.MonitorServerName = dlg.Result.Name;
+        
+        cbServers.Items.Refresh();
+        //cbServers.SelectedItem = dlg.Result;
+      }
+
+    }
+
 
     System.Windows.Visibility _prevServerActionVisibility;
     void _SetAccessingServer(bool value) {
@@ -484,14 +500,14 @@ namespace ServiceBusMQManager.Dialogs {
         cbServers.IsEnabled = false;
         imgServerLoading.Visibility = System.Windows.Visibility.Visible;
 
-        _prevServerActionVisibility = btnServerAction.Visibility;
-        btnServerAction.Visibility = System.Windows.Visibility.Hidden;
+        _prevServerActionVisibility = btnDeleteServer.Visibility;
+        btnDeleteServer.Visibility = System.Windows.Visibility.Hidden;
 
       } else {
         cbServers.IsEnabled = true;
 
         imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
-        btnServerAction.Visibility = _prevServerActionVisibility;
+        btnDeleteServer.Visibility = _prevServerActionVisibility;
       }
 
       UpdateConfigWindowUIState();
@@ -505,120 +521,42 @@ namespace ServiceBusMQManager.Dialogs {
       queueMessages.IsEnabled = !_creatingServer && !_accessingServer;
       queueErrors.IsEnabled = !_creatingServer && !_accessingServer;
     }
-    private void ServerAction_Click(object sender, RoutedEventArgs e) {
-      var btn = sender as RoundMetroButton;
+    private void DeleteServer_Click(object sender, RoutedEventArgs e) {
 
-      if( (int?)btn.Tag == 1 ) { // Save
+      DeleteCurrentServer();
 
-        SaveNewServer();
-
-      } else if( (int?)btn.Tag == 2 ) { // Delete 
-
-        DeleteCurrentServer();
-      }
-
+      UpdateServerButtonState();
     }
 
     private void DeleteCurrentServer() {
       _servers.Remove(_sys.Config.CurrentServer);
 
       _sys.Config.Servers.Remove(_sys.Config.CurrentServer);
-      _sys.Config.MonitorServer = _sys.Config.Servers[0].Name;
+      _sys.Config.MonitorServerName = _sys.Config.Servers[0].Name;
 
-      cbServers.SelectedValue = _sys.Config.MonitorServer;
+      cbServers.SelectedValue = _sys.Config.MonitorServerName;
 
-      SelectServer(_sys.Config.MonitorServer);
+      SelectServer(_sys.Config.MonitorServerName);
     }
 
-    private void SaveNewServer() {
-      string name = tbServer.RetrieveValue<string>();
 
-      if( _sys.Config.Servers.Any( s => string.Compare(s.Name, name, true) == 0 ) ) {
-        
-        MessageBox.Show("Connection for this server already exist, Aborting...", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+    //void _ShowSaveServerButton() {
+    //  btnDeleteServer.Source = "/ServiceBusMQManager;component/Images/save-white.png";
+    //  btnDeleteServer.Tag = 1;
+    //  btnDeleteServer.Visibility = System.Windows.Visibility.Visible;
+    //}
+    //void _ShowDeleteServerButton() {
+    //  btnDeleteServer.Source = "/ServiceBusMQManager;component/Images/delete-item-white.png";
+    //  btnDeleteServer.Tag = 2;
+    //  btnDeleteServer.Visibility = System.Windows.Visibility.Visible;
+    //}
+    //void _HideServerButton() {
+    //  btnDeleteServer.Visibility = System.Windows.Visibility.Hidden;
+    //}
 
-        cbServers.Visibility = System.Windows.Visibility.Visible;
-        tbServer.Visibility = System.Windows.Visibility.Hidden;
-        tbServer.UpdateValue(string.Empty);
-        _HideServerButton();
+    void UpdateServerButtonState() {
 
-        SelectServer(name);
-        return;
-      }
-
-      TryAccessServer(name, () => { // Success
-        var s = new ServerConfig2();
-        s.Name = name;
-        s.MonitorInterval = tbInterval.RetrieveValue<int>();
-        s.MessageBus = cbServiceBus.SelectedValue as string;
-        s.MessageBusQueueType = cbTransport.SelectedItem as string;
-        s.MonitorQueues = new QueueConfig[0];
-
-        _sys.Config.Servers.Add(s);
-        _sys.Config.MonitorServer = s.Name;
-
-        _servers.Add(s);
-      });
-    }
-
-    void _ShowSaveServerButton() {
-      btnServerAction.Source = "/ServiceBusMQManager;component/Images/save-white.png";
-      btnServerAction.Tag = 1;
-      btnServerAction.Visibility = System.Windows.Visibility.Visible;
-    }
-    void _ShowDeleteServerButton() {
-      btnServerAction.Source = "/ServiceBusMQManager;component/Images/delete-item-white.png";
-      btnServerAction.Tag = 2;
-      btnServerAction.Visibility = System.Windows.Visibility.Visible;
-    }
-    void _HideServerButton() {
-      btnServerAction.Visibility = System.Windows.Visibility.Hidden;
-    }
-
-    void UpdateServerButtonState(string serverName) {
-
-      if( !_creatingServer ) {
-
-        if( Tools.IsLocalHost(serverName) )
-          _HideServerButton();
-        else _ShowDeleteServerButton();
-
-      } else _ShowSaveServerButton();
-
-    }
-    private void TryAccessServer(string name, Action onSuccess) {
-      btnServerAction.Visibility = System.Windows.Visibility.Hidden;
-      imgServerLoading.Visibility = System.Windows.Visibility.Visible;
-
-      this.IsEnabled = false;
-
-      BackgroundWorker worker = new BackgroundWorker();
-      worker.DoWork += worker_TryAccessServer;
-      worker.RunWorkerCompleted += (s, e) => {
-        _creatingServer = false;
-        UpdateConfigWindowUIState();
-
-        cbServers.Visibility = System.Windows.Visibility.Visible;
-        tbServer.Visibility = System.Windows.Visibility.Hidden;
-        tbServer.UpdateValue(string.Empty);
-
-        if( !( (bool)e.Result ) ) { // failed
-          lbServerInfo.Content = "Could not access server " + name;
-
-          SelectServer(cbServers.SelectedValue as string);
-
-        } else { 
-          onSuccess();
-          
-          SelectServer(name);
-        }
-
-
-        imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
-        this.IsEnabled = true;
-      };
-
-      worker.RunWorkerAsync(name);
+      btnDeleteServer.Visibility = ( _servers.Count > 1 ) ? Visibility.Visible: Visibility.Hidden; 
     }
 
 
@@ -626,18 +564,18 @@ namespace ServiceBusMQManager.Dialogs {
 
       if( !_updatingServer ) {
 
+        SaveServerConfig(_config.MonitorServerName);
 
-        SaveServerConfig(_config.MonitorServer);
+        _config.MonitorServerName = cbServers.SelectedValue as string;
 
-        _config.MonitorServer = cbServers.SelectedValue as string;
+        var s = e.AddedItems[0] as ServerConfig3;
 
-        var s = e.AddedItems[0] as ServerConfig;
-
-        if( GetDiscoveryService().CanAccessServer(s.Name) ) {
+        if( GetDiscoveryService(s).CanAccessServer(s.ConnectionSettings) ) {
 
           SelectServer(s.Name);
 
-          GetAllAvailableQueueNamesForServer(s.Name);
+          GetAllAvailableQueueNamesForServer(s);
+
         } else throw new Exception("Can not access Server, " + s.Name);
       }
     }
@@ -645,11 +583,9 @@ namespace ServiceBusMQManager.Dialogs {
     private void asmPaths_RemovedItem(object sender, StringListItemRoutedEventArgs e) {
       UpdateSendCommandInfo();
     }
-
     private void asmPaths_AddedItem(object sender, StringListItemRoutedEventArgs e) {
       UpdateSendCommandInfo();
     }
-
 
 
     void AnimateControlHeight(double from, double to, DependencyProperty heightAttribute) {
@@ -700,7 +636,6 @@ namespace ServiceBusMQManager.Dialogs {
     private void queue_AddedItem(object sender, QueueListItemRoutedEventArgs e) {
       UpdateQueueuInfo();
     }
-
     private void queue_RemovedItem(object sender, QueueListItemRoutedEventArgs e) {
       UpdateQueueuInfo();
     }
@@ -708,6 +643,12 @@ namespace ServiceBusMQManager.Dialogs {
     private void tbNamespace_LostFocus(object sender, RoutedEventArgs e) {
       UpdateSendCommandInfo();
     }
+
+    private void RoundMetroButton_Loaded_1(object sender, RoutedEventArgs e) {
+
+    }
+
+
 
 
   }

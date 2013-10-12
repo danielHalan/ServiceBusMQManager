@@ -65,15 +65,20 @@ namespace ServiceBusMQManager {
       cmdAttrib.SendCommandManager = _sys.Manager as ISendCommand;
 
 
-	  if (_sys.Config.MassTransitServiceSubscriptionQueue != string.Empty)
-	  {
-		  cbServer.IsEnabled = false;
-		  cbQueue.IsEnabled = false;
-		  lblServer.Content = string.Format("_{0}: {1}", "Using subscription service", _sys.Config.MassTransitServiceSubscriptionQueue);
-		  lblServer.Margin = new Thickness(0, 0, 100, 42);
-		  lblQueue.Visibility = Visibility.Hidden;
-		  //lblServer.FontFamily = new System.Windows.Media.FontFamily("Arial");
-	  }
+      var srv = _sys.Config.CurrentServer;
+      if( srv.MessageBus == "MassTransit" ) { 
+         if( srv.ConnectionSettings.ContainsKey("subscriptionQueueService") && 
+                srv.ConnectionSettings["subscriptionQueueService"].IsValid() ) {
+
+           cbServer.IsEnabled = false;
+           cbQueue.IsEnabled = false;
+           lblServer.Content = "Using subscription service: {0}".With(srv.ConnectionSettings["subscriptionQueueService"]);
+           lblServer.Margin = new Thickness(0, 0, 100, 42);
+           lblQueue.Visibility = Visibility.Hidden;
+
+         }
+      }
+
     }
 
     public void SetCommand(object cmd) {
@@ -125,7 +130,7 @@ namespace ServiceBusMQManager {
 
     private void BindCommands() {
       var mw = App.Current.MainWindow as MainWindow;
-      
+
       var cmdTypes = _sys.GetAvailableCommands(true);
 
       _commands.Clear();

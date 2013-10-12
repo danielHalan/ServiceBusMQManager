@@ -182,6 +182,9 @@
     <Compile Include="Controls\SavedCommandsControl.xaml.cs">
       <DependentUpon>SavedCommandsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ServerConnectionParamControl.xaml.cs">
+      <DependentUpon>ServerConnectionParamControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
@@ -202,6 +205,9 @@
     </Compile>
     <Compile Include="Controls\TimeControl.xaml.cs">
       <DependentUpon>TimeControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ManageServerDialog.xaml.cs">
+      <DependentUpon>ManageServerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
@@ -305,6 +311,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ServerConnectionParamControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\StringListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -330,6 +340,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TimeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ManageServerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -470,9 +484,13 @@
       <Project>{0B5C7307-0B10-4584-B483-C67756864D09}</Project>
       <Name>ServiceBusMQ.MassTransit</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj">
-      <Project>{621B324B-DD0A-4485-B98B-04F4B5AA40A5}</Project>
-      <Name>ServiceBusMQ.NServiceBus</Name>
+    <ProjectReference Include="..\ServiceBusMQ.NServiceBus4.Azure\ServiceBusMQ.NServiceBus4.Azure.csproj">
+      <Project>{118af4fb-06e0-4673-95ee-66e4fa7c61fd}</Project>
+      <Name>ServiceBusMQ.NServiceBus4.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceBusMQ.NServiceBus4\ServiceBusMQ.NServiceBus4.csproj">
+      <Project>{6270ab82-9445-478f-9dee-b172840c6869}</Project>
+      <Name>ServiceBusMQ.NServiceBus4</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
       <Project>{a8780696-12f3-4795-9fee-93f6cbbd900e}</Project>
