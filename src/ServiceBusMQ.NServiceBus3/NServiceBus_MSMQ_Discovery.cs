@@ -13,39 +13,47 @@
 ********************************************************************/
 #endregion
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  public class NServiceBusDiscovery : IServiceBusDiscovery {
+  public class NServiceBus_MSMQ_Discovery : IServiceBusDiscovery {
 
     public string ServiceBusName {
       get { return "NServiceBus"; }
     }
 
-    public string[] AvailableMessageQueueTypes { 
-      get { return new string[] { "MSMQ", "AzureMQ" }; } 
+    public string MessageQueueType { 
+      get { return "MSMQ"; } 
     }
 
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; } 
     }
+    
+    public ServerConnectionParameter[] ServerConnectionParameters { 
+      get { 
+        return new ServerConnectionParameter[] { 
+          ServerConnectionParameter.Create("server", "Server Name")
+        };
+      }
+    }
 
-
-    public bool CanAccessServer(string server) {
+    public bool CanAccessServer(Dictionary<string, string> connectionSettings) {
       return true;
     }
 
-    public bool CanAccessQueue(string server, string queueName) {
-      var queue = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
+    public bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName) {
+      var queue = Msmq.Create(connectionSettings, queueName, QueueAccessMode.ReceiveAndAdmin);
 
       return queue != null ? queue.CanRead : false;
     }
 
-    public string[] GetAllAvailableQueueNames(string server) {
-      return MessageQueue.GetPrivateQueuesByMachine(server).Where(q => !IsIgnoredQueue(q.QueueName)).
+    public string[] GetAllAvailableQueueNames(Dictionary<string, string> connectionSettings) {
+      return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"]).Where(q => !IsIgnoredQueue(q.QueueName)).
           Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
     }
 

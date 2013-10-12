@@ -20,7 +20,7 @@ using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  public class MsmqMessageQueue {
+  public class MsmqMessageQueue : IMessageQueue {
 
     public Queue Queue { get; set; }
 
