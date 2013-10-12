@@ -4,14 +4,13 @@
   File:    ErrorManager.cs
   Created: 2013-10-11
 
-  Author(s):
-    Daniel Halan
-
- (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
-     all rights reserved
-
 ********************************************************************/
 #endregion
+
+/// 
+/// Part of NServiceBus project (2012-09-10)
+/// https://github.com/NServiceBus
+/// 
 
 using System;
 using System.Collections.Generic;

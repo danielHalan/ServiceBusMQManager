@@ -1,11 +1,11 @@
-#region File Information
+﻿#region File Information
 /********************************************************************
   Project: ServiceBusMQ.MassTransit
   File:    MassTransitServiceBusManager.cs
   Created: 2013-10-11
 
   Author(s):
-    Daniel Halan
+    Juan J. Chiw
 
  (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
      all rights reserved
@@ -366,7 +366,7 @@ namespace ServiceBusMQ.MassTransit
 		}
 
 		Queue[] _monitorQueues;
-		string _serverName;
+    Dictionary<string, string> _connectionSettings;
 		SbmqmMonitorState _monitorState;
 
 		private void LoadQueues()
@@ -374,7 +374,7 @@ namespace ServiceBusMQ.MassTransit
 			_monitorMsmqQueues.Clear();
 
 			foreach (var queue in MonitorQueues)
-				AddMsmqQueue(_serverName, queue);
+				AddMsmqQueue(_connectionSettings["server"], queue);
 
 		}
 		private void AddMsmqQueue(string serverName, Queue queue)
@@ -503,9 +503,9 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-		public void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState)
+		public void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState)
 		{
-			_serverName = serverName;
+			_connectionSettings = connectionSettings;
 			_monitorState = monitorState;
 			_monitorQueues = monitorQueues;
 
@@ -663,9 +663,9 @@ namespace ServiceBusMQ.MassTransit
 			get { return new string[] { "XML", "JSON" }; }
 		}
 
-		public string[] AvailableMessageQueueTypes
+		public string MessageQueueType
 		{
-			get { return new string[] { "MSMQ" }; }
+			get { return  "MSMQ"; }
 		}
 
 		public string ServiceBusName
@@ -762,9 +762,9 @@ namespace ServiceBusMQ.MassTransit
 
 		protected IServiceBus _bus;
 		private string _subscriptionQueueService;
-		public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, string subscriptionQueueService = "")
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings)
 		{
-			_subscriptionQueueService = subscriptionQueueService;
+      _subscriptionQueueService = connectionSettings["subscriptionQueueService"];
 
 			if (_bus == null)
 			{
