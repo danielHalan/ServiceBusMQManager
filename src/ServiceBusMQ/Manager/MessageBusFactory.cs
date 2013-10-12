@@ -26,12 +26,12 @@ namespace ServiceBusMQ.Manager {
 
     public class ServiceBusManagerType {
       public string Name { get; private set; }
-      public List<string> QueueTypes { get; private set; }
+      public string QueueType { get; private set; }
       public string[] MessageContentTypes { get; set; }
 
-      public ServiceBusManagerType(string name, string[] queueTypes, string[] msgContentTypes) {
+      public ServiceBusManagerType(string name, string queueType, string[] msgContentTypes) {
         Name = name;
-        QueueTypes = new List<string>(queueTypes);
+        QueueType = queueType;
         MessageContentTypes = msgContentTypes;
       }
 
@@ -41,15 +41,16 @@ namespace ServiceBusMQ.Manager {
     public static ServiceBusManagerType[] AvailableServiceBusManagers() {
       List<ServiceBusManagerType> r = new List<ServiceBusManagerType>();
 
-
       foreach( var asm in AsmCache.Assemblies ) {
         foreach( var type in asm.Types.Where(t => t.Interfaces.Any(i => i.EndsWith("IServiceBusManager"))) ) {
 
-          ServiceBusManagerType t = r.SingleOrDefault(sb => sb.Name == type.ServiceBusName);
+          ServiceBusManagerType t = r.SingleOrDefault(sb => sb.Name == type.ServiceBusName && sb.QueueType == type.MessageQueueType);
 
-          if( t == null )
-            r.Add(new ServiceBusManagerType(type.ServiceBusName, type.AvailableMessageQueueTypes, type.AvailableMessageContentTypes));
-
+          if( t == null ) {
+            r.Add(new ServiceBusManagerType(type.ServiceBusName, 
+                        type.MessageQueueType, 
+                        type.AvailableMessageContentTypes));
+          }
         }
       }
 
@@ -62,7 +63,7 @@ namespace ServiceBusMQ.Manager {
       foreach( var asm in AsmCache.Assemblies ) {
         var type = asm.Types.SingleOrDefault( t => 
                                 t.ServiceBusName == name && 
-                                t.AvailableMessageQueueTypes.Contains(queueType) && 
+                                t.MessageQueueType == queueType && 
                                 t.Interfaces.Any( i => i.EndsWith("IServiceBusManager") ) );
 
         if( type != null ) 
@@ -76,7 +77,7 @@ namespace ServiceBusMQ.Manager {
       foreach( var asm in AsmCache.Assemblies ) {
         var type = asm.Types.SingleOrDefault(t =>
                                 t.ServiceBusName == name && 
-                                t.AvailableMessageQueueTypes.Contains(transportation) && 
+                                t.MessageQueueType == transportation && 
                                 t.Interfaces.Any(i => i.EndsWith("IServiceBusDiscovery")));
 
         if( type != null )

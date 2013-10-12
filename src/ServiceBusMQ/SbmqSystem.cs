@@ -51,7 +51,7 @@ namespace ServiceBusMQ {
     List<QueueItemViewModel> _items = new List<QueueItemViewModel>();
 
     public IServiceBusManager Manager { get { return _mgr; } }
-    public SystemConfig2 Config { get; private set; }
+    public SystemConfig3 Config { get; private set; }
     public CommandHistoryManager SavedCommands { get { return _history; } }
     public static UIStateConfig UIState { get { return _uiState; } }
 
@@ -86,10 +86,13 @@ namespace ServiceBusMQ {
       _mgr.ErrorOccured += System_ErrorOccured;
       _mgr.WarningOccured += System_WarningOccured;
       _mgr.ItemsChanged += System_ItemsChanged;
-	  (_mgr as ISendCommand).CommandContentFormat = Config.CommandContentType;
+
+      var cmdSender = ( _mgr as ISendCommand );
+      if( cmdSender != null )
+        cmdSender.CommandContentFormat = Config.CommandContentType;
 
 
-      _mgr.Initialize(Config.MonitorServer, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
+      _mgr.Initialize(Config.CurrentServer.ConnectionSettings, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
 
       CanSendCommand = ( _mgr as ISendCommand ) != null;
       CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null;
@@ -112,6 +115,9 @@ namespace ServiceBusMQ {
 
     public IServiceBusDiscovery GetDiscoveryService() {
       return ServiceBusFactory.CreateDiscovery(Config.MessageBus, Config.MessageBusQueueType);
+    }
+    public IServiceBusDiscovery GetDiscoveryService(string messageBus, string queueType) {
+      return ServiceBusFactory.CreateDiscovery(messageBus, queueType);
     }
 
 
@@ -355,7 +361,7 @@ namespace ServiceBusMQ {
       if( sc != null ) {
 
         if( !_isServiceBusStarted ) {
-          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition, Config.MassTransitServiceSubscriptionQueue);
+          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition, Config.CurrentServer.ConnectionSettings);
           _isServiceBusStarted = true;
         }
 

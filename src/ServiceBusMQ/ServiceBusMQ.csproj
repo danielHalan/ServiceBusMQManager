@@ -83,13 +83,16 @@
     <Compile Include="Configuration\CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
     <Compile Include="Configuration\ConfigFactory.cs" />
+    <Compile Include="Configuration\QueueConfig.cs" />
     <Compile Include="Configuration\SavedCommand.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Configuration\SystemConfig3.cs" />
     <Compile Include="CursorPosition.cs" />
     <Compile Include="DataTemplateManager.cs" />
     <Compile Include="Configuration\CommandHistoryManager.cs" />
     <Compile Include="ApplicationInfo.cs" />
+    <Compile Include="Manager\ServerConnectionParameter.cs" />
     <Compile Include="Manager\WarningArgs.cs" />
     <Compile Include="Model\HalanService\Error.cs" />
     <Compile Include="Model\HalanService\ErrorReport.cs" />

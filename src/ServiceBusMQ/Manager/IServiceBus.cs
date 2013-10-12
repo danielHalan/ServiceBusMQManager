@@ -29,7 +29,7 @@ namespace ServiceBusMQ.Manager {
     /// <summary>
     /// Get available transport modes, MSMQ, RabbitMQ etc
     /// </summary>
-    string[] AvailableMessageQueueTypes { get; }
+    string MessageQueueType { get; }
 
 
     /// <summary>

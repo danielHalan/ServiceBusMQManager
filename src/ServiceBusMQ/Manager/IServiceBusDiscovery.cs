@@ -14,6 +14,7 @@
 #endregion
 
 
+using System.Collections.Generic;
 namespace ServiceBusMQ.Manager {
 
   /// <summary>
@@ -24,24 +25,30 @@ namespace ServiceBusMQ.Manager {
     /// <summary>
     /// Checks if the current user can access the server specified, and that the server has a Service Bus of this type running
     /// </summary>
-    /// <param name="server">The Host name of the server</param>
+    /// <param name="connectionSettings">The Host name of the server</param>
     /// <returns></returns>
-    bool CanAccessServer(string server);
+    bool CanAccessServer(Dictionary<string, string> connectionSettings);
 
     /// <summary>
     /// Checks if the current user can access a specific queue on a server.
     /// </summary>
-    /// <param name="server">The Host name of the server</param>
+    /// <param name="connectionSettings">The Host name of the server</param>
     /// <param name="queueName">The Queue name</param>
     /// <returns></returns>
-    bool CanAccessQueue(string server, string queueName);
+    bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName);
 
     /// <summary>
     /// Returns all available queues on specified server
     /// </summary>
-    /// <param name="server">The Host name of the server</param>
+    /// <param name="connectionSettings">The Host name of the server</param>
     /// <returns>List of Queue names</returns>
-    string[] GetAllAvailableQueueNames(string server);
-  
+    string[] GetAllAvailableQueueNames(Dictionary<string, string> connectionSettings);
+
+
+    /// <summary>
+    /// Returns all parameters that are needed to establish a server connection to Service Bus
+    /// </summary>
+    /// <returns></returns>
+    ServerConnectionParameter[] ServerConnectionParameters { get; }
   }
 }

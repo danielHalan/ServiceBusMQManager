@@ -24,10 +24,10 @@ namespace ServiceBusMQ.Manager {
     /// <summary>
     /// Called once to initialize the manager
     /// </summary>
-    /// <param name="serverName">The Host name of the server</param>
+    /// <param name="connectionSettings">The Host name of the server</param>
     /// <param name="monitorQueues">Queues to monitor</param>
     /// <param name="commandDef">Command definition</param>
-    void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState);
+    void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState);
 
     /// <summary>
     /// Called when manager should shut-down and free all resources

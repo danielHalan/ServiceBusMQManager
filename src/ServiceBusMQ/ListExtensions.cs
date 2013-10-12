@@ -23,6 +23,10 @@ namespace ServiceBusMQ {
     public static string Concat<T>(this List<T> list, string separator = ", ") {
       return list.Aggregate(new StringBuilder(), (sb, name) => sb.Length > 0 ? sb.Append(separator).Append(name) : sb.Append(name)).ToString();
     }
+
+    public static TValue GetValue<TKey, TValue>(this Dictionary<TKey, TValue> list, TKey key, TValue @default = default(TValue)) {
+      return (list != null && list.ContainsKey(key)) ? list[key] : @default;
+    }
   
   }
 }
