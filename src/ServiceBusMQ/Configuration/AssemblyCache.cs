@@ -31,14 +31,12 @@ namespace ServiceBusMQ.Configuration {
     public class SbmqmServiceBusType {
       public string ServiceBusName { get; set; }
       
-      public string[] AvailableMessageQueueTypes { get; set; }
+      public string MessageQueueType { get; set; }
       public string[] AvailableMessageContentTypes { get; set; }
       
       public string[] Interfaces { get; set; }
 
       public string TypeName { get; set; }
-
-
     }
 
     public class SbmqmAssembly {
@@ -145,7 +143,7 @@ namespace ServiceBusMQ.Configuration {
 
             IServiceBus mgr = (IServiceBus)Activator.CreateInstance(type);
             t.ServiceBusName = mgr.ServiceBusName;
-            t.AvailableMessageQueueTypes = mgr.AvailableMessageQueueTypes; 
+            t.MessageQueueType = mgr.MessageQueueType; 
             t.AvailableMessageContentTypes = mgr.AvailableMessageContentTypes;
             t.Interfaces = type.GetInterfaces().Select( i => i.Name ).ToArray();
             t.TypeName = type.FullName;

@@ -86,7 +86,7 @@ namespace ServiceBusMQ {
 
     //AppDomain _appDomain;
     List<SavedCommandItem> _items;
-    SystemConfig2 _config;
+    SystemConfig3 _config;
 
     public IEnumerable<SavedCommandItem> Items {
       get {
@@ -97,7 +97,7 @@ namespace ServiceBusMQ {
       }
     }
 
-    public CommandHistoryManager(SystemConfig2 config) {
+    public CommandHistoryManager(SystemConfig3 config) {
       _config = config;
 
       _itemsFolder = SbmqSystem.AppDataPath + @"\savedCommands\";
