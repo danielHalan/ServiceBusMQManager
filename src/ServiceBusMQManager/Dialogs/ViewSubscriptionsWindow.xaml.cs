@@ -66,7 +66,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void frmViewSubscriptions_SourceInitialized(object sender, EventArgs e) {
       SbmqSystem.UIState.RestoreWindowState(this);
-      SbmqSystem.UIState.RestoreControlState(cbServer, _sys.Config.MonitorServer);
+      SbmqSystem.UIState.RestoreControlState(cbServer, _sys.Config.CurrentServer.ConnectionSettings);
 
       //LoadSubscriptionTypes();
 
