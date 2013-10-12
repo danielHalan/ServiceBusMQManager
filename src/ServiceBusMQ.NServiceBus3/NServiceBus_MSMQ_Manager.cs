@@ -25,6 +25,7 @@ using System.Xml.Serialization;
 using NLog;
 using NServiceBus;
 using NServiceBus.Utils;
+using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
@@ -32,13 +33,15 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase,  ISendCommand, IViewSubscriptions {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>,  ISendCommand, IViewSubscriptions {
 
     protected Logger _log = LogManager.GetCurrentClassLogger();
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
-    public string CommandContentFormat { get; set; }
+
+    public override string MessageQueueType { get { return "MSMQ"; } }
+
 
     class PeekThreadParam {
       public Queue Queue { get; set; }
@@ -50,8 +53,8 @@ namespace ServiceBusMQ.NServiceBus {
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
-      base.Initialize(serverName, monitorQueues, monitorState);
+    public override void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+      base.Initialize(connectionSettings, monitorQueues, monitorState);
 
       LoadQueues();
 
@@ -166,15 +169,15 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     private void LoadQueues() {
-      _monitorMsmqQueues.Clear();
+      _monitorQueues.Clear();
 
       foreach( var queue in MonitorQueues )
-        AddMsmqQueue(_serverName, queue);
+        AddMsmqQueue(_connectionSettings, queue);
 
     }
     private void AddMsmqQueue(string serverName, Queue queue) {
       try {
-        _monitorMsmqQueues.Add(new MsmqMessageQueue(serverName, queue));
+        _monitorQueues.Add(new MsmqMessageQueue(serverName, queue));
       } catch( Exception e ) {
         OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverName, queue.Name), e, false);
       }
@@ -195,7 +198,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     public override QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
       var result = new QueueFetchResult();
-      var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == type);
+      var queues = _monitorQueues.Where(q => q.Queue.Type == type);
 
       if( queues.Count() == 0 ) {
         result.Items = EMPTY_LIST;
@@ -404,28 +407,9 @@ namespace ServiceBusMQ.NServiceBus {
       return itm;
     }
 
-    private MessageInfo[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
-      string[] types = content.Split(';');
-      List<MessageInfo> r = new List<MessageInfo>(types.Length);
-
-      foreach( string type in types ) {
-
-        int start = 0;
-        int end = type.IndexOf(',', start);
-
-        if( !includeNamespace ) {
-          start = type.LastIndexOf('.', end) + 1;
-        }
-        r.Add(new MessageInfo(type.Substring(start, end - start), type));
-      }
-
-      return r.ToArray();
-    }
-
-
 
     private MsmqMessageQueue GetMessageQueue(QueueItem itm) {
-      return _monitorMsmqQueues.Single(i => i.Queue.Type == itm.Queue.Type && i.Queue.Name == itm.Queue.Name);
+      return _monitorQueues.Single(i => i.Queue.Type == itm.Queue.Type && i.Queue.Name == itm.Queue.Name);
     }
 
     public override string LoadMessageContent(QueueItem itm) {
@@ -494,12 +478,12 @@ namespace ServiceBusMQ.NServiceBus {
     public override void PurgeErrorMessages(string queueName) {
       //string name = "private$\\" + queueName;
 
-      _monitorMsmqQueues.Where(q => q.Queue.Type == QueueType.Error && q.Queue.Name == queueName).Single().Purge();
+      _monitorQueues.Where(q => q.Queue.Type == QueueType.Error && q.Queue.Name == queueName).Single().Purge();
 
       OnItemsChanged();
     }
     public override void PurgeErrorAllMessages() {
-      var items = _monitorMsmqQueues.Where(q => q.Queue.Type == QueueType.Error);
+      var items = _monitorQueues.Where(q => q.Queue.Type == QueueType.Error);
 
       if( items.Count() > 0 ) {
         items.ForEach(q => q.Purge());
@@ -521,10 +505,40 @@ namespace ServiceBusMQ.NServiceBus {
       }
     }
     public override void PurgeAllMessages() {
-      _monitorMsmqQueues.ForEach(q => q.Purge());
+      _monitorQueues.ForEach(q => q.Purge());
 
       OnItemsChanged();
     }
+
+
+    public override void MoveErrorMessageToOriginQueue(QueueItem itm) {
+      if( string.IsNullOrEmpty(itm.Id) )
+        throw new ArgumentException("MessageId can not be null or empty");
+
+      if( itm.Queue.Type != QueueType.Error )
+        throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
+
+      var mgr = new ErrorManager();
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+
+      mgr.InputQueue = Address.Parse(itm.Queue.Name);
+
+      mgr.ReturnMessageToSourceQueue(itm.Id);
+    }
+    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      var mgr = new ErrorManager();
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+
+      mgr.InputQueue = Address.Parse(errorQueue);
+
+      mgr.ReturnAll();
+    }
+
+
 
 
     private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll", 
@@ -602,7 +616,7 @@ namespace ServiceBusMQ.NServiceBus {
     protected IBus _bus;
 
 
-    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, string subscriptionQueueService = "") {
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings) {
       _commandDef = cmdDef;
 
       List<Assembly> asms = new List<Assembly>();
