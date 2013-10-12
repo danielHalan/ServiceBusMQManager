@@ -5,6 +5,7 @@
   Created: 2013-10-11
 
   Author(s):
+    Juan J. Chiw
     Daniel Halan
 
  (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
@@ -29,9 +30,9 @@ namespace ServiceBusMQ.MassTransit
 			get { return "MassTransit"; }
 		}
 
-		public string[] AvailableMessageQueueTypes
+		public string MessageQueueType
 		{
-			get { return new string[] { "MSMQ" }; }
+			get { return  "MSMQ"; }
 		}
 
 		public string[] AvailableMessageContentTypes
@@ -39,22 +40,31 @@ namespace ServiceBusMQ.MassTransit
 			get { return new string[] { "XML", "JSON" }; }
 		}
 
+    public ServerConnectionParameter[] ServerConnectionParameters { 
+      get { 
+        return new ServerConnectionParameter[] { 
+          ServerConnectionParameter.Create("server", "Server Name"),
+          ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service")
+        };
+      }
+    }
 
-		public bool CanAccessServer(string server)
+
+    public bool CanAccessServer(Dictionary<string, string> connectionSettings)
 		{
 			return true;
 		}
 
-		public bool CanAccessQueue(string server, string queueName)
+    public bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName)
 		{
-			var queue = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
+			var queue = Msmq.Create(connectionSettings["server"], queueName, QueueAccessMode.ReceiveAndAdmin);
 
 			return queue != null ? queue.CanRead : false;
 		}
 
-		public string[] GetAllAvailableQueueNames(string server)
+		public string[] GetAllAvailableQueueNames(Dictionary<string,string> connectionSettings)
 		{
-			return MessageQueue.GetPrivateQueuesByMachine(server).Where(q => !IsIgnoredQueue(q.QueueName)).
+			return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"]).Where(q => !IsIgnoredQueue(q.QueueName)).
 				Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
 		}
 

@@ -6,6 +6,7 @@
 
   Author(s):
     Daniel Halan
+    Juan J. Chiw
 
  (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
      all rights reserved
