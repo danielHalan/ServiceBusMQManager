@@ -21,21 +21,6 @@ using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.Configuration {
 
-  [Serializable]
-  public class QueueConfig {
-    public string Name { get; set; }
-    public QueueType Type { get; set; }
-    public int Color { get; set; }
-
-    public QueueConfig() { }
-
-    public QueueConfig(string name, QueueType type, int color = 0) { 
-      Name = name;
-      Type = type;
-      Color = color;
-    }
-
-  }
 
   [Serializable]
   public class ServerConfig2 {
@@ -48,13 +33,17 @@ namespace ServiceBusMQ.Configuration {
 
     public QueueConfig[] MonitorQueues { get; set; }
 
-    public static ServerConfig2 Default { 
-      get { 
-        return new ServerConfig2() { 
-              MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ", 
-              MonitorInterval = 700,
-              Name = Environment.MachineName,
-              MonitorQueues = new QueueConfig[0] };
+    public static ServerConfig2 Default {
+      get {
+        var r = new ServerConfig2() {
+          MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ",
+          MonitorInterval = 700,
+          Name = Environment.MachineName,
+          MonitorQueues = new QueueConfig[0]
+        };
+
+
+        return r;
       }
     }
   }
@@ -63,6 +52,8 @@ namespace ServiceBusMQ.Configuration {
   public class SystemConfig2 : SystemConfig {
     private ServerConfig2 _currentServer;
     private string _monitorServer;
+    
+    public string Id { get; set; }
 
     public List<ServerConfig2> Servers { get; set; }
 
@@ -126,13 +117,11 @@ namespace ServiceBusMQ.Configuration {
       // Convert MSMQ plain to XML, as we now support more then one content serializer
       foreach( var srv in this.Servers ) {
         if( srv.MessageBus == "NServiceBus" ) {
-          
+
           if( srv.MessageBusQueueType == "MSMQ (XML)" ) {
             srv.MessageBusQueueType = "MSMQ";
             CommandContentType = "XML";
-          }
-          
-          else if( srv.MessageBusQueueType == "MSMQ (JSON)" ) {
+          } else if( srv.MessageBusQueueType == "MSMQ (JSON)" ) {
             srv.MessageBusQueueType = "MSMQ";
             CommandContentType = "JSON";
           }
@@ -150,15 +139,17 @@ namespace ServiceBusMQ.Configuration {
 
       }
 
-      if( !CommandContentType.IsValid() ) 
+      if( !CommandContentType.IsValid() )
         CommandContentType = "XML";
 
     }
 
     public int StartCount { get; set; }
 
-	public string Id { get; set; }
-
-	public string MassTransitServiceSubscriptionQueue { get; set; }
+    public string MassTransitServiceSubscriptionQueue { get; set; }
   }
+
+
+
+
 }

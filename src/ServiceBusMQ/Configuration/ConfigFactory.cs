@@ -25,23 +25,32 @@ namespace ServiceBusMQ.Configuration {
 
     private string _configFileV1;
     private string _configFileV2;
+    private string _configFileV3;
 
 
     public ConfigFactory() {
       _configFileV1 = SbmqSystem.AppDataPath + @"\config1.dat";
-      _configFile = _configFileV2 = SbmqSystem.AppDataPath + @"\config2.dat";
+      _configFileV2 = SbmqSystem.AppDataPath + @"\config2.dat";
+      _configFile = _configFileV3 = SbmqSystem.AppDataPath + @"\config3.dat";
     }
 
     internal string ConfigFile { get { return _configFile; } }
 
-    public SystemConfig2 Create() {
-      SystemConfig2 cfg = null;
+    public SystemConfig3 Create() {
+      SystemConfig3 cfg = null;
 
-
-      if( File.Exists(_configFileV2) ) {
+      if( File.Exists(_configFileV3) ) {
         try {
-          cfg = JsonFile.Read<SystemConfig2>(_configFileV2);
+          cfg = JsonFile.Read<SystemConfig3>(_configFileV3);
         } catch { }
+            
+      } else if( File.Exists(_configFileV2) ) {
+        SystemConfig2 cfg2 = null;
+        try {
+          cfg2 = JsonFile.Read<SystemConfig2>(_configFileV2);
+        } catch { }
+        
+        cfg = MapConfig2ToConfig3(cfg2);
 
       } else if( File.Exists(_configFileV1) ) {
         bool loaded = false;
@@ -55,12 +64,14 @@ namespace ServiceBusMQ.Configuration {
           cfg1 = LoadConfig0As1();
         }
 
-        cfg = MapConfig1ToConfig2(cfg1);
-
+        var cfg2 = MapConfig1ToConfig2(cfg1);
+        cfg = MapConfig2ToConfig3(cfg2);
 
         Store(cfg);
       } else  {
-        cfg = MapConfig1ToConfig2(LoadConfig0As1());
+
+        var cfg2 = MapConfig1ToConfig2(LoadConfig0As1());
+        cfg = MapConfig2ToConfig3(cfg2);
       }
 
       return cfg;
@@ -100,6 +111,37 @@ namespace ServiceBusMQ.Configuration {
 
       return cfg2;
     }
+
+    private SystemConfig3 MapConfig2ToConfig3(SystemConfig2 cfg2) {
+      var cfg3 = new SystemConfig3();
+
+      if( cfg2 != null ) {
+
+        cfg3.Id = cfg2.Id;
+
+        cfg3.Servers = cfg2.Servers.Select(s => new ServerConfig3() {
+          Name = s.Name,
+          MessageBus = s.MessageBus,
+          MessageBusQueueType = s.MessageBusQueueType,
+          MonitorInterval = s.MonitorInterval,
+          ConnectionSettings = new Dictionary<string, string> { { "server", s.Name } },
+          MonitorQueues = s.MonitorQueues
+        }).ToList();
+
+        cfg3.ShowOnNewMessages = cfg2.ShowOnNewMessages;
+        cfg3.CommandsAssemblyPaths = cfg2.CommandsAssemblyPaths;
+        cfg3.CommandDefinition = cfg2.CommandDefinition;
+        cfg3.CommandContentType = cfg2.CommandContentType;
+
+        cfg3.VersionCheck = cfg2.VersionCheck;
+        cfg3.StartCount = cfg2.StartCount;
+
+        cfg3.MonitorServerName = cfg2.MonitorServer;
+      }
+
+      return cfg3;
+    }
+
 
     private QueueConfig[] ConvertMultipleQueueConfigToOne(string[] commandQueues, string[] eventQueues, string[] msgQueues, string[] errorQueues) {
 
