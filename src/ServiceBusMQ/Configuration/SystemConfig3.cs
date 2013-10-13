@@ -1,4 +1,19 @@
-﻿using System;
+#region File Information
+/********************************************************************
+  Project: ServiceBusMQ
+  File:    SystemConfig3.cs
+  Created: 2013-10-12
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,6 +55,15 @@ namespace ServiceBusMQ.Configuration {
 
           return r;
         }
+      }
+
+      public void CopyTo(ServerConfig3 obj) {
+        obj.Name = Name;
+        obj.MessageBus = MessageBus;
+        obj.MessageBusQueueType = MessageBusQueueType;
+        obj.MonitorInterval = MonitorInterval;
+        obj.MonitorQueues = MonitorQueues;
+        obj.ConnectionSettings = new Dictionary<string,string>(ConnectionSettings);
       }
     }
 

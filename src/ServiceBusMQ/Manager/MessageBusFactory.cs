@@ -47,8 +47,8 @@ namespace ServiceBusMQ.Manager {
           ServiceBusManagerType t = r.SingleOrDefault(sb => sb.Name == type.ServiceBusName && sb.QueueType == type.MessageQueueType);
 
           if( t == null ) {
-            r.Add(new ServiceBusManagerType(type.ServiceBusName, 
-                        type.MessageQueueType, 
+            r.Add(new ServiceBusManagerType(type.ServiceBusName,
+                        type.MessageQueueType,
                         type.AvailableMessageContentTypes));
           }
         }
@@ -60,32 +60,64 @@ namespace ServiceBusMQ.Manager {
 
     internal static IServiceBusManager CreateManager(string name, string queueType) {
 
-      foreach( var asm in AsmCache.Assemblies ) {
-        var type = asm.Types.SingleOrDefault( t => 
-                                t.ServiceBusName == name && 
-                                t.MessageQueueType == queueType && 
-                                t.Interfaces.Any( i => i.EndsWith("IServiceBusManager") ) );
+      try {
+        foreach( var asm in AsmCache.Assemblies ) {
+          var type = asm.Types.SingleOrDefault(t =>
+                                  t.ServiceBusName == name &&
+                                  t.MessageQueueType == queueType &&
+                                  t.Interfaces.Any(i => i.EndsWith("IServiceBusManager")));
 
-        if( type != null ) 
-          return (IServiceBusManager)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
-      
+          if( type != null )
+            return (IServiceBusManager)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
+        }
+
+      } catch( TypeLoadException ) {
+        AsmCache.Rescan();
+
+        CreateManager(name, queueType);
       }
+
 
       throw new NoMessageBusManagerFound(name, queueType);
     }
     internal static IServiceBusDiscovery CreateDiscovery(string name, string transportation) {
-      foreach( var asm in AsmCache.Assemblies ) {
-        var type = asm.Types.SingleOrDefault(t =>
-                                t.ServiceBusName == name && 
-                                t.MessageQueueType == transportation && 
-                                t.Interfaces.Any(i => i.EndsWith("IServiceBusDiscovery")));
 
-        if( type != null )
-          return (IServiceBusDiscovery)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
+      try {
+        foreach( var asm in AsmCache.Assemblies ) {
+          var type = asm.Types.SingleOrDefault(t =>
+                                  t.ServiceBusName == name &&
+                                  t.MessageQueueType == transportation &&
+                                  t.Interfaces.Any(i => i.EndsWith("IServiceBusDiscovery")));
 
+          if( type != null )
+            return (IServiceBusDiscovery)Activator.CreateInstance(asm.AssemblyName, type.TypeName).Unwrap();
+
+        }
+
+      } catch( TypeLoadException ) {
+        AsmCache.Rescan();
+
+        CreateDiscovery(name, transportation);
       }
 
+
       throw new NoMessageBusManagerFound(name, transportation);
+    }
+
+
+    public static bool CanSendCommand(string name, string queueType) {
+
+      foreach( var asm in AsmCache.Assemblies ) {
+        var type = asm.Types.SingleOrDefault(t =>
+                                t.ServiceBusName == name &&
+                                t.MessageQueueType == queueType &&
+                                t.Interfaces.Any(i => i.EndsWith("ISendCommand")));
+
+        if( type != null )
+          return true;
+      }
+
+      return false;
     }
 
 

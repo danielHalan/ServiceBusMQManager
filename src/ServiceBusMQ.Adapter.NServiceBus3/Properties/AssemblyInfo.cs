@@ -2,12 +2,12 @@
 /********************************************************************
   Project: ServiceBusMQ.NServiceBus
   File:    AssemblyInfo.cs
-  Created: 2013-10-11
+  Created: 2012-10-05
 
   Author(s):
     Daniel Halan
 
- (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+ (C) Copyright 2012 Ingenious Technology with Quality Sweden AB
      all rights reserved
 
 ********************************************************************/
@@ -20,12 +20,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ServiceBusMQ.NServiceBus")]
+[assembly: AssemblyTitle("ServiceBusMQ.Adapter.NServiceBus3")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ServiceBusMQ.NServiceBus")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyProduct("ServiceBusMQ.NServiceBus3")]
+[assembly: AssemblyCopyright("Copyright ©2012 ITQ.COM, all rights reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("98884a67-ae5c-47d8-b64d-1fe229bd54b2")]
+[assembly: Guid("2622e186-0cf9-47fb-9232-702e5f68e9f1")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -47,5 +47,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("3.05.360.0")]
+[assembly: AssemblyFileVersion("3.05.360.0")]

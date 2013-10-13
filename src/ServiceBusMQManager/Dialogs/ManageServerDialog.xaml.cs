@@ -1,4 +1,19 @@
-﻿using System;
+﻿#region File Information
+/********************************************************************
+  Project: ServiceBusMQManager
+  File:    ManageServerDialog.xaml.cs
+  Created: 2013-10-11
+
+  Author(s):
+    Daniel Halan
+
+ (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
+     all rights reserved
+
+********************************************************************/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -40,11 +55,15 @@ namespace ServiceBusMQManager.Dialogs {
 
       _sys = system;
       _config = system.Config;
+      _server = server;
 
       _managerTypes = ServiceBusFactory.AvailableServiceBusManagers();
 
       Result = new ConfigWindow.AddServerResult();
-      Result.Server = server ?? new ServerConfig3();
+      
+      Result.Server = new ServerConfig3();
+      if( server != null ) 
+        server.CopyTo(Result.Server);
 
       DialogActionType = server == null ? ActionType.Add : ActionType.Edit;
 
@@ -59,6 +78,10 @@ namespace ServiceBusMQManager.Dialogs {
       //cbTransport.ItemsSource = _managerTypes.GroupBy(g => g.Name).Single(x => x.Key == s).Select(x => x.QueueType);
 
       //tbInterval.Init(750, typeof(int), false);
+
+      if( DialogActionType == ActionType.Edit ) {
+        _nameEdited = GetDefaultServerName(Result.Server.Name, Result.Server) != Result.Server.Name;
+      }
 
       BindServerInfo();
     }
@@ -126,14 +149,13 @@ namespace ServiceBusMQManager.Dialogs {
           _sys.Config.Servers.Add(Result.Server);
           _sys.Config.MonitorServerName = s.Name;
         
+        } else { // Edit
+          s.CopyTo(_server);
         }
 
         DialogResult = true;
-        //_servers.Add(s);
       });
 
-
-      //DialogResult = true;
     }
 
     private void UpdateNameLabel() { 
@@ -143,9 +165,20 @@ namespace ServiceBusMQManager.Dialogs {
         var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
         var name = ctl != null ? ctl.Value : s.Name;
 
-        tbName.Init("{0} ( {1} / {2} )".With(name, s.MessageBus, s.MessageBusQueueType), typeof(string), false);
+        GetDefaultServerName(name, s);
+
+        tbName.Init(GetDefaultServerName(name, s), typeof(string), false);
       }
      
+    }
+
+    private string GetDefaultServerName(string name, ServerConfig3 s) {
+      int index = name.IndexOf("//");
+
+      if( index != -1 )
+        name = name.Substring(index + 2);
+
+      return "{0} ( {1} / {2} )".With(name.CutEnd(20), s.MessageBus, s.MessageBusQueueType);
     }
 
 
@@ -220,7 +253,7 @@ namespace ServiceBusMQManager.Dialogs {
         if( itms.Length == 1 )
           cbTransport.SelectedIndex = 0;
 
-        UpdateServiceBus();
+        UpdateServiceBus(s, cbTransport.SelectedValue as string);
         UpdateNameLabel();
       }
     }

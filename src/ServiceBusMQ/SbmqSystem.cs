@@ -121,6 +121,18 @@ namespace ServiceBusMQ {
     }
 
 
+    public Type[] GetAvailableCommands(string messageBus, string queueType, string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
+      var mgr = ServiceBusFactory.CreateManager(messageBus, queueType) as ISendCommand;
+      
+      if( mgr != null ) {
+        return mgr.GetAvailableCommands(asmPaths, cmdDef, suppressErrors);
+      
+      } else return new Type[0];
+
+    }
+
+
+
     protected volatile object _itemsLock = new object();
 
 
@@ -380,7 +392,7 @@ namespace ServiceBusMQ {
 
           try {
 
-            if( File.Exists(fileName) ) {
+            if( File.Exists(fileName) ) { // && AssemblyName.GetAssemblyName(fileName).FullName == args.Name ) {
               return Assembly.LoadFrom(fileName);
             }
 
@@ -388,9 +400,18 @@ namespace ServiceBusMQ {
         }
       }
 
-      var fn = string.Format("{0}\\{1}.dll", Assembly.GetExecutingAssembly().Location, asmName);
+      var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      var fn = Path.Combine(root, asmName + ".dll");
       if( File.Exists(fn) ) {
         return Assembly.LoadFrom(fn);
+      } else {
+        string adapterPath = root + "\\Adapters\\";
+
+        foreach( var dir in Directory.GetDirectories(adapterPath) ) {
+          fn = Path.Combine( dir, asmName + ".dll" );
+          if( File.Exists(fn) && AssemblyName.GetAssemblyName(fn).FullName == args.Name )
+            return Assembly.LoadFrom(fn);
+        }
       }
 
       if( !args.Name.StartsWith("mscorlib.XmlSerializers") )

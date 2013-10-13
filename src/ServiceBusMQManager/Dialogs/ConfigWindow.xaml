@@ -93,20 +93,20 @@
 
                     <Rectangle Fill="#333333" Grid.Row="2" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
                     <Rectangle Fill="#333333" Grid.Row="6" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
-                    <Label Content="Server" HorizontalAlignment="Left" Margin="52,4,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
+                    <Label Content="Server" HorizontalAlignment="Left" Margin="52,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
 
                     <Controls:RoundMetroButton Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Click="AddServer_Click" Height="33"
                 		Source="/ServiceBusMQManager;component/Images/add-white.png" Margin="20,11,0,0" Loaded="RoundMetroButton_Loaded_1" />
 
                     <Controls:RoundMetroButton x:Name="btnDeleteServer" Grid.Row="1" VerticalAlignment="Top" Click="DeleteServer_Click" Height="33"
-                		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,44,34,0" HorizontalAlignment="Right" Width="30" Grid.Column="1" />
+                		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,47,34,0" HorizontalAlignment="Right" Width="30" Grid.Column="1" />
 
-                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Right" Height="32" Margin="0,44,306,0" Grid.Row="1" 
+                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Left" Height="32" Margin="17,47,0,0" Grid.Row="1" 
                 		VerticalAlignment="Top" Width="32"  Visibility="Visible"
-                		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading.gif" />
+                		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading2.gif" />
 
                     <ComboBox x:Name="cbServers" 
-                              Margin="51,45,118,0" Style="{DynamicResource ComboBoxStyle1}" 
+                              Margin="54,48,118,0" Style="{DynamicResource ComboBoxStyle1}" 
                               VerticalAlignment="Top" 
                               FontFamily="Calibri" FontSize="16" 
                               Grid.Row="1" 
@@ -197,11 +197,8 @@
                     <ComboBox x:Name="cbContentFormat" HorizontalAlignment="Left" Style="{DynamicResource ComboBoxStyle1}" Margin="154,81,0,0" VerticalAlignment="Top" Width="149" FontFamily="Calibri" FontSize="16" Grid.Row="10" Height="28" Grid.Column="1"/>
                     <Label Content="Content Format" HorizontalAlignment="Left" Margin="154,53,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="191" FontSize="16" Grid.Column="1"/>
                     <Rectangle Grid.Column="1" HorizontalAlignment="Left" Height="157" Margin="110,53,0,0" Grid.Row="10" VerticalAlignment="Top" Width="9" Fill="#FF4F4F4F"/>
-
-					<Label Content="Use subscription service queue" HorizontalAlignment="Left" Margin="154,130,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="215" FontSize="16" Grid.Column="1"/>
-					<TextBox x:Name="tbSubscriptionServiceQueue" HorizontalAlignment="Left" Height="27" Margin="154,155,0,0" VerticalAlignment="Top" Width="207" Grid.Row="10" Grid.Column="1" FontFamily="Calibri" FontSize="16" LostFocus="tbNamespace_LostFocus" />
                     <Controls:RoundMetroButton x:Name="btnEditServer" Grid.Row="1" VerticalAlignment="Top" Click="EditServer_Click" Height="33"
-						Source="/ServiceBusMQManager;component/Images/edit-white.png" Margin="0,43,76,0" HorizontalAlignment="Right" Width="30" Grid.Column="1"  />
+						Source="/ServiceBusMQManager;component/Images/edit-white.png" Margin="0,46,76,0" HorizontalAlignment="Right" Width="30" Grid.Column="1"  />
 
                 </Grid>
             </ScrollViewer>

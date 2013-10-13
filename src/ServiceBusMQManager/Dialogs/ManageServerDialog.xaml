@@ -92,7 +92,7 @@
 
             <Rectangle Fill="#FF686868" Grid.Row="1" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
 
-            <StackPanel Name="parameters" Grid.Row="1" Margin="0,0,20,0" >
+            <StackPanel Name="parameters" Grid.Row="1" Margin="0,10,20,0" >
             </StackPanel>
 
 

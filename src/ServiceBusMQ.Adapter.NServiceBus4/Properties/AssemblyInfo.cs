@@ -1,6 +1,6 @@
 #region File Information
 /********************************************************************
-  Project: ServiceBusMQ.NServiceBus
+  Project: ServiceBusMQ.NServiceBus4
   File:    AssemblyInfo.cs
   Created: 2013-10-11
 
@@ -20,11 +20,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ServiceBusMQ.NServiceBus")]
+[assembly: AssemblyTitle("ServiceBusMQ.Adapter.NServiceBus4")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ServiceBusMQ.NServiceBus")]
+[assembly: AssemblyProduct("ServiceBusMQ.Adapter.NServiceBus4")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("98884a67-ae5c-47d8-b64d-1fe229bd54b2")]
+[assembly: Guid("94c01659-6976-49bf-a2cb-0e4bc3359eac")]
 
 // Version information for an assembly consists of the following four values:
 //
