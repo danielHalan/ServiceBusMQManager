@@ -63,18 +63,27 @@ namespace ServiceBusMQManager {
     private ContentWindow _dlg;
     private bool _dlgShown = false;
 
+    string _titleStr; 
 
     public MainWindow() {
       InitializeComponent();
 
       var ver = App.Info.Version;
-      lbTitle.Content = Title = string.Format("Service Bus MQ Manager {0}.{1} - (c)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
+      _titleStr = string.Format("Service Bus MQ Manager {0}.{1} - (C)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
+
+      UpdateTitle();
 
       CreateNotifyIcon();
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
 
       tbSearchString.Visibility = System.Windows.Visibility.Collapsed;
+    }
+
+    private void UpdateTitle() {
+      if( _sys != null )
+        lbTitle.Content = Title = "{0}  -  [{1}]".With(_titleStr, _sys.Config.MonitorServerName.CutEnd(20));
+      else lbTitle.Content = Title = _titleStr;
     }
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
@@ -171,6 +180,7 @@ namespace ServiceBusMQManager {
             CheckIfLatestVersion(false);
         }
 
+        UpdateTitle();
       };
 
       w.RunWorkerAsync();
@@ -223,6 +233,8 @@ namespace ServiceBusMQManager {
         SetupContextMenu();
 
         RestartMonitoring();
+
+        UpdateTitle();
       };
 
       w.RunWorkerAsync();
