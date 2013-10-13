@@ -49,6 +49,7 @@ namespace ServiceBusMQManager.Dialogs {
     public ConfigWindow.AddServerResult Result { get; set; }
 
     ActionType DialogActionType;
+    private ServerConfig3 _server;
 
     public ManageServerDialog(SbmqSystem system, ServerConfig3 server) {
       InitializeComponent();
@@ -71,6 +72,8 @@ namespace ServiceBusMQManager.Dialogs {
       lbInfo.Content = string.Empty;
 
       cbServiceBus.ItemsSource = _managerTypes.GroupBy(g => g.Name).Select( x => x.Key ).ToArray();
+
+      tbName.Init(Result.Server.Name, typeof(string), false);
       //cbServiceBus.DisplayMemberPath = "Name";
       //cbServiceBus.SelectedValuePath = "Name";
 
@@ -173,7 +176,7 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
     private string GetDefaultServerName(string name, ServerConfig3 s) {
-      int index = name.IndexOf("//");
+      int index = name.IsValid() ? name.IndexOf("//") : -1;
 
       if( index != -1 )
         name = name.Substring(index + 2);

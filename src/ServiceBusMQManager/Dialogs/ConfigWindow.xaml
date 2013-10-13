@@ -93,7 +93,7 @@
 
                     <Rectangle Fill="#333333" Grid.Row="2" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
                     <Rectangle Fill="#333333" Grid.Row="6" Margin="0,0,0,0" Stroke="Transparent" Grid.ColumnSpan="2"  />
-                    <Label Content="Server" HorizontalAlignment="Left" Margin="52,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="72" FontSize="20" FontFamily="Segoe UI"/>
+                    <Label Content="Monitor Server" HorizontalAlignment="Left" Margin="52,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.389,-0.235" Grid.Row="1" Height="37" Width="286" FontSize="20" FontFamily="Segoe UI"/>
 
                     <Controls:RoundMetroButton Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Click="AddServer_Click" Height="33"
                 		Source="/ServiceBusMQManager;component/Images/add-white.png" Margin="20,11,0,0" Loaded="RoundMetroButton_Loaded_1" />
@@ -101,7 +101,7 @@
                     <Controls:RoundMetroButton x:Name="btnDeleteServer" Grid.Row="1" VerticalAlignment="Top" Click="DeleteServer_Click" Height="33"
                 		Source="/ServiceBusMQManager;component/Images/delete-item-white.png" Margin="0,47,34,0" HorizontalAlignment="Right" Width="30" Grid.Column="1" />
 
-                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Left" Height="32" Margin="17,47,0,0" Grid.Row="1" 
+                    <Image x:Name="imgServerLoading" Grid.Column="0" HorizontalAlignment="Left" Height="32" Margin="13,47,0,0" Grid.Row="1" 
                 		VerticalAlignment="Top" Width="32"  Visibility="Visible"
                 		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading2.gif" />
 

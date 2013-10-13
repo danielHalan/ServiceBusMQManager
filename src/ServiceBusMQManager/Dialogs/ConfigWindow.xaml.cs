@@ -91,8 +91,10 @@ namespace ServiceBusMQManager.Dialogs {
 
       BindServers(_config.Servers);
 
+      //var row = theGrid.RowDefinitions[ROW_QUEUES_INFO];
+      //row.Height = new GridLength(0);
 
-      SelectServer(_config.MonitorServerName);
+      SelectServer(_config.MonitorServerName, false);
 
       //tbServer.Init(string.Empty, typeof(string), false);
       //tbServer.Visibility = System.Windows.Visibility.Hidden;
@@ -381,7 +383,7 @@ namespace ServiceBusMQManager.Dialogs {
       DialogResult = true;
     }
 
-    private void SelectServer(string name) {
+    private void SelectServer(string name, bool animate = true) {
 
       var s = _config.Servers.SingleOrDefault(sv => sv.Name == name);
 
@@ -405,7 +407,8 @@ namespace ServiceBusMQManager.Dialogs {
         queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
 
-        UpdateSendCommandInfo();
+        UpdateSendCommandInfo(animate);
+        UpdateQueueuInfo(animate);
 
         _updatingServer = false;
       }
@@ -495,6 +498,7 @@ namespace ServiceBusMQManager.Dialogs {
         UpdateServerButtonState();
 
         SelectServer(s.Name);
+
       }
 
       _creatingServer = false;
