@@ -61,6 +61,11 @@ namespace ServiceBusMQManager.Dialogs {
 
     ObservableCollection<ServerConfig3> _servers = new ObservableCollection<ServerConfig3>();
 
+    private ServerConfig3 CurrentServer {
+      get {
+        return cbServers.SelectedItem as ServerConfig3;
+      }
+    }
 
     public ConfigWindow(SbmqSystem system, bool showSendCommand = false) {
       InitializeComponent();
@@ -168,14 +173,14 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    Dictionary<string,IServiceBusDiscovery> _disc = new Dictionary<string,IServiceBusDiscovery>();
+    Dictionary<string, IServiceBusDiscovery> _disc = new Dictionary<string, IServiceBusDiscovery>();
 
     private IServiceBusDiscovery GetDiscoveryService(string messageBus, string queueType) {
-      var disc = _disc.GetValue(messageBus+queueType);
+      var disc = _disc.GetValue(messageBus + queueType);
 
       if( disc == null ) {
         disc = _sys.GetDiscoveryService(messageBus, queueType);
-        _disc.Add(messageBus+queueType, disc);
+        _disc.Add(messageBus + queueType, disc);
       }
 
       return disc;
@@ -189,19 +194,18 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void Queue_AddItem_1(object sender, QueueListItemRoutedEventArgs e) {
       QueueListControl s = sender as QueueListControl;
-      var srv = cbServers.SelectedItem as ServerConfig3;
+      var srv = CurrentServer;
 
       SelectQueueDialog dlg = new SelectQueueDialog(GetDiscoveryService(srv), srv, GetAllQueueNames().Except(s.GetItems().Select(i => i.Name).ToList()).OrderBy(name => name).ToArray());
       dlg.Title = "Select " + s.Title.Remove(s.Title.Length - 1);
       dlg.Owner = this;
-      
+
       if( dlg.ShowDialog() == true ) {
         e.Handled = true;
 
-        dlg.SelectedQueueNames.ForEach(queueName =>
-            {
-                var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : Color.FromArgb(QueueColorManager.RED);
-                e.Items.Add(new QueueListControl.QueueListItem(queueName, color));
+        dlg.SelectedQueueNames.ForEach(queueName => {
+              var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : Color.FromArgb(QueueColorManager.RED);
+              e.Items.Add(new QueueListControl.QueueListItem(queueName, color));
             });
       }
     }
@@ -256,7 +260,7 @@ namespace ServiceBusMQManager.Dialogs {
       if( (bool)dialog.ShowDialog(this) ) {
 
 
-        if( !asmPaths.GetItems().Any( p => string.Compare(p, dialog.SelectedPath, true) == 0 ) ) {
+        if( !asmPaths.GetItems().Any(p => string.Compare(p, dialog.SelectedPath, true) == 0) ) {
 
           e.Item = dialog.SelectedPath;
           e.Handled = true;
@@ -268,55 +272,73 @@ namespace ServiceBusMQManager.Dialogs {
     private void UpdateSendCommandInfo(bool animate = true) {
       StringBuilder sb = new StringBuilder();
 
-      if( asmPaths.ItemsCount > 0 ) {
+      try {
 
-        CommandDefinition cmdDef = new CommandDefinition();
+        if( asmPaths.ItemsCount > 0 ) {
 
-        if( tbCmdInherits.Text.IsValid() )
-          cmdDef.InheritsType = tbCmdInherits.Text;
+          CommandDefinition cmdDef = new CommandDefinition();
 
-        var cmdNamespace = tbNamespace.RetrieveValue<string>();
-        if( cmdNamespace.IsValid() )
-          cmdDef.NamespaceContains = cmdNamespace;
+          if( tbCmdInherits.Text.IsValid() )
+            cmdDef.InheritsType = tbCmdInherits.Text;
 
-        var mw = App.Current.MainWindow as MainWindow;
+          var cmdNamespace = tbNamespace.RetrieveValue<string>();
+          if( cmdNamespace.IsValid() )
+            cmdDef.NamespaceContains = cmdNamespace;
 
-        var cmds = _sys.GetAvailableCommands(asmPaths.GetItems(), cmdDef, !animate); // !animate = on dialog startup
+          var mw = App.Current.MainWindow as MainWindow;
 
-        lbCmdsFound.Content = "{0} Commands Found".With(cmds.Length);
-          
-        if( cmds.Length == 0 ) {
 
-          sb.Append("No commands found ");
-
-          if( cmdDef.InheritsType.IsValid() )
-            sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40));
-
-          if( cmdDef.NamespaceContains.IsValid() ) {
-
-            if( cmdDef.InheritsType.IsValid() )
-              sb.Append(" or ");
-            else sb.Append("that ");
-
-            sb.AppendFormat("contains '{0}' in Namespace", cmdDef.NamespaceContains);
-
+          if( !ServiceBusFactory.CanSendCommand(CurrentServer.MessageBus, CurrentServer.MessageBusQueueType) ) {
+            sb.Append("Service Bus Adapter doesn't support Sending Commands");
+            lbCmdsFound.Content = string.Empty;
+            return;
           }
 
-          sb.Append(", make sure your Command Definition is correct");
+          var cmds = GetAvailableCommands(asmPaths.GetItems(), cmdDef, !animate); // !animate = on dialog startup
+
+          lbCmdsFound.Content = "{0} Commands Found".With(cmds.Length);
+
+          if( cmds.Length == 0 ) {
+
+            sb.Append("No commands found ");
+
+            if( cmdDef.InheritsType.IsValid() )
+              sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40));
+
+            if( cmdDef.NamespaceContains.IsValid() ) {
+
+              if( cmdDef.InheritsType.IsValid() )
+                sb.Append(" or ");
+              else sb.Append("that ");
+
+              sb.AppendFormat("contains '{0}' in Namespace", cmdDef.NamespaceContains);
+
+            }
+
+            sb.Append(", make sure your Command Definition is correct");
+          }
+
+        } else {
+          sb.Append("You need to add atleast one assembly path to be able to send commands");
+          lbCmdsFound.Content = string.Empty;
         }
 
-      } else {
-        sb.Append("You need to add atleast one assembly path to be able to send commands");
-        lbCmdsFound.Content = string.Empty;
+      } finally {
+
+        if( sb.Length > 0 ) {
+          lbSendCommandInfo.Text = sb.ToString();
+        }
+
+        UpdateInfoBox(sb.Length > 0, animate, ROW_SENDCMD_INFO, ConfigWindow.SendCommandInfoHeightProperty);
       }
-
-
-      if( sb.Length > 0 ) {
-        lbSendCommandInfo.Text = sb.ToString();
-      }
-
-      UpdateInfoBox(sb.Length > 0, animate, ROW_SENDCMD_INFO, ConfigWindow.SendCommandInfoHeightProperty);
     }
+
+    private Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
+      var srv = CurrentServer;
+
+      return _sys.GetAvailableCommands(srv.MessageBus, srv.MessageBusQueueType, asmPaths, cmdDef, suppressErrors); 
+    }
+
     private void UpdateQueueuInfo(bool animate = true) {
       bool valid = queueCommands.ItemsCount == 0 &&
                     queueEvents.ItemsCount == 0 &&
@@ -382,6 +404,8 @@ namespace ServiceBusMQManager.Dialogs {
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
         queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
                                         q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+
+        UpdateSendCommandInfo();
 
         _updatingServer = false;
       }
@@ -457,7 +481,7 @@ namespace ServiceBusMQManager.Dialogs {
       UpdateConfigWindowUIState();
 
       var dlg = new ManageServerDialog(_sys, null);
-      if( dlg.ShowDialog() == true ) { 
+      if( dlg.ShowDialog() == true ) {
         var s = dlg.Result.Server;
 
         //queueCommands.BindItems(null);
@@ -483,7 +507,7 @@ namespace ServiceBusMQManager.Dialogs {
       if( dlg.ShowDialog() == true ) {
 
         _config.MonitorServerName = dlg.Result.Name;
-        
+
         cbServers.Items.Refresh();
         //cbServers.SelectedItem = dlg.Result;
       }
@@ -556,7 +580,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     void UpdateServerButtonState() {
 
-      btnDeleteServer.Visibility = ( _servers.Count > 1 ) ? Visibility.Visible: Visibility.Hidden; 
+      btnDeleteServer.Visibility = ( _servers.Count > 1 ) ? Visibility.Visible : Visibility.Hidden;
     }
 
 

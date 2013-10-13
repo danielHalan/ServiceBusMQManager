@@ -89,7 +89,7 @@ namespace ServiceBusMQ.Configuration {
       }
     }
 
-    private void Rescan() {
+    public void Rescan() {
       Assemblies = new List<SbmqmAssembly>();
 
       FindAssemblies();
@@ -122,6 +122,9 @@ namespace ServiceBusMQ.Configuration {
           hash += fi.FileMajorPart + fi.FileMinorPart + fi.FileBuildPart;
         }
       }
+
+      foreach( var dir in Directory.GetDirectories(path) )
+        hash += GetPathHash(dir);
 
       return hash;
     }
@@ -162,12 +165,14 @@ namespace ServiceBusMQ.Configuration {
     Assembly[] GetAllAssemblies() {
 
       List<Assembly> result = new List<Assembly>();
-      string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Adapters\\";
 
-      foreach( string asm in Directory.GetFiles(path, "ServiceBusMQ.*.dll") )
-        result.Add(Assembly.LoadFile(asm));
-
+      foreach( var dir in Directory.GetDirectories(path) ) {
+        foreach( string asm in Directory.GetFiles(dir, "ServiceBusMQ.Adapter.*.dll") )
+          result.Add(Assembly.LoadFile(asm));
+      }
       return result.ToArray();
+      
     }
 
 

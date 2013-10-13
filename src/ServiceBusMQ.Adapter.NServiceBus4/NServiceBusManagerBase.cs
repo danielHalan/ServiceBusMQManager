@@ -20,14 +20,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
-//using NServiceBus;
+using NServiceBus;
+using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 //using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
-namespace ServiceBusMQ.NServiceBus {
+namespace ServiceBusMQ.NServiceBus4 {
 
-  public abstract class NServiceBusManagerBase<T> : IServiceBusManager  where T : IMessageQueue {
+  public abstract class NServiceBusManagerBase : IServiceBusManager {
 
     static readonly string JSON_START = "\"$type\":\"";
     static readonly string JSON_END = ",";
@@ -40,7 +41,7 @@ namespace ServiceBusMQ.NServiceBus {
     protected SbmqmMonitorState _monitorState;
     protected CommandDefinition _commandDef;
 
-    protected List<T> _monitorQueues = new List<T>();
+    protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
     public abstract string MessageQueueType { get; }
 
@@ -63,8 +64,32 @@ namespace ServiceBusMQ.NServiceBus {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
-    public abstract void MoveErrorMessageToOriginQueue(QueueItem itm);
-    public abstract void MoveAllErrorMessagesToOriginQueue(string errorQueue);
+    public void MoveErrorMessageToOriginQueue(QueueItem itm) {
+      if( string.IsNullOrEmpty(itm.Id) )
+        throw new ArgumentException("MessageId can not be null or empty");
+
+      if( itm.Queue.Type != QueueType.Error )
+        throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
+
+      var mgr = new ErrorManager();
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+
+      mgr.InputQueue = Address.Parse(itm.Queue.Name);
+
+      mgr.ReturnMessageToSourceQueue(itm.Id);
+    }
+    public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      var mgr = new ErrorManager();
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+
+      mgr.InputQueue = Address.Parse(errorQueue);
+
+      mgr.ReturnAll();
+    }
 
     protected string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )
@@ -88,8 +113,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public abstract string LoadMessageContent(QueueItem itm);
 
-    protected IEnumerable<T> GetQueueListByType(QueueType type) {
-      return _monitorQueues.Where(q => q.Queue.Type == type);
+    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
+      return _monitorMsmqQueues.Where(q => q.Queue.Type == type);
     }
 
     protected MessageInfo[] GetMessageNames(string content, bool includeNamespace) {
@@ -224,7 +249,9 @@ namespace ServiceBusMQ.NServiceBus {
         WarningOccured(this, new WarningArgs(message, content));
     }
 
-    public abstract string ServiceBusName { get; }
+    public string ServiceBusName {
+      get { return "NServiceBus"; }
+    }
 
 
     protected EventHandler _itemsChanged;

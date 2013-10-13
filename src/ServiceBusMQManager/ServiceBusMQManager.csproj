@@ -411,6 +411,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Resource Include="Images\Msg.Warn.png" />
+    <Resource Include="Images\loading2.GIF" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -480,18 +481,6 @@
     <EmbeddedResource Include="Images\unpinned.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceBusMQ.MassTransit\ServiceBusMQ.MassTransit.csproj">
-      <Project>{0B5C7307-0B10-4584-B483-C67756864D09}</Project>
-      <Name>ServiceBusMQ.MassTransit</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceBusMQ.NServiceBus4.Azure\ServiceBusMQ.NServiceBus4.Azure.csproj">
-      <Project>{118af4fb-06e0-4673-95ee-66e4fa7c61fd}</Project>
-      <Name>ServiceBusMQ.NServiceBus4.Azure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceBusMQ.NServiceBus4\ServiceBusMQ.NServiceBus4.csproj">
-      <Project>{6270ab82-9445-478f-9dee-b172840c6869}</Project>
-      <Name>ServiceBusMQ.NServiceBus4</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
       <Project>{a8780696-12f3-4795-9fee-93f6cbbd900e}</Project>
       <Name>ServiceBusMQ</Name>
