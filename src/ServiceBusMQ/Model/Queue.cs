@@ -20,8 +20,8 @@ using System.Text;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.Model {
-  
-  public class Queue {
+
+  public class Queue  {
 
     public string Name { get; private set; }
     public QueueType Type { get; private set; }

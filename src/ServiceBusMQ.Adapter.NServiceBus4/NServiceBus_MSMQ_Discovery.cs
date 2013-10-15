@@ -13,6 +13,7 @@
 ********************************************************************/
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
@@ -23,9 +24,11 @@ namespace ServiceBusMQ.NServiceBus4 {
   public class NServiceBus_MSMQ_Discovery : IServiceBusDiscovery {
 
     public string ServiceBusName {
-      get { return "NServiceBus v4"; }
+      get { return "NServiceBus"; }
     }
-
+    public string ServiceBusVersion {
+      get { return "4"; }
+    }
     public string MessageQueueType { 
       get { return "MSMQ"; } 
     }

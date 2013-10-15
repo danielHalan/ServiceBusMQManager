@@ -63,7 +63,7 @@ namespace ServiceBusMQManager {
     private ContentWindow _dlg;
     private bool _dlgShown = false;
 
-    string _titleStr; 
+    string _titleStr;
 
     public MainWindow() {
       InitializeComponent();
@@ -168,8 +168,6 @@ namespace ServiceBusMQManager {
 
         SetupContextMenu();
 
-        StartMonitoring();
-
         UpdateNotifyIconText();
 
         if( _sys.Config.StartCount == 1 ) {
@@ -181,6 +179,8 @@ namespace ServiceBusMQManager {
         }
 
         UpdateTitle();
+
+        _sys.StartMonitoring();
       };
 
       w.RunWorkerAsync();
@@ -200,71 +200,49 @@ namespace ServiceBusMQManager {
 
         MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
 
-      }));    
+      }));
     }
 
     private void RestartSystem() {
-      StopMonitoring();
-
-      if( _sys != null )
-        _sys.Manager.Terminate();
 
       this.IsEnabled = false;
       lbItems.ItemsSource = null;
 
       BackgroundWorker w = new BackgroundWorker();
       w.DoWork += (s, e) => {
-        _sys = SbmqSystem.Create();
-        _sys.ItemsChanged += MessageMgr_ItemsChanged;
 
-        _mgr = _sys.Manager;
+        try {
+          _sys.SwitchServiceBus(_sys.Config.ServiceBus, _sys.Config.ServiceBusVersion, _sys.Config.ServiceBusQueueType);
+          _mgr = _sys.Manager;
+
+        } catch( RestartRequiredException ) {
+          e.Cancel = true;
+        }
       };
 
       w.RunWorkerCompleted += (s, e) => {
+        if( !e.Cancelled ) {
+          this.IsEnabled = true;
+          RestoreMonitorQueueState();
 
-        this.IsEnabled = true;
-        RestoreMonitorQueueState();
+          btnSendCommand.IsEnabled = _sys.CanSendCommand;
+          btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
-        btnSendCommand.IsEnabled = _sys.CanSendCommand;
-        btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
+          lbItems.ItemsSource = _sys.Items;
 
-        lbItems.ItemsSource = _sys.Items;
+          SetupContextMenu();
 
-        SetupContextMenu();
+          UpdateTitle();
 
-        RestartMonitoring();
+          _sys.StartMonitoring();
 
-        UpdateTitle();
+        } else { // Restart needed
+          System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+          Application.Current.Shutdown();
+        }
       };
 
       w.RunWorkerAsync();
-    }
-
-    private void StopMonitoring() {
-      _sys.StopMonitoring();
-      //_timer.Stop();
-    }
-
-    private void RestartMonitoring() {
-      _sys.StartMonitoring();
-
-      //timer_Tick(this, EventArgs.Empty);
-
-      //_timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
-      //_timer.Start();
-    }
-    private void StartMonitoring() {
-      _sys.StartMonitoring();
-
-      //// Begin with a refresh
-      //timer_Tick(this, EventArgs.Empty);
-
-      //// now setup the timer...
-      //_timer = new DispatcherTimer();
-      //_timer.Interval = TimeSpan.FromMilliseconds(_sys.Config.MonitorInterval);
-      //_timer.Tick += timer_Tick;
-
-      //_timer.Start();
     }
 
 
@@ -601,7 +579,7 @@ namespace ServiceBusMQManager {
 
 #if DEBUG
       MenuItem mi = null;
-      if( (( items[items.Count - 1] as MenuItem ).Header as string) != "Headers" ) {
+      if( ( ( items[items.Count - 1] as MenuItem ).Header as string ) != "Headers" ) {
         mi = new MenuItem();
         mi.Header = "Headers";
         items.Add(mi);
@@ -619,15 +597,15 @@ namespace ServiceBusMQManager {
 
     private string GetQueueItemContent(QueueItem itm) {
       var content = string.Empty;
-      
+
       if( itm.Content == null || itm.Content.StartsWith("**") )
-          content = _mgr.LoadMessageContent(itm) ;
-      else 
+        content = _mgr.LoadMessageContent(itm);
+      else
         content = itm.Content;
-    
+
 
       if( content != null && !itm.Content.StartsWith("**") ) {
-      
+
         if( itm.Queue.ContentFormat == MessageContentFormat.Unknown ) {
           itm.Queue.SetContentFormat(content);
         }

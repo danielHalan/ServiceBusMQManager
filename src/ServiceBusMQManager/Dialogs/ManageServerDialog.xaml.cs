@@ -61,9 +61,9 @@ namespace ServiceBusMQManager.Dialogs {
       _managerTypes = ServiceBusFactory.AvailableServiceBusManagers();
 
       Result = new ConfigWindow.AddServerResult();
-      
+
       Result.Server = new ServerConfig3();
-      if( server != null ) 
+      if( server != null )
         server.CopyTo(Result.Server);
 
       DialogActionType = server == null ? ActionType.Add : ActionType.Edit;
@@ -71,11 +71,11 @@ namespace ServiceBusMQManager.Dialogs {
       lbTitle.Content = Title = "{0} Server".With(DialogActionType);
       lbInfo.Content = string.Empty;
 
-      cbServiceBus.ItemsSource = _managerTypes.GroupBy(g => g.Name).Select( x => x.Key ).ToArray();
+      cbServiceBus.ItemsSource = _managerTypes.GroupBy(g => g.DisplayName).Select(x => x.Key).ToArray();
+      //cbServiceBus.DisplayMemberPath = "DisplayName";
+      //cbServiceBus.SelectedValuePath = "Name";
 
       tbName.Init(Result.Server.Name, typeof(string), false);
-      //cbServiceBus.DisplayMemberPath = "Name";
-      //cbServiceBus.SelectedValuePath = "Name";
 
       //var s = cbServiceBus.SelectedValue as string;
       //cbTransport.ItemsSource = _managerTypes.GroupBy(g => g.Name).Single(x => x.Key == s).Select(x => x.QueueType);
@@ -83,7 +83,7 @@ namespace ServiceBusMQManager.Dialogs {
       //tbInterval.Init(750, typeof(int), false);
 
       if( DialogActionType == ActionType.Edit ) {
-        _nameEdited = GetDefaultServerName(Result.Server.Name, Result.Server) != Result.Server.Name;
+        _nameEdited = GetDefaultServerName(_server.ConnectionSettings.First().Value, _server.ServiceBus, _server.ServiceBusVersion, _server.ServiceBusQueueType) != _server.Name;
       }
 
       BindServerInfo();
@@ -92,8 +92,8 @@ namespace ServiceBusMQManager.Dialogs {
     private void BindServerInfo() {
       var s = Result.Server;
 
-      cbServiceBus.SelectedValue = s.MessageBus;
-      cbTransport.SelectedValue = s.MessageBusQueueType;
+      cbServiceBus.SelectedValue = s.FullMessageBusName;
+      cbTransport.SelectedValue = s.ServiceBusQueueType;
       tbInterval.Init(s.MonitorInterval, typeof(int), false);
     }
 
@@ -139,19 +139,21 @@ namespace ServiceBusMQManager.Dialogs {
 
       TryAccessServer(Result.Server.ConnectionSettings, () => { // Success
 
-        var s = Result.Server;
+        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
 
+        var s = Result.Server;
         s.Name = tbName.RetrieveValue<string>();
         s.MonitorInterval = tbInterval.RetrieveValue<int>();
-        s.MessageBus = cbServiceBus.SelectedValue as string;
-        s.MessageBusQueueType = cbTransport.SelectedItem as string;
+        s.ServiceBus = sb.Name;
+        s.ServiceBusVersion = sb.Version;
+        s.ServiceBusQueueType = cbTransport.SelectedItem as string;
 
         if( DialogActionType == ActionType.Add ) {
           s.MonitorQueues = new QueueConfig[0];
 
           _sys.Config.Servers.Add(Result.Server);
           _sys.Config.MonitorServerName = s.Name;
-        
+
         } else { // Edit
           s.CopyTo(_server);
         }
@@ -161,27 +163,27 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
-    private void UpdateNameLabel() { 
-    
-      if( !_nameEdited ) { 
-        var s = Result.Server;
+    private void UpdateNameLabel() {
+
+      if( !_nameEdited ) {
+
+        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
+
         var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
-        var name = ctl != null ? ctl.Value : s.Name;
+        var name = ctl != null ? ctl.Value : string.Empty;
 
-        GetDefaultServerName(name, s);
-
-        tbName.Init(GetDefaultServerName(name, s), typeof(string), false);
+        tbName.Init(GetDefaultServerName(name, sb.Name, sb.Version, cbTransport.SelectedValue as string), typeof(string), false);
       }
-     
+
     }
 
-    private string GetDefaultServerName(string name, ServerConfig3 s) {
+    private string GetDefaultServerName(string name, string serviceBus, string version, string queueType) {
       int index = name.IsValid() ? name.IndexOf("//") : -1;
 
       if( index != -1 )
         name = name.Substring(index + 2);
 
-      return "{0} ( {1} / {2} )".With(name.CutEnd(20), s.MessageBus, s.MessageBusQueueType);
+      return "{0} ( {1} / {2} )".With(name.CutEnd(20), ServerConfig3.GetFullMessageBusName(serviceBus, version), queueType);
     }
 
 
@@ -198,15 +200,15 @@ namespace ServiceBusMQManager.Dialogs {
       this.IsEnabled = false;
 
       if( DialogActionType == ActionType.Add ) {
-      
-        if( _config.Servers.Any( x => x.Name == Result.Server.Name ) ) {
-          lbInfo.Content = "Server Connection already exists with same Name " + Result.Server.Name;        
+
+        if( _config.Servers.Any(x => x.Name == Result.Server.Name) ) {
+          lbInfo.Content = "Server Connection already exists with same Name " + Result.Server.Name;
         }
       }
 
       Result.Server.Name = tbName.RetrieveValue<string>();
-      Result.Server.MessageBus = cbServiceBus.SelectedValue as string;
-      Result.Server.MessageBusQueueType = cbTransport.SelectedValue as string;
+      Result.Server.ServiceBus = cbServiceBus.SelectedValue as string;
+      Result.Server.ServiceBusQueueType = cbTransport.SelectedValue as string;
 
       BackgroundWorker worker = new BackgroundWorker();
       worker.DoWork += worker_TryAccessServer;
@@ -223,7 +225,7 @@ namespace ServiceBusMQManager.Dialogs {
         } else onSuccess();
 
         imgInfo.Visibility = System.Windows.Visibility.Hidden;
-        
+
         this.IsEnabled = true;
       };
 
@@ -245,40 +247,51 @@ namespace ServiceBusMQManager.Dialogs {
       }
     }
 
+    bool _updatingServiceBus = false;
     private void cbServiceBus_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       if( e.AddedItems.Count > 0 ) {
-        var s = e.AddedItems[0] as string;
-        Result.Server.MessageBus = s;
-        
-        var itms = _managerTypes.GroupBy(g => g.Name).Single(x => x.Key == s).Select(x => x.QueueType).ToArray();
-        cbTransport.ItemsSource = itms;
+        _updatingServiceBus = true;
+        try {
+          var s = e.AddedItems[0] as string;
+          var sb = _managerTypes.First(x => x.DisplayName == s);
 
-        if( itms.Length == 1 )
-          cbTransport.SelectedIndex = 0;
+          var itms = _managerTypes.GroupBy(g => g.DisplayName).Single(x => x.Key == s).Select(x => x.QueueType).ToArray();
+          cbTransport.ItemsSource = itms;
 
-        UpdateServiceBus(s, cbTransport.SelectedValue as string);
-        UpdateNameLabel();
+          if( itms.Length == 1 )
+            cbTransport.SelectedIndex = 0;
+
+          UpdateServiceBus(sb.Name, sb.Version, cbTransport.SelectedValue as string);
+          UpdateNameLabel();
+        } finally {
+          _updatingServiceBus = false;
+        }
       }
     }
 
     private void cbTransport_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       var queueType = e.AddedItems[0] as string;
-      Result.Server.MessageBusQueueType = queueType;
-      
-      UpdateServiceBus(null, queueType);
-      UpdateNameLabel();
+      Result.Server.ServiceBusQueueType = queueType;
+
+      if( !_updatingServiceBus ) {
+        UpdateServiceBus(null, null, queueType);
+        UpdateNameLabel();
+      }
     }
 
-    private void UpdateServiceBus(string messageBus = null, string queueType = null) {
-      
-      if( messageBus == null )
-        messageBus = cbServiceBus.SelectedValue as string;
-      
+    private void UpdateServiceBus(string messageBus = null, string version = null, string queueType = null) {
+
+      if( messageBus == null ) {
+        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
+        messageBus = sb.Name;
+        version = sb.Version;
+      }
+
       if( queueType == null )
         queueType = cbTransport.SelectedValue as string;
 
       if( messageBus != null && queueType != null ) {
-        _discoverySvc = _sys.GetDiscoveryService(messageBus, queueType);
+        _discoverySvc = _sys.GetDiscoveryService(messageBus, version, queueType);
 
         parameters.Children.Clear();
         foreach( var prm in _discoverySvc.ServerConnectionParameters ) {

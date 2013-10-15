@@ -1,8 +1,8 @@
 #region File Information
 /********************************************************************
   Project: ServiceBusMQ
-  File:    SbmqmMonitorState.cs
-  Created: 2013-02-22
+  File:    RestartRequiredException.cs
+  Created: 2013-10-15
 
   Author(s):
     Daniel Halan
@@ -14,23 +14,14 @@
 #endregion
 
 using System;
-using ServiceBusMQ.Model;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ServiceBusMQ {
-  public class SbmqmMonitorState {
-
-    internal bool[] MonitorQueueType { get; set; }
-
-    public SbmqmMonitorState() {
-      MonitorQueueType = new bool[4];
-    }      
-
-
-
-    public bool IsMonitoringQueueType(QueueType type) {
-      return MonitorQueueType[(int)type];
-    }
+  public class RestartRequiredException : Exception {
   
-
+    public RestartRequiredException() { 
+    }
   }
 }

@@ -45,6 +45,20 @@ namespace ServiceBusMQManager {
 
     bool _silent;
 
+    public App() {
+      StartupUri = new Uri("MainWindow.xaml", UriKind.Relative);
+    }
+
+
+    [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
+    [STAThread]
+    static void Main() {
+      App app = new App();
+      app.InitializeComponent();
+      app.Run();
+    }
+
+
     [DllImport("Kernel32.dll")]
     public static extern bool AttachConsole(int processId);
 

@@ -27,10 +27,15 @@ using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  public abstract class NServiceBusManagerBase<T> : IServiceBusManager  where T : IMessageQueue {
+  public abstract class NServiceBusManagerBase<T> : IServiceBusManager where T : IMessageQueue {
 
     static readonly string JSON_START = "\"$type\":\"";
     static readonly string JSON_END = ",";
+
+
+    public abstract string ServiceBusName { get; }
+    public abstract string ServiceBusVersion { get; }
+    public abstract string MessageQueueType { get; }
 
 
     public string CommandContentFormat { get; set; }
@@ -42,7 +47,6 @@ namespace ServiceBusMQ.NServiceBus {
 
     protected List<T> _monitorQueues = new List<T>();
 
-    public abstract string MessageQueueType { get; }
 
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; }
@@ -224,7 +228,6 @@ namespace ServiceBusMQ.NServiceBus {
         WarningOccured(this, new WarningArgs(message, content));
     }
 
-    public abstract string ServiceBusName { get; }
 
 
     protected EventHandler _itemsChanged;

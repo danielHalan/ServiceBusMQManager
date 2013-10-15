@@ -263,9 +263,14 @@ namespace ServiceBusMQ {
     }
     private void Load() {
 
-      if( File.Exists(_fileName) )
-        _data = JsonFile.Read<UIStateData>(_fileName);
-      else _data = new UIStateData();
+      try { 
+        if( File.Exists(_fileName) )
+          _data = JsonFile.Read<UIStateData>(_fileName);
+      } catch { 
+      }
+
+      if( _data == null )
+        _data = new UIStateData();
 
     }
 

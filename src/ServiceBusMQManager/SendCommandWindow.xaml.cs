@@ -66,7 +66,7 @@ namespace ServiceBusMQManager {
 
 
       var srv = _sys.Config.CurrentServer;
-      if( srv.MessageBus == "MassTransit" ) { 
+      if( srv.ServiceBus == "MassTransit" ) { 
          if( srv.ConnectionSettings.ContainsKey("subscriptionQueueService") && 
                 srv.ConnectionSettings["subscriptionQueueService"].IsValid() ) {
 

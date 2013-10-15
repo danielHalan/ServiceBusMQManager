@@ -41,13 +41,25 @@ namespace ServiceBusMQ.MassTransit
 {
 	public class MassTransitServiceBusManager : IServiceBusManager, ISendCommand, IViewSubscriptions
 	{
-		#region GetProcessedMessages
+
+    public string ServiceBusName {
+      get { return "MassTransit"; }
+    }
+    public string ServiceBusVersion {
+      get { return string.Empty; }
+    }
+    public string MessageQueueType {
+      get { return "MSMQ"; }
+    }
+    
 		static readonly string JSON_START = "\"$type\":\"";
 		static readonly string JSON_END = ",";
 
 		protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
-		protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type)
+    #region GetProcessedMessages
+    
+    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type)
 		{
 			return _monitorMsmqQueues.Where(q => q.Queue.Type == type);
 		}
@@ -57,7 +69,8 @@ namespace ServiceBusMQ.MassTransit
 			return (queueName.EndsWith("_subscriptions") || queueName.EndsWith("_retries") || queueName.EndsWith("_timeouts"));
 		}
 
-		private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type)
+
+    private void SetupMessageReadPropertyFilters(MessageQueue q, QueueType type)
 		{
 
 			q.MessageReadPropertyFilter.Id = true;
@@ -216,6 +229,7 @@ namespace ServiceBusMQ.MassTransit
 
 
 		#endregion
+
 
 		public QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems)
 		{
@@ -663,15 +677,6 @@ namespace ServiceBusMQ.MassTransit
 			get { return new string[] { "XML", "JSON" }; }
 		}
 
-		public string MessageQueueType
-		{
-			get { return  "MSMQ"; }
-		}
-
-		public string ServiceBusName
-		{
-			get { return "MassTransit"; }
-		}
 
 		public event EventHandler<ErrorArgs> ErrorOccured;
 

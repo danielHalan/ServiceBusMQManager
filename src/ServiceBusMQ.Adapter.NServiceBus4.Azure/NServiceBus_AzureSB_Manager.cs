@@ -25,14 +25,14 @@ using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
 
 namespace ServiceBusMQ.NServiceBus4.Azure {
-  public class NServiceBus_AzureMQ_Manager : NServiceBusManagerBase<AzureMessageQueue> {
-
+  public class NServiceBus_AzureSB_Manager : NServiceBusManagerBase<AzureMessageQueue> {
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
     private bool _terminated;
 
-    public override string ServiceBusName { get { return "NServiceBus v4"; } }
-    public override string MessageQueueType { get { return "AzureMQ"; } }
+    public override string ServiceBusName { get { return "NServiceBus"; } }
+    public override string ServiceBusVersion { get { return "4"; } }
+    public override string MessageQueueType { get { return "Azure Service Bus"; } }
 
 
 
@@ -83,7 +83,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     }
 
 
-
     public override string SerializeCommand(object cmd) {
       try {
         return MessageSerializer.SerializeMessage(cmd, CommandContentFormat);
@@ -93,7 +92,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
         return null;
       }
     }
-
     public override object DeserializeCommand(string cmd, Type cmdType) {
       try {
         return MessageSerializer.DeserializeMessage(cmd, cmdType, CommandContentFormat);
@@ -270,7 +268,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
         OnItemsChanged();
       }
     }
-
     public override void PurgeAllMessages() {
       _monitorQueues.ForEach(q => q.Purge());
 
@@ -282,7 +279,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
       OnItemsChanged();
     }
-
     public override void PurgeErrorAllMessages() {
       var items = _monitorQueues.Where(q => q.Queue.Type == QueueType.Error);
 

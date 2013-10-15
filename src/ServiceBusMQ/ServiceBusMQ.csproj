@@ -124,6 +124,7 @@
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueColorManager.cs" />
+    <Compile Include="RestartRequiredException.cs" />
     <Compile Include="SbmqmMonitorState.cs" />
     <Compile Include="SbmqSystem.cs" />
     <Compile Include="Screen.cs" />

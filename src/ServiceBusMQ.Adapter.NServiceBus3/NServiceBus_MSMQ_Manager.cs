@@ -33,13 +33,14 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.NServiceBus {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>,  ISendCommand, IViewSubscriptions {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>, ISendCommand, IViewSubscriptions {
 
     protected Logger _log = LogManager.GetCurrentClassLogger();
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
-    public override string ServiceBusName { get { return "NServiceBus v3"; } }
+    public override string ServiceBusName { get { return "NServiceBus"; } }
+    public override string ServiceBusVersion { get { return "3"; } }
     public override string MessageQueueType { get { return "MSMQ"; } }
 
 

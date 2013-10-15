@@ -29,6 +29,10 @@ namespace ServiceBusMQ.MassTransit
 		{
 			get { return "MassTransit"; }
 		}
+    public string ServiceBusVersion {
+      get { return string.Empty; }
+    }
+
 
 		public string MessageQueueType
 		{

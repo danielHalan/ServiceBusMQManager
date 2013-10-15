@@ -121,8 +121,9 @@ namespace ServiceBusMQ.Configuration {
 
         cfg3.Servers = cfg2.Servers.Select(s => new ServerConfig3() {
           Name = s.Name,
-          MessageBus = s.MessageBus + " v3", // V2 only NServiceBus3 was available
-          MessageBusQueueType = s.MessageBusQueueType,
+          ServiceBus = s.MessageBus, 
+          ServiceBusVersion = "3", // V2 only NServiceBus3 was available
+          ServiceBusQueueType = s.MessageBusQueueType,
           MonitorInterval = s.MonitorInterval,
           ConnectionSettings = new Dictionary<string, string> { { "server", s.Name } },
           MonitorQueues = s.MonitorQueues
