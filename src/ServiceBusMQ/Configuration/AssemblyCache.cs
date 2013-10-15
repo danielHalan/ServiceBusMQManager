@@ -30,6 +30,7 @@ namespace ServiceBusMQ.Configuration {
 
     public class SbmqmServiceBusType {
       public string ServiceBusName { get; set; }
+      public string ServiceBusVersion { get; set; }
       
       public string MessageQueueType { get; set; }
       public string[] AvailableMessageContentTypes { get; set; }
@@ -146,6 +147,7 @@ namespace ServiceBusMQ.Configuration {
 
             IServiceBus mgr = (IServiceBus)Activator.CreateInstance(type);
             t.ServiceBusName = mgr.ServiceBusName;
+            t.ServiceBusVersion = mgr.ServiceBusVersion;
             t.MessageQueueType = mgr.MessageQueueType; 
             t.AvailableMessageContentTypes = mgr.AvailableMessageContentTypes;
             t.Interfaces = type.GetInterfaces().Select( i => i.Name ).ToArray();
@@ -165,7 +167,7 @@ namespace ServiceBusMQ.Configuration {
     Assembly[] GetAllAssemblies() {
 
       List<Assembly> result = new List<Assembly>();
-      string path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Adapters\\";
+      string path = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\Adapters\\";
 
       foreach( var dir in Directory.GetDirectories(path) ) {
         foreach( string asm in Directory.GetFiles(dir, "ServiceBusMQ.Adapter.*.dll") )

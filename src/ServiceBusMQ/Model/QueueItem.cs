@@ -26,7 +26,7 @@ namespace ServiceBusMQ.Model {
 
   public enum QueueType { Command = 0, Event = 1, Message = 2, Error = 3 }
 
-  public class QueueItem {
+  public class QueueItem  {
     private bool _processed;
 
     public QueueItem(Queue queue) {

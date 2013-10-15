@@ -91,9 +91,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       BindServers(_config.Servers);
 
-      //var row = theGrid.RowDefinitions[ROW_QUEUES_INFO];
-      //row.Height = new GridLength(0);
-
       SelectServer(_config.MonitorServerName, false);
 
       //tbServer.Init(string.Empty, typeof(string), false);
@@ -177,18 +174,18 @@ namespace ServiceBusMQManager.Dialogs {
 
     Dictionary<string, IServiceBusDiscovery> _disc = new Dictionary<string, IServiceBusDiscovery>();
 
-    private IServiceBusDiscovery GetDiscoveryService(string messageBus, string queueType) {
+    private IServiceBusDiscovery GetDiscoveryService(string messageBus, string version, string queueType) {
       var disc = _disc.GetValue(messageBus + queueType);
 
       if( disc == null ) {
-        disc = _sys.GetDiscoveryService(messageBus, queueType);
+        disc = _sys.GetDiscoveryService(messageBus, version, queueType);
         _disc.Add(messageBus + queueType, disc);
       }
 
       return disc;
     }
     private IServiceBusDiscovery GetDiscoveryService(ServerConfig3 s) {
-      return GetDiscoveryService(s.MessageBus, s.MessageBusQueueType);
+      return GetDiscoveryService(s.ServiceBus, s.ServiceBusVersion, s.ServiceBusQueueType);
     }
 
 
@@ -290,7 +287,7 @@ namespace ServiceBusMQManager.Dialogs {
           var mw = App.Current.MainWindow as MainWindow;
 
 
-          if( !ServiceBusFactory.CanSendCommand(CurrentServer.MessageBus, CurrentServer.MessageBusQueueType) ) {
+          if( !ServiceBusFactory.CanSendCommand(CurrentServer.ServiceBus, CurrentServer.ServiceBusVersion, CurrentServer.ServiceBusQueueType) ) {
             sb.Append("Service Bus Adapter doesn't support Sending Commands");
             lbCmdsFound.Content = string.Empty;
             return;
@@ -338,7 +335,7 @@ namespace ServiceBusMQManager.Dialogs {
     private Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
       var srv = CurrentServer;
 
-      return _sys.GetAvailableCommands(srv.MessageBus, srv.MessageBusQueueType, asmPaths, cmdDef, suppressErrors); 
+      return _sys.GetAvailableCommands(srv.ServiceBus, srv.ServiceBusVersion, srv.ServiceBusQueueType, asmPaths, cmdDef, suppressErrors); 
     }
 
     private void UpdateQueueuInfo(bool animate = true) {
@@ -647,6 +644,7 @@ namespace ServiceBusMQManager.Dialogs {
 
     public static readonly DependencyProperty QueuesInfoHeightProperty = DependencyProperty.Register(
              "QueuesInfoHeight", typeof(double), typeof(ConfigWindow), new PropertyMetadata(0.0));
+    private ServerConfig3 _initializedServer;
 
     protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
       base.OnPropertyChanged(e);

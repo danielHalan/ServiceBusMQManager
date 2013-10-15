@@ -28,8 +28,9 @@ namespace ServiceBusMQ.Configuration {
       
       public string Name { get; set; }
 
-      public string MessageBus { get; set; }
-      public string MessageBusQueueType { get; set; }
+      public string ServiceBus { get; set; }
+      public string ServiceBusVersion { get; set; }
+      public string ServiceBusQueueType { get; set; }
 
       public int MonitorInterval { get; set; }
 
@@ -44,7 +45,7 @@ namespace ServiceBusMQ.Configuration {
       public static ServerConfig3 Default {
         get {
           var r = new ServerConfig3() {
-            MessageBus = "NServiceBus", MessageBusQueueType = "MSMQ",
+            ServiceBus = "NServiceBus", ServiceBusVersion = "4", ServiceBusQueueType = "MSMQ",
             MonitorInterval = DEFAULT_MONITOR_INTERVAL,
             Name = Environment.MachineName,
             ConnectionSettings = new Dictionary<string, string>(),
@@ -59,11 +60,25 @@ namespace ServiceBusMQ.Configuration {
 
       public void CopyTo(ServerConfig3 obj) {
         obj.Name = Name;
-        obj.MessageBus = MessageBus;
-        obj.MessageBusQueueType = MessageBusQueueType;
+        obj.ServiceBus = ServiceBus;
+        obj.ServiceBusVersion = ServiceBusVersion;
+        obj.ServiceBusQueueType = ServiceBusQueueType;
         obj.MonitorInterval = MonitorInterval;
         obj.MonitorQueues = MonitorQueues;
         obj.ConnectionSettings = new Dictionary<string,string>(ConnectionSettings);
+      }
+
+      public static string GetFullMessageBusName(string name, string version) {
+        if( version.IsValid() )
+          return "{0} v{1}".With(name, version);
+
+        else return name;      
+      }
+
+      public string FullMessageBusName { 
+        get { 
+          return GetFullMessageBusName(ServiceBus, ServiceBusVersion);
+        }
       }
     }
 
@@ -101,10 +116,13 @@ namespace ServiceBusMQ.Configuration {
       public QueueConfig[] MonitorQueues { get { return CurrentServer.MonitorQueues; } }
 
       [JsonIgnore]
-      public string MessageBus { get { return CurrentServer.MessageBus; } }
+      public string ServiceBus { get { return CurrentServer.ServiceBus; } }
 
       [JsonIgnore]
-      public string MessageBusQueueType { get { return CurrentServer.MessageBusQueueType; } }
+      public string ServiceBusVersion { get { return CurrentServer.ServiceBusVersion; } }
+
+      [JsonIgnore]
+      public string ServiceBusQueueType { get { return CurrentServer.ServiceBusQueueType; } }
 
       [JsonIgnore]
       public int MonitorInterval { get { return CurrentServer.MonitorInterval; } }
@@ -136,13 +154,13 @@ namespace ServiceBusMQ.Configuration {
 
         // Convert MSMQ plain to XML, as we now support more then one content serializer
         foreach( var srv in this.Servers ) {
-          if( srv.MessageBus == "NServiceBus" ) {
+          if( srv.ServiceBus == "NServiceBus" ) {
 
-            if( srv.MessageBusQueueType == "MSMQ (XML)" ) {
-              srv.MessageBusQueueType = "MSMQ";
+            if( srv.ServiceBusQueueType == "MSMQ (XML)" ) {
+              srv.ServiceBusQueueType = "MSMQ";
               CommandContentType = "XML";
-            } else if( srv.MessageBusQueueType == "MSMQ (JSON)" ) {
-              srv.MessageBusQueueType = "MSMQ";
+            } else if( srv.ServiceBusQueueType == "MSMQ (JSON)" ) {
+              srv.ServiceBusQueueType = "MSMQ";
               CommandContentType = "JSON";
             }
 
@@ -154,7 +172,7 @@ namespace ServiceBusMQ.Configuration {
           CommandDefinition = new CommandDefinition();
 
           // Re-evaluate after suppot for more then NServiceBus is implemented
-          if( this.Servers.Count == 0 || this.Servers.First().MessageBus == "NServiceBus" )
+          if( this.Servers.Count == 0 || this.Servers.First().ServiceBus == "NServiceBus" )
             CommandDefinition.InheritsType = "NServiceBus.ICommand, NServiceBus";
 
         }

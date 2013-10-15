@@ -85,8 +85,8 @@
   <ItemGroup>
     <Compile Include="AzureMessageQueue.cs" />
     <Compile Include="MessageSerializer.cs" />
-    <Compile Include="NServiceBus_AzureMQ_Discovery.cs" />
-    <Compile Include="NServiceBus_AzureMQ_Manager.cs" />
+    <Compile Include="NServiceBus_AzureSB_Discovery.cs" />
+    <Compile Include="NServiceBus_AzureSB_Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +106,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(SolutionDir)ServiceBusMQManager\bin\Debug\Adapters\NServiceBus4" /Y /I</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(SolutionDir)ServiceBusMQManager\bin\$(ConfigurationName)\Adapters\NServiceBus4" /Y /I</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

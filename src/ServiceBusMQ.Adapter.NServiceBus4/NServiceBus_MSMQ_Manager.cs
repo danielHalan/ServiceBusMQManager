@@ -43,7 +43,8 @@ namespace ServiceBusMQ.NServiceBus4 {
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
 
 
-    public override string ServiceBusName { get { return "NServiceBus v4"; } }
+    public override string ServiceBusName { get { return "NServiceBus"; } }
+    public override string ServiceBusVersion { get { return "4"; } }
     public override string MessageQueueType { get { return "MSMQ"; } }
 
 

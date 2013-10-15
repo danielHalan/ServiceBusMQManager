@@ -38,6 +38,20 @@ namespace ServiceBusMQ {
 
   public class SbmqSystem {
 
+    private class ServiceBusInfo {
+      public string Name { get; set; }
+      public string Version { get; set; }
+      public string QueueType { get; set; }
+
+      public static ServiceBusInfo Create(string name, string v, string qt) {
+        return new ServiceBusInfo() {
+          Name = name,
+          Version = v,
+          QueueType = qt
+        };
+      }
+    }
+
     public static readonly int MAX_ITEMS_PER_QUEUE = 500;
 
     bool _isServiceBusStarted = false;
@@ -46,7 +60,6 @@ namespace ServiceBusMQ {
     CommandHistoryManager _history;
     static UIStateConfig _uiState = new UIStateConfig();
     private SbmqmMonitorState _monitorState;
-
 
     List<QueueItemViewModel> _items = new List<QueueItemViewModel>();
 
@@ -81,8 +94,21 @@ namespace ServiceBusMQ {
       Config = SystemConfig.Load();
 
       Config.StartCount += 1;
+      Config.Save();
 
-      _mgr = ServiceBusFactory.CreateManager(Config.MessageBus, Config.MessageBusQueueType);
+      CreateServiceBusManager(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
+
+
+      _history = new CommandHistoryManager(Config);
+
+      AppInfo = new ApplicationInfo(Config.Id, Assembly.GetEntryAssembly());
+    }
+
+    List<ServiceBusInfo> _serviceBusHistory = new List<ServiceBusInfo>();
+
+    private void CreateServiceBusManager(string serviceBus, string version, string queueType) {
+
+      _mgr = ServiceBusFactory.CreateManager(serviceBus, version, queueType);
       _mgr.ErrorOccured += System_ErrorOccured;
       _mgr.WarningOccured += System_WarningOccured;
       _mgr.ItemsChanged += System_ItemsChanged;
@@ -97,9 +123,22 @@ namespace ServiceBusMQ {
       CanSendCommand = ( _mgr as ISendCommand ) != null;
       CanViewSubscriptions = ( _mgr as IViewSubscriptions ) != null;
 
-      _history = new CommandHistoryManager(Config);
+      _serviceBusHistory.Add(ServiceBusInfo.Create(serviceBus, version, queueType));
 
-      AppInfo = new ApplicationInfo(Config.Id, Assembly.GetEntryAssembly());
+    }
+
+    public void SwitchServiceBus(string serviceBus, string version, string queueType) {
+      StopMonitoring();
+      
+      _mgr.Terminate();
+
+      if( !_serviceBusHistory.Any(s => s.Name == serviceBus && s.Version != version) ) {
+
+        CreateServiceBusManager(serviceBus, version, queueType);
+
+      } else throw new RestartRequiredException();
+
+      _serviceBusHistory.Add(ServiceBusInfo.Create(serviceBus, version, queueType));
     }
 
 
@@ -114,19 +153,19 @@ namespace ServiceBusMQ {
 
 
     public IServiceBusDiscovery GetDiscoveryService() {
-      return ServiceBusFactory.CreateDiscovery(Config.MessageBus, Config.MessageBusQueueType);
+      return ServiceBusFactory.CreateDiscovery(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
     }
-    public IServiceBusDiscovery GetDiscoveryService(string messageBus, string queueType) {
-      return ServiceBusFactory.CreateDiscovery(messageBus, queueType);
+    public IServiceBusDiscovery GetDiscoveryService(string messageBus, string version, string queueType) {
+      return ServiceBusFactory.CreateDiscovery(messageBus, version, queueType);
     }
 
 
-    public Type[] GetAvailableCommands(string messageBus, string queueType, string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
-      var mgr = ServiceBusFactory.CreateManager(messageBus, queueType) as ISendCommand;
-      
+    public Type[] GetAvailableCommands(string messageBus, string version, string queueType, string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
+      var mgr = ServiceBusFactory.CreateManager(messageBus, version, queueType) as ISendCommand;
+
       if( mgr != null ) {
         return mgr.GetAvailableCommands(asmPaths, cmdDef, suppressErrors);
-      
+
       } else return new Type[0];
 
     }
@@ -400,7 +439,7 @@ namespace ServiceBusMQ {
         }
       }
 
-      var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
       var fn = Path.Combine(root, asmName + ".dll");
       if( File.Exists(fn) ) {
         return Assembly.LoadFrom(fn);
@@ -408,7 +447,7 @@ namespace ServiceBusMQ {
         string adapterPath = root + "\\Adapters\\";
 
         foreach( var dir in Directory.GetDirectories(adapterPath) ) {
-          fn = Path.Combine( dir, asmName + ".dll" );
+          fn = Path.Combine(dir, asmName + ".dll");
           if( File.Exists(fn) && AssemblyName.GetAssemblyName(fn).FullName == args.Name )
             return Assembly.LoadFrom(fn);
         }

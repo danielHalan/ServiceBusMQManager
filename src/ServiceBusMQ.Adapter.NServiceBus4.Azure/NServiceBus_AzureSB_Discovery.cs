@@ -22,14 +22,17 @@ using Microsoft.ServiceBus;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.NServiceBus4.Azure {
-  public class NServiceBus_AzureMQ_Discovery : IServiceBusDiscovery {
+  public class NServiceBus_AzureSB_Discovery : IServiceBusDiscovery {
 
     public string ServiceBusName {
-      get { return "NServiceBus v4"; }
+      get { return "NServiceBus"; }
+    }
+    public string ServiceBusVersion {
+      get { return "4"; }
     }
 
     public string MessageQueueType {
-      get { return "AzureMQ"; }
+      get { return "Azure Service Bus"; }
     }
 
     public string[] AvailableMessageContentTypes {
