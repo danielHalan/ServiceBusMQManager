@@ -240,7 +240,8 @@ namespace ServiceBusMQManager {
           _sys.StartMonitoring();
 
         } else { // Restart needed
-          System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+
+          System.Diagnostics.Process.Start(Application.ResourceAssembly.Location, "-f");
           Application.Current.Shutdown();
         }
       };
