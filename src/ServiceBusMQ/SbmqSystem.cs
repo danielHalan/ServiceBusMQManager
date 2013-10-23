@@ -115,8 +115,10 @@ namespace ServiceBusMQ {
 
       var cmdSender = ( _mgr as ISendCommand );
       if( cmdSender != null )
-        cmdSender.CommandContentFormat = Config.CommandContentType;
+        cmdSender.CommandContentFormat = Config.CurrentServer.CommandContentType;
 
+      lock( _itemsLock ) 
+        _items.Clear();
 
       _mgr.Initialize(Config.CurrentServer.ConnectionSettings, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
 
@@ -129,7 +131,7 @@ namespace ServiceBusMQ {
 
     public void SwitchServiceBus(string serviceBus, string version, string queueType) {
       StopMonitoring();
-      
+
       _mgr.Terminate();
 
       if( !_serviceBusHistory.Any(s => s.Name == serviceBus && s.Version != version) ) {
@@ -188,8 +190,10 @@ namespace ServiceBusMQ {
     }
     public void StopMonitoring() {
       //_monitoring = false;
-      _currentMonitor.Executing = false;
-      _currentMonitor = null;
+      if( _currentMonitor != null ) {
+        _currentMonitor.Executing = false;
+        _currentMonitor = null;
+      }
     }
 
     internal class ThreadState {
@@ -388,7 +392,7 @@ namespace ServiceBusMQ {
     public Type[] GetAvailableCommands(bool suppressErrors = false) {
       var sc = _mgr as ISendCommand;
       if( sc != null )
-        return sc.GetAvailableCommands(Config.CommandsAssemblyPaths, Config.CommandDefinition, suppressErrors);
+        return sc.GetAvailableCommands(Config.CurrentServer.CommandsAssemblyPaths, Config.CurrentServer.CommandDefinition, suppressErrors);
       else return new Type[0];
     }
     public Type[] GetAvailableCommands(string[] _asmPath, CommandDefinition cmdDef, bool suppressErrors = false) {
@@ -407,26 +411,54 @@ namespace ServiceBusMQ {
     }
 
 
-    public void SendCommand(string destinationServer, string destinationQueue, object message) {
+    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
       var sc = _mgr as ISendCommand;
       if( sc != null ) {
 
         if( !_isServiceBusStarted ) {
-          sc.SetupServiceBus(Config.CommandsAssemblyPaths, Config.CommandDefinition, Config.CurrentServer.ConnectionSettings);
+          sc.SetupServiceBus(Config.CurrentServer.CommandsAssemblyPaths, Config.CurrentServer.CommandDefinition, Config.CurrentServer.ConnectionSettings);
           _isServiceBusStarted = true;
         }
 
-        sc.SendCommand(destinationServer, destinationQueue, message);
-      }
+        sc.SendCommand(connectionStrings, destinationQueue, message);
+
+      } else throw new Exception("This Service Bus Adapter does not support sending Commands");
     }
 
 
 
     private Assembly SbmqmDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
       string asmName = args.Name.Split(',')[0];
+      bool hasFullAsmName = args.Name.Contains(',');
 
+      // Resolve from Adapters
+      var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+      var fn = Path.Combine(root, asmName + ".dll");
+      if( File.Exists(fn) ) {
+        return Assembly.LoadFrom(fn);
+      } else {
+
+        string adapterPath = Path.GetDirectoryName(ServiceBusFactory.GetManagerFilePath(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType));
+
+        fn = Path.Combine(adapterPath, asmName + ".dll");
+        if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
+          return Assembly.LoadFrom(fn);
+
+        else {
+          adapterPath = root + "\\Adapters\\";
+
+          foreach( var dir in Directory.GetDirectories(adapterPath) ) {
+            fn = Path.Combine(dir, asmName + ".dll");
+            if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
+              return Assembly.LoadFrom(fn);
+          }
+        }
+      }
+
+
+      // Resolve from Assembly Paths
       if( Config != null ) {
-        foreach( var path in Config.CommandsAssemblyPaths ) {
+        foreach( var path in Config.CurrentServer.CommandsAssemblyPaths ) {
           var fileName = string.Format("{0}\\{1}.dll", path, asmName);
 
           try {
@@ -439,19 +471,7 @@ namespace ServiceBusMQ {
         }
       }
 
-      var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-      var fn = Path.Combine(root, asmName + ".dll");
-      if( File.Exists(fn) ) {
-        return Assembly.LoadFrom(fn);
-      } else {
-        string adapterPath = root + "\\Adapters\\";
 
-        foreach( var dir in Directory.GetDirectories(adapterPath) ) {
-          fn = Path.Combine(dir, asmName + ".dll");
-          if( File.Exists(fn) && AssemblyName.GetAssemblyName(fn).FullName == args.Name )
-            return Assembly.LoadFrom(fn);
-        }
-      }
 
       if( !args.Name.StartsWith("mscorlib.XmlSerializers") )
         throw new ApplicationException("Failed resolving assembly, " + args.Name);

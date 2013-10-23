@@ -80,13 +80,10 @@ namespace ServiceBusMQManager.Dialogs {
 
 
       cbContentFormat.ItemsSource = _managerTypes[0].MessageContentTypes;
-      cbContentFormat.SelectedItem = _config.CommandContentType;
+      cbContentFormat.SelectedItem = _config.CurrentServer.CommandContentType;
 
       cShowOnNewMessages.IsChecked = _config.ShowOnNewMessages;
       cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
-
-
-      asmPaths.BindItems(_config.CommandsAssemblyPaths);
 
 
       BindServers(_config.Servers);
@@ -96,9 +93,7 @@ namespace ServiceBusMQManager.Dialogs {
       //tbServer.Init(string.Empty, typeof(string), false);
       //tbServer.Visibility = System.Windows.Visibility.Hidden;
 
-      tbNamespace.Init(_config.CommandDefinition.NamespaceContains, typeof(string), true);
-
-      tbCmdInherits.Text = _config.CommandDefinition.InheritsType;
+      BindSendCommandView(_config.CurrentServer);
 
       UpdateSendCommandInfo(false);
       UpdateQueueuInfo(false);
@@ -106,6 +101,14 @@ namespace ServiceBusMQManager.Dialogs {
       if( showSendCommand )
         scroller.ScrollToBottom();
 
+    }
+
+    private void BindSendCommandView(ServerConfig3 server) {
+      asmPaths.BindItems(server.CommandsAssemblyPaths);
+
+      tbNamespace.Init(server.CommandDefinition.NamespaceContains, typeof(string), true);
+
+      tbCmdInherits.Text = server.CommandDefinition.InheritsType;
     }
 
     private void BindServers(List<ServerConfig3> list) {
@@ -124,20 +127,38 @@ namespace ServiceBusMQManager.Dialogs {
       ValidateHeight();
 
       GetAllAvailableQueueNamesForServer(_config.CurrentServer);
+
     }
+
+    private void ValidateQueues(ServerConfig3 s) {
+      if( _allQueueNames != null && _allQueueNames.ContainsKey(s.Name) ) {
+        var allQueues = _allQueueNames[s.Name];
+
+        var removedQueues = s.MonitorQueues.Where(q => !allQueues.Any(x => q.Name == x)).ToArray();
+        if( removedQueues.Any() ) {
+          MessageDialog.Show(MessageType.Info, "Removed Queues", "These queues could not be found at the server and therefore removed from monitoring:\n" + removedQueues.AsString(",\n"));
+
+          s.MonitorQueues = s.MonitorQueues.Where(q => allQueues.Any(x => q.Name == x)).ToArray();
+          _config.Save();
+
+          UpdateQueueLists(s);
+        }
+      }
+    }
+
 
     private void GetAllAvailableQueueNamesForServer(ServerConfig3 server) {
 
       if( !_allQueueNames.ContainsKey(server.Name) ) {
 
         _SetAccessingServer(true);
-        UpdateConfigWindowUIState();
 
         BackgroundWorker w = new BackgroundWorker();
         w.DoWork += (s, arg) => {
           _allQueueNames.Add(server.Name, GetDiscoveryService(server).GetAllAvailableQueueNames(server.ConnectionSettings));
         };
         w.RunWorkerCompleted += (s, arg) => {
+          ValidateQueues(server);
           _SetAccessingServer(false);
         };
 
@@ -203,9 +224,9 @@ namespace ServiceBusMQManager.Dialogs {
         e.Handled = true;
 
         dlg.SelectedQueueNames.ForEach(queueName => {
-              var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : Color.FromArgb(QueueColorManager.RED);
-              e.Items.Add(new QueueListControl.QueueListItem(queueName, color));
-            });
+          var color = !s.Name.EndsWith("Errors") ? QueueColorManager.GetRandomAvailableColor() : Color.FromArgb(QueueColorManager.RED);
+          e.Items.Add(new QueueListControl.QueueListItem(queueName, color));
+        });
       }
     }
 
@@ -335,7 +356,7 @@ namespace ServiceBusMQManager.Dialogs {
     private Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
       var srv = CurrentServer;
 
-      return _sys.GetAvailableCommands(srv.ServiceBus, srv.ServiceBusVersion, srv.ServiceBusQueueType, asmPaths, cmdDef, suppressErrors); 
+      return _sys.GetAvailableCommands(srv.ServiceBus, srv.ServiceBusVersion, srv.ServiceBusQueueType, asmPaths, cmdDef, suppressErrors);
     }
 
     private void UpdateQueueuInfo(bool animate = true) {
@@ -395,16 +416,13 @@ namespace ServiceBusMQManager.Dialogs {
 
         //tbInterval.UpdateValue(s.MonitorInterval);
 
-        queueCommands.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Command).Select(
-                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
-        queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(
-                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
-        queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(
-                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
-        queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
-                                        q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+        ValidateQueues(s);
 
+        UpdateQueueLists(s);
+
+        BindSendCommandView(s);
         UpdateSendCommandInfo(animate);
+
         UpdateQueueuInfo(animate);
 
         _updatingServer = false;
@@ -412,14 +430,20 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
+    private void UpdateQueueLists(ServerConfig3 s) {
+      queueCommands.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Command).Select(
+                                      q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+      queueEvents.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Event).Select(
+                                      q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+      queueMessages.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Message).Select(
+                                      q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+      queueErrors.BindItems(s.MonitorQueues.Where(q => q.Type == QueueType.Error).Select(
+                                      q => new QueueListControl.QueueListItem(q.Name, q.Color)));
+    }
+
 
     private void SaveServerConfig(string name) {
-      var currServer = _config.Servers.Single(s => s.Name == name);
-
-      //currServer.MessageBus = cbServiceBus.SelectedValue as string;
-      //currServer.MessageBusQueueType = cbTransport.SelectedItem as string;
-
-      //currServer.MonitorInterval = (int)tbInterval.RetrieveValue();
+      var s = _config.Servers.Single(sv => sv.Name == name);
 
       List<QueueConfig> monitorQueues = new List<QueueConfig>();
       monitorQueues.AddRange(queueCommands.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Command, n.Color.ToArgb())));
@@ -427,7 +451,14 @@ namespace ServiceBusMQManager.Dialogs {
       monitorQueues.AddRange(queueMessages.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Message, n.Color.ToArgb())));
       monitorQueues.AddRange(queueErrors.GetItems().Select(n => new QueueConfig(n.Name, QueueType.Error, n.Color.ToArgb())));
 
-      currServer.MonitorQueues = monitorQueues.ToArray();
+      s.MonitorQueues = monitorQueues.ToArray();
+
+      s.CommandDefinition.InheritsType = tbCmdInherits.Text;
+      s.CommandDefinition.NamespaceContains = tbNamespace.RetrieveValue() as string;
+
+      s.CommandsAssemblyPaths = asmPaths.GetItems();
+      s.CommandContentType = cbContentFormat.SelectedItem as string;
+     
     }
 
     private void SaveConfig() {
@@ -438,12 +469,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
       _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
-
-      _config.CommandDefinition.InheritsType = tbCmdInherits.Text;
-      _config.CommandDefinition.NamespaceContains = tbNamespace.RetrieveValue() as string;
-
-      _config.CommandsAssemblyPaths = asmPaths.GetItems();
-      _config.CommandContentType = cbContentFormat.SelectedItem as string;
 
       _config.Save();
 
@@ -484,11 +509,6 @@ namespace ServiceBusMQManager.Dialogs {
       if( dlg.ShowDialog() == true ) {
         var s = dlg.Result.Server;
 
-        //queueCommands.BindItems(null);
-        //queueEvents.BindItems(null);
-        //queueMessages.BindItems(null);
-        //queueErrors.BindItems(null);
-
         _allQueueNames.Add(s.Name, dlg.Result.AllQueueNames);
         _servers.Add(s);
 
@@ -509,11 +529,26 @@ namespace ServiceBusMQManager.Dialogs {
 
         _config.MonitorServerName = dlg.Result.Name;
 
-        cbServers.Items.Refresh();
-        //cbServers.SelectedItem = dlg.Result;
+        BindServers(_sys.Config.Servers);
+
+        SelectServer(dlg.Result.Name);
       }
 
     }
+    private void CopyServer_Click(object sender, RoutedEventArgs e) {
+
+      var dlg = new ManageServerDialog(_sys, _config.CurrentServer, true);
+      if( dlg.ShowDialog() == true ) {
+
+        _config.MonitorServerName = dlg.Result.Name;
+
+        BindServers(_sys.Config.Servers);
+
+        SelectServer(dlg.Result.Name);
+      }
+
+    }
+
 
 
     System.Windows.Visibility _prevServerActionVisibility;
@@ -589,19 +624,50 @@ namespace ServiceBusMQManager.Dialogs {
 
       if( !_updatingServer ) {
 
-        SaveServerConfig(_config.MonitorServerName);
+        if( e.AddedItems.Count > 0 ) {
 
-        _config.MonitorServerName = cbServers.SelectedValue as string;
+          SaveServerConfig(_config.MonitorServerName);
 
-        var s = e.AddedItems[0] as ServerConfig3;
+          _config.MonitorServerName = cbServers.SelectedValue as string;
 
-        if( GetDiscoveryService(s).CanAccessServer(s.ConnectionSettings) ) {
+          var s = e.AddedItems[0] as ServerConfig3;
 
-          SelectServer(s.Name);
+          _SetAccessingServer(true);
 
-          GetAllAvailableQueueNamesForServer(s);
+          BackgroundWorker bw = new BackgroundWorker();
+          bw.DoWork += (object sr, DoWorkEventArgs arg) => {
 
-        } else throw new Exception("Can not access Server, " + s.Name);
+            var disc = GetDiscoveryService(s);
+            if( disc.CanAccessServer(s.ConnectionSettings) ) {
+
+              if( !_allQueueNames.ContainsKey(s.Name) )
+                _allQueueNames.Add(s.Name, disc.GetAllAvailableQueueNames(s.ConnectionSettings));
+
+              arg.Result = true;
+
+            } else arg.Result = new Exception("Can not access Server, " + s.Name);
+
+          };
+          bw.RunWorkerCompleted += (sr, arg) => {
+
+            if( arg.Result is Exception ) {
+              _SetAccessingServer(false);
+
+              throw (Exception)arg.Result;
+            } else if( arg.Result as bool? == true ) {
+
+              SelectServer(s.Name);
+              BindSendCommandView(s);
+              UpdateSendCommandInfo();
+
+              _SetAccessingServer(false);
+            }
+
+          };
+
+          bw.RunWorkerAsync();
+
+        }
       }
     }
 

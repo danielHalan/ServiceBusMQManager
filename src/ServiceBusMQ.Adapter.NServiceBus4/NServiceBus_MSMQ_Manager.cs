@@ -624,6 +624,8 @@ namespace ServiceBusMQ.NServiceBus4 {
     public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings) {
       _commandDef = cmdDef;
 
+      Console.Write( typeof(global::NServiceBus.Configure).FullName );
+
       List<Assembly> asms = new List<Assembly>();
 
       foreach( string path in assemblyPaths ) {
@@ -641,10 +643,9 @@ namespace ServiceBusMQ.NServiceBus4 {
         _bus = Configure.With(asms)
                   .DefineEndpointName("SBMQM_NSB")
                   .DefaultBuilder()
-          //.MsmqSubscriptionStorage()
             .DefiningCommandsAs(t => _commandDef.IsCommand(t))
                   .XmlSerializer()
-                  .MsmqTransport()
+                  .UseTransport<global::NServiceBus.Msmq>()
                   .UnicastBus()
               .SendOnly();
       
@@ -653,10 +654,9 @@ namespace ServiceBusMQ.NServiceBus4 {
         _bus = Configure.With(asms)
                 .DefineEndpointName("SBMQM_NSB")
                 .DefaultBuilder()
-          //.MsmqSubscriptionStorage()
           .DefiningCommandsAs(t => _commandDef.IsCommand(t))
-                .XmlSerializer()
-                .MsmqTransport()
+                .JsonSerializer()
+                .UseTransport<global::NServiceBus.Msmq>()
                 .UnicastBus()
             .SendOnly();
       }
@@ -684,12 +684,13 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public void SendCommand(string destinationServer, string destinationQueue, object message) {
+    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
+      var srv = connectionStrings["server"];
 
-      if( Tools.IsLocalHost(destinationServer) )
-        destinationServer = null;
+      if( Tools.IsLocalHost(srv) )
+        srv = null;
 
-      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationQueue + "@" + destinationServer : destinationQueue;
+      string dest = !string.IsNullOrEmpty(srv) ? destinationQueue + "@" + srv : destinationQueue;
 
 
       //var assemblies = message.GetType().Assembly

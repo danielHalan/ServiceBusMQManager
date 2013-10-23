@@ -38,8 +38,14 @@ namespace ServiceBusMQ.Configuration {
 
       public Dictionary<string, string> ConnectionSettings { get; set; }
 
+      public string[] CommandsAssemblyPaths { get; set; }
+
+      public CommandDefinition CommandDefinition { get; set; }
+      public string CommandContentType { get; set; }
+
       public ServerConfig3() { 
         MonitorInterval = DEFAULT_MONITOR_INTERVAL;
+        CommandDefinition = new CommandDefinition();
       }
 
       public static ServerConfig3 Default {
@@ -49,7 +55,11 @@ namespace ServiceBusMQ.Configuration {
             MonitorInterval = DEFAULT_MONITOR_INTERVAL,
             Name = Environment.MachineName,
             ConnectionSettings = new Dictionary<string, string>(),
-            MonitorQueues = new QueueConfig[0]
+            MonitorQueues = new QueueConfig[0],
+
+            CommandsAssemblyPaths = new string[0],
+            CommandDefinition = new CommandDefinition(),
+            CommandContentType = "XML"
           };
 
           r.ConnectionSettings.Add("server", Environment.MachineName);
@@ -66,6 +76,10 @@ namespace ServiceBusMQ.Configuration {
         obj.MonitorInterval = MonitorInterval;
         obj.MonitorQueues = MonitorQueues;
         obj.ConnectionSettings = new Dictionary<string,string>(ConnectionSettings);
+
+        obj.CommandsAssemblyPaths = CommandsAssemblyPaths;
+        obj.CommandDefinition = CommandDefinition;
+        obj.CommandContentType = CommandContentType;
       }
 
       public static string GetFullMessageBusName(string name, string version) {
@@ -129,10 +143,6 @@ namespace ServiceBusMQ.Configuration {
 
       public bool ShowOnNewMessages { get; set; }
 
-      public string[] CommandsAssemblyPaths { get; set; }
-      
-      public CommandDefinition CommandDefinition { get; set; }
-      public string CommandContentType { get; set; }
 
       public VersionCheck VersionCheck { get; set; }
       public int StartCount { get; set; }
@@ -158,27 +168,22 @@ namespace ServiceBusMQ.Configuration {
 
             if( srv.ServiceBusQueueType == "MSMQ (XML)" ) {
               srv.ServiceBusQueueType = "MSMQ";
-              CommandContentType = "XML";
+              srv.CommandContentType = "XML";
             } else if( srv.ServiceBusQueueType == "MSMQ (JSON)" ) {
               srv.ServiceBusQueueType = "MSMQ";
-              CommandContentType = "JSON";
+              srv.CommandContentType = "JSON";
+            }
+
+            if( srv.CommandDefinition == null ) {
+              srv.CommandDefinition = new CommandDefinition();
+              srv.CommandDefinition.InheritsType = "NServiceBus.ICommand, NServiceBus";
             }
 
           }
+
+          if( !srv.CommandContentType.IsValid() )
+            srv.CommandContentType = "XML";
         }
-
-        if( CommandDefinition == null ) {
-
-          CommandDefinition = new CommandDefinition();
-
-          // Re-evaluate after suppot for more then NServiceBus is implemented
-          if( this.Servers.Count == 0 || this.Servers.First().ServiceBus == "NServiceBus" )
-            CommandDefinition.InheritsType = "NServiceBus.ICommand, NServiceBus";
-
-        }
-
-        if( !CommandContentType.IsValid() )
-          CommandContentType = "XML";
 
       }
 

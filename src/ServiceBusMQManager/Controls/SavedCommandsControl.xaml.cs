@@ -14,12 +14,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
 using ServiceBusMQ;
+using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQManager.Controls {
 
@@ -40,7 +42,7 @@ namespace ServiceBusMQManager.Controls {
 
     CommandHistoryManager _mgr;
 
-    ObservableCollection<SavedCommandItem> _recent = new ObservableCollection<SavedCommandItem>();
+    ObservableCollection<SavedCommandItem3> _recent = new ObservableCollection<SavedCommandItem3>();
 
     public SavedCommandsControl() {
       InitializeComponent();
@@ -62,8 +64,8 @@ namespace ServiceBusMQManager.Controls {
       //_mgr.Unload();
     }
 
-    public SavedCommandItem SelectedItem {
-      get { return cbRecent.SelectedItem as SavedCommandItem; }
+    public SavedCommandItem3 SelectedItem {
+      get { return cbRecent.SelectedItem as SavedCommandItem3; }
       set { cbRecent.SelectedItem = value; }
     }
 
@@ -110,14 +112,14 @@ namespace ServiceBusMQManager.Controls {
 
     private bool _editMode;
 
-    private void OnSavedCommandSelected(SavedCommandItem cmd) {
+    private void OnSavedCommandSelected(SavedCommandItem3 cmd) {
 
       RaiseEvent(new RoutedEventArgs(SavedCommandSelectedEvent));
     }
 
 
     private void cbRecent_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommandItem;
+      var recent = cbRecent.SelectedItem as SavedCommandItem3;
 
       btnEdit.IsEnabled = recent != null;
 
@@ -317,7 +319,7 @@ namespace ServiceBusMQManager.Controls {
 
     }
     private void btnDelete_Click(object sender, RoutedEventArgs e) {
-      var recent = cbRecent.SelectedItem as SavedCommandItem;
+      var recent = cbRecent.SelectedItem as SavedCommandItem3;
       Updating = true;
       try {
 
@@ -336,7 +338,7 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
-    public void Remove(SavedCommandItem item) {
+    public void Remove(SavedCommandItem3 item) {
       if( item != null ) {
         _recent.Remove(item);
         _mgr.Remove(item);
@@ -345,8 +347,8 @@ namespace ServiceBusMQManager.Controls {
 
     public bool Updating { get; set; }
 
-    public SavedCommandItem CommandSent(object command, string serviceBus, string transport, string server, string queue) {
-      var sentCmd = _mgr.AddCommand(command, serviceBus, transport, server, queue);
+    public SavedCommandItem3 CommandSent(object command, string serviceBus, string transport, Dictionary<string, string> connectionStrings, string queue) {
+      var sentCmd = _mgr.AddCommand(command, serviceBus, transport, connectionStrings, queue);
 
       int pos = _recent.IndexOf(sentCmd);
       if( pos == -1 ) {

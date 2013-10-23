@@ -37,7 +37,7 @@ namespace ServiceBusMQManager.Dialogs {
   /// </summary>
   public partial class ManageServerDialog : Window {
 
-    enum ActionType { Edit, Add }
+    enum ActionType { Edit, Add, Copy }
 
     private SbmqSystem _sys;
     private ServiceBusMQ.Configuration.SystemConfig3 _config;
@@ -51,7 +51,7 @@ namespace ServiceBusMQManager.Dialogs {
     ActionType DialogActionType;
     private ServerConfig3 _server;
 
-    public ManageServerDialog(SbmqSystem system, ServerConfig3 server) {
+    public ManageServerDialog(SbmqSystem system, ServerConfig3 server, bool copy = false) {
       InitializeComponent();
 
       _sys = system;
@@ -63,12 +63,18 @@ namespace ServiceBusMQManager.Dialogs {
       Result = new ConfigWindow.AddServerResult();
 
       Result.Server = new ServerConfig3();
-      if( server != null )
+      if( server != null ) {
         server.CopyTo(Result.Server);
+      
+        if( copy ) {
+          Result.Server.Name = string.Empty;
+          Result.Server.ConnectionSettings = new Dictionary<string, string>();
+        }
+      }
+      DialogActionType = server == null ? ActionType.Add : ( copy ? ActionType.Copy : ActionType.Edit );
 
-      DialogActionType = server == null ? ActionType.Add : ActionType.Edit;
-
-      lbTitle.Content = Title = "{0} Server".With(DialogActionType);
+      string verb = ( DialogActionType == ActionType.Edit ) ? "Edit" : "Add"; 
+      lbTitle.Content = Title = "{0} Server".With(verb);
       lbInfo.Content = string.Empty;
 
       cbServiceBus.ItemsSource = _managerTypes.GroupBy(g => g.DisplayName).Select(x => x.Key).ToArray();
@@ -135,6 +141,12 @@ namespace ServiceBusMQManager.Dialogs {
     private void btnOK_Click(object sender, RoutedEventArgs e) {
       //SaveConfig();
 
+      if( _sys.Config.Servers.Any( s => s.Name == tbName.RetrieveValue<string>() ) ) {
+        
+        MessageBox.Show("A Service Bus Connection with same name already exists", "Name Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
+        return;
+      }
+
       Result.Server.ConnectionSettings = GetConnectionSettings();
 
       TryAccessServer(Result.Server.ConnectionSettings, () => { // Success
@@ -148,14 +160,14 @@ namespace ServiceBusMQManager.Dialogs {
         s.ServiceBusVersion = sb.Version;
         s.ServiceBusQueueType = cbTransport.SelectedItem as string;
 
-        if( DialogActionType == ActionType.Add ) {
+        if( DialogActionType == ActionType.Edit ) {
+          s.CopyTo(_server);
+
+        } else { // Add or Copy
           s.MonitorQueues = new QueueConfig[0];
 
           _sys.Config.Servers.Add(Result.Server);
           _sys.Config.MonitorServerName = s.Name;
-
-        } else { // Edit
-          s.CopyTo(_server);
         }
 
         DialogResult = true;
@@ -166,6 +178,9 @@ namespace ServiceBusMQManager.Dialogs {
     private void UpdateNameLabel() {
 
       if( !_nameEdited ) {
+
+        if( cbServiceBus.SelectedValue == null )
+          return;
 
         var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
 
@@ -298,9 +313,21 @@ namespace ServiceBusMQManager.Dialogs {
           var value = Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null;
           var ctl = new ServerConnectionParamControl(prm, value);
           ctl.ValueChanged += ctl_ValueChanged;
+          ctl.LostFocus += ctl_LostFocus;
           parameters.Children.Add(ctl);
         }
 
+      }
+    }
+
+    void ctl_LostFocus(object sender, RoutedEventArgs e) {
+      if( parameters.Children.IndexOf((UIElement)sender) == 0 ) {
+        var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
+        var v = ctl.Value.ToLower();
+        if( v == "localhost" || v == "127.1.1.1" )
+          ctl.Value = Environment.MachineName;
+
+        UpdateNameLabel();
       }
     }
 

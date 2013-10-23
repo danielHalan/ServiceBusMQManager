@@ -412,6 +412,7 @@
     </EmbeddedResource>
     <Resource Include="Images\Msg.Warn.png" />
     <Resource Include="Images\loading2.GIF" />
+    <Resource Include="Images\copy-white.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>

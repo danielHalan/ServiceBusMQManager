@@ -43,10 +43,10 @@ namespace ServiceBusMQ.Manager {
     /// <summary>
     /// Send provided Command object to destination Server and Queue.
     /// </summary>
-    /// <param name="destinationServer"></param>
+    /// <param name="connectionStrings"></param>
     /// <param name="destinationQueue"></param>
     /// <param name="message"></param>
-    void SendCommand(string destinationServer, string destinationQueue, object message);
+    void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message);
 
     /// <summary>
     /// Serialize command to a textformat, the format should correlate to the MessageContentFormat property.

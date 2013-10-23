@@ -86,7 +86,7 @@ namespace ServiceBusMQManager {
 
             if( itm != null ) {
               Out(string.Format("Sending Command '{0}'...", cmd));
-              sys.SendCommand(itm.SentCommand.Server, itm.SentCommand.Queue, itm.SentCommand.Command);
+              sys.SendCommand(itm.SentCommand.ConnectionStrings, itm.SentCommand.Queue, itm.SentCommand.Command);
 
             } else {
               Out(string.Format("No Command with name '{0}' found, exiting...", cmd));

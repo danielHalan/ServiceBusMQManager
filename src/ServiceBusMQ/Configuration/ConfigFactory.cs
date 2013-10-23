@@ -126,13 +126,15 @@ namespace ServiceBusMQ.Configuration {
           ServiceBusQueueType = s.MessageBusQueueType,
           MonitorInterval = s.MonitorInterval,
           ConnectionSettings = new Dictionary<string, string> { { "server", s.Name } },
-          MonitorQueues = s.MonitorQueues
+          MonitorQueues = s.MonitorQueues,
+
+          CommandsAssemblyPaths = cfg2.CommandsAssemblyPaths,
+          CommandDefinition = cfg2.CommandDefinition,
+          CommandContentType = cfg2.CommandContentType
+
         }).ToList();
 
         cfg3.ShowOnNewMessages = cfg2.ShowOnNewMessages;
-        cfg3.CommandsAssemblyPaths = cfg2.CommandsAssemblyPaths;
-        cfg3.CommandDefinition = cfg2.CommandDefinition;
-        cfg3.CommandContentType = cfg2.CommandContentType;
 
         cfg3.VersionCheck = cfg2.VersionCheck;
         cfg3.StartCount = cfg2.StartCount;
