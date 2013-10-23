@@ -30,7 +30,7 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class App : Application {
 
-    enum ArgType { Unknown, Send, Silent, Minimized }
+    enum ArgType { Unknown, Send, Silent, Minimized=20, Force=21 }
 
     class Arg {
       public ArgType Type { get; set; }
@@ -50,7 +50,7 @@ namespace ServiceBusMQManager {
     }
 
 
-    [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
+    //[LoaderOptimization(LoaderOptimization.MultiDomainHost)]
     [STAThread]
     static void Main() {
       App app = new App();
@@ -101,7 +101,7 @@ namespace ServiceBusMQManager {
         return;
       }
 
-      if( args.Where( a => a.Type != ArgType.Minimized ).Count() > 0 ) {
+      if( args.Where(a => (int)a.Type < 20 ).Count() > 0 ) {
         AttachConsole(-1);
         PrintHeader();
         PrintHelp();
@@ -111,26 +111,32 @@ namespace ServiceBusMQManager {
       }
 
 
-      // Check if we are already running...
-      Process currProc = Process.GetCurrentProcess();
-      Process existProc = Process.GetProcessesByName(currProc.ProcessName).Where(p => p.Id != currProc.Id).FirstOrDefault();
-      if( existProc != null ) {
-        try {
-          // Show the already started SBMQM
-          WindowTools.EnumWindows(new WindowTools.EnumWindowsProc((hwnd, lparam) => {
-            uint procId;
-            WindowTools.GetWindowThreadProcessId(hwnd, out procId);
-            if( procId == existProc.Id ) {
-              if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
-                return false;
-            }
-            return true;
-          }), 0);
 
-        } finally {
-          Application.Current.Shutdown();
+
+      if( !args.Any(a => a.Type == ArgType.Force) ) {
+
+        // Check if we are already running...
+        Process currProc = Process.GetCurrentProcess();
+        Process existProc = Process.GetProcessesByName(currProc.ProcessName).Where(p => p.Id != currProc.Id).FirstOrDefault();
+        if( existProc != null ) {
+          try {
+            // Show the already started SBMQM
+            WindowTools.EnumWindows(new WindowTools.EnumWindowsProc((hwnd, lparam) => {
+              uint procId;
+              WindowTools.GetWindowThreadProcessId(hwnd, out procId);
+              if( procId == existProc.Id ) {
+                if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
+                  return false;
+              }
+              return true;
+            }), 0);
+
+          } finally {
+            Application.Current.Shutdown();
+          }
+          return;
         }
-        return;
+
       }
 
 
@@ -174,6 +180,7 @@ namespace ServiceBusMQManager {
             case "--send": r.Add(new Arg(ArgType.Send, args[++i])); break;
             case "-s": r.Add(new Arg(ArgType.Silent, null)); break;
             case "-m": r.Add(new Arg(ArgType.Minimized, null)); break;
+            case "-f": r.Add(new Arg(ArgType.Force, null)); break;
             default: r.Add(new Arg(ArgType.Unknown, null)); break;
           }
 
