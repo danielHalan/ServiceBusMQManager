@@ -19,22 +19,24 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using NLog;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.Configuration {
-  
+
   public class AssemblyCache {
 
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     static Type INTERFACE = typeof(IServiceBus);
 
     public class SbmqmServiceBusType {
       public string ServiceBusName { get; set; }
       public string ServiceBusVersion { get; set; }
-      
+
       public string MessageQueueType { get; set; }
       public string[] AvailableMessageContentTypes { get; set; }
-      
+
       public string[] Interfaces { get; set; }
 
       public string TypeName { get; set; }
@@ -51,7 +53,7 @@ namespace ServiceBusMQ.Configuration {
     public class AssemblyCacheFile {
       public string Path { get; set; }
       public int PathHash { get; set; }
-      
+
       public List<SbmqmAssembly> Assemblies { get; set; }
     }
 
@@ -65,17 +67,19 @@ namespace ServiceBusMQ.Configuration {
       Path = path;
 
       _cacheFile = SbmqSystem.AppDataPath + "asmCache.dat";
+    }
 
+    public void Initialize() {
       if( File.Exists(_cacheFile) ) {
         AssemblyCacheFile f = LoadFile();
 
-        if( f != null && f.Path == path && f.PathHash == GetPathHash(path) ) {
-          
+        if( f != null && f.Path == Path && f.PathHash == GetPathHash(Path) ) {
+
           Assemblies = f.Assemblies;
-        
+
         } else Rescan();
-      
-      } else Rescan();
+
+      } else Rescan();   
     }
 
     public static AssemblyCache Create(string path) {
@@ -85,17 +89,25 @@ namespace ServiceBusMQ.Configuration {
     private AssemblyCacheFile LoadFile() {
       try {
         return JsonFile.Read<AssemblyCacheFile>(_cacheFile);
-      } catch { 
+      } catch {
         return null;
       }
     }
 
+    public bool Scanning { get; private set; }
+
     public void Rescan() {
-      Assemblies = new List<SbmqmAssembly>();
+      Scanning = true;
+      try {
+        Assemblies = new List<SbmqmAssembly>();
 
-      FindAssemblies();
+        FindAssemblies();
 
-      SaveFile();
+        SaveFile();
+      
+      } finally {
+        Scanning = false;
+      }
     }
 
     private void SaveFile() {
@@ -117,8 +129,8 @@ namespace ServiceBusMQ.Configuration {
 
       foreach( var file in files ) {
         hash += file.Length;
-      
-        if( file.EndsWith(".dll") ) { 
+
+        if( file.EndsWith(".dll") ) {
           var fi = FileVersionInfo.GetVersionInfo(file);
           hash += fi.FileMajorPart + fi.FileMinorPart + fi.FileBuildPart;
         }
@@ -132,35 +144,40 @@ namespace ServiceBusMQ.Configuration {
 
 
     private void FindAssemblies() {
-    
+
       foreach( Assembly asm in GetAllAssemblies() ) {
-        var a = new SbmqmAssembly() { 
+        var a = new SbmqmAssembly() {
           AssemblyFile = asm.Location,
           AssemblyName = asm.FullName,
-          Types = new List<SbmqmServiceBusType>() 
+          Types = new List<SbmqmServiceBusType>()
         };
 
-        foreach( var type in asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface) ) {
+        try {
+          foreach( var type in asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface) ) {
 
-          if( INTERFACE.IsAssignableFrom(type) ) {
-            SbmqmServiceBusType t = new SbmqmServiceBusType();
+            if( INTERFACE.IsAssignableFrom(type) ) {
+              SbmqmServiceBusType t = new SbmqmServiceBusType();
 
-            IServiceBus mgr = (IServiceBus)Activator.CreateInstance(type);
-            t.ServiceBusName = mgr.ServiceBusName;
-            t.ServiceBusVersion = mgr.ServiceBusVersion;
-            t.MessageQueueType = mgr.MessageQueueType; 
-            t.AvailableMessageContentTypes = mgr.AvailableMessageContentTypes;
-            t.Interfaces = type.GetInterfaces().Select( i => i.Name ).ToArray();
-            t.TypeName = type.FullName;
+              IServiceBus mgr = (IServiceBus)Activator.CreateInstance(type);
+              t.ServiceBusName = mgr.ServiceBusName;
+              t.ServiceBusVersion = mgr.ServiceBusVersion;
+              t.MessageQueueType = mgr.MessageQueueType;
+              t.AvailableMessageContentTypes = mgr.AvailableMessageContentTypes;
+              t.Interfaces = type.GetInterfaces().Select(i => i.Name).ToArray();
+              t.TypeName = type.FullName;
 
-            a.Types.Add(t);
+              a.Types.Add(t);
+            }
           }
+
+        } catch( Exception e ) {
+          _log.InfoException("Error when Getting Types for " + asm.FullName, e);
         }
 
         if( a.Types.Count > 0 )
           Assemblies.Add(a);
       }
-    
+
     }
 
 
@@ -174,10 +191,10 @@ namespace ServiceBusMQ.Configuration {
           result.Add(Assembly.LoadFile(asm));
       }
       return result.ToArray();
-      
+
     }
 
 
-  
+
   }
 }

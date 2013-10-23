@@ -503,8 +503,15 @@ namespace ServiceBusMQManager {
           ShowActivityTrayIcon();
 
         // Show Window
-        if( _sys.Config.ShowOnNewMessages && !_firstLoad ) // && !this.IsVisible )
+        if( _sys.Config.ShowOnNewMessages && !_firstLoad && !this.IsVisible ) {
           this.Show();
+
+          if( !Topmost ) {
+            Topmost = true;
+            Thread.Sleep(100);
+            Topmost = false;
+          }
+        }
 
         _firstLoad = false;
 

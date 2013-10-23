@@ -104,16 +104,20 @@ namespace ServiceBusMQ.Manager {
 
     internal static string GetManagerFilePath(string name, string version, string queueType) {
       try {
-        foreach( var asm in AsmCache.Assemblies ) {
-          var type = asm.Types.SingleOrDefault(t =>
-                                  t.ServiceBusName == name &&
-                                  t.ServiceBusVersion == version &&
-                                  t.MessageQueueType == queueType &&
-                                  t.Interfaces.Any(i => i.EndsWith("IServiceBusManager")));
+        if( !AsmCache.Scanning ) {
 
-          if( type != null )
-            return asm.AssemblyFile;
-        }
+          foreach( var asm in AsmCache.Assemblies ) {
+            var type = asm.Types.SingleOrDefault(t =>
+                                    t.ServiceBusName == name &&
+                                    t.ServiceBusVersion == version &&
+                                    t.MessageQueueType == queueType &&
+                                    t.Interfaces.Any(i => i.EndsWith("IServiceBusManager")));
+
+            if( type != null )
+              return asm.AssemblyFile;
+          }
+
+        } else return string.Empty;
 
       } catch( TypeLoadException ) {
         AsmCache.Rescan();
@@ -187,8 +191,10 @@ namespace ServiceBusMQ.Manager {
     static AssemblyCache _asmCache = null;
     static AssemblyCache AsmCache {
       get {
-        if( _asmCache == null )
+        if( _asmCache == null ) {
           _asmCache = AssemblyCache.Create(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+          _asmCache.Initialize();
+        }
 
         return _asmCache;
       }

@@ -24,7 +24,7 @@ using System.IO;
 
 namespace ServiceBusMQ.MassTransit
 {
-	public class MsmqMessageQueue
+  public class MsmqMessageQueue 
 	{
 
 		public Queue Queue { get; set; }

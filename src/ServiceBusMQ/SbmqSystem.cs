@@ -438,21 +438,23 @@ namespace ServiceBusMQ {
         return Assembly.LoadFrom(fn);
       } else {
 
-        string adapterPath = Path.GetDirectoryName(ServiceBusFactory.GetManagerFilePath(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType));
+        var mgrFilePath = ServiceBusFactory.GetManagerFilePath(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
+        if( mgrFilePath.IsValid() ) {
+          string adapterPath = Path.GetDirectoryName(mgrFilePath);
 
-        fn = Path.Combine(adapterPath, asmName + ".dll");
-        if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
-          return Assembly.LoadFrom(fn);
+          fn = Path.Combine(adapterPath, asmName + ".dll");
+          if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
+            return Assembly.LoadFrom(fn);
 
-        else {
-          adapterPath = root + "\\Adapters\\";
-
-          foreach( var dir in Directory.GetDirectories(adapterPath) ) {
-            fn = Path.Combine(dir, asmName + ".dll");
-            if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
-              return Assembly.LoadFrom(fn);
-          }
         }
+
+        string adaptersPath = root + "\\Adapters\\";
+        foreach( var dir in Directory.GetDirectories(adaptersPath) ) {
+          fn = Path.Combine(dir, asmName + ".dll");
+          if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
+            return Assembly.LoadFrom(fn);
+        }
+        
       }
 
 
