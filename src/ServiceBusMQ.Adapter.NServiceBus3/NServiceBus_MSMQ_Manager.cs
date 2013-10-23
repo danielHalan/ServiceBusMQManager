@@ -70,6 +70,7 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( QueueType qt in Enum.GetValues(typeof(QueueType)) ) {
 
         if( qt != QueueType.Error ) {
+          /* TEMP Remove
           foreach( var q in GetQueueListByType(qt) ) {
             var t = new Thread(new ParameterizedThreadStart(PeekMessages));
             if( q.Main.CanRead ) {
@@ -77,7 +78,7 @@ namespace ServiceBusMQ.NServiceBus {
               t.Start(new PeekThreadParam() { MsmqQueue = q.Main, Queue = q.Queue });
             }
           }
-
+          */
 
         }
       }
@@ -180,7 +181,7 @@ namespace ServiceBusMQ.NServiceBus {
       try {
         _monitorQueues.Add(new MsmqMessageQueue(serverConnection["server"], queue));
       } catch( Exception e ) {
-        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverConnection, queue.Name), e, false);
+        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverConnection.AsString(), queue.Name), e, false);
       }
     }
 
@@ -228,7 +229,7 @@ namespace ServiceBusMQ.NServiceBus {
 
         try {
           var msgs = q.Main.GetAllMessages();
-          result.Count = (uint)msgs.Length;
+          result.Count += (uint)msgs.Length;
 
           foreach( var msg in msgs ) {
 
@@ -651,7 +652,7 @@ namespace ServiceBusMQ.NServiceBus {
                 .DefaultBuilder()
           //.MsmqSubscriptionStorage()
           .DefiningCommandsAs(t => _commandDef.IsCommand(t))
-                .XmlSerializer()
+                .JsonSerializer()
                 .MsmqTransport()
                 .UnicastBus()
             .SendOnly();
@@ -680,12 +681,13 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public void SendCommand(string destinationServer, string destinationQueue, object message) {
+    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
+      var srv = connectionStrings["server"];
 
-      if( Tools.IsLocalHost(destinationServer) )
-        destinationServer = null;
+      if( Tools.IsLocalHost(srv) )
+        srv = null;
 
-      string dest = !string.IsNullOrEmpty(destinationServer) ? destinationQueue + "@" + destinationServer : destinationQueue;
+      string dest = !string.IsNullOrEmpty(srv) ? destinationQueue + "@" + srv : destinationQueue;
 
 
       //var assemblies = message.GetType().Assembly

@@ -35,5 +35,9 @@ namespace ServiceBusMQ.Configuration {
       Color = color;
     }
 
+    public override string ToString() {
+      return Name;
+    }
+
   }
 }

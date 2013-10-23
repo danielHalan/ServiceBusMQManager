@@ -102,6 +102,29 @@ namespace ServiceBusMQ.Manager {
       throw new NoMessageBusManagerFound(name, queueType);
     }
 
+    internal static string GetManagerFilePath(string name, string version, string queueType) {
+      try {
+        foreach( var asm in AsmCache.Assemblies ) {
+          var type = asm.Types.SingleOrDefault(t =>
+                                  t.ServiceBusName == name &&
+                                  t.ServiceBusVersion == version &&
+                                  t.MessageQueueType == queueType &&
+                                  t.Interfaces.Any(i => i.EndsWith("IServiceBusManager")));
+
+          if( type != null )
+            return asm.AssemblyFile;
+        }
+
+      } catch( TypeLoadException ) {
+        AsmCache.Rescan();
+
+        return GetManagerFilePath(name, version, queueType);
+      }
+
+
+      throw new NoMessageBusManagerFound(name, queueType);    
+    }
+
     /*
     static Assembly domain_AssemblyResolve(object sender, ResolveEventArgs args) {
       string asmName = args.Name.Split(',')[0];

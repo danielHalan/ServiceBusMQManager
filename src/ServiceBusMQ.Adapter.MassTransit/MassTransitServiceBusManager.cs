@@ -55,6 +55,9 @@ namespace ServiceBusMQ.MassTransit
 		static readonly string JSON_START = "\"$type\":\"";
 		static readonly string JSON_END = ",";
 
+    static readonly string CS_SERVER = "server";
+    static readonly string CS_SUBSCRIPTION_SERVICE = "subscriptionQueueService";
+
 		protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
 
     #region GetProcessedMessages
@@ -827,15 +830,15 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-		public void SendCommand(string destinationServer, string destinationQueue, object message)
+    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message)
 		{
-			if (_subscriptionQueueService != string.Empty)
-			{
+      var subscr = connectionStrings.GetValue(CS_SUBSCRIPTION_SERVICE);
+
+      if( subscr.IsValid() )
 				_bus.Publish(message);
-			}
-			else
-			{
-				var sendTo = string.Format("msmq://{0}/{1}", destinationServer, destinationQueue);
+			
+      else {
+        var sendTo = string.Format("msmq://{0}/{1}", connectionStrings.GetValue(CS_SERVER), destinationQueue);
 				_bus.GetEndpoint(new Uri(sendTo)).Send(message);
 			}
 		}

@@ -121,9 +121,12 @@ namespace ServiceBusMQManager {
     private void ShowConfigDialog() {
       ConfigWindow dlg = new ConfigWindow(_sys);
 
+      _sys.StopMonitoring();
+
       if( dlg.ShowDialog() == true ) {
         RestartSystem();
-      }
+
+      } else _sys.StartMonitoring();
     }
 
 
@@ -141,7 +144,7 @@ namespace ServiceBusMQManager {
       w.DoWork += (s, e) => {
         try {
           _sys = SbmqSystem.Create();
-          _sys.ItemsChanged += MessageMgr_ItemsChanged;
+          _sys.ItemsChanged += sys_ItemsChanged;
           _sys.ErrorOccured += _sys_ErrorOccured;
           _sys.WarningOccured += _sys_WarningOccured;
           _mgr = _sys.Manager;
@@ -482,7 +485,7 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void MessageMgr_ItemsChanged(object sender, ServiceBusMQ.ItemsChangedEventArgs e) {
+    private void sys_ItemsChanged(object sender, ServiceBusMQ.ItemsChangedEventArgs e) {
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
@@ -500,7 +503,7 @@ namespace ServiceBusMQManager {
           ShowActivityTrayIcon();
 
         // Show Window
-        if( _sys.Config.ShowOnNewMessages && !_firstLoad && !this.IsVisible )
+        if( _sys.Config.ShowOnNewMessages && !_firstLoad ) // && !this.IsVisible )
           this.Show();
 
         _firstLoad = false;

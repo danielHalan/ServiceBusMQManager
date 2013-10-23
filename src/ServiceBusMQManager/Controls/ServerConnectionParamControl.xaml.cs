@@ -54,6 +54,11 @@ namespace ServiceBusMQManager.Controls {
       tbValue.Init(value ?? p.DefaultValue, typeof(string), true);
 
       tbValue.ValueChanged += tbValue_ValueChanged;
+      tbValue.LostFocus += tbValue_LostFocus;
+    }
+
+    void tbValue_LostFocus(object sender, System.Windows.RoutedEventArgs e) {
+      OnLostFocus(e);
     }
 
     void tbValue_ValueChanged(object sender, EventArgs e) {
@@ -64,6 +69,10 @@ namespace ServiceBusMQManager.Controls {
       get { 
         return tbValue.RetrieveValue<string>();
       } 
+
+      set { 
+        tbValue.UpdateValue(value);
+      }
     }
 
     public event EventHandler<EventArgs> ValueChanged;
@@ -71,6 +80,15 @@ namespace ServiceBusMQManager.Controls {
       if( ValueChanged != null )
         ValueChanged(this, EventArgs.Empty);
     }
+
+
+    public new event RoutedEventHandler LostFocus;
+    void OnLostFocus(RoutedEventArgs e) {
+      if( LostFocus != null )
+        LostFocus(this, e);
+    }
+
+
 
   }
 }

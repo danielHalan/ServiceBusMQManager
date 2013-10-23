@@ -82,6 +82,8 @@
     <Compile Include="Configuration\AssemblyCache.cs" />
     <Compile Include="Configuration\CommandDefinition.cs" />
     <Compile Include="CompareObjects.cs" />
+    <Compile Include="Configuration\CommandHistory2.cs" />
+    <Compile Include="Configuration\CommandHistory3.cs" />
     <Compile Include="Configuration\ConfigFactory.cs" />
     <Compile Include="Configuration\QueueConfig.cs" />
     <Compile Include="Configuration\SavedCommand.cs">
