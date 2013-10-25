@@ -147,6 +147,16 @@ namespace ServiceBusMQManager.Dialogs {
         return;
       }
 
+      bool validConnectionSettings = true;
+      foreach( var prm in parameters.Children.Cast<ServerConnectionParamControl>() )
+        if( !prm.Validate() )
+          validConnectionSettings = false;
+
+      if( !validConnectionSettings ) {
+        lbInfo.Content = "Not all required Connection Settings are filled in";
+        return;
+      }
+
       Result.Server.ConnectionSettings = GetConnectionSettings();
 
       TryAccessServer(Result.Server.ConnectionSettings, () => { // Success

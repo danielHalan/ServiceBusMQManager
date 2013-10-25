@@ -51,7 +51,7 @@ namespace ServiceBusMQManager.Controls {
       
       Param = p;
       Text.Content = p.DisplayName + ":";
-      tbValue.Init(value ?? p.DefaultValue, typeof(string), true);
+      tbValue.Init(value ?? p.DefaultValue, typeof(string), p.Optional);
 
       tbValue.ValueChanged += tbValue_ValueChanged;
       tbValue.LostFocus += tbValue_LostFocus;
@@ -73,6 +73,10 @@ namespace ServiceBusMQManager.Controls {
       set { 
         tbValue.UpdateValue(value);
       }
+    }
+
+    public bool Validate() { 
+      return tbValue.Validate();
     }
 
     public event EventHandler<EventArgs> ValueChanged;

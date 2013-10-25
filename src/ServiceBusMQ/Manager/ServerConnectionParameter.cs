@@ -24,12 +24,14 @@ namespace ServiceBusMQ.Manager {
     
     public string SchemaName { get; set; }
     public string DefaultValue { get; set; }
+    public bool Optional { get; set; }
 
-    public static ServerConnectionParameter Create(string schemaName, string displayName, string defaultValue = null) {
+    public static ServerConnectionParameter Create(string schemaName, string displayName, string defaultValue = null, bool optional = false) {
       return new ServerConnectionParameter() { 
         SchemaName = schemaName,
         DisplayName = displayName,
-        DefaultValue = defaultValue
+        DefaultValue = defaultValue,
+        Optional = optional
       };
     }
   }
