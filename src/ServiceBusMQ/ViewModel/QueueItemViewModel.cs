@@ -98,7 +98,6 @@ namespace ServiceBusMQ.ViewModel {
       TextWidth = formattedText.Width + 20;
     }
 
-
     public double TextWidth { get; private set; }
 
     public string ArrivedTimeString { get; set; }

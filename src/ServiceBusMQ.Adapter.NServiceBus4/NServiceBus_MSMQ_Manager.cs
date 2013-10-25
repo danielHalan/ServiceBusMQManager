@@ -24,8 +24,10 @@ using System.Threading;
 using System.Xml.Serialization;
 using NLog;
 using NServiceBus;
+using NServiceBus.Persistence.Raven.SubscriptionStorage;
 using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using NServiceBus.Transports.Msmq;
+using Raven.Client.Document;
 //using NServiceBus;
 //using NServiceBus.Utils;
 using ServiceBusMQ.Manager;
@@ -36,7 +38,7 @@ using ServiceBusMQ.NServiceBus;
 namespace ServiceBusMQ.NServiceBus4 {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>,  ISendCommand, IViewSubscriptions {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>, ISendCommand, IViewSubscriptions {
 
     protected Logger _log = LogManager.GetCurrentClassLogger();
 
@@ -46,6 +48,9 @@ namespace ServiceBusMQ.NServiceBus4 {
     public override string ServiceBusName { get { return "NServiceBus"; } }
     public override string ServiceBusVersion { get { return "4"; } }
     public override string MessageQueueType { get { return "MSMQ"; } }
+
+    public static readonly string CS_SERVER = "server";
+    public static readonly string CS_RAVEN_PERSISTANCE = "ravenPersistence";
 
 
     class PeekThreadParam {
@@ -232,7 +237,7 @@ namespace ServiceBusMQ.NServiceBus4 {
 
         try {
           var msgs = q.Main.GetAllMessages();
-          result.Count = (uint)msgs.Length;
+          result.Count += (uint)msgs.Length;
 
           foreach( var msg in msgs ) {
 
@@ -429,36 +434,91 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public override MessageSubscription[] GetMessageSubscriptions(string server) {
-
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
+      var server = connectionSettings[CS_SERVER];
       List<MessageSubscription> r = new List<MessageSubscription>();
 
-      foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
-                                            Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName) ) {
+      // Raven Persistance
+      var ravenUrl = connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, null) ?? "http://" + server + ":8080"; 
+      var db = new DocumentStore {
+        Url = ravenUrl
+      };
+      db.Initialize();
 
-        MessageQueue q = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
+      // MSMQ Persistance
+      var msmqQ = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName);
 
-        q.MessageReadPropertyFilter.Label = true;
-        q.MessageReadPropertyFilter.Body = true;
+      foreach( var queueName in queues ) {
 
-        try {
-          var publisher = q.GetDisplayName().Replace(".subscriptions", string.Empty);
+        // First check MSMQ
+        if( msmqQ.Any(mq => mq == queueName + ".subscriptions") ) {
 
-          foreach( var msg in q.GetAllMessages() ) {
+          MessageQueue q = Msmq.Create(server, queueName + ".subscriptions", QueueAccessMode.ReceiveAndAdmin);
 
-            var itm = new MessageSubscription();
-            itm.FullName = GetSubscriptionType(ReadMessageStream(msg.BodyStream));
-            itm.Name = ParseClassName(itm.FullName);
-            itm.Subscriber = msg.Label;
-            itm.Publisher = publisher;
+          q.MessageReadPropertyFilter.Label = true;
+          q.MessageReadPropertyFilter.Body = true;
 
-            r.Add(itm);
+          try {
+            foreach( var msg in q.GetAllMessages() ) {
+
+              var itm = new MessageSubscription();
+              itm.FullName = GetSubscriptionType(ReadMessageStream(msg.BodyStream));
+              itm.Name = ParseClassName(itm.FullName);
+              itm.Subscriber = msg.Label;
+              itm.Publisher = queueName;
+
+              r.Add(itm);
+            }
+          } catch( Exception e ) {
+            OnError("Error occured when getting subcriptions", e, true);
           }
-        } catch( Exception e ) {
-          OnError("Error occured when getting subcriptions", e, true);
+
+
+        } else { // RavenDB
+
+          var headers = db.DatabaseCommands.Head("Raven/Databases/" + queueName);
+          if( headers != null ) {
+
+            using( var s = db.OpenSession(queueName) ) {
+
+              //s.Advanced.AllowNonAuthoritativeInformation = false;
+              //var doc = s.Load<Subscription>("subscriptions/88dc7793-0cbd-ec39-5dd2-6b982e1e3c76");
+              //if( doc != null ) 
+              //  Console.Write("WOW");
+
+              var list = s.Advanced.LoadStartingWith<Subscription>("subscription", null, 0, 1024).ToArray();
+
+              foreach( var subr in list ) { //.StartsWith("Subscriptions/")) ) {
+
+                foreach( var client in subr.Clients ) {
+
+                  var itm = new MessageSubscription();
+                  itm.FullName = subr.MessageType.ToString();
+                  itm.Name = ParseClassName(itm.FullName);
+                  itm.Subscriber = client.ToString();
+                  itm.Publisher = queueName;
+
+                  r.Add(itm);
+                }
+
+              }
+            }
+          }
+
+
+
         }
 
+
       }
+
+
+
+
+      //foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
+      //                                      Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName) ) {
+
+      //}
 
       return r.ToArray();
     }
@@ -624,7 +684,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings) {
       _commandDef = cmdDef;
 
-      Console.Write( typeof(global::NServiceBus.Configure).FullName );
+      Console.Write(typeof(global::NServiceBus.Configure).FullName);
 
       List<Assembly> asms = new List<Assembly>();
 
@@ -648,7 +708,7 @@ namespace ServiceBusMQ.NServiceBus4 {
                   .UseTransport<global::NServiceBus.Msmq>()
                   .UnicastBus()
               .SendOnly();
-      
+
       } else if( CommandContentFormat == "JSON" ) {
 
         _bus = Configure.With(asms)

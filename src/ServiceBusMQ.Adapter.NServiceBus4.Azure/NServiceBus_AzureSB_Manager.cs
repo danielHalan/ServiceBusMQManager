@@ -34,6 +34,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     public override string ServiceBusVersion { get { return "4"; } }
     public override string MessageQueueType { get { return "Azure Service Bus"; } }
 
+    static readonly string CS_SERVER = "server";
 
 
     public override void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
@@ -67,7 +68,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       }
     }
 
-    public override MessageSubscription[] GetMessageSubscriptions(string server) {
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
       return new MessageSubscription[0];
     }
 
@@ -137,7 +138,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
         try {
           var msgs = q.Main.PeekBatch(SbmqSystem.MAX_ITEMS_PER_QUEUE);
-          result.Count = (uint)msgs.Count();
+          result.Count += (uint)msgs.Count();
 
           foreach( var msg in msgs ) {
 

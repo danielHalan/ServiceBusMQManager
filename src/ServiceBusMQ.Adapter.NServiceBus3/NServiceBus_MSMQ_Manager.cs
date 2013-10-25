@@ -43,6 +43,8 @@ namespace ServiceBusMQ.NServiceBus {
     public override string ServiceBusVersion { get { return "3"; } }
     public override string MessageQueueType { get { return "MSMQ"; } }
 
+    static readonly string CS_SERVER = "server";
+
 
     class PeekThreadParam {
       public Queue Queue { get; set; }
@@ -426,8 +428,8 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override MessageSubscription[] GetMessageSubscriptions(string server) {
-
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
+      var server = connectionSettings[CS_SERVER];
       List<MessageSubscription> r = new List<MessageSubscription>();
 
       foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).

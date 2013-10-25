@@ -875,8 +875,9 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-		public MessageSubscription[] GetMessageSubscriptions(string server)
+    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues)
 		{
+      var server = connectionSettings[CS_SERVER];
 			List<MessageSubscription> r = new List<MessageSubscription>();
 
 			foreach (var queueName in MessageQueue.GetPrivateQueuesByMachine(server).

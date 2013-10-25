@@ -40,7 +40,8 @@ namespace ServiceBusMQ.NServiceBus4 {
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 
         return new ServerConnectionParameter[] { 
-          ServerConnectionParameter.Create("server", "Server Name")
+          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_SERVER, "Server Name"),
+          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, "Raven Persistence Url")
         };
       }
     }

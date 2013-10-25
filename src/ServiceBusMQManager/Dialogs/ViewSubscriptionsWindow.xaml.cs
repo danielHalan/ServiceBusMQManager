@@ -47,11 +47,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
-      BindServers();
-
-      lvTypes.ItemsSource = _items;
-
-      WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
     private void BindServers() {
@@ -70,23 +65,28 @@ namespace ServiceBusMQManager.Dialogs {
 
       //LoadSubscriptionTypes();
 
+      BindServers();
 
+      lvTypes.ItemsSource = _items;
 
       tbFilter.Focus();
+      WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
-    private void LoadSubscriptionTypes(string serverName = null) {
-      if( serverName == null )
-        serverName = cbServer.SelectedValue as string;
+    private void LoadSubscriptionTypes(ServerConfig3 server = null) {
+      if( server == null )
+        server = ( cbServer.SelectedItem as ServerConfig3 );
 
-      if( !Tools.IsLocalHost(serverName) ) {
+      var serverName = server.ConnectionSettings["server"];
+
+      //if( !Tools.IsLocalHost(serverName) ) {
         imgServerLoading.Visibility = System.Windows.Visibility.Visible;
         btnRefresh.Visibility = System.Windows.Visibility.Hidden;
         cbServer.IsEnabled = false;
-      }
+      //}
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s, e) => { e.Result = _sys.GetMessageSubscriptions(serverName); };
+      w.DoWork += (s, e) => { e.Result = _sys.GetMessageSubscriptions(server.ConnectionSettings, server.MonitorQueues.Select( q => q.Name )); };
       w.RunWorkerCompleted += (s, e) => {
         MessageSubscription[] subs = e.Result as MessageSubscription[];
 
@@ -99,11 +99,11 @@ namespace ServiceBusMQManager.Dialogs {
           _items.Add(ms);
         }
 
-        if( !Tools.IsLocalHost(serverName) ) {
+        //if( !Tools.IsLocalHost(serverName) ) {
           imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
           btnRefresh.Visibility = System.Windows.Visibility.Visible;
           cbServer.IsEnabled = true;
-        }
+        //}
 
         Filter();
       };
@@ -210,7 +210,8 @@ namespace ServiceBusMQManager.Dialogs {
 
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 
-      LoadSubscriptionTypes(( e.AddedItems[0] as ServerConfig2 ).Name);
+      if( e.AddedItems.Count > 0 )
+        LoadSubscriptionTypes( e.AddedItems[0] as ServerConfig3 );
     }
 
 
