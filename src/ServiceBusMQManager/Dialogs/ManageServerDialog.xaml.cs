@@ -334,7 +334,7 @@ namespace ServiceBusMQManager.Dialogs {
       if( parameters.Children.IndexOf((UIElement)sender) == 0 ) {
         var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
         var v = ctl.Value.ToLower();
-        if( v == "localhost" || v == "127.1.1.1" )
+        if( v == "localhost" || v == "127.1.1.1" || v == "." )
           ctl.Value = Environment.MachineName;
 
         UpdateNameLabel();
