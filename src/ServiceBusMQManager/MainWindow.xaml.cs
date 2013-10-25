@@ -850,8 +850,10 @@ namespace ServiceBusMQManager {
 
       StoreUIState();
 
-      if( _sys != null )
+      if( _sys != null ) {
+        _sys.StopMonitoring();
         _sys.Manager.Terminate();
+      }
     }
 
     private void StoreUIState() {
@@ -911,8 +913,6 @@ namespace ServiceBusMQManager {
     }
 
     private void miClose_Click(object sender, EventArgs e) {
-      _sys.StopMonitoring();
-
       Application.Current.Shutdown();
     }
 
