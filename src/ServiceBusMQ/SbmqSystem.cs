@@ -403,10 +403,10 @@ namespace ServiceBusMQ {
     }
 
 
-    public MessageSubscription[] GetMessageSubscriptions(string serverName) {
+    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
       var sc = _mgr as IViewSubscriptions;
       if( sc != null )
-        return sc.GetMessageSubscriptions(serverName);
+        return sc.GetMessageSubscriptions(connectionSettings, queues);
       else return new MessageSubscription[0];
     }
 

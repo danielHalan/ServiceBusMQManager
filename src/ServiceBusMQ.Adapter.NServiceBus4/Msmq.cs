@@ -17,7 +17,18 @@ using System.Messaging;
 
 namespace ServiceBusMQ.NServiceBus4 {
   public static class Msmq {
-    
+
+
+    public static bool Exists(string serverName, string queueName) {
+      if( !queueName.StartsWith("private$\\") )
+        queueName = "private$\\" + queueName;
+
+      var queuePath = string.Format("FormatName:DIRECT=OS:{0}\\{1}", !Tools.IsLocalHost(serverName) ? serverName : ".", queueName);
+
+      return MessageQueue.Exists(queuePath);
+    }
+
+
     public static MessageQueue Create(string serverName, string queueName, QueueAccessMode accessMode) {
       if( !queueName.StartsWith("private$\\") )
         queueName = "private$\\" + queueName;

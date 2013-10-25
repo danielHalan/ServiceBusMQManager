@@ -532,7 +532,7 @@ namespace ServiceBusMQManager {
 
 
     private void _BindContextMenuItem(MenuItem mi, QueueItem itm, Func<QueueItem, bool> eval = null) {
-      mi.IsEnabled = itm != null && ( eval != null && eval(itm) );
+      mi.IsEnabled = itm != null && ( eval == null || eval(itm) );
 
       if( itm != null )
         mi.Tag = itm;
@@ -576,6 +576,7 @@ namespace ServiceBusMQManager {
 
       // Copy to Clipboard
       _BindContextMenuItem(miCopyMsgId, itm);
+      _BindContextMenuItem(miCopyMsgName, itm);
       _BindContextMenuItem(miCopyMsgContent, itm);
       _BindContextMenuItem(miResendCommand, itm, qi => _sys.CanSendCommand && qi.Queue.Type == QueueType.Command);
 
@@ -932,6 +933,11 @@ namespace ServiceBusMQManager {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
       Clipboard.SetData(DataFormats.Text, itm.Id);
+    }
+    private void miCopyMessageName_Click(object sender, RoutedEventArgs e) {
+      QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
+
+      Clipboard.SetData(DataFormats.Text, itm.DisplayName);
     }
     private void miCopyMessageContent_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;

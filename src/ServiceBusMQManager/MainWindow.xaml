@@ -103,9 +103,9 @@
                                              <Run Text="{Binding ArrivedTimeString}" /><Run Text="{Binding ArrivedTimeMSString}"  Foreground="#FF898989" />
                                         </TextBlock>
                                     </Label>
-                                    <Label x:Name="lbQueueName" Content="{Binding Queue.DisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
-                                    <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,0,0" HorizontalAlignment="Left" Grid.Column="1" Foreground="#696969" Background="{Binding ElementName=panel, Path=Background}" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
-                                    <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="15.5" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Medium" FontFamily="Calibri" />
+                                    <TextBlock x:Name="lbQueueName" Text="{Binding Queue.DisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,20,10,0" FontFamily="Segoe UI" FontSize="12"  />
+                                    <TextBlock x:Name="lbId" Text="{Binding Id}" Margin="0,20,0,0" HorizontalAlignment="Left" Grid.Column="1" Foreground="#696969" Background="{Binding ElementName=panel, Path=Background}" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
+                                    <TextBlock x:Name="lbName" Text="{Binding DisplayName}" FontSize="15.5" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,2,0,4" FontWeight="Medium" FontFamily="Calibri" />
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Left" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,120,22" 
                                                Height="3" StrokeThickness="1" Stroke="Transparent" Fill="Transparent" />
                                 </Grid>
@@ -266,6 +266,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem x:Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miCopyMsgName" Header="Copy Message Name to Clipboard" Click="miCopyMessageName_Click" IsEnabled="False" />
                         <MenuItem x:Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
                         <Separator />
                         <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click" IsEnabled="False" />

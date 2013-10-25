@@ -87,7 +87,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       return string.Empty;
     }
-    public abstract MessageSubscription[] GetMessageSubscriptions(string server);
+    public abstract MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues);
 
 
     public abstract string LoadMessageContent(QueueItem itm);
