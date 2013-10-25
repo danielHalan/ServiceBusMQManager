@@ -413,6 +413,8 @@
     <Resource Include="Images\Msg.Warn.png" />
     <Resource Include="Images\loading2.GIF" />
     <Resource Include="Images\copy-white.png" />
+    <Resource Include="Images\Error-background-icon.png" />
+    <Resource Include="Images\folder.open-gray.png" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
