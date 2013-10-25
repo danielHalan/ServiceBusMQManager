@@ -48,7 +48,7 @@ namespace ServiceBusMQ.MassTransit
       get { 
         return new ServerConnectionParameter[] { 
           ServerConnectionParameter.Create("server", "Server Name"),
-          ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service")
+          ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service", null, true)
         };
       }
     }

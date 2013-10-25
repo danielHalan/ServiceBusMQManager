@@ -261,6 +261,9 @@ namespace ServiceBusMQManager.Controls {
       try {
         _value = Tools.Convert(tb.Text, _dataType);
 
+        if( !_isNullable && _dataType == typeof(string) && string.IsNullOrEmpty((string)_value) )
+          return false;
+
       } catch( NotSupportedException e ) {
         throw e;
 
@@ -328,6 +331,8 @@ namespace ServiceBusMQManager.Controls {
 
 
     bool _isValidValue = true;
+    public bool IsValidValue { get { return _isValidValue; } }
+
     private TimeControl _time;
 
     private void tb_TextChanged(object sender, TextChangedEventArgs e) {
@@ -425,6 +430,13 @@ namespace ServiceBusMQManager.Controls {
     }
 
     public bool SelectAllTextOnFocus { get; set; }
+
+    public bool Validate() {
+      _isValidValue = UpdateValueFromControl();
+      UpdateBorder();
+
+      return _isValidValue;
+    }
 
     internal void SelectAll() {
       tb.SelectAll();
