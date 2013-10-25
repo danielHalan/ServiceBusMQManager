@@ -55,6 +55,8 @@ namespace ServiceBusMQManager.Controls {
 
       tbValue.ValueChanged += tbValue_ValueChanged;
       tbValue.LostFocus += tbValue_LostFocus;
+
+      Req.Visibility = p.Optional ? System.Windows.Visibility.Hidden : System.Windows.Visibility.Visible;
     }
 
     void tbValue_LostFocus(object sender, System.Windows.RoutedEventArgs e) {
