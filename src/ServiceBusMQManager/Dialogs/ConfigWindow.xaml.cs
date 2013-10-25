@@ -320,18 +320,18 @@ namespace ServiceBusMQManager.Dialogs {
 
           if( cmds.Length == 0 ) {
 
-            sb.Append("No commands found ");
+            sb.Append("No commands found");
 
             if( cmdDef.InheritsType.IsValid() )
-              sb.Append("that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40));
+              sb.Append(" that inherits " + cmdDef.InheritsType.Substring(0, cmdDef.InheritsType.IndexOf(',')).CutBeginning(40));
 
             if( cmdDef.NamespaceContains.IsValid() ) {
 
               if( cmdDef.InheritsType.IsValid() )
-                sb.Append(" or ");
-              else sb.Append("that ");
+                sb.Append(" or");
+              else sb.Append(" that");
 
-              sb.AppendFormat("contains '{0}' in Namespace", cmdDef.NamespaceContains);
+              sb.AppendFormat(" contains '{0}' in Namespace", cmdDef.NamespaceContains);
 
             }
 
@@ -339,7 +339,7 @@ namespace ServiceBusMQManager.Dialogs {
           }
 
         } else {
-          sb.Append("You need to add atleast one assembly path to be able to send commands");
+          sb.Append("You need to add at least one assembly path containing commands libraries to be able to Send Commands");
           lbCmdsFound.Content = string.Empty;
         }
 
@@ -675,6 +675,10 @@ namespace ServiceBusMQManager.Dialogs {
       UpdateSendCommandInfo();
     }
     private void asmPaths_AddedItem(object sender, StringListItemRoutedEventArgs e) {
+      // Work-around due Resolve Assemblies use Config.Servers for Paths, when spec. Cmd Definition
+      var s = _config.Servers.Single(sv => sv.Name == cbServers.SelectedValue as string);
+      s.CommandsAssemblyPaths = asmPaths.GetItems();
+      
       UpdateSendCommandInfo();
     }
 
