@@ -497,8 +497,10 @@ namespace ServiceBusMQManager {
         UpdateButtonLabel(btnError);
 
         // Update List View
-        lbItems.ItemsSource = _sys.Items;
-        lbItems.Items.Refresh();
+        lock( _sys.ItemsLock ) {
+          lbItems.ItemsSource = _sys.Items;
+          lbItems.Items.Refresh();
+        }
 
         if( e.Origin == ItemChangeOrigin.Queue )
           ShowActivityTrayIcon();
