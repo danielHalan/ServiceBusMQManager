@@ -55,6 +55,7 @@ namespace ServiceBusMQ {
     public static readonly int MAX_ITEMS_PER_QUEUE = 500;
 
     bool _isServiceBusStarted = false;
+    QueueType[] _queueTypeValues;
 
     IServiceBusManager _mgr;
     CommandHistoryManager _history;
@@ -62,6 +63,7 @@ namespace ServiceBusMQ {
     private SbmqmMonitorState _monitorState;
 
     List<QueueItemViewModel> _items = new List<QueueItemViewModel>();
+    uint[] _unprocessedItemsCount { get; set; }
 
     public IServiceBusManager Manager { get { return _mgr; } }
     public SystemConfig3 Config { get; private set; }
@@ -83,7 +85,8 @@ namespace ServiceBusMQ {
     public static ApplicationInfo AppInfo { get; set; }
 
     private SbmqSystem() {
-      _UnprocessedItemsCount = new uint[4];
+      _unprocessedItemsCount = new uint[4];
+      _queueTypeValues = (QueueType[])Enum.GetValues(typeof(QueueType));
     }
 
 
@@ -117,7 +120,7 @@ namespace ServiceBusMQ {
       if( cmdSender != null )
         cmdSender.CommandContentFormat = Config.CurrentServer.CommandContentType;
 
-      lock( _itemsLock ) 
+      lock( _itemsLock )
         _items.Clear();
 
       _mgr.Initialize(Config.CurrentServer.ConnectionSettings, Config.MonitorQueues.Select(mq => new Queue(mq.Name, mq.Type, mq.Color)).ToArray(), _monitorState);
@@ -175,6 +178,7 @@ namespace ServiceBusMQ {
 
 
     protected volatile object _itemsLock = new object();
+    public object ItemsLock { get { return _itemsLock; } }
 
 
     volatile ThreadState _currentMonitor = null;
@@ -224,11 +228,8 @@ namespace ServiceBusMQ {
     }
 
 
-    uint[] _UnprocessedItemsCount { get; set; }
-
-
     public uint GetUnprocessedItemsCount(QueueType qt) {
-      return _UnprocessedItemsCount[(int)qt];
+      return _unprocessedItemsCount[(int)qt];
     }
 
 
@@ -246,17 +247,21 @@ namespace ServiceBusMQ {
       //  return;
       bool changedItemsCount = false;
 
-      IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
-      foreach( QueueType t in Enum.GetValues(typeof(QueueType)) ) {
-        int typeIndex = (int)t;
-        if( _monitorState.MonitorQueueType[typeIndex] ) {
-          var r = _mgr.GetUnprocessedMessages(t, currentItems);
+      var monitorStatesWhenFetch = new SbmqmMonitorState(_monitorState.MonitorQueueType);
+
+      // Removed as when changing QTs in UI this would change list and throw a modification exception in Manager.
+      // Creating an array is not as resource efficient, but it works.
+      //IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
+      foreach( QueueType t in _queueTypeValues ) {
+        if( _monitorState.IsMonitoring(t) ) {
+          var r = _mgr.GetUnprocessedMessages(t, _items.ToArray());
           items.AddRange(r.Items);
 
-          if( _UnprocessedItemsCount[typeIndex] != r.Count )
+          int typeIndex = (int)t;
+          if( _unprocessedItemsCount[typeIndex] != r.Count )
             changedItemsCount = true;
 
-          _UnprocessedItemsCount[typeIndex] = r.Count;
+          _unprocessedItemsCount[typeIndex] = r.Count;
         }
       }
 
@@ -266,6 +271,17 @@ namespace ServiceBusMQ {
 
       bool changed = false;
       lock( _itemsLock ) {
+
+        // If changed Monitor Queues while fetching remove then from result.
+        List<QueueType> removedQueueTypes = new List<QueueType>(4);
+        foreach( QueueType t in _queueTypeValues ) {
+          if( !_monitorState.IsMonitoring(t) && monitorStatesWhenFetch.IsMonitoring(t) ) {
+            removedQueueTypes.Add(t);
+          }
+        }
+        if( removedQueueTypes.Any() )
+          items = items.Where(i => !removedQueueTypes.Any( x => x == i.Queue.Type ) ).ToList();
+
 
         // Add new items
         foreach( var itm in items ) {
@@ -350,8 +366,12 @@ namespace ServiceBusMQ {
     }
 
     public void ClearProcessedItems() {
-      foreach( var itm in _items.Where(i => i.Processed).ToArray() )
-        _items.Remove(itm);
+
+      lock( _itemsLock ) {
+
+        foreach( var itm in _items.Where(i => i.Processed).ToArray() )
+          _items.Remove(itm);
+      }
     }
 
 
@@ -403,15 +423,32 @@ namespace ServiceBusMQ {
     }
 
 
-    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
+    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues) {
       var sc = _mgr as IViewSubscriptions;
       if( sc != null )
         return sc.GetMessageSubscriptions(connectionSettings, queues);
       else return new MessageSubscription[0];
     }
+    public MessageSubscription[] GetMessageSubscriptions(ServerConfig3 server) {
+      IViewSubscriptions sc = null;
+
+      if( server.ServiceBus == _mgr.ServiceBusName &&
+              server.ServiceBusVersion == _mgr.ServiceBusVersion &&
+              server.ServiceBusQueueType == _mgr.MessageQueueType ) {
+        sc = _mgr as IViewSubscriptions;
+      } else {
+        var mgr = ServiceBusFactory.CreateManager(server.ServiceBus, server.ServiceBusVersion, server.ServiceBusQueueType);
+        sc = mgr as IViewSubscriptions;
+      }
+
+      if( sc != null )
+        return sc.GetMessageSubscriptions(server.ConnectionSettings, server.MonitorQueues.Select(q => q.Name));
+      else return new MessageSubscription[0];
+
+    }
 
 
-    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
+    public void SendCommand(Dictionary<string, object> connectionStrings, string destinationQueue, object message) {
       var sc = _mgr as ISendCommand;
       if( sc != null ) {
 
@@ -454,7 +491,7 @@ namespace ServiceBusMQ {
           if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
             return Assembly.LoadFrom(fn);
         }
-        
+
       }
 
 
@@ -517,9 +554,12 @@ namespace ServiceBusMQ {
     private void MonitorStateChanged(QueueType type, bool value) {
       _monitorState.MonitorQueueType[(int)type] = value;
 
-      if( !value )
-        foreach( var itm in _items.Where(i => i.Queue.Type == type).ToArray() )
-          _items.Remove(itm);
+      if( !value ) {
+        lock( _itemsLock ) {
+          foreach( var itm in _items.Where(i => i.Queue.Type == type).ToArray() )
+            _items.Remove(itm);
+        }
+      }
     }
 
     public event EventHandler<ErrorArgs> ErrorOccured;

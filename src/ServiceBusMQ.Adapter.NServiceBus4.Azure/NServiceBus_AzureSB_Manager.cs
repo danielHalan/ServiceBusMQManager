@@ -37,7 +37,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     static readonly string CS_SERVER = "server";
 
 
-    public override void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+    public override void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       base.Initialize(connectionSettings, monitorQueues, monitorState);
 
       LoadQueues();
@@ -68,7 +68,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       }
     }
 
-    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues) {
       return new MessageSubscription[0];
     }
 

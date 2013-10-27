@@ -43,7 +43,8 @@ namespace ServiceBusMQ.NServiceBus {
     public override string ServiceBusVersion { get { return "3"; } }
     public override string MessageQueueType { get { return "MSMQ"; } }
 
-    static readonly string CS_SERVER = "server";
+    public static readonly string CS_SERVER = "server";
+    public static readonly string CS_PEAK_THREADS = "peakThreads";
 
 
     class PeekThreadParam {
@@ -56,12 +57,13 @@ namespace ServiceBusMQ.NServiceBus {
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+    public override void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       base.Initialize(connectionSettings, monitorQueues, monitorState);
 
       LoadQueues();
 
-      StartPeekThreads();
+      if( (bool)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, false) )
+        StartPeekThreads();
     }
     public override void Terminate() {
       _terminated = true;
@@ -72,7 +74,6 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( QueueType qt in Enum.GetValues(typeof(QueueType)) ) {
 
         if( qt != QueueType.Error ) {
-          /* TEMP Remove
           foreach( var q in GetQueueListByType(qt) ) {
             var t = new Thread(new ParameterizedThreadStart(PeekMessages));
             if( q.Main.CanRead ) {
@@ -80,7 +81,6 @@ namespace ServiceBusMQ.NServiceBus {
               t.Start(new PeekThreadParam() { MsmqQueue = q.Main, Queue = q.Queue });
             }
           }
-          */
 
         }
       }
@@ -101,7 +101,7 @@ namespace ServiceBusMQ.NServiceBus {
       SetupMessageReadPropertyFilters(p.MsmqQueue, p.Queue.Type);
 
       p.MsmqQueue.PeekCompleted += (source, asyncResult) => {
-        if( _monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
+        if( _monitorState.IsMonitoring(p.Queue.Type) ) {
           Message msg = p.MsmqQueue.EndPeek(asyncResult.AsyncResult);
 
           if( msg.Id == lastId )
@@ -121,7 +121,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       while( !_terminated ) {
 
-        while( !_monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
+        while( !_monitorState.IsMonitoring(p.Queue.Type) ) {
           Thread.Sleep(1000);
 
           if( _terminated )
@@ -179,9 +179,9 @@ namespace ServiceBusMQ.NServiceBus {
         AddMsmqQueue(_connectionSettings, queue);
 
     }
-    private void AddMsmqQueue(Dictionary<string, string> serverConnection, Queue queue) {
+    private void AddMsmqQueue(Dictionary<string, object> serverConnection, Queue queue) {
       try {
-        _monitorQueues.Add(new MsmqMessageQueue(serverConnection["server"], queue));
+        _monitorQueues.Add(new MsmqMessageQueue(serverConnection[CS_SERVER] as string, queue));
       } catch( Exception e ) {
         OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverConnection.AsString(), queue.Name), e, false);
       }
@@ -428,33 +428,36 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
-      var server = connectionSettings[CS_SERVER];
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues) {
+      var server = connectionSettings[CS_SERVER] as string;
       List<MessageSubscription> r = new List<MessageSubscription>();
 
-      foreach( var queueName in MessageQueue.GetPrivateQueuesByMachine(server).
-                                            Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName) ) {
+      var msmqQ = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName);
 
-        MessageQueue q = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
+      foreach( var queueName in queues ) {
+        var queueSubscr = queueName + ".subscriptions";
 
-        q.MessageReadPropertyFilter.Label = true;
-        q.MessageReadPropertyFilter.Body = true;
+        if( msmqQ.Any(mq => mq.EndsWith(queueSubscr) ) ) {
 
-        try {
-          var publisher = q.GetDisplayName().Replace(".subscriptions", string.Empty);
+          MessageQueue q = Msmq.Create(server, queueSubscr, QueueAccessMode.ReceiveAndAdmin);
 
-          foreach( var msg in q.GetAllMessages() ) {
+          q.MessageReadPropertyFilter.Label = true;
+          q.MessageReadPropertyFilter.Body = true;
 
-            var itm = new MessageSubscription();
-            itm.FullName = GetSubscriptionType(ReadMessageStream(msg.BodyStream));
-            itm.Name = ParseClassName(itm.FullName);
-            itm.Subscriber = msg.Label;
-            itm.Publisher = publisher;
+          try {
+            foreach( var msg in q.GetAllMessages() ) {
 
-            r.Add(itm);
+              var itm = new MessageSubscription();
+              itm.FullName = GetSubscriptionType(ReadMessageStream(msg.BodyStream));
+              itm.Name = ParseClassName(itm.FullName);
+              itm.Subscriber = msg.Label;
+              itm.Publisher = queueName;
+
+              r.Add(itm);
+            }
+          } catch( Exception e ) {
+            OnError("Error occured when getting subcriptions", e, true);
           }
-        } catch( Exception e ) {
-          OnError("Error occured when getting subcriptions", e, true);
         }
 
       }
@@ -598,6 +601,9 @@ namespace ServiceBusMQ.NServiceBus {
                   if( ex.Message != lastMsg )
                     sb.AppendFormat(" - {0}\n\n", lastMsg = ex.Message);
                 }
+
+                sb.Append("Try adding these libraries to your Assembly Folder");
+
               }
 
               OnWarning("Could not search for Commands in Assembly '{0}'".With(Path.GetFileName(dll)), sb.ToString());
@@ -620,7 +626,7 @@ namespace ServiceBusMQ.NServiceBus {
     protected IBus _bus;
 
 
-    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings) {
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings) {
       _commandDef = cmdDef;
 
       List<Assembly> asms = new List<Assembly>();
@@ -646,7 +652,7 @@ namespace ServiceBusMQ.NServiceBus {
                   .MsmqTransport()
                   .UnicastBus()
               .SendOnly();
-      
+
       } else if( CommandContentFormat == "JSON" ) {
 
         _bus = Configure.With(asms)
@@ -683,8 +689,8 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
-      var srv = connectionStrings["server"];
+    public void SendCommand(Dictionary<string, object> connectionSettings, string destinationQueue, object message) {
+      var srv = connectionSettings["server"] as string;
 
       if( Tools.IsLocalHost(srv) )
         srv = null;

@@ -113,6 +113,7 @@
     <Compile Include="Model\Queue.cs" />
     <Compile Include="Model\QueueFetchResult.cs" />
     <Compile Include="Model\QueueItemError.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

@@ -51,7 +51,7 @@ namespace ServiceBusMQManager.Dialogs {
 
 
     IServiceBusDiscovery _disc;
-    Dictionary<string, string> _serverSettings;
+    Dictionary<string, object> _serverSettings;
 
     public SelectQueueDialog(IServiceBusDiscovery discovery, ServerConfig3 serverCfg, string[] queueNames) {
       InitializeComponent();

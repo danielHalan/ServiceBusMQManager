@@ -69,9 +69,8 @@ namespace ServiceBusMQManager {
 
       // TEMP: Service Bus Specific Logic, TODO: Refactor
       var srv = _sys.Config.CurrentServer;
-      if( srv.ServiceBus == "MassTransit" ) { 
-         if( srv.ConnectionSettings.ContainsKey("subscriptionQueueService") && 
-                srv.ConnectionSettings["subscriptionQueueService"].IsValid() ) {
+      if( srv.ServiceBus == "MassTransit" ) {
+        if( srv.ConnectionSettings.HasValidValue("subscriptionQueueService") ) { 
 
            lblServer.Visibility = Visibility.Hidden;
            lblRouterQueue.Content = "Subscription service: {0}".With(srv.ConnectionSettings["subscriptionQueueService"]);
@@ -211,7 +210,7 @@ namespace ServiceBusMQManager {
     void DoSendCommand(object sender, DoWorkEventArgs e) {
       SendCommandEnvelope env = e.Argument as SendCommandEnvelope;
 
-      _sys.SendCommand(env.ConnectionStrings, env.Queue, env.Command);
+      _sys.SendCommand(env.ConnectionSettings, env.Queue, env.Command);
 
       e.Result = env;
     }
@@ -226,7 +225,7 @@ namespace ServiceBusMQManager {
         SendCommandEnvelope env = e.Result as SendCommandEnvelope;
         //var queue = cbQueue.SelectedItem as string;
 
-        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Config.CurrentServer.CommandContentType, env.ConnectionStrings, env.Queue);
+        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Config.CurrentServer.CommandContentType, env.ConnectionSettings, env.Queue);
 
         Close();
 
@@ -237,7 +236,7 @@ namespace ServiceBusMQManager {
 
     private class SendCommandEnvelope {
       public string Name;
-      public Dictionary<string, string> ConnectionStrings;
+      public Dictionary<string, object> ConnectionSettings;
       public string Queue;
       public object Command;
     }
@@ -256,7 +255,7 @@ namespace ServiceBusMQManager {
 
         if( env.Command != null ) {
           env.Name = _sys.Config.CurrentServer.Name;
-          env.ConnectionStrings = _sys.Config.CurrentServer.ConnectionSettings;
+          env.ConnectionSettings = _sys.Config.CurrentServer.ConnectionSettings;
           env.Queue = cbQueue.SelectedItem as string;
 
           var thread = new BackgroundWorker();

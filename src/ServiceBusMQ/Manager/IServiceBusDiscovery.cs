@@ -27,7 +27,7 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <param name="connectionSettings">The Host name of the server</param>
     /// <returns></returns>
-    bool CanAccessServer(Dictionary<string, string> connectionSettings);
+    bool CanAccessServer(Dictionary<string, object> connectionSettings);
 
     /// <summary>
     /// Checks if the current user can access a specific queue on a server.
@@ -35,14 +35,14 @@ namespace ServiceBusMQ.Manager {
     /// <param name="connectionSettings">The Host name of the server</param>
     /// <param name="queueName">The Queue name</param>
     /// <returns></returns>
-    bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName);
+    bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName);
 
     /// <summary>
     /// Returns all available queues on specified server
     /// </summary>
     /// <param name="connectionSettings">The Host name of the server</param>
     /// <returns>List of Queue names</returns>
-    string[] GetAllAvailableQueueNames(Dictionary<string, string> connectionSettings);
+    string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings);
 
 
     /// <summary>

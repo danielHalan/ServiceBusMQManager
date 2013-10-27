@@ -36,7 +36,7 @@ namespace ServiceBusMQ.Configuration {
 
       public QueueConfig[] MonitorQueues { get; set; }
 
-      public Dictionary<string, string> ConnectionSettings { get; set; }
+      public Dictionary<string, object> ConnectionSettings { get; set; }
 
       public string[] CommandsAssemblyPaths { get; set; }
 
@@ -54,7 +54,7 @@ namespace ServiceBusMQ.Configuration {
             ServiceBus = "NServiceBus", ServiceBusVersion = "4", ServiceBusQueueType = "MSMQ",
             MonitorInterval = DEFAULT_MONITOR_INTERVAL,
             Name = Environment.MachineName,
-            ConnectionSettings = new Dictionary<string, string>(),
+            ConnectionSettings = new Dictionary<string, object>(),
             MonitorQueues = new QueueConfig[0],
 
             CommandsAssemblyPaths = new string[0],
@@ -75,7 +75,7 @@ namespace ServiceBusMQ.Configuration {
         obj.ServiceBusQueueType = ServiceBusQueueType;
         obj.MonitorInterval = MonitorInterval;
         obj.MonitorQueues = MonitorQueues;
-        obj.ConnectionSettings = new Dictionary<string,string>(ConnectionSettings);
+        obj.ConnectionSettings = new Dictionary<string, object>(ConnectionSettings);
 
         obj.CommandsAssemblyPaths = CommandsAssemblyPaths;
         obj.CommandDefinition = CommandDefinition;

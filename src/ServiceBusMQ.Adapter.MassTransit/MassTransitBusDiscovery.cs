@@ -48,27 +48,27 @@ namespace ServiceBusMQ.MassTransit
       get { 
         return new ServerConnectionParameter[] { 
           ServerConnectionParameter.Create("server", "Server Name"),
-          ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service", null, true)
+          ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service", ParamType.String, null, true)
         };
       }
     }
 
 
-    public bool CanAccessServer(Dictionary<string, string> connectionSettings)
+    public bool CanAccessServer(Dictionary<string, object> connectionSettings)
 		{
 			return true;
 		}
 
-    public bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName)
+    public bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName)
 		{
-			var queue = Msmq.Create(connectionSettings["server"], queueName, QueueAccessMode.ReceiveAndAdmin);
+			var queue = Msmq.Create(connectionSettings["server"] as string, queueName, QueueAccessMode.ReceiveAndAdmin);
 
 			return queue != null ? queue.CanRead : false;
 		}
 
-		public string[] GetAllAvailableQueueNames(Dictionary<string,string> connectionSettings)
+		public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings)
 		{
-			return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"]).Where(q => !IsIgnoredQueue(q.QueueName)).
+			return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"] as string).Where(q => !IsIgnoredQueue(q.QueueName)).
 				Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
 		}
 
