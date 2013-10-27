@@ -23,6 +23,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using ServiceBusMQ;
 using ServiceBusMQ.Configuration;
@@ -45,6 +46,9 @@ namespace ServiceBusMQManager.Dialogs {
 
       _sys = system;
 
+      lbInfo.Opacity = 0;
+      lbInfo.Visibility = System.Windows.Visibility.Hidden;
+
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
     }
@@ -54,7 +58,9 @@ namespace ServiceBusMQManager.Dialogs {
       cbServer.ItemsSource = _sys.Config.Servers;
       cbServer.DisplayMemberPath = "Name";
       cbServer.SelectedValuePath = "Name";
-      cbServer.SelectedIndex = 0;
+
+      cbServer.SelectedValue = _sys.Config.CurrentServer.Name;
+      cbServer.IsEnabled = false;
     }
 
 
@@ -73,20 +79,29 @@ namespace ServiceBusMQManager.Dialogs {
       WindowTools.SetSortColumn(lvTypes, "Name");
     }
 
-    private void LoadSubscriptionTypes(ServerConfig3 server = null) {
+    private void LoadSubscriptionTypes(ServerConfig3 server = null, Action onCompleted = null) {
       if( server == null )
         server = ( cbServer.SelectedItem as ServerConfig3 );
 
+      var currSrv = _sys.Config.CurrentServer;
+
+      if( server.ServiceBus == currSrv.ServiceBus && server.ServiceBusVersion != currSrv.ServiceBusVersion ) {
+
+        _allItems.Clear();
+        _items.Clear();
+        SetInfoText("Can't load subscriptions as Service Bus has a different version from the Currently Active");
+        return;
+      }
+
+
       var serverName = server.ConnectionSettings["server"];
 
-      //if( !Tools.IsLocalHost(serverName) ) {
-        imgServerLoading.Visibility = System.Windows.Visibility.Visible;
-        btnRefresh.Visibility = System.Windows.Visibility.Hidden;
-        cbServer.IsEnabled = false;
-      //}
+      imgServerLoading.Visibility = System.Windows.Visibility.Visible;
+      btnRefresh.Visibility = System.Windows.Visibility.Hidden;
+      cbServer.IsEnabled = false;
 
       BackgroundWorker w = new BackgroundWorker();
-      w.DoWork += (s, e) => { e.Result = _sys.GetMessageSubscriptions(server.ConnectionSettings, server.MonitorQueues.Select( q => q.Name )); };
+      w.DoWork += (s, e) => { e.Result = _sys.GetMessageSubscriptions(server); };
       w.RunWorkerCompleted += (s, e) => {
         MessageSubscription[] subs = e.Result as MessageSubscription[];
 
@@ -99,13 +114,14 @@ namespace ServiceBusMQManager.Dialogs {
           _items.Add(ms);
         }
 
-        //if( !Tools.IsLocalHost(serverName) ) {
-          imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
-          btnRefresh.Visibility = System.Windows.Visibility.Visible;
-          cbServer.IsEnabled = true;
-        //}
+        imgServerLoading.Visibility = System.Windows.Visibility.Hidden;
+        btnRefresh.Visibility = System.Windows.Visibility.Visible;
+        cbServer.IsEnabled = true;
 
         Filter();
+
+        if( onCompleted != null )
+          onCompleted();
       };
       w.RunWorkerAsync();
 
@@ -177,41 +193,44 @@ namespace ServiceBusMQManager.Dialogs {
       SbmqSystem.UIState.StoreWindowState(this);
     }
 
-    private void TextInputControl_LostFocus_1(object sender, RoutedEventArgs e) {
-
-      //try {
-      //  LoadSubscriptionTypes();
-      //  lbInfo.Content = string.Empty;
-
-      //} catch { 
-      //  lbInfo.Content = "Could not access server";
-      //  tbServer.UpdateValue(_sys.Config.CurrentServer.Name);
-      //}
-
-    }
-
 
     System.Threading.Timer _t;
 
     private void btnRefresh_Click(object sender, RoutedEventArgs e) {
-      LoadSubscriptionTypes();
+      LoadSubscriptionTypes(null, () => SetInfoText("Subscription list refreshed"));
+    }
 
-      if( _sys.Config.CurrentServer.Name == (string)cbServer.SelectedValue ) {
-        lbInfo.Content = "Subscription list refreshed";
-        _t = new System.Threading.Timer((o) => { ClearInfo(); }, null, 2000, Timeout.Infinite);
-      }
+    void SetInfoText(string text) {
+      lbInfo.Content = text;
+      lbInfo.Visibility = System.Windows.Visibility.Visible;
+
+      DoubleAnimation da = new DoubleAnimation();
+      da.From = 0;
+      da.To = 1;
+      da.Duration = new Duration(TimeSpan.FromMilliseconds(200));
+      lbInfo.BeginAnimation(Label.OpacityProperty, da, HandoffBehavior.SnapshotAndReplace);
+
+      _t = new System.Threading.Timer((o) => { ClearInfo(); }, null, 3000, Timeout.Infinite);
     }
 
     void ClearInfo() {
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-        lbInfo.Content = "";
+
+        DoubleAnimation da = new DoubleAnimation();
+        da.From = 1;
+        da.To = 0;
+        da.Duration = new Duration(TimeSpan.FromMilliseconds(700));
+        da.Completed += (s,arg) => { lbInfo.Visibility = System.Windows.Visibility.Hidden; };
+        lbInfo.BeginAnimation(Label.OpacityProperty, da, HandoffBehavior.SnapshotAndReplace);
+
+        //lbInfo.Visibility = System.Windows.Visibility.Hidden;
       }));
     }
 
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 
       if( e.AddedItems.Count > 0 )
-        LoadSubscriptionTypes( e.AddedItems[0] as ServerConfig3 );
+        LoadSubscriptionTypes(e.AddedItems[0] as ServerConfig3);
     }
 
 

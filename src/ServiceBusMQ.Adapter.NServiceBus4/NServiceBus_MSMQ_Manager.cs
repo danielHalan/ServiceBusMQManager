@@ -51,7 +51,8 @@ namespace ServiceBusMQ.NServiceBus4 {
 
     public static readonly string CS_SERVER = "server";
     public static readonly string CS_RAVEN_PERSISTANCE = "ravenPersistence";
-
+    public static readonly string CS_PEAK_THREADS = "peakThreads";
+    
 
     class PeekThreadParam {
       public Queue Queue { get; set; }
@@ -63,12 +64,13 @@ namespace ServiceBusMQ.NServiceBus4 {
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+    public override void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       base.Initialize(connectionSettings, monitorQueues, monitorState);
 
       LoadQueues();
 
-      StartPeekThreads();
+      if( (bool)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, false) )
+        StartPeekThreads();
     }
     public override void Terminate() {
       _terminated = true;
@@ -107,7 +109,7 @@ namespace ServiceBusMQ.NServiceBus4 {
       SetupMessageReadPropertyFilters(p.MsmqQueue, p.Queue.Type);
 
       p.MsmqQueue.PeekCompleted += (source, asyncResult) => {
-        if( _monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
+        if( _monitorState.IsMonitoring(p.Queue.Type) ) {
           Message msg = p.MsmqQueue.EndPeek(asyncResult.AsyncResult);
 
           if( msg.Id == lastId )
@@ -127,7 +129,7 @@ namespace ServiceBusMQ.NServiceBus4 {
 
       while( !_terminated ) {
 
-        while( !_monitorState.IsMonitoringQueueType(p.Queue.Type) ) {
+        while( !_monitorState.IsMonitoring(p.Queue.Type) ) {
           Thread.Sleep(1000);
 
           if( _terminated )
@@ -182,7 +184,7 @@ namespace ServiceBusMQ.NServiceBus4 {
       _monitorQueues.Clear();
 
       foreach( var queue in MonitorQueues )
-        AddMsmqQueue(_connectionSettings["server"], queue);
+        AddMsmqQueue(_connectionSettings["server"] as string, queue);
 
     }
     private void AddMsmqQueue(string serverName, Queue queue) {
@@ -434,12 +436,12 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues) {
-      var server = connectionSettings[CS_SERVER];
+    public override MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues) {
+      var server = connectionSettings[CS_SERVER] as string;
       List<MessageSubscription> r = new List<MessageSubscription>();
 
       // Raven Persistance
-      var ravenUrl = connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, null) ?? "http://" + server + ":8080"; 
+      var ravenUrl = (string)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, null) ?? "http://" + server + ":8080"; 
       var db = new DocumentStore {
         Url = ravenUrl
       };
@@ -449,11 +451,12 @@ namespace ServiceBusMQ.NServiceBus4 {
       var msmqQ = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName);
 
       foreach( var queueName in queues ) {
+        var queueSubscr = queueName + ".subscriptions";
 
         // First check MSMQ
-        if( msmqQ.Any(mq => mq == queueName + ".subscriptions") ) {
+        if( msmqQ.Any(mq => mq.EndsWith(queueSubscr)) ) {
 
-          MessageQueue q = Msmq.Create(server, queueName + ".subscriptions", QueueAccessMode.ReceiveAndAdmin);
+          MessageQueue q = Msmq.Create(server, queueSubscr, QueueAccessMode.ReceiveAndAdmin);
 
           q.MessageReadPropertyFilter.Label = true;
           q.MessageReadPropertyFilter.Body = true;
@@ -681,7 +684,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     protected IBus _bus;
 
 
-    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings) {
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings) {
       _commandDef = cmdDef;
 
       Console.Write(typeof(global::NServiceBus.Configure).FullName);
@@ -744,8 +747,8 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message) {
-      var srv = connectionStrings["server"];
+    public void SendCommand(Dictionary<string, object> connectionStrings, string destinationQueue, object message) {
+      var srv = connectionStrings[CS_SERVER] as string;
 
       if( Tools.IsLocalHost(srv) )
         srv = null;

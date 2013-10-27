@@ -105,7 +105,7 @@ namespace ServiceBusMQ {
         try {
           var cmd = JsonFile.Read<SavedCommand>(file);
           var cmd3 = new SavedCommand3() { 
-            ConnectionStrings = new Dictionary<string, string> { { "server", cmd.Server } },
+            ConnectionStrings = new Dictionary<string, object> { { "server", cmd.Server } },
             ServiceBus = cmd.ServiceBus, 
             Queue = cmd.Queue, 
             Transport = cmd.Transport, 
@@ -212,7 +212,7 @@ namespace ServiceBusMQ {
 
     }
 
-    public SavedCommandItem3 AddCommand(object command, string serviceBus, string transport, Dictionary<string, string> connectionStrings, string queue) {
+    public SavedCommandItem3 AddCommand(object command, string serviceBus, string transport, Dictionary<string, object> connectionSettings, string queue) {
       SavedCommandItem3 item = null;
 
       var co = new CompareObjects();
@@ -234,7 +234,7 @@ namespace ServiceBusMQ {
 
         cmd.ServiceBus = serviceBus;
         cmd.Transport = transport;
-        cmd.ConnectionStrings = connectionStrings;
+        cmd.ConnectionStrings = connectionSettings;
         cmd.Queue = queue;
 
         item.SetCommand(cmd);

@@ -48,18 +48,18 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     }
 
 
-    public bool CanAccessServer(Dictionary<string, string> connectionSettings) {
+    public bool CanAccessServer(Dictionary<string, object> connectionSettings) {
       return true;
     }
 
-    public bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName) {
+    public bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName) {
       return true;
       //var queue = Msmq.Create(server, queueName, QueueAccessMode.ReceiveAndAdmin);
 
       //return queue != null ? queue.CanRead : false;
     }
 
-    public string[] GetAllAvailableQueueNames(Dictionary<string, string> connectionSettings) {
+    public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings) {
       var mgr = NamespaceManager.CreateFromConnectionString(connectionSettings["connectionStr"]);
       return mgr.GetQueues().Select( q => q.Path ).ToArray();
 

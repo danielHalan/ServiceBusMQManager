@@ -27,7 +27,7 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <param name="server"></param>
     /// <returns></returns>
-    MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues);
+    MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues);
 
   }
 }

@@ -27,6 +27,18 @@ namespace ServiceBusMQ {
     public static TValue GetValue<TKey, TValue>(this Dictionary<TKey, TValue> list, TKey key, TValue @default = default(TValue)) {
       return (list != null && list.ContainsKey(key)) ? list[key] : @default;
     }
+    public static bool HasValidValue<TKey, TValue>(this Dictionary<TKey, TValue> list, TKey key) {
+      if( list != null && list.ContainsKey(key) ) {
+        var v = list[key];
+ 
+        if( v is string )
+          return (v as string).IsValid();
+
+        return v != null;//default(TValue);
+      }
+
+      return false;
+    }
 
     public static string AsString<TKey, TValue>(this Dictionary<TKey, TValue> list, string separator = ", ") {
       var sb = new StringBuilder(list.Count * 100);

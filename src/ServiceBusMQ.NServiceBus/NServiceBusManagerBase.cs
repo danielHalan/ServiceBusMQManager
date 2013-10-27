@@ -41,7 +41,7 @@ namespace ServiceBusMQ.NServiceBus {
     public string CommandContentFormat { get; set; }
 
 
-    protected Dictionary<string, string> _connectionSettings;
+    protected Dictionary<string, object> _connectionSettings;
     protected SbmqmMonitorState _monitorState;
     protected CommandDefinition _commandDef;
 
@@ -55,7 +55,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     public NServiceBusManagerBase() {
     }
-    public virtual void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+    public virtual void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       _connectionSettings = connectionSettings;
 
       MonitorQueues = monitorQueues;
@@ -87,7 +87,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       return string.Empty;
     }
-    public abstract MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues);
+    public abstract MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues);
 
 
     public abstract string LoadMessageContent(QueueItem itm);

@@ -347,8 +347,8 @@ namespace ServiceBusMQManager.Controls {
 
     public bool Updating { get; set; }
 
-    public SavedCommandItem3 CommandSent(object command, string serviceBus, string transport, Dictionary<string, string> connectionStrings, string queue) {
-      var sentCmd = _mgr.AddCommand(command, serviceBus, transport, connectionStrings, queue);
+    public SavedCommandItem3 CommandSent(object command, string serviceBus, string transport, Dictionary<string, object> connectionSettings, string queue) {
+      var sentCmd = _mgr.AddCommand(command, serviceBus, transport, connectionSettings, queue);
 
       int pos = _recent.IndexOf(sentCmd);
       if( pos == -1 ) {

@@ -125,7 +125,7 @@ namespace ServiceBusMQ.Configuration {
           ServiceBusVersion = "3", // V2 only NServiceBus3 was available
           ServiceBusQueueType = s.MessageBusQueueType,
           MonitorInterval = s.MonitorInterval,
-          ConnectionSettings = new Dictionary<string, string> { { "server", s.Name } },
+          ConnectionSettings = new Dictionary<string, object> { { "server", s.Name } },
           MonitorQueues = s.MonitorQueues,
 
           CommandsAssemblyPaths = cfg2.CommandsAssemblyPaths,

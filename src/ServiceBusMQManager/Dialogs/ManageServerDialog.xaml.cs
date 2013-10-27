@@ -68,7 +68,7 @@ namespace ServiceBusMQManager.Dialogs {
       
         if( copy ) {
           Result.Server.Name = string.Empty;
-          Result.Server.ConnectionSettings = new Dictionary<string, string>();
+          Result.Server.ConnectionSettings = new Dictionary<string, object>();
         }
       }
       DialogActionType = server == null ? ActionType.Add : ( copy ? ActionType.Copy : ActionType.Edit );
@@ -89,7 +89,7 @@ namespace ServiceBusMQManager.Dialogs {
       //tbInterval.Init(750, typeof(int), false);
 
       if( DialogActionType == ActionType.Edit ) {
-        _nameEdited = GetDefaultServerName(_server.ConnectionSettings.First().Value, _server.ServiceBus, _server.ServiceBusVersion, _server.ServiceBusQueueType) != _server.Name;
+        _nameEdited = GetDefaultServerName(_server.ConnectionSettings.First().Value as string, _server.ServiceBus, _server.ServiceBusVersion, _server.ServiceBusQueueType) != _server.Name;
       }
 
       BindServerInfo();
@@ -195,7 +195,7 @@ namespace ServiceBusMQManager.Dialogs {
         var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
 
         var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
-        var name = ctl != null ? ctl.Value : string.Empty;
+        var name = ctl != null ? ctl.Value.As<string>() : string.Empty;
 
         tbName.Init(GetDefaultServerName(name, sb.Name, sb.Version, cbTransport.SelectedValue as string), typeof(string), false);
       }
@@ -212,13 +212,13 @@ namespace ServiceBusMQManager.Dialogs {
     }
 
 
-    private Dictionary<string, string> GetConnectionSettings() {
+    private Dictionary<string, object> GetConnectionSettings() {
       return parameters.Children.Cast<ServerConnectionParamControl>().ToDictionary(n => n.Param.SchemaName, v => v.Value);
     }
 
 
 
-    private void TryAccessServer(Dictionary<string, string> connectionSettings, Action onSuccess) {
+    private void TryAccessServer(Dictionary<string, object> connectionSettings, Action onSuccess) {
       //btnServerAction.Visibility = System.Windows.Visibility.Hidden;
       imgInfo.Visibility = System.Windows.Visibility.Visible;
 
@@ -259,7 +259,7 @@ namespace ServiceBusMQManager.Dialogs {
 
 
     void worker_TryAccessServer(object sender, DoWorkEventArgs e) {
-      var connectionSettings = e.Argument as Dictionary<string, string>;
+      var connectionSettings = e.Argument as Dictionary<string, object>;
       try {
 
         //_discoverySvc = _sys.GetDiscoveryService(Result.MessageBus, Result.QueueType);
@@ -320,7 +320,7 @@ namespace ServiceBusMQManager.Dialogs {
 
         parameters.Children.Clear();
         foreach( var prm in _discoverySvc.ServerConnectionParameters ) {
-          var value = Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null;
+          var value = (Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null);
           var ctl = new ServerConnectionParamControl(prm, value);
           ctl.ValueChanged += ctl_ValueChanged;
           ctl.LostFocus += ctl_LostFocus;
@@ -333,7 +333,7 @@ namespace ServiceBusMQManager.Dialogs {
     void ctl_LostFocus(object sender, RoutedEventArgs e) {
       if( parameters.Children.IndexOf((UIElement)sender) == 0 ) {
         var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
-        var v = ctl.Value.ToLower();
+        var v = ctl.Value.As<string>().ToLower();
         if( v == "localhost" || v == "127.1.1.1" || v == "." )
           ctl.Value = Environment.MachineName;
 

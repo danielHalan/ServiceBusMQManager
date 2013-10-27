@@ -38,15 +38,15 @@ namespace ServiceBusMQ.Manager {
     /// Initialize Service Bus. Called once, before first command is sent.
     /// </summary>
     /// <param name="assemblyPaths"></param>
-    void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings);
+    void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings);
     
     /// <summary>
     /// Send provided Command object to destination Server and Queue.
     /// </summary>
-    /// <param name="connectionStrings"></param>
+    /// <param name="connectionSettings"></param>
     /// <param name="destinationQueue"></param>
     /// <param name="message"></param>
-    void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message);
+    void SendCommand(Dictionary<string, object> connectionSettings, string destinationQueue, object message);
 
     /// <summary>
     /// Serialize command to a textformat, the format should correlate to the MessageContentFormat property.

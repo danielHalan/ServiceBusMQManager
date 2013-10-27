@@ -165,13 +165,13 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <ListView x:Name="lvTypes" Margin="11,97,15,62" SelectionMode="Single" FontFamily="Calibri" FontSize="15"
+            <ListView x:Name="lvTypes" Margin="10,92,16,67" SelectionMode="Single" FontFamily="Calibri" FontSize="15"
                       GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="Publisher" DisplayMemberBinding="{Binding Publisher}"/>
-                        <GridViewColumn Header="Subscriber" DisplayMemberBinding="{Binding Subscriber}"/>
+                        <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Name}" Width="300" />
+                        <GridViewColumn Header="Publisher" DisplayMemberBinding="{Binding Publisher}" Width="150"/>
+                        <GridViewColumn Header="Subscriber" DisplayMemberBinding="{Binding Subscriber}" Width="150"/>
                     </GridView>
                 </ListView.View>
                 <ListView.DataContext>
@@ -191,12 +191,12 @@
                 </TextBox.Style>
             </TextBox>
             <Image Height="35" Margin="0,52,12,0" VerticalAlignment="Top" Source="/ServiceBusMQManager;component/Images/search.png" HorizontalAlignment="Right" Width="37"/>
-            <ComboBox Name="cbServer" HorizontalAlignment="Left" Margin="18,0,0,15" Width="255" VerticalAlignment="Bottom" BorderBrush="DarkGray" BorderThickness="1" Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" SelectionChanged="cbServer_SelectionChanged" />
-            <Label x:Name="lbInfo" Content="" HorizontalAlignment="Left" Margin="323,0,0,15" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF8B8B8B" Width="216"/>
-            <Controls:RoundMetroButton x:Name="btnRefresh" Click="btnRefresh_Click" Height="35" VerticalAlignment="Bottom" Margin="278,0,0,13"  Source="/ServiceBusMQManager;component/Images/refresh.png" HorizontalAlignment="Left" Width="40" />
+            <ComboBox Name="cbServer" HorizontalAlignment="Left" Margin="18,0,0,15" Width="370" VerticalAlignment="Bottom" BorderBrush="DarkGray" BorderThickness="1" Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" SelectionChanged="cbServer_SelectionChanged" />
+            <Controls:RoundMetroButton x:Name="btnRefresh" Click="btnRefresh_Click" Height="35" VerticalAlignment="Bottom" Margin="400,0,0,13"  Source="/ServiceBusMQManager;component/Images/refresh.png" HorizontalAlignment="Left" Width="40" />
             
-            <Image x:Name="imgServerLoading" HorizontalAlignment="Left" Margin="278,0,0,16" Width="32" Visibility="Hidden"
+            <Image x:Name="imgServerLoading" HorizontalAlignment="Left" Margin="400,0,0,16" Width="32" Visibility="Hidden"
                 		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading-white.gif" Height="32" VerticalAlignment="Bottom" />
+            <Label x:Name="lbInfo" Content="" Margin="25,0,36,90" VerticalAlignment="Bottom" FontFamily="Calibri" FontSize="16" Foreground="#FF474747" Background="#FFFAFF9C"/>
         </Grid>
     </Border>
 </Window>

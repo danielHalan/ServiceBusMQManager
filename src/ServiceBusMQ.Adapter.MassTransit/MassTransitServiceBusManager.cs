@@ -383,7 +383,7 @@ namespace ServiceBusMQ.MassTransit
 		}
 
 		Queue[] _monitorQueues;
-    Dictionary<string, string> _connectionSettings;
+    Dictionary<string, object> _connectionSettings;
 		SbmqmMonitorState _monitorState;
 
 		private void LoadQueues()
@@ -391,7 +391,7 @@ namespace ServiceBusMQ.MassTransit
 			_monitorMsmqQueues.Clear();
 
 			foreach (var queue in MonitorQueues)
-				AddMsmqQueue(_connectionSettings["server"], queue);
+				AddMsmqQueue(_connectionSettings["server"] as string, queue);
 
 		}
 		private void AddMsmqQueue(string serverName, Queue queue)
@@ -450,7 +450,7 @@ namespace ServiceBusMQ.MassTransit
 
 			p.MsmqQueue.PeekCompleted += (source, asyncResult) =>
 			{
-				if (_monitorState.IsMonitoringQueueType(p.Queue.Type))
+				if (_monitorState.IsMonitoring(p.Queue.Type))
 				{
 					Message msg = p.MsmqQueue.EndPeek(asyncResult.AsyncResult);
 
@@ -472,7 +472,7 @@ namespace ServiceBusMQ.MassTransit
 
 			while (!_terminated)
 			{
-				while (!_monitorState.IsMonitoringQueueType(p.Queue.Type))
+				while (!_monitorState.IsMonitoring(p.Queue.Type))
 				{
 					Thread.Sleep(1000);
 
@@ -520,7 +520,7 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-		public void Initialize(Dictionary<string, string> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState)
+		public void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState)
 		{
 			_connectionSettings = connectionSettings;
 			_monitorState = monitorState;
@@ -770,15 +770,15 @@ namespace ServiceBusMQ.MassTransit
 
 		protected IServiceBus _bus;
 		private string _subscriptionQueueService;
-    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, string> connectionSettings)
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings)
 		{
-      _subscriptionQueueService = connectionSettings["subscriptionQueueService"];
+      _subscriptionQueueService = connectionSettings.GetValue("subscriptionQueueService") as string;
 
 			if (_bus == null)
 			{
 				if (CommandContentFormat == "JSON")
 				{
-					if (_subscriptionQueueService != string.Empty)
+					if ( _subscriptionQueueService.IsValid() )
 					{
 
 						_bus = ServiceBusFactory.New(sbc =>
@@ -830,9 +830,9 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-    public void SendCommand(Dictionary<string, string> connectionStrings, string destinationQueue, object message)
+    public void SendCommand(Dictionary<string, object> connectionStrings, string destinationQueue, object message)
 		{
-      var subscr = connectionStrings.GetValue(CS_SUBSCRIPTION_SERVICE);
+      var subscr = connectionStrings.GetValue(CS_SUBSCRIPTION_SERVICE) as string;
 
       if( subscr.IsValid() )
 				_bus.Publish(message);
@@ -875,9 +875,9 @@ namespace ServiceBusMQ.MassTransit
 			}
 		}
 
-    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, string> connectionSettings, IEnumerable<string> queues)
+    public MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues)
 		{
-      var server = connectionSettings[CS_SERVER];
+      var server = connectionSettings[CS_SERVER] as string;
 			List<MessageSubscription> r = new List<MessageSubscription>();
 
 			foreach (var queueName in MessageQueue.GetPrivateQueuesByMachine(server).

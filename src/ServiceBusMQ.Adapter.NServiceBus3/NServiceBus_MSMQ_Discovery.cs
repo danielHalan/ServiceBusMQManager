@@ -41,23 +41,24 @@ namespace ServiceBusMQ.NServiceBus {
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 
         return new ServerConnectionParameter[] { 
-          ServerConnectionParameter.Create("server", "Server Name")
+          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_SERVER, "Server Name"),
+          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, "Use Eager Peak Threads", ParamType.Bool, false, true)
         };
       }
     }
 
-    public bool CanAccessServer(Dictionary<string, string> connectionSettings) {
+    public bool CanAccessServer(Dictionary<string, object> connectionSettings) {
       return true;
     }
 
-    public bool CanAccessQueue(Dictionary<string, string> connectionSettings, string queueName) {
-      var queue = Msmq.Create(connectionSettings["server"], queueName, QueueAccessMode.ReceiveAndAdmin);
+    public bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName) {
+      var queue = Msmq.Create(connectionSettings["server"] as string, queueName, QueueAccessMode.ReceiveAndAdmin);
 
       return queue != null ? queue.CanRead : false;
     }
 
-    public string[] GetAllAvailableQueueNames(Dictionary<string, string> connectionSettings) {
-      return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"]).Where(q => !IsIgnoredQueue(q.QueueName)).
+    public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings) {
+      return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"] as string).Where(q => !IsIgnoredQueue(q.QueueName)).
           Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
     }
 

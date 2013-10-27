@@ -57,7 +57,7 @@ namespace ServiceBusMQ {
     public string ServiceBus { get; set; }
     public string Transport { get; set; }
 
-    public System.Collections.Generic.Dictionary<string, string> ConnectionStrings { get; set; }
+    public System.Collections.Generic.Dictionary<string, object> ConnectionStrings { get; set; }
     public string Queue { get; set; }
     
   }
