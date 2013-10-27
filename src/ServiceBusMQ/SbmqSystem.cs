@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -597,13 +598,13 @@ namespace ServiceBusMQ {
 
 
 
-
     public void PurgeAllMessages() {
+      BackgroundWorker bw = new BackgroundWorker();
 
-      Task.Factory.StartNew((data) => {
-        ThreadState s = data as ThreadState;
-
+      bw.DoWork += (sender, arg) => {
+        ThreadState s = arg.Argument as ThreadState;
         StopMonitoring();
+        
         while( !s.Stopped )
           Thread.Sleep(100);
 
@@ -613,18 +614,23 @@ namespace ServiceBusMQ {
         } finally {
           StartMonitoring();
         }
+      
+      };
 
-      }, _currentMonitor);
+      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => { 
+        if( ev.Error != null )
+          throw ev.Error;
+      };
 
-
+      bw.RunWorkerAsync(_currentMonitor);
     }
-
     public void PurgeErrorAllMessages() {
+      BackgroundWorker bw = new BackgroundWorker();
 
-      Task.Factory.StartNew((data) => {
-        ThreadState s = data as ThreadState;
-
+      bw.DoWork += (sender, arg) => {
+        ThreadState s = arg.Argument as ThreadState;
         StopMonitoring();
+
         while( !s.Stopped )
           Thread.Sleep(100);
 
@@ -635,7 +641,14 @@ namespace ServiceBusMQ {
           StartMonitoring();
         }
 
-      }, _currentMonitor);
+      };
+
+      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
+        if( ev.Error != null )
+          throw ev.Error;
+      };
+
+      bw.RunWorkerAsync(_currentMonitor);
 
     }
 

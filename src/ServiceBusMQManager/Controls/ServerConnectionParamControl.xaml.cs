@@ -109,7 +109,13 @@ namespace ServiceBusMQManager.Controls {
     }
 
     public bool Validate() {
-      return tbValue.Validate();
+      if( Param.Type == ServiceBusMQ.Manager.ParamType.String ) 
+        return tbValue.Validate();
+
+      if( Param.Type == ServiceBusMQ.Manager.ParamType.Bool )
+        return true;
+
+      return false;
     }
 
     public event EventHandler<EventArgs> ValueChanged;

@@ -65,7 +65,7 @@ namespace ServiceBusMQManager.Dialogs {
       Result.Server = new ServerConfig3();
       if( server != null ) {
         server.CopyTo(Result.Server);
-      
+
         if( copy ) {
           Result.Server.Name = string.Empty;
           Result.Server.ConnectionSettings = new Dictionary<string, object>();
@@ -73,7 +73,7 @@ namespace ServiceBusMQManager.Dialogs {
       }
       DialogActionType = server == null ? ActionType.Add : ( copy ? ActionType.Copy : ActionType.Edit );
 
-      string verb = ( DialogActionType == ActionType.Edit ) ? "Edit" : "Add"; 
+      string verb = ( DialogActionType == ActionType.Edit ) ? "Edit" : "Add";
       lbTitle.Content = Title = "{0} Server".With(verb);
       lbInfo.Content = string.Empty;
 
@@ -141,10 +141,12 @@ namespace ServiceBusMQManager.Dialogs {
     private void btnOK_Click(object sender, RoutedEventArgs e) {
       //SaveConfig();
 
-      if( _sys.Config.Servers.Any( s => s.Name == tbName.RetrieveValue<string>() ) ) {
-        
-        MessageBox.Show("A Service Bus Connection with same name already exists", "Name Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
-        return;
+      if( DialogActionType == ActionType.Add ) {
+        if( _sys.Config.Servers.Any(s => s.Name == tbName.RetrieveValue<string>()) ) {
+
+          MessageBox.Show("A Service Bus Connection with same name already exists", "Name Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
+          return;
+        }
       }
 
       bool validConnectionSettings = true;
@@ -174,7 +176,9 @@ namespace ServiceBusMQManager.Dialogs {
           s.CopyTo(_server);
 
         } else { // Add or Copy
-          s.MonitorQueues = new QueueConfig[0];
+
+          if( DialogActionType == ActionType.Add )
+            s.MonitorQueues = new QueueConfig[0];
 
           _sys.Config.Servers.Add(Result.Server);
           _sys.Config.MonitorServerName = s.Name;
@@ -320,7 +324,7 @@ namespace ServiceBusMQManager.Dialogs {
 
         parameters.Children.Clear();
         foreach( var prm in _discoverySvc.ServerConnectionParameters ) {
-          var value = (Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null);
+          var value = ( Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null );
           var ctl = new ServerConnectionParamControl(prm, value);
           ctl.ValueChanged += ctl_ValueChanged;
           ctl.LostFocus += ctl_LostFocus;

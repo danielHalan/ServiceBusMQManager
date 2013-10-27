@@ -437,7 +437,7 @@ namespace ServiceBusMQ.NServiceBus {
       foreach( var queueName in queues ) {
         var queueSubscr = queueName + ".subscriptions";
 
-        if( msmqQ.Any(mq => mq.EndsWith(queueSubscr) ) ) {
+        if( msmqQ.Any(mq => mq.EndsWith(queueSubscr)) ) {
 
           MessageQueue q = Msmq.Create(server, queueSubscr, QueueAccessMode.ReceiveAndAdmin);
 
@@ -493,7 +493,20 @@ namespace ServiceBusMQ.NServiceBus {
       var items = _monitorQueues.Where(q => q.Queue.Type == QueueType.Error);
 
       if( items.Count() > 0 ) {
-        items.ForEach(q => q.Purge());
+        StringBuilder sb = new StringBuilder();
+
+
+        foreach( var q in items ) {
+          try {
+            q.Purge();
+
+          } catch( Exception e ) {
+            sb.AppendFormat("Failed to Purge '{0}', {1}\n", q.Queue.DisplayName, e.Message);
+          }
+        }
+
+        if( sb.Length > 0 )
+          throw new Exception(sb.ToString());
 
         OnItemsChanged();
       }
@@ -512,7 +525,19 @@ namespace ServiceBusMQ.NServiceBus {
       }
     }
     public override void PurgeAllMessages() {
-      _monitorQueues.ForEach(q => q.Purge());
+      StringBuilder sb = new StringBuilder();
+
+      foreach( var q in _monitorQueues ) {
+        try {
+          q.Purge();
+
+        } catch( Exception e ) {
+          sb.AppendFormat("Failed to Purge '{0}', {1}\n", q.Queue.DisplayName, e.Message);
+        }
+      }
+
+      if( sb.Length > 0 )
+        throw new Exception(sb.ToString());
 
       OnItemsChanged();
     }
