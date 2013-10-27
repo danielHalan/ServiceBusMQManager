@@ -138,6 +138,155 @@ namespace ServiceBusMQManager.Dialogs {
       //SbmqSystem.UIState.StoreWindowState(this);
     }
 
+    private void UpdateNameLabel() {
+
+      if( !_nameEdited ) {
+
+        if( cbServiceBus.SelectedValue == null )
+          return;
+
+        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
+
+        var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
+        var name = ctl != null ? ctl.Value.As<string>() : string.Empty;
+
+        tbName.Init(GetDefaultServerName(name, sb.Name, sb.Version, cbTransport.SelectedValue as string), typeof(string), false);
+      }
+
+    }
+
+    private string GetDefaultServerName(string name, string serviceBus, string version, string queueType) {
+      int index = name.IsValid() ? name.IndexOf("//") : -1;
+
+      if( index != -1 )
+        name = name.Substring(index + 2);
+
+      return "{0} ( {1} / {2} )".With(name.CutEnd(20), ServerConfig3.GetFullMessageBusName(serviceBus, version), queueType);
+    }
+    private Dictionary<string, object> GetConnectionSettings() {
+      return parameters.Children.Cast<ServerConnectionParamControl>().ToDictionary(n => n.Param.SchemaName, v => v.Value);
+    }
+
+    private void TryAccessServer(Dictionary<string, object> connectionSettings, Action onSuccess) {
+      imgInfo.Visibility = System.Windows.Visibility.Visible;
+
+      this.IsEnabled = false;
+
+      if( DialogActionType == ActionType.Add ) {
+
+        if( _config.Servers.Any(x => x.Name == Result.Server.Name) ) {
+          lbInfo.Content = "Server Connection already exists with same Name " + Result.Server.Name;
+        }
+      }
+
+      Result.Server.Name = tbName.RetrieveValue<string>();
+      Result.Server.ServiceBus = cbServiceBus.SelectedValue as string;
+      Result.Server.ServiceBusQueueType = cbTransport.SelectedValue as string;
+
+      BackgroundWorker worker = new BackgroundWorker();
+      worker.DoWork += (s, e) => { 
+        try {
+          Result.AllQueueNames = _discoverySvc.GetAllAvailableQueueNames(e.Argument as Dictionary<string, object>);
+
+          e.Result = true;
+        } catch {
+          e.Result = false;
+        }
+      };
+
+      worker.RunWorkerCompleted += (s, e) => {
+
+        if( !( (bool)e.Result ) ) { // failed
+          lbInfo.Content = "Could not access server";
+
+        } else onSuccess();
+
+        imgInfo.Visibility = System.Windows.Visibility.Hidden;
+
+        this.IsEnabled = true;
+      };
+
+      worker.RunWorkerAsync(connectionSettings);
+    }
+
+    bool _updatingServiceBus = false;
+    private void cbServiceBus_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      if( e.AddedItems.Count > 0 ) {
+        _updatingServiceBus = true;
+        try {
+          var s = e.AddedItems[0] as string;
+          var sb = _managerTypes.First(x => x.DisplayName == s);
+
+          var itms = _managerTypes.GroupBy(g => g.DisplayName).Single(x => x.Key == s).Select(x => x.QueueType).ToArray();
+          cbTransport.ItemsSource = itms;
+
+          if( itms.Length == 1 )
+            cbTransport.SelectedIndex = 0;
+
+          UpdateServiceBus(sb.Name, sb.Version, cbTransport.SelectedValue as string);
+          UpdateNameLabel();
+        } finally {
+          _updatingServiceBus = false;
+        }
+      }
+    }
+    private void cbTransport_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      var queueType = e.AddedItems[0] as string;
+      Result.Server.ServiceBusQueueType = queueType;
+
+      if( !_updatingServiceBus ) {
+        UpdateServiceBus(null, null, queueType);
+        UpdateNameLabel();
+      }
+    }
+
+    private void UpdateServiceBus(string messageBus = null, string version = null, string queueType = null) {
+
+      if( messageBus == null ) {
+        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
+        messageBus = sb.Name;
+        version = sb.Version;
+      }
+
+      if( queueType == null )
+        queueType = cbTransport.SelectedValue as string;
+
+      if( messageBus != null && queueType != null ) {
+        _discoverySvc = _sys.GetDiscoveryService(messageBus, version, queueType);
+
+        parameters.Children.Clear();
+        foreach( var prm in _discoverySvc.ServerConnectionParameters ) {
+          var value = ( Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null );
+          var ctl = new ServerConnectionParamControl(prm, value);
+          ctl.ValueChanged += ctl_ValueChanged;
+          ctl.LostFocus += ctl_LostFocus;
+          parameters.Children.Add(ctl);
+        }
+
+      }
+    }
+
+    void ctl_LostFocus(object sender, RoutedEventArgs e) {
+      if( parameters.Children.IndexOf((UIElement)sender) == 0 ) {
+        var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
+        var v = ctl.Value.As<string>().ToLower();
+        if( v == "localhost" || v == "127.1.1.1" || v == "." )
+          ctl.Value = Environment.MachineName;
+
+        UpdateNameLabel();
+      }
+    }
+    void ctl_ValueChanged(object sender, EventArgs e) {
+      if( parameters.Children.IndexOf((UIElement)sender) == 0 )
+        UpdateNameLabel();
+    }
+
+    private void tbName_ValueChanged(object sender, EventArgs e) {
+      if( tbName.tb.IsFocused )
+        _nameEdited = true;
+    }
+
+
     private void btnOK_Click(object sender, RoutedEventArgs e) {
       //SaveConfig();
 
@@ -187,172 +336,6 @@ namespace ServiceBusMQManager.Dialogs {
         DialogResult = true;
       });
 
-    }
-
-    private void UpdateNameLabel() {
-
-      if( !_nameEdited ) {
-
-        if( cbServiceBus.SelectedValue == null )
-          return;
-
-        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
-
-        var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
-        var name = ctl != null ? ctl.Value.As<string>() : string.Empty;
-
-        tbName.Init(GetDefaultServerName(name, sb.Name, sb.Version, cbTransport.SelectedValue as string), typeof(string), false);
-      }
-
-    }
-
-    private string GetDefaultServerName(string name, string serviceBus, string version, string queueType) {
-      int index = name.IsValid() ? name.IndexOf("//") : -1;
-
-      if( index != -1 )
-        name = name.Substring(index + 2);
-
-      return "{0} ( {1} / {2} )".With(name.CutEnd(20), ServerConfig3.GetFullMessageBusName(serviceBus, version), queueType);
-    }
-
-
-    private Dictionary<string, object> GetConnectionSettings() {
-      return parameters.Children.Cast<ServerConnectionParamControl>().ToDictionary(n => n.Param.SchemaName, v => v.Value);
-    }
-
-
-
-    private void TryAccessServer(Dictionary<string, object> connectionSettings, Action onSuccess) {
-      //btnServerAction.Visibility = System.Windows.Visibility.Hidden;
-      imgInfo.Visibility = System.Windows.Visibility.Visible;
-
-      this.IsEnabled = false;
-
-      if( DialogActionType == ActionType.Add ) {
-
-        if( _config.Servers.Any(x => x.Name == Result.Server.Name) ) {
-          lbInfo.Content = "Server Connection already exists with same Name " + Result.Server.Name;
-        }
-      }
-
-      Result.Server.Name = tbName.RetrieveValue<string>();
-      Result.Server.ServiceBus = cbServiceBus.SelectedValue as string;
-      Result.Server.ServiceBusQueueType = cbTransport.SelectedValue as string;
-
-      BackgroundWorker worker = new BackgroundWorker();
-      worker.DoWork += worker_TryAccessServer;
-      worker.RunWorkerCompleted += (s, e) => {
-        //UpdateConfigWindowUIState();
-
-        //cbServers.Visibility = System.Windows.Visibility.Visible;
-        //tbServer.Visibility = System.Windows.Visibility.Hidden;
-        //tbServer.UpdateValue(string.Empty);
-
-        if( !( (bool)e.Result ) ) { // failed
-          lbInfo.Content = "Could not access server";
-
-        } else onSuccess();
-
-        imgInfo.Visibility = System.Windows.Visibility.Hidden;
-
-        this.IsEnabled = true;
-      };
-
-      worker.RunWorkerAsync(connectionSettings);
-    }
-
-
-    void worker_TryAccessServer(object sender, DoWorkEventArgs e) {
-      var connectionSettings = e.Argument as Dictionary<string, object>;
-      try {
-
-        //_discoverySvc = _sys.GetDiscoveryService(Result.MessageBus, Result.QueueType);
-        Result.AllQueueNames = _discoverySvc.GetAllAvailableQueueNames(connectionSettings);
-
-        e.Result = true;
-
-      } catch {
-        e.Result = false;
-      }
-    }
-
-    bool _updatingServiceBus = false;
-    private void cbServiceBus_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      if( e.AddedItems.Count > 0 ) {
-        _updatingServiceBus = true;
-        try {
-          var s = e.AddedItems[0] as string;
-          var sb = _managerTypes.First(x => x.DisplayName == s);
-
-          var itms = _managerTypes.GroupBy(g => g.DisplayName).Single(x => x.Key == s).Select(x => x.QueueType).ToArray();
-          cbTransport.ItemsSource = itms;
-
-          if( itms.Length == 1 )
-            cbTransport.SelectedIndex = 0;
-
-          UpdateServiceBus(sb.Name, sb.Version, cbTransport.SelectedValue as string);
-          UpdateNameLabel();
-        } finally {
-          _updatingServiceBus = false;
-        }
-      }
-    }
-
-    private void cbTransport_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      var queueType = e.AddedItems[0] as string;
-      Result.Server.ServiceBusQueueType = queueType;
-
-      if( !_updatingServiceBus ) {
-        UpdateServiceBus(null, null, queueType);
-        UpdateNameLabel();
-      }
-    }
-
-    private void UpdateServiceBus(string messageBus = null, string version = null, string queueType = null) {
-
-      if( messageBus == null ) {
-        var sb = _managerTypes.First(x => x.DisplayName == (string)cbServiceBus.SelectedValue);
-        messageBus = sb.Name;
-        version = sb.Version;
-      }
-
-      if( queueType == null )
-        queueType = cbTransport.SelectedValue as string;
-
-      if( messageBus != null && queueType != null ) {
-        _discoverySvc = _sys.GetDiscoveryService(messageBus, version, queueType);
-
-        parameters.Children.Clear();
-        foreach( var prm in _discoverySvc.ServerConnectionParameters ) {
-          var value = ( Result.Server != null ? Result.Server.ConnectionSettings.GetValue(prm.SchemaName, prm.DefaultValue) : null );
-          var ctl = new ServerConnectionParamControl(prm, value);
-          ctl.ValueChanged += ctl_ValueChanged;
-          ctl.LostFocus += ctl_LostFocus;
-          parameters.Children.Add(ctl);
-        }
-
-      }
-    }
-
-    void ctl_LostFocus(object sender, RoutedEventArgs e) {
-      if( parameters.Children.IndexOf((UIElement)sender) == 0 ) {
-        var ctl = parameters.Children.Cast<ServerConnectionParamControl>().FirstOrDefault();
-        var v = ctl.Value.As<string>().ToLower();
-        if( v == "localhost" || v == "127.1.1.1" || v == "." )
-          ctl.Value = Environment.MachineName;
-
-        UpdateNameLabel();
-      }
-    }
-
-    void ctl_ValueChanged(object sender, EventArgs e) {
-      if( parameters.Children.IndexOf((UIElement)sender) == 0 )
-        UpdateNameLabel();
-    }
-
-    private void tbName_ValueChanged(object sender, EventArgs e) {
-      if( tbName.tb.IsFocused )
-        _nameEdited = true;
     }
 
 

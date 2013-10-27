@@ -39,13 +39,11 @@ namespace ServiceBusMQManager.Controls {
     public ServerConnectionParamControl() {
       InitializeComponent();
     }
-
     public ServerConnectionParamControl(string label) {
       InitializeComponent();
 
       Text.Content = label;
     }
-
     public ServerConnectionParamControl(ServiceBusMQ.Manager.ServerConnectionParameter p, object value = null) {
       InitializeComponent();
 
@@ -75,7 +73,6 @@ namespace ServiceBusMQManager.Controls {
     void cbValue_Unchecked(object sender, RoutedEventArgs e) {
       OnValueChanged();
     }
-
     void cbValue_Checked(object sender, RoutedEventArgs e) {
       OnValueChanged();
     }
@@ -83,7 +80,6 @@ namespace ServiceBusMQManager.Controls {
     void tbValue_LostFocus(object sender, System.Windows.RoutedEventArgs e) {
       OnLostFocus(e);
     }
-
     void tbValue_ValueChanged(object sender, EventArgs e) {
       OnValueChanged();
     }
