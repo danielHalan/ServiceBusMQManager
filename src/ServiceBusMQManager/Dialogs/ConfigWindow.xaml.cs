@@ -309,9 +309,8 @@ namespace ServiceBusMQManager.Dialogs {
 
           SaveServerConfig(_config.MonitorServerName);
 
-          _config.MonitorServerName = cbServers.SelectedValue as string;
-
           var s = e.AddedItems[0] as ServerConfig3;
+          _config.MonitorServerName = s.Name; // cbServers.SelectedValue as string;
 
           _SetAccessingServer(true);
 
@@ -388,7 +387,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       cbServers.SelectedValue = _sys.Config.MonitorServerName;
 
-      SelectServer(_sys.Config.MonitorServerName);
+      //SelectServer(_sys.Config.MonitorServerName);
     }
 
 
