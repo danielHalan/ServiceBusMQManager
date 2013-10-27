@@ -19,17 +19,23 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ.Manager {
+  
+  public enum ParamType { String, Bool }
+  
   public class ServerConnectionParameter {
     public string DisplayName { get; set; }
     
     public string SchemaName { get; set; }
-    public string DefaultValue { get; set; }
+    public object DefaultValue { get; set; }
     public bool Optional { get; set; }
+    public ParamType Type { get; set; }
 
-    public static ServerConnectionParameter Create(string schemaName, string displayName, string defaultValue = null, bool optional = false) {
+    public static ServerConnectionParameter Create(string schemaName, string displayName, ParamType type = ParamType.String, object defaultValue = null, bool optional = false) {
       return new ServerConnectionParameter() { 
         SchemaName = schemaName,
         DisplayName = displayName,
+        
+        Type = type,
         DefaultValue = defaultValue,
         Optional = optional
       };

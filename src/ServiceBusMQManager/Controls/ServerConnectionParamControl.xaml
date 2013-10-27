@@ -11,6 +11,12 @@
 
         <local:TextInputControl x:Name="tbValue" Margin="212,5,14,0" VerticalAlignment="Top"/>
         <Label x:Name="Req" Content="*" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Top" Width="22" Foreground="#FFFF5353" Height="40" Margin="0,-1,-6,0" FontSize="26" FontFamily="Segoe UI"/>
+        
+        <CheckBox Name="cbValue"  BorderThickness="1,1,1,1" Margin="213,10,261,0">
+            <CheckBox.LayoutTransform>
+                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+            </CheckBox.LayoutTransform>
+        </CheckBox>
 
     </Grid>
 </UserControl>
