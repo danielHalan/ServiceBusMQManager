@@ -54,6 +54,8 @@ namespace ServiceBusMQManager.Dialogs {
     public ManageServerDialog(SbmqSystem system, ServerConfig3 server, bool copy = false) {
       InitializeComponent();
 
+      Topmost = SbmqSystem.UIState.AlwaysOnTop;
+
       _sys = system;
       _config = system.Config;
       _server = server;

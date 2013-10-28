@@ -561,7 +561,9 @@
     <Resource Include="Images\Msg.Info.png" />
     <Resource Include="Images\Error-Processed.png" />
     <Resource Include="Images\Error-Processed.selected.png" />
-    <Resource Include="AppSettingV1.xml" />
+    <Resource Include="AppSettingV1.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
