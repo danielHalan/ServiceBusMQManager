@@ -60,7 +60,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     }
 
     public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings) {
-      var mgr = NamespaceManager.CreateFromConnectionString(connectionSettings["connectionStr"]);
+      var mgr = NamespaceManager.CreateFromConnectionString(connectionSettings["connectionStr"] as string);
       return mgr.GetQueues().Select( q => q.Path ).ToArray();
 
       //return MessageQueue.GetPrivateQueuesByMachine(server).Where(q => !IsIgnoredQueue(q.QueueName)).

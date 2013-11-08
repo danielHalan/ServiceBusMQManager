@@ -54,7 +54,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       _monitorQueues.Clear();
 
       foreach( var queue in MonitorQueues )
-        AddAzureQueue(_connectionSettings["connectionStr"], queue);
+        AddAzureQueue(_connectionSettings["connectionStr"] as string, queue);
     }
 
     private void AddAzureQueue(string _connectionStr, Model.Queue queue) {
@@ -137,7 +137,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
          */
 
         try {
-          var msgs = q.Main.PeekBatch(SbmqSystem.MAX_ITEMS_PER_QUEUE);
+          var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
           result.Count += (uint)msgs.Count();
 
           foreach( var msg in msgs ) {
