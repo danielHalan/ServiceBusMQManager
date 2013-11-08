@@ -34,7 +34,7 @@ namespace ServiceBusMQ.Model {
 
     public MessageContentFormat ContentFormat { get; private set; }
 
-    public Queue(string name, QueueType type, int color = 0) {
+    public Queue(string name, QueueType type, int color = 0, MessageContentFormat contentFormat = MessageContentFormat.Unknown) {
     
       Name = name;
       Type = type;
@@ -43,7 +43,7 @@ namespace ServiceBusMQ.Model {
 
       Color = color;
 
-      ContentFormat = MessageContentFormat.Unknown;
+      ContentFormat = contentFormat;
       
       ColorString = "#" + color.ToString("X");
       SelectedColorString = "#" + GetSelectedColor(color).ToString("X");
@@ -62,10 +62,10 @@ namespace ServiceBusMQ.Model {
       if( content.StartsWith("<xml") )
         ContentFormat = MessageContentFormat.Xml;
       
-      else if( content.StartsWith("[") )
+      else //if( content.StartsWith("[") || content.StartsWith("{") )
         ContentFormat = MessageContentFormat.Json;
 
-      else ContentFormat = MessageContentFormat.Other;
+      //else ContentFormat = MessageContentFormat.Other;
 
     }
   }

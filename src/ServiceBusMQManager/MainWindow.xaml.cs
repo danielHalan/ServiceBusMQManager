@@ -161,8 +161,6 @@ namespace ServiceBusMQManager {
 
         RestoreQueueButtonsState();
         this.IsEnabled = true;
-        lbLoading.Visibility = System.Windows.Visibility.Hidden;
-
 
         btnSendCommand.IsEnabled = _sys.CanSendCommand;
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
@@ -184,6 +182,8 @@ namespace ServiceBusMQManager {
         UpdateTitle();
 
         _sys.StartMonitoring();
+        
+        lbLoading.Visibility = System.Windows.Visibility.Hidden;
       };
 
       w.RunWorkerAsync();
@@ -726,14 +726,15 @@ namespace ServiceBusMQManager {
     private void lbItems_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
       var itm = ( lbItems.SelectedItem as QueueItem );
 
-      if( itm != null && _dlg != null && !_dlg.IsVisible && _dlgShown ) {
-        SetSelectedItem(itm);
-      }
+      if( itm != null ) {
+        if( _dlg != null && !_dlg.IsVisible && _dlgShown ) {
+          SetSelectedItem(itm);
+        }
 
-      if( itm.Queue.Type == QueueType.Error ) { // Move back to origin
-        _mgr.MoveErrorMessageToOriginQueue(itm);
+        if( itm.Queue.Type == QueueType.Error ) { // Move back to origin
+          _mgr.MoveErrorMessageToOriginQueue(itm);
+        }
       }
-
     }
 
 
