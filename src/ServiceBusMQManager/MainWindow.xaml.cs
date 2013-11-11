@@ -166,6 +166,8 @@ namespace ServiceBusMQManager {
         btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
         lbItems.ItemsSource = _sys.Items;
+        if( !lbItems.IsEnabled )
+        lbItems.IsEnabled = true;
 
         SetupContextMenu();
 
@@ -174,7 +176,7 @@ namespace ServiceBusMQManager {
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
 
-        } else if( _sys.Config.VersionCheck.Enabled ) {
+        } else if( _sys.Config.VersionCheck.Enabled  ) {
           if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
             CheckIfLatestVersion(false);
         }
@@ -201,7 +203,11 @@ namespace ServiceBusMQManager {
     void _sys_WarningOccured(object sender, WarningArgs e) {
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
-        MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
+        if( e.Type == WarningType.ConnectonFailed ) { 
+        
+          DisableListView("Connection Failed: " + e.Message);
+        
+        } else MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
 
       }));
     }
@@ -232,6 +238,9 @@ namespace ServiceBusMQManager {
           btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
           lbItems.ItemsSource = _sys.Items;
+          
+          if( !lbItems.IsEnabled )
+            lbItems.IsEnabled = true;
 
           SetupContextMenu();
 
@@ -500,6 +509,10 @@ namespace ServiceBusMQManager {
         lock( _sys.ItemsLock ) {
           lbItems.ItemsSource = _sys.Items;
           lbItems.Items.Refresh();
+
+          if( !lbItems.IsEnabled ) 
+            lbItems.IsEnabled = true;
+
         }
 
         if( e.Origin == ItemChangeOrigin.Queue )
@@ -1023,6 +1036,9 @@ namespace ServiceBusMQManager {
     bool _openedByButton = false;
 
     private void LoadProcessedQueueItems(TimeSpan timeSpan) {
+      lbLoading.Content = "Loading...";
+      lbLoading.ToolTip = string.Empty;
+
       lbLoading.Visibility = System.Windows.Visibility.Visible;
       WindowTools.Sleep(10);
       try {
@@ -1030,6 +1046,22 @@ namespace ServiceBusMQManager {
       } finally {
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       }
+    }
+
+    private void DisableListView(string message) {
+      lbLoading.Content = message.CutEnd(60);
+      
+      if( message.Length > 60 )
+        lbLoading.ToolTip = message;
+      
+      lbLoading.Visibility = System.Windows.Visibility.Visible;
+
+      lbItems.IsEnabled = false;
+    }
+    private void EnableListView() {
+      lbLoading.Visibility = System.Windows.Visibility.Hidden;
+      
+      lbItems.IsEnabled = true;
     }
 
     private void btnShowProcessed_Click(object sender, RoutedEventArgs e) {
