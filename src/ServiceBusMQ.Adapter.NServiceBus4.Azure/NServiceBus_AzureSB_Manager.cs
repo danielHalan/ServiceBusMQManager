@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -123,19 +124,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
         if( IsIgnoredQueue(q.Queue.Name) )
           continue;
 
-        //SetupMessageReadPropertyFilters(q.Main, q.Queue.Type);
-
-        // Add peaked items
-        /*
-        lock( _peekItemsLock ) {
-          if( _peekedItems.Count > 0 ) {
-
-            r.AddRange(_peekedItems);
-            _peekedItems.Clear();
-          }
-        } 
-         */
-
         try {
           var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
           result.Count += (uint)msgs.Count();
@@ -156,6 +144,10 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
               r.Insert(0, itm);
 
           }
+
+        } catch( SocketException se ) {
+
+          OnWarning( se.Message, null, Manager.WarningType.ConnectonFailed );
 
         } catch( Exception e ) {
           OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);

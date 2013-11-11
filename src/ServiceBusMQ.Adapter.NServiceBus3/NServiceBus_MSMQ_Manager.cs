@@ -44,7 +44,7 @@ namespace ServiceBusMQ.NServiceBus {
     public override string MessageQueueType { get { return "MSMQ"; } }
 
     public static readonly string CS_SERVER = "server";
-    public static readonly string CS_PEAK_THREADS = "peakThreads";
+    public static readonly string CS_PEEK_THREADS = "peakThreads";
 
 
     class PeekThreadParam {
@@ -62,7 +62,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       LoadQueues();
 
-      if( (bool)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, false) )
+      if( (bool)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEEK_THREADS, false) )
         StartPeekThreads();
     }
     public override void Terminate() {
