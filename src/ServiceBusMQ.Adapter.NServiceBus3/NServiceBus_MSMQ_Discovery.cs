@@ -42,7 +42,7 @@ namespace ServiceBusMQ.NServiceBus {
       get { 
         return new ServerConnectionParameter[] { 
           ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_SERVER, "Server Name"),
-          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, "Use Eager Peak Threads", ParamType.Bool, false, true)
+          ServerConnectionParameter.Create(NServiceBus_MSMQ_Manager.CS_PEEK_THREADS, "Use Eager Peek Threads", ParamType.Bool, false, true)
         };
       }
     }

@@ -688,10 +688,10 @@ namespace ServiceBusMQ.MassTransit
 			if (ErrorOccured != null)
 				ErrorOccured(this, new ErrorArgs(message, exception, fatal));
 		}
-		protected void OnWarning(string message, string content)
+    protected void OnWarning(string message, string content, WarningType type = WarningType.Other)
 		{
 			if (WarningOccured != null)
-				WarningOccured(this, new WarningArgs(message, content));
+				WarningOccured(this, new WarningArgs(message, content, type));
 		}
 
 		private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\NLog.dll", 

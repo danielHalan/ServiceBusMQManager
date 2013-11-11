@@ -51,8 +51,14 @@ namespace ServiceBusMQ.NServiceBus4 {
 
     public static readonly string CS_SERVER = "server";
     public static readonly string CS_RAVEN_PERSISTANCE = "ravenPersistence";
-    public static readonly string CS_PEAK_THREADS = "peakThreads";
-    
+    public static readonly string CS_PEEK_THREADS = "peakThreads";
+
+
+    private bool IsPeekThreadsEnabled {
+      get {
+        return (bool)_connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEEK_THREADS, false);
+      }
+    }
 
     class PeekThreadParam {
       public Queue Queue { get; set; }
@@ -69,7 +75,7 @@ namespace ServiceBusMQ.NServiceBus4 {
 
       LoadQueues();
 
-      if( (bool)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_PEAK_THREADS, false) )
+      if( IsPeekThreadsEnabled )
         StartPeekThreads();
     }
     public override void Terminate() {
@@ -229,11 +235,13 @@ namespace ServiceBusMQ.NServiceBus4 {
         SetupMessageReadPropertyFilters(q.Main, q.Queue.Type);
 
         // Add peaked items
-        lock( _peekItemsLock ) {
-          if( _peekedItems.Count > 0 ) {
+        if( IsPeekThreadsEnabled ) {
+          lock( _peekItemsLock ) {
+            if( _peekedItems.Count > 0 ) {
 
-            r.AddRange(_peekedItems);
-            _peekedItems.Clear();
+              r.AddRange(_peekedItems);
+              _peekedItems.Clear();
+            }
           }
         }
 
@@ -441,11 +449,20 @@ namespace ServiceBusMQ.NServiceBus4 {
       List<MessageSubscription> r = new List<MessageSubscription>();
 
       // Raven Persistance
-      var ravenUrl = (string)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, null) ?? "http://" + server + ":8080"; 
-      var db = new DocumentStore {
-        Url = ravenUrl
-      };
-      db.Initialize();
+      DocumentStore db = null;
+      try {
+        var ravenUrl = (string)connectionSettings.GetValue(NServiceBus_MSMQ_Manager.CS_RAVEN_PERSISTANCE, null);
+        if( !ravenUrl.IsValid() )
+          ravenUrl = "http://" + server + ":8080";
+
+        db = new DocumentStore {
+          Url = ravenUrl
+        };
+        db.Initialize();
+      } catch {
+        return r.ToArray();
+      }
+
 
       // MSMQ Persistance
       var msmqQ = MessageQueue.GetPrivateQueuesByMachine(server).Where(q => q.QueueName.EndsWith(".subscriptions")).Select(q => q.QueueName);
