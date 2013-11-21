@@ -71,6 +71,9 @@ namespace ServiceBusMQManager {
       var ver = App.Info.Version;
       _titleStr = string.Format("Service Bus MQ Manager {0}.{1} - (C)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
 
+
+      imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
+
       UpdateTitle();
 
       CreateNotifyIcon();
@@ -147,6 +150,10 @@ namespace ServiceBusMQManager {
           _sys.ItemsChanged += sys_ItemsChanged;
           _sys.ErrorOccured += _sys_ErrorOccured;
           _sys.WarningOccured += _sys_WarningOccured;
+          
+          _sys.StartedLoadingQueues += _sys_StartedLoadingQueues;
+          _sys.FinishedLoadingQueues += _sys_FinishedLoadingQueues;
+          
           _mgr = _sys.Manager;
 
         } catch( Exception ex ) {
@@ -189,6 +196,23 @@ namespace ServiceBusMQManager {
       };
 
       w.RunWorkerAsync();
+    }
+
+    void _sys_FinishedLoadingQueues(object sender, EventArgs e) {
+
+      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
+          new Action(delegate() {
+        imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
+      }));
+
+
+    }
+
+    void _sys_StartedLoadingQueues(object sender, EventArgs e) {
+      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
+          new Action(delegate() {
+        imgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
+      }));
     }
 
 
@@ -499,11 +523,13 @@ namespace ServiceBusMQManager {
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
+        EnableListView();
+
         // Update button labels
         UpdateButtonLabel(btnCmd);
         UpdateButtonLabel(btnEvent);
         UpdateButtonLabel(btnMsg);
-        UpdateButtonLabel(btnError);
+        UpdateButtonLabel(btnError);  
 
         // Update List View
         lock( _sys.ItemsLock ) {
