@@ -217,8 +217,15 @@ namespace ServiceBusMQ {
       try {
         while( state.Executing ) {
 
-          if( RefreshUnprocessedQueueItemList() )
-            OnItemsChanged(ItemChangeOrigin.Queue);
+          OnStartedLoadingQueues();
+          try { 
+
+            if( RefreshUnprocessedQueueItemList() ) 
+              OnItemsChanged(ItemChangeOrigin.Queue);
+
+          } finally { 
+            OnFinishedLoadingQueues();
+          }
 
           Thread.Sleep(Config.MonitorInterval);
         }
@@ -256,6 +263,10 @@ namespace ServiceBusMQ {
       foreach( QueueType t in _queueTypeValues ) {
         if( _monitorState.IsMonitoring(t) ) {
           var r = _mgr.GetUnprocessedMessages(t, _items.ToArray());
+          
+          if( r.Status == QueueFetchResultStatus.ConnectionFailed ) 
+            break;
+
           items.AddRange(r.Items);
 
           int typeIndex = (int)t;
@@ -565,7 +576,7 @@ namespace ServiceBusMQ {
 
     public event EventHandler<ErrorArgs> ErrorOccured;
     public event EventHandler<WarningArgs> WarningOccured;
-
+    
     protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, exception, fatal));
@@ -579,6 +590,41 @@ namespace ServiceBusMQ {
       if( WarningOccured != null )
         WarningOccured(this, arg);
     }
+
+    protected EventHandler<EventArgs> _startedLoadingQueues;
+    public event EventHandler<EventArgs> StartedLoadingQueues {
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      add {
+        _startedLoadingQueues = (EventHandler<EventArgs>)Delegate.Combine(_startedLoadingQueues, value);
+      }
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      remove {
+        _startedLoadingQueues = (EventHandler<EventArgs>)Delegate.Remove(_startedLoadingQueues, value);
+      }
+
+    }
+    protected void OnStartedLoadingQueues() { 
+      if( _startedLoadingQueues != null )
+        _startedLoadingQueues(this, EventArgs.Empty);
+    }
+
+    protected EventHandler<EventArgs> _finishedLoadingQueues;
+    public event EventHandler<EventArgs> FinishedLoadingQueues { 
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      add {
+        _finishedLoadingQueues = (EventHandler<EventArgs>)Delegate.Combine(_finishedLoadingQueues, value);
+      }
+      [MethodImpl(MethodImplOptions.Synchronized)]
+      remove {
+        _finishedLoadingQueues = (EventHandler<EventArgs>)Delegate.Remove(_finishedLoadingQueues, value);
+      }
+    }
+
+    protected void OnFinishedLoadingQueues() {
+      if( _finishedLoadingQueues != null )
+        _finishedLoadingQueues(this, EventArgs.Empty);
+    }
+
 
 
     public void FilterItems(string str) {

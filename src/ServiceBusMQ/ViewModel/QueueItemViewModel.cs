@@ -72,6 +72,7 @@ namespace ServiceBusMQ.ViewModel {
 
     private void MapQueueItem(QueueItem item) {
       Id = item.Id;
+      MessageQueueItemId = item.MessageQueueItemId;
       DisplayName = item.DisplayName;
       Messages = item.Messages;
 

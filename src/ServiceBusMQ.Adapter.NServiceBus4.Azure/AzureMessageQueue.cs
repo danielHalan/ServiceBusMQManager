@@ -40,14 +40,8 @@ namespace ServiceBusMQ.NServiceBus4 {
       _connectionStr = connectionString;
       Queue = queue;
 
-      Main = QueueClient.CreateFromConnectionString(connectionString, queue.Name);
-
-      //Main = Msmq.Create(connectionString, queue.Name, QueueAccessMode.ReceiveAndAdmin);
-      
-      //_mainContent = Msmq.Create(connectionString, queue.Name, QueueAccessMode.ReceiveAndAdmin);
-      //_mainContent.MessageReadPropertyFilter.ClearAll();
-      //_mainContent.MessageReadPropertyFilter.Body = true;
-
+      Main = QueueClient.CreateFromConnectionString(connectionString, queue.Name, ReceiveMode.ReceiveAndDelete);
+     
 
       //if( Main.UseJournalQueue ) { // Error when trying to use FormatName, strange as it should work according to MSDN. Temp solution for now.
       //  Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));

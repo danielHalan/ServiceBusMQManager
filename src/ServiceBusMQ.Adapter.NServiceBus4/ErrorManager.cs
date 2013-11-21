@@ -28,6 +28,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
   using Transports.Msmq;
 
   public class ErrorManager {
+
     public bool ClusteredQueue { get; set; }
 
     public virtual Address InputQueue {

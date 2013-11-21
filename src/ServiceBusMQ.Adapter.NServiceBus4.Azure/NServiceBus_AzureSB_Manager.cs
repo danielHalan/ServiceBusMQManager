@@ -36,6 +36,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     public override string MessageQueueType { get { return "Azure Service Bus"; } }
 
     static readonly string CS_SERVER = "server";
+    static readonly string CS_CONNECTION_STRING = "connectionStr";
 
 
     public override void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
@@ -55,7 +56,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       _monitorQueues.Clear();
 
       foreach( var queue in MonitorQueues )
-        AddAzureQueue(_connectionSettings["connectionStr"] as string, queue);
+        AddAzureQueue(_connectionSettings[CS_CONNECTION_STRING] as string, queue);
     }
 
     private void AddAzureQueue(string _connectionStr, Model.Queue queue) {
@@ -108,6 +109,8 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     
     public override Model.QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
       var result = new QueueFetchResult();
+      result.Status = QueueFetchResultStatus.OK;
+      
       var queues = _monitorQueues.Where(q => q.Queue.Type == type);
 
       if( queues.Count() == 0 ) {
@@ -145,12 +148,20 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
           }
 
-        } catch( SocketException se ) {
 
+        } catch( MessagingCommunicationException mce ) {
+          OnWarning(mce.Message, null, Manager.WarningType.ConnectonFailed);
+          result.Status = QueueFetchResultStatus.ConnectionFailed;
+          break;
+
+        } catch( SocketException se ) {
           OnWarning( se.Message, null, Manager.WarningType.ConnectonFailed );
+          result.Status = QueueFetchResultStatus.ConnectionFailed;
+          break;
 
         } catch( Exception e ) {
           OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
+          result.Status = QueueFetchResultStatus.HasErrors;
         }
 
       }
@@ -170,6 +181,9 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       // Ignore control messages
       if( itm.Headers.ContainsKey(Headers.ControlMessageHeader) && Convert.ToBoolean(itm.Headers[Headers.ControlMessageHeader]) )
         return false;
+
+      if( itm.Headers.ContainsKey("NServiceBus.MessageId") )
+        itm.Id = itm.Headers["NServiceBus.MessageId"];
 
       // Get Messages names
       if( itm.Headers.ContainsKey("NServiceBus.EnclosedMessageTypes") ) {
@@ -226,6 +240,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     private QueueItem CreateQueueItem(Queue queue, BrokeredMessage msg) {
       var itm = new QueueItem(queue);
       itm.DisplayName = msg.Label;
+      itm.MessageQueueItemId = msg.SequenceNumber;
       itm.Id = msg.SequenceNumber.ToString(); //msg.MessageId;
       itm.ArrivedTime = msg.EnqueuedTimeUtc;
       itm.Content = ReadMessageStream( new System.IO.MemoryStream(msg.GetBody<byte[]>()) );
@@ -252,9 +267,9 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
       if( q != null ) {
 
-        var msg = q.Receive( Convert.ToInt64(itm.Id) );
-        if( msg != null )
-          msg.Complete();
+        var msg = q.Receive( (long)itm.MessageQueueItemId );
+        //if( msg != null )
+        //  msg.Complete();
 
         itm.Processed = true;
 
@@ -284,11 +299,24 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
 
     public override void MoveErrorMessageToOriginQueue(QueueItem itm) {
-      throw new NotImplementedException();    
+      if( string.IsNullOrEmpty(itm.Id) )
+        throw new ArgumentException("MessageId can not be null or empty");
+
+      if( itm.Queue.Type != QueueType.Error )
+        throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
+
+      var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+
+      mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
     }
     
-    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) { 
-      throw new NotImplementedException();
+    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
+
+      mgr.ReturnAll(errorQueue);
     }
 
   }
