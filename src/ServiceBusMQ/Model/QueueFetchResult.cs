@@ -20,11 +20,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceBusMQ.Model {
+  public enum QueueFetchResultStatus { OK=0, ConnectionFailed, HasErrors }
+  
   public class QueueFetchResult {
 
     public IEnumerable<Model.QueueItem> Items { get; set; }
     public uint Count { get; set; }
 
+    public QueueFetchResultStatus Status { get; set; }
 
   }
 }
