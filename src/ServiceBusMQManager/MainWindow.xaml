@@ -312,7 +312,7 @@
             <Rectangle
                     Height="28"
                     VerticalAlignment="Top"
-                    Fill="White" Grid.RowSpan="2"
+                    Fill="White" Margin="1,0,-1,0"
              />
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
             <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" 
