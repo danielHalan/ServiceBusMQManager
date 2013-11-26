@@ -256,6 +256,7 @@ namespace ServiceBusMQ {
       bool changedItemsCount = false;
 
       var monitorStatesWhenFetch = new SbmqmMonitorState(_monitorState.MonitorQueueType);
+      List<string> unchangedQueues = new List<string>();
 
       // Removed as when changing QTs in UI this would change list and throw a modification exception in Manager.
       // Creating an array is not as resource efficient, but it works.
@@ -266,6 +267,11 @@ namespace ServiceBusMQ {
           
           if( r.Status == QueueFetchResultStatus.ConnectionFailed ) 
             break;
+
+          if( r.Status == QueueFetchResultStatus.NotChanged ) {
+            unchangedQueues.AddRange( _mgr.MonitorQueues.Where( q => q.Type == t ).Select( q => q.Name ) );
+            continue;
+          }
 
           items.AddRange(r.Items);
 
@@ -322,15 +328,16 @@ namespace ServiceBusMQ {
 
         // Mark removed as deleted messages
         foreach( var itm in _items )
-          if( !items.Any(i2 => i2.Id == itm.Id) ) {
+          if( !unchangedQueues.Contains(itm.Queue.Name) )
+            if( !items.Any(i2 => i2.Id == itm.Id) ) {
 
-            if( !itm.Processed ) {
-              itm.Processed = true;
+              if( !itm.Processed ) {
+                itm.Processed = true;
 
-              if( !changed )
-                changed = true;
+                if( !changed )
+                  changed = true;
+              }
             }
-          }
 
       }
 
@@ -645,11 +652,15 @@ namespace ServiceBusMQ {
 
 
     public void PurgeAllMessages() {
+      if( _currentMonitor == null )
+        return;
+
       BackgroundWorker bw = new BackgroundWorker();
 
       bw.DoWork += (sender, arg) => {
         ThreadState s = arg.Argument as ThreadState;
         StopMonitoring();
+        OnStartedLoadingQueues();
         
         while( !s.Stopped )
           Thread.Sleep(100);
@@ -658,6 +669,7 @@ namespace ServiceBusMQ {
           _mgr.PurgeAllMessages();
 
         } finally {
+          OnFinishedLoadingQueues();
           StartMonitoring();
         }
       
@@ -671,11 +683,15 @@ namespace ServiceBusMQ {
       bw.RunWorkerAsync(_currentMonitor);
     }
     public void PurgeErrorAllMessages() {
+      if( _currentMonitor == null )
+        return;
+      
       BackgroundWorker bw = new BackgroundWorker();
 
       bw.DoWork += (sender, arg) => {
         ThreadState s = arg.Argument as ThreadState;
         StopMonitoring();
+        OnStartedLoadingQueues();
 
         while( !s.Stopped )
           Thread.Sleep(100);
@@ -684,6 +700,7 @@ namespace ServiceBusMQ {
           _mgr.PurgeErrorAllMessages();
 
         } finally {
+          OnFinishedLoadingQueues();
           StartMonitoring();
         }
 

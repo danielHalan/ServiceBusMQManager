@@ -17,20 +17,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using ServiceBusMQ.Model;
-using ServiceBusMQ.NServiceBus;
 
 namespace ServiceBusMQ.NServiceBus4 {
-  public class AzureMessageQueue : IMessageQueue {
-
+  public class AzureMessageQueue {
 
     string _connectionStr;
 
     public Queue Queue { get; set; }
+    public Queue ErrorQueue { get; private set; }
+
+    public DateTime LastPeek { get; set; }
 
     public QueueClient Main { get; set; }
-    //public QueueClient Journal { get; set; }
+    public QueueClient DeadLetter { get; set; }
+
+    public QueueDescription Info { get; set; }
+
+    public static long GetMessageCount(MessageCountDetails details) { 
+      return details.ActiveMessageCount + 
+                    details.ScheduledMessageCount + 
+                    details.TransferMessageCount; 
+      
+    }
+
+    public static long GetDeadLetterMessageCount(MessageCountDetails details) {
+        return details.DeadLetterMessageCount +
+                details.TransferDeadLetterMessageCount;
+    }
 
     //public bool UseJournalQueue { get { return Main.UseJournalQueue; } }
     //public bool CanReadJournalQueue { get { return Main.UseJournalQueue && Journal.CanRead; } }
@@ -39,9 +55,15 @@ namespace ServiceBusMQ.NServiceBus4 {
     public AzureMessageQueue(string connectionString, Queue queue) {
       _connectionStr = connectionString;
       Queue = queue;
+      ErrorQueue = new Model.Queue(queue.Name, QueueType.Error, 0xFF0000);
 
       Main = QueueClient.CreateFromConnectionString(connectionString, queue.Name, ReceiveMode.ReceiveAndDelete);
-     
+      DeadLetter = QueueClient.CreateFromConnectionString(connectionString, QueueClient.FormatDeadLetterPath(queue.Name), ReceiveMode.ReceiveAndDelete);
+
+      var ns = NamespaceManager.CreateFromConnectionString(connectionString);
+      Info = ns.GetQueue(queue.Name);
+
+      //Info = new QueueDescription(
 
       //if( Main.UseJournalQueue ) { // Error when trying to use FormatName, strange as it should work according to MSDN. Temp solution for now.
       //  Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));
@@ -69,6 +91,11 @@ namespace ServiceBusMQ.NServiceBus4 {
       //while( q.ReceiveBatch(max).Count() == max ) { }
     }
 
-  
+    internal bool HasUpdatedSince(DateTime dt) {
+      return Info.UpdatedAt > dt;
+    }
+
+
+    public bool HasChanged { get { return HasUpdatedSince(LastPeek); } }
   }
 }

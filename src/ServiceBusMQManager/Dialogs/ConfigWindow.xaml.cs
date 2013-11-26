@@ -26,6 +26,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
 using ServiceBusMQ;
@@ -390,6 +391,13 @@ namespace ServiceBusMQManager.Dialogs {
       //SelectServer(_sys.Config.MonitorServerName);
     }
 
+    private void ShowErrorMessage(Exception e) {
+      Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+
+        MessageDialog.Show(MessageType.Error, e.Message, e);
+
+      }));
+    }
 
     private void GetAllAvailableQueueNamesForServer(ServerConfig3 server) {
 
@@ -399,7 +407,12 @@ namespace ServiceBusMQManager.Dialogs {
 
         BackgroundWorker w = new BackgroundWorker();
         w.DoWork += (s, arg) => {
-          _allQueueNames.Add(server.Name, GetDiscoveryService(server).GetAllAvailableQueueNames(server.ConnectionSettings));
+          try { 
+            var queues = GetDiscoveryService(server).GetAllAvailableQueueNames(server.ConnectionSettings);
+            _allQueueNames.Add(server.Name, queues);
+          } catch(Exception e) { 
+            ShowErrorMessage(e);
+          }
         };
         w.RunWorkerCompleted += (s, arg) => {
           ValidateQueues(server);
@@ -454,7 +467,7 @@ namespace ServiceBusMQManager.Dialogs {
     private string[] GetAllQueueNames() {
       var name = _config.CurrentServer.Name;
 
-      return _allQueueNames[name];
+      return _allQueueNames.ContainsKey(name) ? _allQueueNames[name] : new string[0];
     }
     private Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition cmdDef, bool suppressErrors) {
       var srv = CurrentServer;

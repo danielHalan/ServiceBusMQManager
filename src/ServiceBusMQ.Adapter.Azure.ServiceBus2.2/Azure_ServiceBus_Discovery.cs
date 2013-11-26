@@ -22,18 +22,12 @@ using Microsoft.ServiceBus;
 using ServiceBusMQ.Manager;
 
 namespace ServiceBusMQ.NServiceBus4.Azure {
-  public class NServiceBus_AzureSB_Discovery : IServiceBusDiscovery {
+  public class Azure_ServiceBus_Discovery : IServiceBusDiscovery {
 
-    public string ServiceBusName {
-      get { return "NServiceBus"; }
-    }
-    public string ServiceBusVersion {
-      get { return "4"; }
-    }
+    public string ServiceBusName { get { return "Windows Azure"; } }
+    public string ServiceBusVersion { get { return "2.2"; } }
+    public string MessageQueueType { get { return "Service Bus"; } }
 
-    public string MessageQueueType {
-      get { return "Azure Service Bus"; }
-    }
 
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; }
@@ -61,7 +55,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
     public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings) {
       var mgr = NamespaceManager.CreateFromConnectionString(connectionSettings["connectionStr"] as string);
-      return mgr.GetQueues().Where( q => !q.Path.EndsWith(".retries") ).Select(q => q.Path).ToArray();
+      return mgr.GetQueues().Select(q => q.Path).ToArray();
     }
 
     //private bool IsIgnoredQueue(string queueName) {
