@@ -37,6 +37,10 @@ namespace ServiceBusMQ.NServiceBus4 {
       get { return new string[] { "XML", "JSON" }; } 
     }
 
+    public ServiceBusFeature[] Features {
+      get { return ServiceBusFeatures.All; }
+    }
+
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 
         return new ServerConnectionParameter[] { 

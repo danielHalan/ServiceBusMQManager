@@ -20,11 +20,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ServiceBusMQ.Adapter.NServiceBus4.Azure")]
+[assembly: AssemblyTitle("ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ServiceBusMQ.Adapter.NServiceBus4.Azure")]
+[assembly: AssemblyProduct("ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -19,13 +19,14 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using NServiceBus;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
 
-namespace ServiceBusMQ.NServiceBus4.Azure {
+namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
   public class NServiceBus_AzureSB_Manager : NServiceBusManagerBase<AzureMessageQueue> {
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
@@ -61,7 +62,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
     private void AddAzureQueue(string _connectionStr, Model.Queue queue) {
       try {
-        
+
         //var mgr = NamespaceManager.CreateFromConnectionString(_serverName);
         //var client = QueueClient.CreateFromConnectionString(_serverName, queue);
         _monitorQueues.Add(new AzureMessageQueue(_connectionStr, queue));
@@ -80,7 +81,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     }
 
     public override string LoadMessageContent(Model.QueueItem itm) {
-        ///AzureMessageQueue q = GetMessageQueue(itm);
+      ///AzureMessageQueue q = GetMessageQueue(itm);
       return "Not Implemented";
       //q.Main.Peek(
     }
@@ -89,7 +90,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     public override string SerializeCommand(object cmd) {
       try {
         return MessageSerializer.SerializeMessage(cmd, CommandContentFormat);
-      
+
       } catch( Exception e ) {
         OnError("Failed to Serialize Command to " + CommandContentFormat, e);
         return null;
@@ -98,19 +99,19 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     public override object DeserializeCommand(string cmd, Type cmdType) {
       try {
         return MessageSerializer.DeserializeMessage(cmd, cmdType, CommandContentFormat);
-      
+
       } catch( Exception e ) {
         OnError("Failed to Parse Command string as " + CommandContentFormat, e);
         return null;
       }
     }
 
-    
-    
+
+
     public override Model.QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
       var result = new QueueFetchResult();
-      result.Status = QueueFetchResultStatus.OK;
-      
+      result.Status = QueueFetchResultStatus.NotChanged;
+
       var queues = _monitorQueues.Where(q => q.Queue.Type == type);
 
       if( queues.Count() == 0 ) {
@@ -128,26 +129,36 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
           continue;
 
         try {
-          var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
-          result.Count += (uint)msgs.Count();
 
-          foreach( var msg in msgs ) {
+          if( q.HasChanged() ) {
+            
+            if( result.Status == QueueFetchResultStatus.NotChanged )
+              result.Status = QueueFetchResultStatus.OK;
 
-            QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.MessageId);
+            long msgCount = q.GetMessageCount();
 
-            if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
-              itm = CreateQueueItem(q.Queue, msg);
+            if( msgCount > 0 ) {
+              var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
+              result.Count += (uint)msgCount;
 
-              // Load Message names and check if its not an infra-message
-              if( !PrepareQueueItemForAdd(itm) )
-                itm = null;
+              foreach( var msg in msgs ) {
+
+                QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.MessageId);
+
+                if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
+                  itm = CreateQueueItem(q.Queue, msg);
+
+                  // Load Message names and check if its not an infra-message
+                  if( !PrepareQueueItemForAdd(itm) )
+                    itm = null;
+                }
+
+                if( itm != null )
+                  r.Insert(0, itm);
+
+              }
             }
-
-            if( itm != null )
-              r.Insert(0, itm);
-
           }
-
 
         } catch( MessagingCommunicationException mce ) {
           OnWarning(mce.Message, null, Manager.WarningType.ConnectonFailed);
@@ -155,7 +166,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
           break;
 
         } catch( SocketException se ) {
-          OnWarning( se.Message, null, Manager.WarningType.ConnectonFailed );
+          OnWarning(se.Message, null, Manager.WarningType.ConnectonFailed);
           result.Status = QueueFetchResultStatus.ConnectionFailed;
           break;
 
@@ -167,8 +178,6 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       }
 
       return result;
-
-    
     }
 
     /// <summary>
@@ -204,7 +213,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
           itm.ProcessTime = Convert.ToInt32(( Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingEnded"]) -
                             Convert.ToDateTime(itm.Headers["NServiceBus.ProcessingStarted"]) ).TotalSeconds);
 
-        } catch (Exception ex) {
+        } catch( Exception ex ) {
 #if DEBUG
           Console.WriteLine("Failed to parse NServiceBus.ProcessingStarted, " + ex.Message);
 #endif
@@ -243,12 +252,12 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
       itm.MessageQueueItemId = msg.SequenceNumber;
       itm.Id = msg.SequenceNumber.ToString(); //msg.MessageId;
       itm.ArrivedTime = msg.EnqueuedTimeUtc;
-      itm.Content = ReadMessageStream( new System.IO.MemoryStream(msg.GetBody<byte[]>()) );
+      itm.Content = ReadMessageStream(new System.IO.MemoryStream(msg.GetBody<byte[]>()));
       //itm.Content = ReadMessageStream(msg.BodyStream);
 
       itm.Headers = new Dictionary<string, string>();
-      if( msg.Properties.Count > 0 ) 
-        msg.Properties.ForEach( p => itm.Headers.Add(p.Key, p.Value.ToString()) );
+      if( msg.Properties.Count > 0 )
+        msg.Properties.ForEach(p => itm.Headers.Add(p.Key, p.Value.ToString()));
 
       return itm;
     }
@@ -263,21 +272,39 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
     }
 
     public override void PurgeMessage(Model.QueueItem itm) {
-      QueueClient q = GetMessageQueue(itm);
+      throw new NotImplementedException();
 
-      if( q != null ) {
+      //QueueClient q = GetMessageQueue(itm);
 
-        var msg = q.Receive( (long)itm.MessageQueueItemId );
-        //if( msg != null )
-        //  msg.Complete();
+      //if( q != null ) {
 
-        itm.Processed = true;
+      //  long msgId = (long)itm.MessageQueueItemId;
 
-        OnItemsChanged();
-      }
+      //  var msg = q.Peek(msgId);
+      //  msg.Defer();
+
+      //  msg = q.Receive(msgId);
+      //  if( msg != null )
+      //    msg.Complete();
+
+      //  itm.Processed = true;
+
+      //  OnItemsChanged();
+      //}
     }
     public override void PurgeAllMessages() {
-      _monitorQueues.ForEach(q => q.Purge());
+      List<Task> tasks = new List<Task>();
+
+      for(int i = 0; i < _monitorQueues.Count; i++) {
+      
+        tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
+
+        if( (i % 4) == 0 ) {
+
+          Task.WaitAll(tasks.ToArray());
+          tasks.Clear();
+        }
+      }
 
       OnItemsChanged();
     }
@@ -312,7 +339,7 @@ namespace ServiceBusMQ.NServiceBus4.Azure {
 
       mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
     }
-    
+
     public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
 
