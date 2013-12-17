@@ -19,59 +19,50 @@ using System.Linq;
 using System.Text;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+using NLog;
 using ServiceBusMQ.Model;
 
-namespace ServiceBusMQ.NServiceBus4 {
+namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
+
   public class AzureMessageQueue {
+
+    protected Logger _log = LogManager.GetCurrentClassLogger();
+
+    static Dictionary<string, NamespaceManager> _nsManagers = new Dictionary<string, NamespaceManager>();
 
     string _connectionStr;
 
     public Queue Queue { get; set; }
-    public Queue ErrorQueue { get; private set; }
-
-    public DateTime LastPeek { get; set; }
+    //public Queue ErrorQueue { get; private set; }
 
     public QueueClient Main { get; set; }
-    public QueueClient DeadLetter { get; set; }
 
     public QueueDescription Info { get; set; }
 
-    public static long GetMessageCount(MessageCountDetails details) { 
-      return details.ActiveMessageCount + 
-                    details.ScheduledMessageCount + 
-                    details.TransferMessageCount; 
-      
+    public bool IsDeadLetterQueue { get; private set; }
+
+    long _checkSum = 0;
+
+    public long GetMessageCount() {
+
+      if( IsDeadLetterQueue )
+        return Info.MessageCountDetails.DeadLetterMessageCount +
+                  Info.MessageCountDetails.TransferDeadLetterMessageCount;
+      else
+        return Info.MessageCountDetails.ActiveMessageCount +
+                      Info.MessageCountDetails.ScheduledMessageCount +
+                      Info.MessageCountDetails.TransferMessageCount;
+
     }
 
-    public static long GetDeadLetterMessageCount(MessageCountDetails details) {
-        return details.DeadLetterMessageCount +
-                details.TransferDeadLetterMessageCount;
-    }
-
-    //public bool UseJournalQueue { get { return Main.UseJournalQueue; } }
-    //public bool CanReadJournalQueue { get { return Main.UseJournalQueue && Journal.CanRead; } }
-
-
-    public AzureMessageQueue(string connectionString, Queue queue) {
+    public AzureMessageQueue(string connectionString, Queue queue, bool deadLetter = false) {
       _connectionStr = connectionString;
-      Queue = queue;
-      ErrorQueue = new Model.Queue(queue.Name, QueueType.Error, 0xFF0000);
+      IsDeadLetterQueue = deadLetter;
 
-      Main = QueueClient.CreateFromConnectionString(connectionString, queue.Name, ReceiveMode.ReceiveAndDelete);
-      DeadLetter = QueueClient.CreateFromConnectionString(connectionString, QueueClient.FormatDeadLetterPath(queue.Name), ReceiveMode.ReceiveAndDelete);
+      Queue = !deadLetter ? queue : new Model.Queue(queue.Name, QueueType.Error, 0xFF0000, queue.ContentFormat);
 
-      var ns = NamespaceManager.CreateFromConnectionString(connectionString);
-      Info = ns.GetQueue(queue.Name);
-
-      //Info = new QueueDescription(
-
-      //if( Main.UseJournalQueue ) { // Error when trying to use FormatName, strange as it should work according to MSDN. Temp solution for now.
-      //  Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));
-        
-      //  _journalContent = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));
-      //  _journalContent.MessageReadPropertyFilter.ClearAll();
-      //  _journalContent.MessageReadPropertyFilter.Body = true;
-      //}
+      var name = !deadLetter ? queue.Name : QueueClient.FormatDeadLetterPath(queue.Name);
+      Main = QueueClient.CreateFromConnectionString(connectionString, name, ReceiveMode.ReceiveAndDelete);
     }
 
     public static implicit operator QueueClient(AzureMessageQueue q) {
@@ -79,23 +70,51 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    internal void Purge() {
-      var q = QueueClient.CreateFromConnectionString(_connectionStr, Queue.Name, ReceiveMode.ReceiveAndDelete);
-
+    public void Purge() {
+      var q = Main; //QueueClient.CreateFromConnectionString(_connectionStr, Queue.Name, ReceiveMode.ReceiveAndDelete);
+      
       int max = 0xFFFF;
-      var msgs = q.ReceiveBatch(max);
-      Console.WriteLine(msgs.Count());
-      //.Count() == max ) { }
 
+      // DH: Seems as the returned count varies on the size of the message content, returning usually around 150 msgs
+      IEnumerable<BrokeredMessage> msgs = null;
+      do {
+        msgs = q.ReceiveBatch(max);
+      } while( msgs.Count() > 0 );
 
       //while( q.ReceiveBatch(max).Count() == max ) { }
     }
 
-    internal bool HasUpdatedSince(DateTime dt) {
+    public bool HasUpdatedSince(DateTime dt) {
       return Info.UpdatedAt > dt;
+    }
+    public bool HasChanged() {
+
+      try {
+        NamespaceManager mgr = null;
+
+        if( !_nsManagers.ContainsKey(_connectionStr) ) {
+          mgr = NamespaceManager.CreateFromConnectionString(_connectionStr);
+          _nsManagers.Add(_connectionStr, mgr);
+        } else mgr = _nsManagers[_connectionStr];
+
+        Info = mgr.GetQueue(Queue.Name);
+
+        if( _checkSum != Info.MessageCount + Info.SizeInBytes ) { 
+          _log.Debug(" === " + Queue.Name + " - " + Info.UpdatedAt + " =======================");
+          _log.Debug("++ Has Changed, MessageCount: " + Info.MessageCount + ", SizeInBytes: " + Info.SizeInBytes);
+        } else {
+          _log.Debug("=== {0} = {1}:{2}b =======================".With(Queue.Name, Info.MessageCount, Info.SizeInBytes));
+        }
+        return _checkSum != Info.MessageCount + Info.SizeInBytes;
+
+      } finally {
+        if( Info != null )
+          _checkSum = Info.MessageCount + Info.SizeInBytes;
+      }
     }
 
 
-    public bool HasChanged { get { return HasUpdatedSince(LastPeek); } }
   }
+
+
 }

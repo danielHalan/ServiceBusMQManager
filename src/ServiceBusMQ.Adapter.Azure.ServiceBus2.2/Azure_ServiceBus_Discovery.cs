@@ -21,22 +21,32 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using ServiceBusMQ.Manager;
 
-namespace ServiceBusMQ.NServiceBus4.Azure {
+namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
   public class Azure_ServiceBus_Discovery : IServiceBusDiscovery {
 
     public string ServiceBusName { get { return "Windows Azure"; } }
     public string ServiceBusVersion { get { return "2.2"; } }
     public string MessageQueueType { get { return "Service Bus"; } }
 
-
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; }
+    }
+
+    static readonly ServiceBusFeature[] _features = new ServiceBusFeature[] {
+      //ServiceBusFeature.PurgeMessage, 
+      ServiceBusFeature.PurgeAllMessages, 
+      //ServiceBusFeature.MoveErrorMessageToOriginQueue, 
+      ServiceBusFeature.MoveAllErrorMessagesToOriginQueue 
+    };
+    public ServiceBusFeature[] Features {
+      get { return _features; }
     }
 
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 
         return new ServerConnectionParameter[] { 
-          ServerConnectionParameter.Create("connectionStr", "Connection String")
+          ServerConnectionParameter.Create("connectionStr", "Connection String"),
+          ServerConnectionParameter.Create("msgLimit", "Fetch Message Count Limit", ParamType.String, "100")
         };
       }
     }
