@@ -132,18 +132,12 @@ namespace ServiceBusMQManager.Dialogs {
           tbMessage.Document.Blocks.Add(para);
         }
 
-      } else if( _type == MessageType.Warn ) {
+      } else if( _content.IsValid() ) {
 
-        if( _content.IsValid() ) {
+        para = new Paragraph();
+        para.Inlines.Add(new Run(_content) { FontSize = 15 });
+        tbMessage.Document.Blocks.Add(para);
 
-          para = new Paragraph();
-          para.Inlines.Add(new Run(_content) { FontSize = 15 });
-          tbMessage.Document.Blocks.Add(para);
-
-        }
-
-      
-      
       }
 
       //if( !_url.IsValid() )

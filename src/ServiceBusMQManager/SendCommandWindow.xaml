@@ -121,7 +121,7 @@
             <Label Content="select command" HorizontalAlignment="Left" Margin="22,37,0,0" VerticalAlignment="Top" FontSize="20" Foreground="White"/>
             <ComboBox x:Name="cbCommands" Style="{DynamicResource ComboBoxStyle1}" HorizontalAlignment="Left" Margin="24,70,0,0" VerticalAlignment="Top" Width="561" SelectionChanged="cbCommands_SelectionChanged" FontSize="16" FontFamily="Calibri"/>
             <Label Content="Can not find your command? " HorizontalAlignment="Left" Margin="27,100,0,0" VerticalAlignment="Top" Foreground="#FFBBBBBB" FontSize="14"/>
-            <Button Margin="221,104,89,0" Content="Add assembly path or change Command Definition..." Cursor="Hand" Click="btnOpenConfig_Click" FontSize="14" Height="19" VerticalAlignment="Top">
+            <Button Margin="221,104,89,0" Content="Add assembly path or change Command Definition..." Cursor="Hand" Click="btnOpenConfig_Click" Tag="true" FontSize="14" Height="19" VerticalAlignment="Top">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <TextBlock>
@@ -143,19 +143,31 @@
             <Grid Margin="0,1,0,80" Background="#575757" Grid.Row="1">
                 <Controls:ComplexDataViewControl x:Name="cmdAttrib" Margin="29,0,0,0"  HorizontalAlignment="Left" Width="576"/>
             </Grid>
-            <ComboBox Name="cbServer" HorizontalAlignment="Right" Margin="0,0,357,17" Width="121" VerticalAlignment="Bottom" Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" SelectionChanged="cbServer_SelectionChanged" />
-            <ComboBox Name="cbQueue" HorizontalAlignment="Right" Margin="0,0,140,17" VerticalAlignment="Bottom" Width="201"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" />
-			<Label Name="lblServer" Content="Server:" HorizontalAlignment="Right" Margin="0,0,431,42" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1"/>
-            <Label Name="lblQueue" Content="Queue:" HorizontalAlignment="Right" Margin="0,0,293,34" Height="37" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
-                <Label.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform X="1.419"/>
-                    </TransformGroup>
-                </Label.RenderTransform>
+            <ComboBox Name="cbQueue" Margin="209,0,140,17" VerticalAlignment="Bottom"  Background="White" Style="{DynamicResource ComboBoxStyle1}" FontFamily="Segoe UI" Height="29" FontSize="13" Grid.Row="1" />
+            <Label x:Name="lblServer" Content="[Server Name]" Margin="209,0,213,43" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
             </Label>
             <Controls:SavedCommandsControl x:Name="savedCommands" HorizontalAlignment="Left" Margin="27,127,0,0" VerticalAlignment="Top" Height="78" Width="607" SavedCommandSelected="savedCommands_SavedCommandSelected" EnterEditMode="savedCommands_EnterEditMode" ExitEditMode="savedCommands_ExitEditMode"/>
+            <Label x:Name="lblRouterQueue" Content="Routing thru..." HorizontalAlignment="Right" Margin="0,0,139,18" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Width="287" Visibility="Hidden">
+            </Label>
+            <Button Margin="0,0,136,48" Content="Change..." Cursor="Hand" Click="btnOpenConfig_Click" Tag="false" FontSize="14" Height="19" VerticalAlignment="Bottom" Grid.Row="1" HorizontalAlignment="Right" Width="67">
+                <Button.Template>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <TextBlock><InlineUIContainer>
+            					<ContentPresenter />
+            				</InlineUIContainer></TextBlock>
+                    </ControlTemplate>
+                </Button.Template>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Foreground" Value="#FF8D8DFF" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Foreground" Value="#FFFFA7A7" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
         </Grid>
     </Border>
 </Window>

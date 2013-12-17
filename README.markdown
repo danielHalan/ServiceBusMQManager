@@ -1,4 +1,4 @@
-Service Bus MQ Manager - v3.xx
+Service Bus MQ Manager - v4.xx
 ======================================================================
 An application to view and manage Service Bus messages.
 

@@ -49,4 +49,17 @@ namespace ServiceBusMQ {
     public string Queue { get; set; }
   }
 
+  [Serializable]
+  public class SavedCommand3 {
+
+    public object Command { get; set; }
+
+    public string ServiceBus { get; set; }
+    public string Transport { get; set; }
+
+    public System.Collections.Generic.Dictionary<string, object> ConnectionStrings { get; set; }
+    public string Queue { get; set; }
+    
+  }
+
 }

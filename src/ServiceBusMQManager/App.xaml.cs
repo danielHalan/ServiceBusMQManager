@@ -30,7 +30,7 @@ namespace ServiceBusMQManager {
   /// </summary>
   public partial class App : Application {
 
-    enum ArgType { Unknown, Send, Silent, Minimized }
+    enum ArgType { Unknown, Send, Silent, Minimized=20, Force=21 }
 
     class Arg {
       public ArgType Type { get; set; }
@@ -44,6 +44,20 @@ namespace ServiceBusMQManager {
 
 
     bool _silent;
+
+    public App() {
+      StartupUri = new Uri("MainWindow.xaml", UriKind.Relative);
+    }
+
+
+    //[LoaderOptimization(LoaderOptimization.MultiDomainHost)]
+    [STAThread]
+    static void Main() {
+      App app = new App();
+      app.InitializeComponent();
+      app.Run();
+    }
+
 
     [DllImport("Kernel32.dll")]
     public static extern bool AttachConsole(int processId);
@@ -72,7 +86,7 @@ namespace ServiceBusMQManager {
 
             if( itm != null ) {
               Out(string.Format("Sending Command '{0}'...", cmd));
-              sys.SendCommand(itm.SentCommand.Server, itm.SentCommand.Queue, itm.SentCommand.Command);
+              sys.SendCommand(itm.SentCommand.ConnectionStrings, itm.SentCommand.Queue, itm.SentCommand.Command);
 
             } else {
               Out(string.Format("No Command with name '{0}' found, exiting...", cmd));
@@ -87,7 +101,7 @@ namespace ServiceBusMQManager {
         return;
       }
 
-      if( args.Where( a => a.Type != ArgType.Minimized ).Count() > 0 ) {
+      if( args.Where(a => (int)a.Type < 20 ).Count() > 0 ) {
         AttachConsole(-1);
         PrintHeader();
         PrintHelp();
@@ -97,26 +111,32 @@ namespace ServiceBusMQManager {
       }
 
 
-      // Check if we are already running...
-      Process currProc = Process.GetCurrentProcess();
-      Process existProc = Process.GetProcessesByName(currProc.ProcessName).Where(p => p.Id != currProc.Id).FirstOrDefault();
-      if( existProc != null ) {
-        try {
-          // Show the already started SBMQM
-          WindowTools.EnumWindows(new WindowTools.EnumWindowsProc((hwnd, lparam) => {
-            uint procId;
-            WindowTools.GetWindowThreadProcessId(hwnd, out procId);
-            if( procId == existProc.Id ) {
-              if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
-                return false;
-            }
-            return true;
-          }), 0);
 
-        } finally {
-          Application.Current.Shutdown();
+
+      if( !args.Any(a => a.Type == ArgType.Force) ) {
+
+        // Check if we are already running...
+        Process currProc = Process.GetCurrentProcess();
+        Process existProc = Process.GetProcessesByName(currProc.ProcessName).Where(p => p.Id != currProc.Id).FirstOrDefault();
+        if( existProc != null ) {
+          try {
+            // Show the already started SBMQM
+            WindowTools.EnumWindows(new WindowTools.EnumWindowsProc((hwnd, lparam) => {
+              uint procId;
+              WindowTools.GetWindowThreadProcessId(hwnd, out procId);
+              if( procId == existProc.Id ) {
+                if( WindowTools.SendMessage(hwnd, ServiceBusMQManager.MainWindow.WM_SHOWWINDOW, 0, 0) == 1 )
+                  return false;
+              }
+              return true;
+            }), 0);
+
+          } finally {
+            Application.Current.Shutdown();
+          }
+          return;
         }
-        return;
+
       }
 
 
@@ -160,6 +180,7 @@ namespace ServiceBusMQManager {
             case "--send": r.Add(new Arg(ArgType.Send, args[++i])); break;
             case "-s": r.Add(new Arg(ArgType.Silent, null)); break;
             case "-m": r.Add(new Arg(ArgType.Minimized, null)); break;
+            case "-f": r.Add(new Arg(ArgType.Force, null)); break;
             default: r.Add(new Arg(ArgType.Unknown, null)); break;
           }
 
@@ -185,7 +206,7 @@ namespace ServiceBusMQManager {
 
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
 
-#if !DEBUG2
+#if !DEBUG
       if( e.Exception is WarningException ) {
         var warn  = e.Exception as WarningException;
         MessageDialog.Show(MessageType.Warn, warn.Message, warn.Content);

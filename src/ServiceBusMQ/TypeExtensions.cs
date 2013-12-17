@@ -14,7 +14,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ServiceBusMQ {
@@ -125,6 +128,32 @@ namespace ServiceBusMQ {
       return res.CutEnd(16);
     }
 
+
+    public static bool IsAnonymous(this Type type) {
+      if( type.IsGenericType ) {
+        var d = type.GetGenericTypeDefinition();
+        if( d.IsClass && d.IsSealed && d.Attributes.HasFlag(TypeAttributes.NotPublic) ) {
+          var attributes = d.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false);
+          if( attributes != null && attributes.Length > 0 ) 
+            return true;
+        }
+      }
+      return false;
+    }
+
+    public static bool IsAnonymousType<T>(this T instance) {
+      return IsAnonymous(instance.GetType());
+    }
+
+
+    public static IEnumerable<Type> GetLoadableTypes(this Assembly asm) {
+      try {
+        return asm.GetTypes();
+
+      } catch( ReflectionTypeLoadException e ) {
+        return e.Types.Where(t => t != null);
+      }
+    }
 
   }
 }

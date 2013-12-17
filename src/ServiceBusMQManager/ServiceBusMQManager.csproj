@@ -85,9 +85,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=2.0.1.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.2.0.1.2\lib\net40\NLog.dll</HintPath>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Profiler.Common">
       <HintPath>..\packages\NServiceBus\NServiceBus.Profiler.Common.dll</HintPath>
@@ -123,10 +122,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Compile Include="Controls\ArrayInputControl.xaml.cs">
       <DependentUpon>ArrayInputControl.xaml</DependentUpon>
     </Compile>
@@ -183,6 +182,9 @@
     <Compile Include="Controls\SavedCommandsControl.xaml.cs">
       <DependentUpon>SavedCommandsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ServerConnectionParamControl.xaml.cs">
+      <DependentUpon>ServerConnectionParamControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\StringListControl.xaml.cs">
       <DependentUpon>StringListControl.xaml</DependentUpon>
     </Compile>
@@ -203,6 +205,9 @@
     </Compile>
     <Compile Include="Controls\TimeControl.xaml.cs">
       <DependentUpon>TimeControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ManageServerDialog.xaml.cs">
+      <DependentUpon>ManageServerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
@@ -306,6 +311,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ServerConnectionParamControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\StringListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -331,6 +340,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TimeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ManageServerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -398,6 +411,11 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Resource Include="Images\Msg.Warn.png" />
+    <Resource Include="Images\loading2.GIF" />
+    <Resource Include="Images\copy-white.png" />
+    <Resource Include="Images\Error-background-icon.png" />
+    <Resource Include="Images\folder.open-gray.png" />
+    <Resource Include="Images\loading-queues.GIF" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -467,14 +485,6 @@
     <EmbeddedResource Include="Images\unpinned.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ServiceBusMQ.MassTransit\ServiceBusMQ.MassTransit.csproj">
-      <Project>{0B5C7307-0B10-4584-B483-C67756864D09}</Project>
-      <Name>ServiceBusMQ.MassTransit</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj">
-      <Project>{621B324B-DD0A-4485-B98B-04F4B5AA40A5}</Project>
-      <Name>ServiceBusMQ.NServiceBus</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ\ServiceBusMQ.csproj">
       <Project>{a8780696-12f3-4795-9fee-93f6cbbd900e}</Project>
       <Name>ServiceBusMQ</Name>
@@ -552,7 +562,9 @@
     <Resource Include="Images\Msg.Info.png" />
     <Resource Include="Images\Error-Processed.png" />
     <Resource Include="Images\Error-Processed.selected.png" />
-    <Resource Include="AppSettingV1.xml" />
+    <Resource Include="AppSettingV1.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Content Include="SciLexer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

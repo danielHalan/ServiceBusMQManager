@@ -19,7 +19,7 @@ namespace ServiceBusMQ.Manager {
 
   public class NoMessageBusManagerFound : Exception {
   
-    public NoMessageBusManagerFound(string name, string queueType) : base("No MessageBus Manager with Name = '" + name + "' and QueueType = '" + queueType + "'") {
+    public NoMessageBusManagerFound(string name, string queueType) : base("No Service Bus Manager with Name = '" + name + "' and QueueType = '" + queueType + "'") {
     }
   
   }

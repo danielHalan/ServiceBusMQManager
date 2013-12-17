@@ -25,7 +25,7 @@ namespace ServiceBusMQ {
 
     static ConfigFactory _configFac;
 
-    public static SystemConfig2 Load() {
+    public static SystemConfig3 Load() {
       if( _configFac == null )
         _configFac = new ConfigFactory();
 

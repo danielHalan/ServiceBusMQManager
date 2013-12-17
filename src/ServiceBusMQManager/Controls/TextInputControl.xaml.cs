@@ -124,8 +124,6 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
-
-
     private void CreateCalendar() {
       Calendar c = new Calendar();
       c.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
@@ -140,7 +138,6 @@ namespace ServiceBusMQManager.Controls {
 
       _calendar = c;
     }
-
     private void CreateTimeControl() {
     
       TimeControl c = new TimeControl();
@@ -155,8 +152,6 @@ namespace ServiceBusMQManager.Controls {
 
       _time = c;
     }
-
-
 
 
     void c_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
@@ -231,7 +226,9 @@ namespace ServiceBusMQManager.Controls {
 
       _calendar.Visibility = System.Windows.Visibility.Hidden;
     }
-
+    private void calendar_LostFocus_1(object sender, RoutedEventArgs e) {
+      //_calendar.Visibility = System.Windows.Visibility.Hidden;
+    }
     void c_SelectedTimeChanged(object sender, RoutedEventArgs e) {
       var dt = RetrieveValue<DateTime>();
       if( dt == null ) 
@@ -240,10 +237,6 @@ namespace ServiceBusMQManager.Controls {
       var time = _time.SelectedTime;
       UpdateValue(new DateTime(dt.Year, dt.Month, dt.Day, time.Hour, time.Minute, time.Second));
       
-    }
-
-    private void calendar_LostFocus_1(object sender, RoutedEventArgs e) {
-      //_calendar.Visibility = System.Windows.Visibility.Hidden;
     }
 
 
@@ -263,24 +256,13 @@ namespace ServiceBusMQManager.Controls {
 
     }
 
-    public void UpdateValue(object value) {
-      _updating = true;
-      try {
-        _value = value;
-
-        SetTextBoxValue(value);
-
-      } finally {
-        _updating = false;
-      }
-    }
-
-
-
     bool UpdateValueFromControl() {
 
       try {
         _value = Tools.Convert(tb.Text, _dataType);
+
+        if( !_isNullable && _dataType == typeof(string) && string.IsNullOrEmpty((string)_value) )
+          return false;
 
       } catch( NotSupportedException e ) {
         throw e;
@@ -293,7 +275,17 @@ namespace ServiceBusMQManager.Controls {
       return true;
     }
 
+    public void UpdateValue(object value) {
+      _updating = true;
+      try {
+        _value = value;
 
+        SetTextBoxValue(value);
+
+      } finally {
+        _updating = false;
+      }
+    }
     public object RetrieveValue() {
       UpdateValueFromControl();
 
@@ -339,6 +331,8 @@ namespace ServiceBusMQManager.Controls {
 
 
     bool _isValidValue = true;
+    public bool IsValidValue { get { return _isValidValue; } }
+
     private TimeControl _time;
 
     private void tb_TextChanged(object sender, TextChangedEventArgs e) {
@@ -436,6 +430,13 @@ namespace ServiceBusMQManager.Controls {
     }
 
     public bool SelectAllTextOnFocus { get; set; }
+
+    public bool Validate() {
+      _isValidValue = UpdateValueFromControl();
+      UpdateBorder();
+
+      return _isValidValue;
+    }
 
     internal void SelectAll() {
       tb.SelectAll();

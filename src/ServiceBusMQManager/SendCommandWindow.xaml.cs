@@ -14,6 +14,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -52,7 +53,8 @@ namespace ServiceBusMQManager {
 
       _sys = system;
 
-      _asmPath = system.Config.CommandsAssemblyPaths;
+      _asmPath = system.Config.CurrentServer.CommandsAssemblyPaths;
+
 
       Topmost = SbmqSystem.UIState.AlwaysOnTop;
 
@@ -60,20 +62,22 @@ namespace ServiceBusMQManager {
 
       savedCommands.Init(system.SavedCommands);
 
-      BindServers();
+      BindServer();
 
       cmdAttrib.SendCommandManager = _sys.Manager as ISendCommand;
 
 
-	  if (_sys.Config.MassTransitServiceSubscriptionQueue != string.Empty)
-	  {
-		  cbServer.IsEnabled = false;
-		  cbQueue.IsEnabled = false;
-		  lblServer.Content = string.Format("_{0}: {1}", "Using subscription service", _sys.Config.MassTransitServiceSubscriptionQueue);
-		  lblServer.Margin = new Thickness(0, 0, 100, 42);
-		  lblQueue.Visibility = Visibility.Hidden;
-		  //lblServer.FontFamily = new System.Windows.Media.FontFamily("Arial");
-	  }
+      // TEMP: Service Bus Specific Logic, TODO: Refactor
+      var srv = _sys.Config.CurrentServer;
+      if( srv.ServiceBus == "MassTransit" ) {
+        if( srv.ConnectionSettings.HasValidValue("subscriptionQueueService") ) { 
+
+           lblServer.Visibility = Visibility.Hidden;
+           lblRouterQueue.Content = "Subscription service: {0}".With(srv.ConnectionSettings["subscriptionQueueService"]);
+           lblRouterQueue.Visibility = Visibility.Visible;
+         }
+      }
+
     }
 
     public void SetCommand(object cmd) {
@@ -92,21 +96,23 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void BindServers() {
+    private void BindServer() {
+      lblServer.Content = _sys.Config.CurrentServer.Name;
 
-      cbServer.ItemsSource = _sys.Config.Servers;
-      cbServer.DisplayMemberPath = "Name";
-      cbServer.SelectedValuePath = "Name";
-      cbServer.SelectedIndex = 0;
+      BindQueues();
+      //cbServer.ItemsSource = _sys.Config.Servers;
+      //cbServer.DisplayMemberPath = "Name";
+      //cbServer.SelectedValuePath = "Name";
+      //cbServer.SelectedIndex = 0;
 
-      var s = _sys.Config.Servers[0];
-      cbQueue.ItemsSource = s.MonitorQueues.Where(q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select(q => q.Name);
-      cbQueue.SelectedIndex = 0;
+      //var s = _sys.Config.Servers[0];
+      //cbQueue.ItemsSource = s.MonitorQueues.Where(q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select(q => q.Name);
+      //cbQueue.SelectedIndex = 0;
     }
 
 
     private void Window_SourceInitialized(object sender, EventArgs e) {
-      SbmqSystem.UIState.RestoreControlState(cbServer, cbServer.SelectedValue);
+      //SbmqSystem.UIState.RestoreControlState(cbServer, cbServer.SelectedValue);
       SbmqSystem.UIState.RestoreControlState(cbQueue, cbQueue.SelectedValue);
       if( cbQueue.SelectedIndex == -1 )
         cbQueue.SelectedIndex = 0;
@@ -114,7 +120,7 @@ namespace ServiceBusMQManager {
       SbmqSystem.UIState.RestoreWindowState(this);
     }
     private void frmSendCommand_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-      SbmqSystem.UIState.StoreControlState(cbServer);
+      //SbmqSystem.UIState.StoreControlState(cbServer);
       SbmqSystem.UIState.StoreControlState(cbQueue);
 
       SbmqSystem.UIState.StoreWindowState(this);
@@ -122,11 +128,20 @@ namespace ServiceBusMQManager {
       //savedCommands.Unload();
     }
 
+    private void BindQueues() {
+      var s = _sys.Config.CurrentServer;
 
+      cbQueue.ItemsSource = s.MonitorQueues.Where(q => q.Type == ServiceBusMQ.Model.QueueType.Command).Select(q => q.Name);
+      
+      if( cbQueue.Items.Count > 0 )
+        cbQueue.SelectedIndex = 0;
+
+    }
     private void BindCommands() {
       var mw = App.Current.MainWindow as MainWindow;
-      
+
       var cmdTypes = _sys.GetAvailableCommands(true);
+      var selectedValue = cbCommands.SelectedValue;
 
       _commands.Clear();
 
@@ -142,7 +157,7 @@ namespace ServiceBusMQManager {
       cbCommands.ItemsSource = _commands;
       cbCommands.DisplayMemberPath = "DisplayName";
       cbCommands.SelectedValuePath = "FullName";
-      cbCommands.SelectedValue = null;
+      cbCommands.SelectedValue = selectedValue;
     }
     private void UpdateSendButton() {
       btnSend.IsEnabled = cmdAttrib.IsValid && cbQueue.SelectedIndex != -1;
@@ -195,7 +210,7 @@ namespace ServiceBusMQManager {
     void DoSendCommand(object sender, DoWorkEventArgs e) {
       SendCommandEnvelope env = e.Argument as SendCommandEnvelope;
 
-      _sys.SendCommand(env.Server, env.Queue, env.Command);
+      _sys.SendCommand(env.ConnectionSettings, env.Queue, env.Command);
 
       e.Result = env;
     }
@@ -210,7 +225,7 @@ namespace ServiceBusMQManager {
         SendCommandEnvelope env = e.Result as SendCommandEnvelope;
         //var queue = cbQueue.SelectedItem as string;
 
-        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Config.CommandContentType, env.Server, env.Queue);
+        savedCommands.CommandSent(env.Command, _sys.Manager.ServiceBusName, _sys.Config.CurrentServer.CommandContentType, env.ConnectionSettings, env.Queue);
 
         Close();
 
@@ -220,7 +235,8 @@ namespace ServiceBusMQManager {
     }
 
     private class SendCommandEnvelope {
-      public string Server;
+      public string Name;
+      public Dictionary<string, object> ConnectionSettings;
       public string Queue;
       public object Command;
     }
@@ -238,7 +254,8 @@ namespace ServiceBusMQManager {
         env.Command = cmdAttrib.CreateObject();
 
         if( env.Command != null ) {
-          env.Server = cbServer.SelectedValue as string;
+          env.Name = _sys.Config.CurrentServer.Name;
+          env.ConnectionSettings = _sys.Config.CurrentServer.ConnectionSettings;
           env.Queue = cbQueue.SelectedItem as string;
 
           var thread = new BackgroundWorker();
@@ -264,15 +281,20 @@ namespace ServiceBusMQManager {
 
 
     private void btnOpenConfig_Click(object sender, RoutedEventArgs e) {
-      ConfigWindow dlg = new ConfigWindow(_sys, true);
+      var changeAsmPath = Convert.ToBoolean((sender as Button).Tag);
+      
+      ConfigWindow dlg = new ConfigWindow(_sys, changeAsmPath);
       dlg.Owner = this;
 
       if( dlg.ShowDialog() == true ) {
-        _asmPath = _sys.Config.CommandsAssemblyPaths;
-
+        _asmPath = _sys.Config.CurrentServer.CommandsAssemblyPaths;
+        
+        BindServer();
         BindCommands();
       }
     }
+
+
 
 
     private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
@@ -302,14 +324,14 @@ namespace ServiceBusMQManager {
     }
 
     private void cbServer_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-      ServerConfig s = cbServer.SelectedItem as ServerConfig;
+      //ServerConfig s = cbServer.SelectedItem as ServerConfig;
 
-      if( s != null ) {
-        cbQueue.ItemsSource = s.WatchCommandQueues;
-      }
+      //if( s != null ) {
+      //  cbQueue.ItemsSource = s.WatchCommandQueues;
+      //}
 
-      if( cbQueue.Items.Count > 0 )
-        cbQueue.SelectedIndex = 0;
+      //if( cbQueue.Items.Count > 0 )
+      //  cbQueue.SelectedIndex = 0;
 
     }
 

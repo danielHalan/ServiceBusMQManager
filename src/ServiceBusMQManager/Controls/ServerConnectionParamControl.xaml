@@ -1,0 +1,22 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ServiceBusMQManager.Controls" x:Class="ServiceBusMQManager.Controls.ServerConnectionParamControl" 
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="500">
+    <Grid>
+        <Label x:Name="Text" Content="Label" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="202" Foreground="#FFE4E4E4" Height="40"/>
+
+        <local:TextInputControl x:Name="tbValue" Margin="212,5,14,0" VerticalAlignment="Top"/>
+        <Label x:Name="Req" Content="*" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Top" Width="22" Foreground="#FFFF5353" Height="40" Margin="0,-1,-6,0" FontSize="26" FontFamily="Segoe UI"/>
+        
+        <CheckBox Name="cbValue"  BorderThickness="1,1,1,1" Margin="213,10,261,0">
+            <CheckBox.LayoutTransform>
+                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+            </CheckBox.LayoutTransform>
+        </CheckBox>
+
+    </Grid>
+</UserControl>

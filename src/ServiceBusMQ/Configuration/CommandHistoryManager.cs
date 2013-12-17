@@ -23,72 +23,19 @@ using ServiceBusMQ.Configuration;
 
 namespace ServiceBusMQ {
 
-  [Serializable]
-  public class SavedCommandItems {
-    public int Version { get; set; }
-    public SavedCommandItem[] Items { get; set; }
-  }
-
-  [Serializable]
-  public class SavedCommandItem {
-    public Guid Id { get; set; }
-    public string DisplayName { get; set; }
-    public string FileName { get; set; }
-    public bool Pinned { get; set; }
-    public DateTime LastSent { get; set; }
-
-
-    [JsonConstructor]
-    public SavedCommandItem() {
-      IsNew = false;
-    }
-
-    public SavedCommandItem(string displayName, string fileName, bool pinned, DateTime lastSent) { 
-      Id = Guid.NewGuid();
-
-      DisplayName = displayName;
-      FileName = fileName;
-      Pinned = pinned;
-      LastSent = lastSent;
-
-      IsNew = true;
-    }
-
-    SavedCommand2 _sentCommand = null;
-    
-    [JsonIgnore]
-    public SavedCommand2 SentCommand {
-      get {
-        if( _sentCommand == null ) { 
-          _sentCommand = JsonFile.Read<SavedCommand2>(FileName);
-        }
-
-        return _sentCommand;
-      }
-    }
-
-    public void SetCommand(SavedCommand2 cmd) {
-      _sentCommand = cmd;
-
-      IsNew = true;
-    }
-
-    [JsonIgnore]
-    public bool IsNew { get; private set; }
-  }
-
 
   [Serializable]
   public class CommandHistoryManager {
 
     string _itemsFolder;
     string _itemsFile;
+    string _itemsFileV2;
 
     //AppDomain _appDomain;
-    List<SavedCommandItem> _items;
-    SystemConfig2 _config;
+    List<SavedCommandItem3> _items;
+    SystemConfig3 _config;
 
-    public IEnumerable<SavedCommandItem> Items {
+    public IEnumerable<SavedCommandItem3> Items {
       get {
         if( _items == null )
           Load();
@@ -97,11 +44,12 @@ namespace ServiceBusMQ {
       }
     }
 
-    public CommandHistoryManager(SystemConfig2 config) {
+    public CommandHistoryManager(SystemConfig3 config) {
       _config = config;
 
       _itemsFolder = SbmqSystem.AppDataPath + @"\savedCommands\";
-      _itemsFile = SbmqSystem.AppDataPath + "savedCommands.dat";
+      _itemsFileV2 = SbmqSystem.AppDataPath + "savedCommands.dat";
+      _itemsFile = SbmqSystem.AppDataPath + "savedCommands3.dat";
 
       if( !Directory.Exists(_itemsFolder) )
         Directory.CreateDirectory(_itemsFolder);
@@ -122,37 +70,50 @@ namespace ServiceBusMQ {
 
       if( File.Exists(_itemsFile) ) {
 
-        var file = JsonFile.Read<SavedCommandItems>(_itemsFile);
+        Load3();
 
-        _items = new List<SavedCommandItem>(file.Items);
-        RemoveDeletedItems();
+      } else if( File.Exists(_itemsFileV2) ) {
+        Load2();
 
       } else Load1(); // v1
 
     }
 
-    private void RemoveDeletedItems() {
-      SavedCommandItem[] removed = _items.Where( i => !File.Exists(i.FileName) ).ToArray();
+    private void Load3() {
+      var file = JsonFile.Read<SavedCommandItems3>(_itemsFile);
 
-      removed.ForEach( i => _items.Remove(i) );
+      _items = new List<SavedCommandItem3>(file.Items);
+
+      SavedCommandItem3[] removed = _items.Where(i => !File.Exists(i.FileName)).ToArray();
+      removed.ForEach(i => _items.Remove(i));
     }
 
+    private void Load2() {
+      var file = JsonFile.Read<SavedCommandItems>(_itemsFileV2);
+
+      _items = file.Items.Select( i => new SavedCommandItem3(i.Id, i.DisplayName, i.FileName, i.Pinned, i.LastSent) ).ToList();
+
+      SavedCommandItem3[] removed = _items.Where(i => !File.Exists(i.FileName)).ToArray();
+      removed.ForEach(i => _items.Remove(i));
+    }
+
+
     private void Load1() {
-      _items = new List<SavedCommandItem>();
+      _items = new List<SavedCommandItem3>();
 
       foreach( var file in Directory.GetFiles(_itemsFolder, "*.cmd") ) {
         try {
           var cmd = JsonFile.Read<SavedCommand>(file);
-          var cmd2 = new SavedCommand2() { 
-            Server = cmd.Server,
+          var cmd3 = new SavedCommand3() { 
+            ConnectionStrings = new Dictionary<string, object> { { "server", cmd.Server } },
             ServiceBus = cmd.ServiceBus, 
             Queue = cmd.Queue, 
             Transport = cmd.Transport, 
             Command = cmd.Command };
 
-          var item = new SavedCommandItem(cmd.DisplayName, file, false, cmd.LastSent);
+          var item = new SavedCommandItem3(cmd.DisplayName, file, false, cmd.LastSent);
 
-          item.SetCommand(cmd2);
+          item.SetCommand(cmd3);
 
           _items.Add(item);
         } catch { }
@@ -206,10 +167,10 @@ namespace ServiceBusMQ {
 
     public void Save() {
 
-      SavedCommandItems file = new SavedCommandItems() { Version = 2 };
-      List<SavedCommandItem> fileItems = new List<SavedCommandItem>();
+      SavedCommandItems3 file = new SavedCommandItems3();
+      List<SavedCommandItem3> fileItems = new List<SavedCommandItem3>();
 
-      foreach( SavedCommandItem item in _items.OrderByDescending(c => c.LastSent).Take(50) ) {
+      foreach( SavedCommandItem3 item in _items.OrderByDescending(c => c.LastSent).Take(50) ) {
         if( !item.FileName.IsValid() )
           item.FileName = GetAvailableFileName();
 
@@ -251,8 +212,8 @@ namespace ServiceBusMQ {
 
     }
 
-    public SavedCommandItem AddCommand(object command, string serviceBus, string transport, string server, string queue) {
-      SavedCommandItem item = null;
+    public SavedCommandItem3 AddCommand(object command, string serviceBus, string transport, Dictionary<string, object> connectionSettings, string queue) {
+      SavedCommandItem3 item = null;
 
       var co = new CompareObjects();
 
@@ -266,14 +227,14 @@ namespace ServiceBusMQ {
       }
 
       if( item == null ) {
-        item = new SavedCommandItem(command.GetType().GetDisplayName(command).CutEnd(70), null, false, DateTime.Now);
+        item = new SavedCommandItem3(command.GetType().GetDisplayName(command).CutEnd(70), null, false, DateTime.Now);
 
-        SavedCommand2 cmd = new SavedCommand2();
+        SavedCommand3 cmd = new SavedCommand3();
         cmd.Command = command;
 
         cmd.ServiceBus = serviceBus;
         cmd.Transport = transport;
-        cmd.Server = server;
+        cmd.ConnectionStrings = connectionSettings;
         cmd.Queue = queue;
 
         item.SetCommand(cmd);
@@ -288,7 +249,7 @@ namespace ServiceBusMQ {
       return item;
     }
 
-    public void Remove(SavedCommandItem item) {
+    public void Remove(SavedCommandItem3 item) {
 
       if( item.FileName.IsValid() )
         File.Delete(item.FileName);

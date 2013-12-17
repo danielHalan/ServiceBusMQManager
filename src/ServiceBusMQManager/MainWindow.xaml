@@ -5,7 +5,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        mc:Ignorable="d" 
+    
+    xmlns:gif="http://wpfanimatedgif.codeplex.com"
+
+    mc:Ignorable="d" 
         x:Class="ServiceBusMQManager.MainWindow"
         x:Name="frmMain"
         Height="315" Width="620" 
@@ -32,7 +35,7 @@
 
 
 
-        <Grid Margin="0,0,0,0">
+        <Grid Margin="0,4,1,-4">
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Name="miToggleOnTop" Header="Always on Top" Click="miToggleAlwaysOnTop_Click" IsChecked="True" />
@@ -103,9 +106,9 @@
                                              <Run Text="{Binding ArrivedTimeString}" /><Run Text="{Binding ArrivedTimeMSString}"  Foreground="#FF898989" />
                                         </TextBlock>
                                     </Label>
-                                    <Label x:Name="lbQueueName" Content="{Binding Queue.DisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,16,10,0" FontFamily="Segoe UI" FontSize="12"  />
-                                    <Label x:Name="lbId" Content="{Binding Id}" Margin="0,15,0,0" HorizontalAlignment="Left" Grid.Column="1" Foreground="#696969" Background="{Binding ElementName=panel, Path=Background}" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
-                                    <Label x:Name="lbName" Content="{Binding DisplayName}" FontSize="15.5" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,-4,0,4" FontWeight="Medium" FontFamily="Calibri" />
+                                    <TextBlock x:Name="lbQueueName" Text="{Binding Queue.DisplayName}" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,20,10,0" FontFamily="Segoe UI" FontSize="12"  />
+                                    <TextBlock x:Name="lbId" Text="{Binding Id}" Margin="0,20,0,0" HorizontalAlignment="Left" Grid.Column="1" Foreground="#696969" Background="{Binding ElementName=panel, Path=Background}" FontStyle="Italic" FontFamily="Calibri" FontSize="12" />
+                                    <TextBlock x:Name="lbName" Text="{Binding DisplayName}" FontSize="15.5" FontStyle="Normal" Grid.ColumnSpan="1" Grid.Column="1"  Margin="0,2,0,4" FontWeight="Medium" FontFamily="Calibri" />
                                     <Rectangle Name="StrikeThrough" HorizontalAlignment="Left" Grid.ColumnSpan="1" Grid.Column="1" Margin="0,0,120,22" 
                                                Height="3" StrokeThickness="1" Stroke="Transparent" Fill="Transparent" />
                                 </Grid>
@@ -266,6 +269,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem x:Name="miCopyMsgId" Header="Copy Message ID to Clipboard" Click="miCopyMessageID_Click" IsEnabled="False" />
+                        <MenuItem x:Name="miCopyMsgName" Header="Copy Message Name to Clipboard" Click="miCopyMessageName_Click" IsEnabled="False" />
                         <MenuItem x:Name="miCopyMsgContent" Header="Copy Message Content to Clipboard" Click="miCopyMessageContent_Click" IsEnabled="False" />
                         <Separator />
                         <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click" IsEnabled="False" />
@@ -334,11 +338,14 @@
                 Click="HandleMinimizeToTrayClick" Height="17">
                 <Image Source="Images/minimize.png" />
             </Button>
+            <Image x:Name="imgLoadingQueues" HorizontalAlignment="Right" Margin="0,0,1,7" Width="70" Visibility="Visible" gif:ImageBehavior.AnimateInDesignMode="True" Grid.Row="2"
+                		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading-queues.gif" Height="23" VerticalAlignment="Bottom" />
             <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="0" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="140,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="1" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="270,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="2" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnError" Content="ERRORS" HorizontalAlignment="Left" Margin="400,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="3" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12"/>
             <Rectangle Fill="#0E97FF" Margin="10,26,0,2" Grid.Row="2" Height="2" />
+            
 
 
             <Button x:Name="btnSettings" Grid.Row="1" Click="btnSettings_Click" HorizontalAlignment="Right" Margin="0,0,10,8" ToolTip="Settings..." Width="35" Grid.RowSpan="1" >
@@ -484,7 +491,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="10,46,10,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="White"/>
+            <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="2,46,1,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="#B2FFFFFF"/>
             <!--<TextBox x:Name="tbSearchString" HorizontalAlignment="Right" Height="22" Margin="0,2,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="153" BorderBrush="#FF0017FF" FontFamily="Calibri" FontSize="15" Text="Filter string" IsReadOnly="True"/>-->
             <Controls:FilterTextBox x:Name="tbSearchString" HorizontalAlignment="Right" Margin="0,0,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="180" FilterChanged="tbSearchString_FilterChanged" FilterCleared="tbSearchString_FilterCleared" Height="28" />
         </Grid>

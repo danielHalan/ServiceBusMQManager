@@ -20,28 +20,33 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
-using NServiceBus;
-using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
+//using NServiceBus;
+//using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.NServiceBus {
 
-  public abstract class NServiceBusManagerBase : IServiceBusManager {
+  public abstract class NServiceBusManagerBase<T> : IServiceBusManager where T : IMessageQueue {
 
     static readonly string JSON_START = "\"$type\":\"";
     static readonly string JSON_END = ",";
 
 
-    protected string _serverName;
+    public abstract string ServiceBusName { get; }
+    public abstract string ServiceBusVersion { get; }
+    public abstract string MessageQueueType { get; }
+
+
+    public string CommandContentFormat { get; set; }
+
+
+    protected Dictionary<string, object> _connectionSettings;
     protected SbmqmMonitorState _monitorState;
     protected CommandDefinition _commandDef;
 
-    protected List<MsmqMessageQueue> _monitorMsmqQueues = new List<MsmqMessageQueue>();
+    protected List<T> _monitorQueues = new List<T>();
 
-    public string[] AvailableMessageQueueTypes { 
-      get { return new string[] { "MSMQ" }; } 
-    }
 
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; }
@@ -50,8 +55,8 @@ namespace ServiceBusMQ.NServiceBus {
 
     public NServiceBusManagerBase() {
     }
-    public virtual void Initialize(string serverName, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
-      _serverName = serverName;
+    public virtual void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+      _connectionSettings = connectionSettings;
 
       MonitorQueues = monitorQueues;
       _monitorState = monitorState;
@@ -62,34 +67,8 @@ namespace ServiceBusMQ.NServiceBus {
       return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
-    public void MoveErrorMessageToOriginQueue(QueueItem itm) {
-      if( string.IsNullOrEmpty(itm.Id) )
-        throw new ArgumentException("MessageId can not be null or empty");
-
-      if( itm.Queue.Type != QueueType.Error )
-        throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
-
-      var mgr = new ErrorManager();
-
-      // TODO:
-      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
-
-      mgr.InputQueue = Address.Parse(itm.Queue.Name);
-
-      mgr.ReturnMessageToSourceQueue(itm.Id);
-    }
-    public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
-      var mgr = new ErrorManager();
-
-      // TODO:
-      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
-
-
-
-      mgr.InputQueue = Address.Parse(errorQueue);
-
-      mgr.ReturnAll();
-    }
+    public abstract void MoveErrorMessageToOriginQueue(QueueItem itm);
+    public abstract void MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
     protected string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )
@@ -108,13 +87,13 @@ namespace ServiceBusMQ.NServiceBus {
 
       return string.Empty;
     }
-    public abstract MessageSubscription[] GetMessageSubscriptions(string server);
+    public abstract MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues);
 
 
     public abstract string LoadMessageContent(QueueItem itm);
 
-    protected IEnumerable<MsmqMessageQueue> GetQueueListByType(QueueType type) {
-      return _monitorMsmqQueues.Where(q => q.Queue.Type == type);
+    protected IEnumerable<T> GetQueueListByType(QueueType type) {
+      return _monitorQueues.Where(q => q.Queue.Type == type);
     }
 
     protected MessageInfo[] GetMessageNames(string content, bool includeNamespace) {
@@ -198,6 +177,24 @@ namespace ServiceBusMQ.NServiceBus {
       return sb.ToString();
     }
 
+    protected MessageInfo[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
+      string[] types = content.Split(';');
+      List<MessageInfo> r = new List<MessageInfo>(types.Length);
+
+      foreach( string type in types ) {
+
+        int start = 0;
+        int end = type.IndexOf(',', start);
+
+        if( !includeNamespace ) {
+          start = type.LastIndexOf('.', end) + 1;
+        }
+        r.Add(new MessageInfo(type.Substring(start, end - start), type));
+      }
+
+      return r.ToArray();
+    }
+
 
     public abstract object DeserializeCommand(string cmd, Type cmdType);
     public abstract string SerializeCommand(object cmd);
@@ -226,14 +223,11 @@ namespace ServiceBusMQ.NServiceBus {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, exception, fatal));
     }
-    protected void OnWarning(string message, string content) {
+    protected void OnWarning(string message, string content, WarningType type = WarningType.Other) {
       if( WarningOccured != null )
-        WarningOccured(this, new WarningArgs(message, content));
+        WarningOccured(this, new WarningArgs(message, content, type));
     }
 
-    public string ServiceBusName {
-      get { return "NServiceBus"; }
-    }
 
 
     protected EventHandler _itemsChanged;

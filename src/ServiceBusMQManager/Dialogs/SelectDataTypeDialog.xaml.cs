@@ -99,7 +99,7 @@ namespace ServiceBusMQManager.Dialogs {
       foreach( var path in _asmPaths )
         files.AddRange(Directory.GetFiles(path, "*.dll"));
 
-      files.Add(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\NServiceBus.dll");
+      files.Add(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\NServiceBus.dll");
 
 
       List<string> processed = new List<string>(files.Count);

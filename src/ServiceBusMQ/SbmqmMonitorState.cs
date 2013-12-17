@@ -13,6 +13,7 @@
 ********************************************************************/
 #endregion
 
+using System;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ {
@@ -22,11 +23,16 @@ namespace ServiceBusMQ {
 
     public SbmqmMonitorState() {
       MonitorQueueType = new bool[4];
+    }
+    public SbmqmMonitorState(bool[] states) {
+      MonitorQueueType = new bool[4];
+      
+      states.CopyTo(MonitorQueueType, 0);
     }      
 
 
 
-    public bool IsMonitoringQueueType(QueueType type) {
+    public bool IsMonitoring(QueueType type) {
       return MonitorQueueType[(int)type];
     }
   

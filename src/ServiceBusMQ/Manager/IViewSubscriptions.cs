@@ -14,6 +14,7 @@
 #endregion
 
 
+using System.Collections.Generic;
 namespace ServiceBusMQ.Manager {
   
   /// <summary>
@@ -26,7 +27,7 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <param name="server"></param>
     /// <returns></returns>
-    MessageSubscription[] GetMessageSubscriptions(string server);
+    MessageSubscription[] GetMessageSubscriptions(Dictionary<string, object> connectionSettings, IEnumerable<string> queues);
 
   }
 }

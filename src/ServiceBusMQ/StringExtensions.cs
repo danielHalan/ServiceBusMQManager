@@ -30,12 +30,18 @@ namespace ServiceBusMQ {
 
       return str;
     }
-    public static string CutEnd(this string str, int length) {
+    public static string CutEnd(this string str, int length, bool addDots = true) {
       if( str.IsValid() ) {
-        length -= 3;
-        if( str.Length > length )
+
+        if( addDots ) {
+
+          length -= 3;
+          if( str.Length > length )
             return str.Substring(0, length) + "...";
         
+        } else if( str.Length > length )
+            return str.Substring(0, length);
+
       }
 
       return str;

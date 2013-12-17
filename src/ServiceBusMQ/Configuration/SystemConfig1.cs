@@ -41,6 +41,8 @@ namespace ServiceBusMQ {
     public string[] WatchCommandQueues { get; set; }
     public string[] WatchMessageQueues { get; set; }
     public string[] WatchErrorQueues { get; set; }
+
+    public Dictionary<string,string> ConnectionSettings { get; set; }
   }
 
 

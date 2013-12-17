@@ -14,6 +14,7 @@
 #endregion
 
 
+using System;
 namespace ServiceBusMQ.Manager {
   
   /// <summary>
@@ -27,9 +28,15 @@ namespace ServiceBusMQ.Manager {
     string ServiceBusName { get; }
 
     /// <summary>
+    /// The version of the ServiceBus this Manager manages
+    /// </summary>
+    string ServiceBusVersion { get; }
+
+
+    /// <summary>
     /// Get available transport modes, MSMQ, RabbitMQ etc
     /// </summary>
-    string[] AvailableMessageQueueTypes { get; }
+    string MessageQueueType { get; }
 
 
     /// <summary>
