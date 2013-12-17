@@ -652,6 +652,8 @@ namespace ServiceBusMQManager.Dialogs {
       queueEvents.IsEnabled = !_creatingServer && !_accessingServer;
       queueMessages.IsEnabled = !_creatingServer && !_accessingServer;
       queueErrors.IsEnabled = !_creatingServer && !_accessingServer;
+      
+      btnOK.IsEnabled = !_creatingServer && !_accessingServer;
     }
     
     System.Windows.Visibility _prevServerActionVisibility;

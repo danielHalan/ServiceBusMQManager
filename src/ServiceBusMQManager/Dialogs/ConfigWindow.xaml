@@ -251,7 +251,7 @@
                     <ControlTemplate>
                         <Border x:Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" >
                             <TextBlock x:Name="btnText" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0" HorizontalAlignment="Center">SAVE</TextBlock>
-                        </Border>
+                        </Border> 
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -260,6 +260,10 @@
                             </Trigger>
                             <Trigger Property="ButtonBase.IsPressed" Value="True">
                                 <Setter Property="Background" Value="#54A3F7" TargetName="btnBorder" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#325780" TargetName="btnBorder" />
+                                <Setter Property="Foreground" Value="#C7C7C7" TargetName="btnText" />
                             </Trigger>
                         </ControlTemplate.Triggers>
 
