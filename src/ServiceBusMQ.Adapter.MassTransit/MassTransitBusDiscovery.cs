@@ -33,7 +33,6 @@ namespace ServiceBusMQ.MassTransit
       get { return string.Empty; }
     }
 
-
 		public string MessageQueueType
 		{
 			get { return  "MSMQ"; }
@@ -43,6 +42,10 @@ namespace ServiceBusMQ.MassTransit
 		{
 			get { return new string[] { "XML", "JSON" }; }
 		}
+
+    public ServiceBusFeature[] Features {
+      get { return ServiceBusFeatures.All; }
+    }
 
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 

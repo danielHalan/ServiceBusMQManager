@@ -98,6 +98,7 @@
     <Compile Include="Configuration\CommandHistoryManager.cs" />
     <Compile Include="ApplicationInfo.cs" />
     <Compile Include="Manager\ServerConnectionParameter.cs" />
+    <Compile Include="Manager\ServiceBusFeature.cs" />
     <Compile Include="Manager\WarningArgs.cs" />
     <Compile Include="Model\HalanService\Error.cs" />
     <Compile Include="Model\HalanService\ErrorReport.cs" />
@@ -123,7 +124,7 @@
     <Compile Include="HalanVersionInfo.cs" />
     <Compile Include="JsonFile.cs" />
     <Compile Include="Manager\ErrorArgs.cs" />
-    <Compile Include="Manager\MessageBusFactory.cs" />
+    <Compile Include="Manager\ServiceBusFactory.cs" />
     <Compile Include="Manager\NoMessageBusManagerFound.cs" />
     <Compile Include="MessageSubscription.cs" />
     <Compile Include="Model\QueueItem.cs" />
