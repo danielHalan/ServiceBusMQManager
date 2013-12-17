@@ -415,7 +415,6 @@
     <Resource Include="Images\copy-white.png" />
     <Resource Include="Images\Error-background-icon.png" />
     <Resource Include="Images\folder.open-gray.png" />
-    <Resource Include="Images\loading-queues.GIF" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>

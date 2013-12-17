@@ -338,8 +338,7 @@
                 Click="HandleMinimizeToTrayClick" Height="17">
                 <Image Source="Images/minimize.png" />
             </Button>
-            <Image x:Name="imgLoadingQueues" HorizontalAlignment="Right" Margin="0,0,1,7" Width="70" Visibility="Visible" gif:ImageBehavior.AnimateInDesignMode="True" Grid.Row="2"
-                		gif:ImageBehavior.AnimatedSource="/ServiceBusMQManager;component/Images/loading-queues.gif" Height="23" VerticalAlignment="Bottom" />
+			<ProgressBar x:Name="prgLoadingQueues" HorizontalAlignment="Right" Margin="0,0,1,7" Width="70" Visibility="Visible" Grid.Row="2" Height="23" VerticalAlignment="Bottom" />
             <ToggleButton x:Name="btnCmd" Content="COMMANDS" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="0" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnEvent" Content="EVENTS" HorizontalAlignment="Left" Margin="140,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="1" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />
             <ToggleButton x:Name="btnMsg" Content="MESSAGES" HorizontalAlignment="Left" Margin="270,3,0,0" VerticalAlignment="Top" Width="120" Unchecked="btn_Unchecked" Tag="2" Grid.Row="2" Checked="btn_Checked" Height="23" FontFamily="Segoe UI" FontSize="12" />

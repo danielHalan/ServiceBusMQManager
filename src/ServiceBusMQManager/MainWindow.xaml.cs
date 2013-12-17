@@ -72,7 +72,7 @@ namespace ServiceBusMQManager {
       _titleStr = string.Format("Service Bus MQ Manager {0}.{1} - (C)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
 
 
-      imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
+      prgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
 
       UpdateTitle();
 
@@ -202,7 +202,7 @@ namespace ServiceBusMQManager {
 
       this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
           new Action(delegate() {
-        imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
+        prgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
       }));
 
 
@@ -211,7 +211,7 @@ namespace ServiceBusMQManager {
     void _sys_StartedLoadingQueues(object sender, EventArgs e) {
       this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
           new Action(delegate() {
-        imgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
+        prgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
       }));
     }
 
@@ -519,7 +519,21 @@ namespace ServiceBusMQManager {
 
     }
 
-    private void sys_ItemsChanged(object sender, ServiceBusMQ.ItemsChangedEventArgs e) {
+	private void UpdateProgressBar(params ToggleButton[] btns) {
+		uint total = 0;
+		foreach (ToggleButton btn in btns) {
+			if (btn.IsChecked == true) {
+				int iType = Convert.ToInt32(btn.Tag);
+				QueueType type = (QueueType)iType;
+				uint iCount = _sys.GetUnprocessedItemsCount(type);
+				total += iCount;
+			}
+		}
+		prgLoadingQueues.Maximum = total;
+	}
+
+	private void sys_ItemsChanged(object sender, ServiceBusMQ.ItemsChangedEventArgs e)
+	{
 
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
@@ -531,6 +545,8 @@ namespace ServiceBusMQManager {
         UpdateButtonLabel(btnMsg);
         UpdateButtonLabel(btnError);  
 
+		UpdateProgressBar(btnCmd, btnEvent, btnMsg, btnError);
+
         // Update List View
         lock( _sys.ItemsLock ) {
           lbItems.ItemsSource = _sys.Items;
@@ -539,6 +555,8 @@ namespace ServiceBusMQManager {
           if( !lbItems.IsEnabled ) 
             lbItems.IsEnabled = true;
 
+	      prgLoadingQueues.Value = lbItems.Items.Count;
+	      prgLoadingQueues.ToolTip = String.Format("{0} of {1}", prgLoadingQueues.Value, prgLoadingQueues.Maximum);
         }
 
         if( e.Origin == ItemChangeOrigin.Queue )
