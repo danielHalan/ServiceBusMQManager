@@ -51,8 +51,12 @@ namespace ServiceBusMQManager {
     private Logger _log = LogManager.GetCurrentClassLogger();
 
     private SbmqSystem _sys;
+
     private IServiceBusManager _mgr;
+    private ServiceBusFeature[] _features;
+
     private UIStateConfig _uiState;
+    string _loadingText = null;
 
     private System.Windows.Forms.NotifyIcon _notifyIcon;
 
@@ -150,10 +154,12 @@ namespace ServiceBusMQManager {
           _sys.ItemsChanged += sys_ItemsChanged;
           _sys.ErrorOccured += _sys_ErrorOccured;
           _sys.WarningOccured += _sys_WarningOccured;
-          
+
           _sys.StartedLoadingQueues += _sys_StartedLoadingQueues;
           _sys.FinishedLoadingQueues += _sys_FinishedLoadingQueues;
-          
+
+          _features = _sys.GetDiscoveryService().Features;
+
           _mgr = _sys.Manager;
 
         } catch( Exception ex ) {
@@ -174,7 +180,7 @@ namespace ServiceBusMQManager {
 
         lbItems.ItemsSource = _sys.Items;
         if( !lbItems.IsEnabled )
-        lbItems.IsEnabled = true;
+          lbItems.IsEnabled = true;
 
         SetupContextMenu();
 
@@ -183,7 +189,7 @@ namespace ServiceBusMQManager {
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
 
-        } else if( _sys.Config.VersionCheck.Enabled  ) {
+        } else if( _sys.Config.VersionCheck.Enabled ) {
           if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
             CheckIfLatestVersion(false);
         }
@@ -191,11 +197,23 @@ namespace ServiceBusMQManager {
         UpdateTitle();
 
         _sys.StartMonitoring();
-        
+
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       };
 
       w.RunWorkerAsync();
+    }
+
+    void _sys_StartedLoadingQueues(object sender, EventArgs e) {
+      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
+          new Action(delegate() {
+
+        if( _loadingText.IsValid() ) {
+          DisableListView(_loadingText);
+        }
+
+        imgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
+      }));
     }
 
     void _sys_FinishedLoadingQueues(object sender, EventArgs e) {
@@ -203,17 +221,15 @@ namespace ServiceBusMQManager {
       this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
           new Action(delegate() {
         imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
-      }));
 
+        if( _loadingText.IsValid() ) {
+          _loadingText = null;
+          EnableListView();
+        }
 
-    }
-
-    void _sys_StartedLoadingQueues(object sender, EventArgs e) {
-      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
-          new Action(delegate() {
-        imgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
       }));
     }
+
 
 
     void _sys_ErrorOccured(object sender, ErrorArgs e) {
@@ -227,10 +243,10 @@ namespace ServiceBusMQManager {
     void _sys_WarningOccured(object sender, WarningArgs e) {
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
-        if( e.Type == WarningType.ConnectonFailed ) { 
-        
+        if( e.Type == WarningType.ConnectonFailed ) {
+
           DisableListView("Connection Failed: " + e.Message);
-        
+
         } else MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
 
       }));
@@ -262,7 +278,7 @@ namespace ServiceBusMQManager {
           btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
 
           lbItems.ItemsSource = _sys.Items;
-          
+
           if( !lbItems.IsEnabled )
             lbItems.IsEnabled = true;
 
@@ -529,17 +545,19 @@ namespace ServiceBusMQManager {
         UpdateButtonLabel(btnCmd);
         UpdateButtonLabel(btnEvent);
         UpdateButtonLabel(btnMsg);
-        UpdateButtonLabel(btnError);  
+        UpdateButtonLabel(btnError);
 
         // Update List View
         lock( _sys.ItemsLock ) {
           lbItems.ItemsSource = _sys.Items;
           lbItems.Items.Refresh();
 
-          if( !lbItems.IsEnabled ) 
+          if( !lbItems.IsEnabled )
             lbItems.IsEnabled = true;
 
         }
+
+        SetupContextMenu();
 
         if( e.Origin == ItemChangeOrigin.Queue )
           ShowActivityTrayIcon();
@@ -582,12 +600,20 @@ namespace ServiceBusMQManager {
     private void SetupContextMenu() {
       var items = lbItems.ContextMenu.Items;
 
-      if( _mgr.MonitorQueues.Any(q => q.Type == QueueType.Error) ) {
+
+      if( _sys.GetUnprocessedItemsCount(QueueType.Error) > 0 ) {
         miReturnAllErr.IsEnabled = true;
         miPurgeAllErr.IsEnabled = true;
 
         // Return All error messages
         var mi = miReturnAllErr;
+        mi.Click += (sender, e) => {
+          try {
+            _mgr.MoveAllErrorMessagesToOriginQueue(null);
+          } catch( Exception ex ) {
+            _sys_ErrorOccured(this, new ErrorArgs("Failed to move messages to Orgin Queues", ex));
+          }
+        };
         mi.Items.Clear();
         foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
           var m2 = new MenuItem() { Header = q.Name };
@@ -611,7 +637,22 @@ namespace ServiceBusMQManager {
         miPurgeAllErr.IsEnabled = false;
       }
 
+
+      miPurgeMsg.IsEnabled = _features.Any(f => f == ServiceBusFeature.PurgeMessage);
+
+      if( miReturnAllErr.IsEnabled )
+        miPurgeAllErr.IsEnabled = _features.Any(f => f == ServiceBusFeature.PurgeAllMessages);
+
+      miReturnErrToOrgin.IsEnabled = _features.Any(f => f == ServiceBusFeature.MoveErrorMessageToOriginQueue);
+
+      if( miReturnAllErr.IsEnabled )
+        miReturnAllErr.IsEnabled = _features.Any(f => f == ServiceBusFeature.MoveAllErrorMessagesToOriginQueue);
+
     }
+    private bool HasFeature(ServiceBusFeature feat) {
+      return _features.Any(f => f == feat);
+    }
+
     private void UpdateContextMenu(QueueItem itm) {
       var items = lbItems.ContextMenu.Items;
 
@@ -625,10 +666,10 @@ namespace ServiceBusMQManager {
         miReturnErrToOrgin.FontWeight = itm.Queue.Type == QueueType.Error ? FontWeights.Bold : FontWeights.Normal;
 
       // Remove message
-      _BindContextMenuItem(miPurgeMsg, itm, qi => !qi.Processed);
+      _BindContextMenuItem(miPurgeMsg, itm, qi => !qi.Processed && HasFeature(ServiceBusFeature.PurgeMessage));
 
       // Return Error Message to Origin
-      _BindContextMenuItem(miReturnErrToOrgin, itm, qi => qi.Queue.Type == QueueType.Error);
+      _BindContextMenuItem(miReturnErrToOrgin, itm, qi => qi.Queue.Type == QueueType.Error && HasFeature(ServiceBusFeature.MoveErrorMessageToOriginQueue));
 
 #if DEBUG
       MenuItem mi = null;
@@ -989,13 +1030,15 @@ namespace ServiceBusMQManager {
     private void miDeleteMessage_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
+      _loadingText = "Processing...";
       _sys.PurgeMessage(itm);
     }
     private void miDeleteAllMessage_Click(object sender, RoutedEventArgs e) {
+      _loadingText = "Processing...";
       _sys.PurgeAllMessages();
     }
     private void miDeleteAllErrorMessage_Click(object sender, RoutedEventArgs e) {
-
+      _loadingText = "Processing...";
       _sys.PurgeErrorAllMessages();
     }
 
@@ -1076,18 +1119,20 @@ namespace ServiceBusMQManager {
 
     private void DisableListView(string message) {
       lbLoading.Content = message.CutEnd(60);
-      
+
       if( message.Length > 60 )
         lbLoading.ToolTip = message;
-      
+
       lbLoading.Visibility = System.Windows.Visibility.Visible;
 
       lbItems.IsEnabled = false;
+      lbItems.Opacity = 0.5;
     }
     private void EnableListView() {
       lbLoading.Visibility = System.Windows.Visibility.Hidden;
-      
+
       lbItems.IsEnabled = true;
+      lbItems.Opacity = 1.0;
     }
 
     private void btnShowProcessed_Click(object sender, RoutedEventArgs e) {
