@@ -38,9 +38,14 @@ namespace ServiceBusMQ.ViewModel {
       
       if( ArrivedTime.Date == DateTime.Today.Date ) 
         ArrivedTimeString = ArrivedTime.ToString("HH:mm:ss");
-      else ArrivedTimeString = "{1} {0} - {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], 
+      else {
+        string year = ArrivedTime.Year != DateTime.Today.Year ? string.Concat(ArrivedTime.Year,' ') : string.Empty;
+
+        ArrivedTimeString = "{1} {0} {3}- {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], 
                                                       ArrivedTime.Day, 
-                                                      ArrivedTime.ToString("HH:mm:ss"));
+                                                      ArrivedTime.ToString("HH:mm:ss"), 
+                                                      year);
+      }
       
       if( showMilliSeconds )
         ArrivedTimeMSString = ArrivedTime.ToString(".fff");
