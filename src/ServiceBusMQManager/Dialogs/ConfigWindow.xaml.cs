@@ -631,7 +631,7 @@ namespace ServiceBusMQManager.Dialogs {
 
         _config.MonitorServer = cbServers.SelectedValue as string;
 
-        var s = e.AddedItems[0] as ServerConfig;
+        var s = e.AddedItems[0] as ServerConfig2;
 
         if( GetDiscoveryService().CanAccessServer(s.Name) ) {
 
