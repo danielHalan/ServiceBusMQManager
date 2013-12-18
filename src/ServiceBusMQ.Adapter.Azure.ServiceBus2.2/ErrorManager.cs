@@ -14,7 +14,11 @@
 #endregion
 
 
+<<<<<<< HEAD
 namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
+=======
+namespace ServiceBusMQ.NServiceBus4.Azure {
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 
   using System;
   using System.Collections.Generic;
@@ -38,6 +42,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     }
 
     public void ReturnAll(string fromQueueName) {
+<<<<<<< HEAD
       var queue = QueueClient.CreateFromConnectionString(ConnectionString, fromQueueName);
       var deadLetterQueue = QueueClient.CreateFromConnectionString(ConnectionString, QueueClient.FormatDeadLetterPath(fromQueueName), ReceiveMode.PeekLock);
 
@@ -52,21 +57,42 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
           TryFindMessage(null);
         }
 
+=======
+      var queue = GetInputQueue(fromQueueName);
+
+      foreach( var msg in queue.ReceiveBatch(0xFFFF) ) {
+
+        var itm = new QueueItem(null);
+        itm.MessageQueueItemId = msg.SequenceNumber;
+
+        itm.Headers = new Dictionary<string, string>();
+        if( msg.Properties.Count > 0 )
+          msg.Properties.ForEach(p => itm.Headers.Add(p.Key, p.Value.ToString()));
+
+        ReturnMessageToSourceQueue(queue, itm);
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
       }
     }
 
 
     public void ReturnMessageToSourceQueue(string fromQueueName, ServiceBusMQ.Model.QueueItem itm) {
+<<<<<<< HEAD
       var queue = QueueClient.CreateFromConnectionString(ConnectionString, fromQueueName);
       var deadLetterQueue = QueueClient.CreateFromConnectionString(ConnectionString, QueueClient.FormatDeadLetterPath(fromQueueName), ReceiveMode.ReceiveAndDelete);
 
       ReturnMessageToSourceQueue(queue, deadLetterQueue, itm);
+=======
+      var queue = GetInputQueue(fromQueueName);
+
+      ReturnMessageToSourceQueue(queue, itm);
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
     }
 
     /// <summary>
     ///     May throw a timeout exception if a message with the given id cannot be found.
     /// </summary>
     /// <param name="seqNumber"></param>
+<<<<<<< HEAD
     public void ReturnMessageToSourceQueue(QueueClient queue, QueueClient deadLetterQueue, ServiceBusMQ.Model.QueueItem itm) {
       try {
         var message = deadLetterQueue.Receive((long)itm.MessageQueueItemId);
@@ -76,12 +102,38 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
 
       } catch( Exception ex ) {
+=======
+    public void ReturnMessageToSourceQueue(QueueClient queue, ServiceBusMQ.Model.QueueItem itm) {
+      try {
+        var message = queue.Receive((long)itm.MessageQueueItemId);
+        
+        string failedQ = null;
+        if( itm.Headers.ContainsKey(KEY_FailedQueue) ) {
+          failedQ = itm.Headers[KEY_FailedQueue];
+        }
+
+        if( string.IsNullOrEmpty(failedQ) ) {
+          Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
+          return;
+        }
+
+        var q = GetInputQueue(failedQ);
+        q.Send(message);
+        
+
+      } catch( Exception ex ) {
+      //} catch( MessageQueueException ex ) {
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
         TryFindMessage(itm);
       }
     }
 
     private void TryFindMessage(ServiceBusMQ.Model.QueueItem itm) {
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
       //if( ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout ) {
 
       //  foreach( var m in queue.GetAllMessages() ) {

@@ -50,10 +50,13 @@ namespace ServiceBusMQ.Manager {
     /// </summary>
     /// <returns></returns>
     ServerConnectionParameter[] ServerConnectionParameters { get; }
+<<<<<<< HEAD
 
     /// <summary>
     /// Returns all available features for the Service Bus
     /// </summary>
     ServiceBusFeature[] Features { get; }
+=======
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
   }
 }

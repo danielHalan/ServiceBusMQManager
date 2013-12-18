@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
+<<<<<<< HEAD
 using NLog;
 using ServiceBusMQ.Model;
 
@@ -63,6 +64,61 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
       var name = !deadLetter ? queue.Name : QueueClient.FormatDeadLetterPath(queue.Name);
       Main = QueueClient.CreateFromConnectionString(connectionString, name, ReceiveMode.ReceiveAndDelete);
+=======
+using ServiceBusMQ.Model;
+
+namespace ServiceBusMQ.NServiceBus4 {
+  public class AzureMessageQueue {
+
+    string _connectionStr;
+
+    public Queue Queue { get; set; }
+    public Queue ErrorQueue { get; private set; }
+
+    public DateTime LastPeek { get; set; }
+
+    public QueueClient Main { get; set; }
+    public QueueClient DeadLetter { get; set; }
+
+    public QueueDescription Info { get; set; }
+
+    public static long GetMessageCount(MessageCountDetails details) { 
+      return details.ActiveMessageCount + 
+                    details.ScheduledMessageCount + 
+                    details.TransferMessageCount; 
+      
+    }
+
+    public static long GetDeadLetterMessageCount(MessageCountDetails details) {
+        return details.DeadLetterMessageCount +
+                details.TransferDeadLetterMessageCount;
+    }
+
+    //public bool UseJournalQueue { get { return Main.UseJournalQueue; } }
+    //public bool CanReadJournalQueue { get { return Main.UseJournalQueue && Journal.CanRead; } }
+
+
+    public AzureMessageQueue(string connectionString, Queue queue) {
+      _connectionStr = connectionString;
+      Queue = queue;
+      ErrorQueue = new Model.Queue(queue.Name, QueueType.Error, 0xFF0000);
+
+      Main = QueueClient.CreateFromConnectionString(connectionString, queue.Name, ReceiveMode.ReceiveAndDelete);
+      DeadLetter = QueueClient.CreateFromConnectionString(connectionString, QueueClient.FormatDeadLetterPath(queue.Name), ReceiveMode.ReceiveAndDelete);
+
+      var ns = NamespaceManager.CreateFromConnectionString(connectionString);
+      Info = ns.GetQueue(queue.Name);
+
+      //Info = new QueueDescription(
+
+      //if( Main.UseJournalQueue ) { // Error when trying to use FormatName, strange as it should work according to MSDN. Temp solution for now.
+      //  Journal = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));
+        
+      //  _journalContent = new MessageQueue(string.Format(@"{0}\Private$\{1};JOURNAL", connectionString, queue.Name));
+      //  _journalContent.MessageReadPropertyFilter.ClearAll();
+      //  _journalContent.MessageReadPropertyFilter.Body = true;
+      //}
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
     }
 
     public static implicit operator QueueClient(AzureMessageQueue q) {
@@ -70,6 +126,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     }
 
 
+<<<<<<< HEAD
     public void Purge() {
       var q = Main; //QueueClient.CreateFromConnectionString(_connectionStr, Queue.Name, ReceiveMode.ReceiveAndDelete);
       
@@ -80,10 +137,21 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       do {
         msgs = q.ReceiveBatch(max);
       } while( msgs.Count() > 0 );
+=======
+    internal void Purge() {
+      var q = QueueClient.CreateFromConnectionString(_connectionStr, Queue.Name, ReceiveMode.ReceiveAndDelete);
+
+      int max = 0xFFFF;
+      var msgs = q.ReceiveBatch(max);
+      Console.WriteLine(msgs.Count());
+      //.Count() == max ) { }
+
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 
       //while( q.ReceiveBatch(max).Count() == max ) { }
     }
 
+<<<<<<< HEAD
     public bool HasUpdatedSince(DateTime dt) {
       return Info.UpdatedAt > dt;
     }
@@ -117,4 +185,13 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
   }
 
 
+=======
+    internal bool HasUpdatedSince(DateTime dt) {
+      return Info.UpdatedAt > dt;
+    }
+
+
+    public bool HasChanged { get { return HasUpdatedSince(LastPeek); } }
+  }
+>>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 }
