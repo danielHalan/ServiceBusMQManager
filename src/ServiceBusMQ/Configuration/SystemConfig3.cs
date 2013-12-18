@@ -187,6 +187,8 @@ namespace ServiceBusMQ.Configuration {
 
       }
 
+
+      public string MassTransitServiceSubscriptionQueue { get; set; }
     }
 
 
