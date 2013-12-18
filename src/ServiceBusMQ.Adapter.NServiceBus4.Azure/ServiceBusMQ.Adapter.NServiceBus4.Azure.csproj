@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{118AF4FB-06E0-4673-95EE-66E4FA7C61FD}</ProjectGuid>
+    <ProjectGuid>{D80CE16A-36D2-44F7-8AE3-F6A44CCE86E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceBusMQ.Adapter.NServiceBus4.Azure</RootNamespace>

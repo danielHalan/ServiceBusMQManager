@@ -93,8 +93,6 @@ namespace ServiceBusMQManager.Dialogs {
       cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
       cStartOnWinStartup.IsChecked = GetStartOnWinStartupState();
 
-      tbSubscriptionServiceQueue.Text = _config.MassTransitServiceSubscriptionQueue;
-
       BindServers(_config.Servers);
 
       SelectServer(_config.MonitorServerName, false);
@@ -714,7 +712,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
       _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
-      _config.MassTransitServiceSubscriptionQueue = tbSubscriptionServiceQueue.Text;
 
       SetStartOnWinStartupState(cStartOnWinStartup.IsChecked == true);
 
