@@ -14,7 +14,7 @@
 #endregion
 
 
-namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
+namespace ServiceBusMQ.NServiceBus4.Azure {
 
   using System;
   using System.Collections.Generic;

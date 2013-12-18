@@ -35,7 +35,7 @@
 
 
 
-        <Grid Margin="0,4,1,-4">
+        <Grid Margin="-1,4,1,-4">
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Name="miToggleOnTop" Header="Always on Top" Click="miToggleAlwaysOnTop_Click" IsChecked="True" />
@@ -312,7 +312,7 @@
             <Rectangle
                     Height="28"
                     VerticalAlignment="Top"
-                    Fill="White" Grid.RowSpan="2"
+                    Fill="White" Margin="1,0,-1,0"
              />
             <Image HorizontalAlignment="Left" Height="24" Margin="7,2,0,0" VerticalAlignment="Top" Width="24" RenderTransformOrigin="0.45,-0.194" Source="Images/main24ico.png" Grid.RowSpan="2"/>
             <Label x:Name="lbTitle" Content="Title" Margin="37,2,0,0" 
@@ -491,7 +491,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="2,46,1,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="#B2FFFFFF"/>
+            <Label x:Name="lbLoading" Content="Loading..." Visibility="Visible" Margin="10,46,10,0" Grid.Row="3" VerticalAlignment="Top" FontSize="24" FontFamily="Calibri" HorizontalContentAlignment="Center" Background="White"/>
             <!--<TextBox x:Name="tbSearchString" HorizontalAlignment="Right" Height="22" Margin="0,2,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="153" BorderBrush="#FF0017FF" FontFamily="Calibri" FontSize="15" Text="Filter string" IsReadOnly="True"/>-->
             <Controls:FilterTextBox x:Name="tbSearchString" HorizontalAlignment="Right" Margin="0,0,0,0" BorderThickness="0,0,0,2" Grid.Row="3" VerticalAlignment="Top" Width="180" FilterChanged="tbSearchString_FilterChanged" FilterCleared="tbSearchString_FilterCleared" Height="28" />
         </Grid>

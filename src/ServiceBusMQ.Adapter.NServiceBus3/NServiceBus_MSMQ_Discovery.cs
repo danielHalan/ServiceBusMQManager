@@ -37,10 +37,6 @@ namespace ServiceBusMQ.NServiceBus {
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; } 
     }
-
-    public ServiceBusFeature[] Features {
-      get { return ServiceBusFeatures.All; }
-    }
     
     public ServerConnectionParameter[] ServerConnectionParameters { 
       get { 

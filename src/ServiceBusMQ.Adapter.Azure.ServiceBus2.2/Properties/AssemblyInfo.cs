@@ -1,19 +1,4 @@
-#region File Information
-/********************************************************************
-  Project: ServiceBusMQ.Adapter.Azure.ServiceBus2.2
-  File:    AssemblyInfo.cs
-  Created: 2013-11-26
-
-  Author(s):
-    Daniel Halan
-
- (C) Copyright 2013 Ingenious Technology with Quality Sweden AB
-     all rights reserved
-
-********************************************************************/
-#endregion
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

@@ -186,7 +186,7 @@ namespace ServiceBusMQManager.Dialogs {
       Result.Server.ServiceBusQueueType = cbTransport.SelectedValue as string;
 
       BackgroundWorker worker = new BackgroundWorker();
-      worker.DoWork += (s, e) => {
+      worker.DoWork += (s, e) => { 
         try {
           Result.AllQueueNames = _discoverySvc.GetAllAvailableQueueNames(e.Argument as Dictionary<string, object>);
 
@@ -233,16 +233,12 @@ namespace ServiceBusMQManager.Dialogs {
       }
     }
     private void cbTransport_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+      var queueType = e.AddedItems[0] as string;
+      Result.Server.ServiceBusQueueType = queueType;
 
-      if( e.AddedItems.Count > 0 ) {
-        
-        var queueType = e.AddedItems[0] as string;
-        Result.Server.ServiceBusQueueType = queueType;
-
-        if( !_updatingServiceBus ) {
-          UpdateServiceBus(null, null, queueType);
-          UpdateNameLabel();
-        }
+      if( !_updatingServiceBus ) {
+        UpdateServiceBus(null, null, queueType);
+        UpdateNameLabel();
       }
     }
 
@@ -296,7 +292,7 @@ namespace ServiceBusMQManager.Dialogs {
     private void btnOK_Click(object sender, RoutedEventArgs e) {
       //SaveConfig();
 
-      if( DialogActionType != ActionType.Edit ) {
+      if( DialogActionType == ActionType.Add ) {
         if( _sys.Config.Servers.Any(s => s.Name == tbName.RetrieveValue<string>()) ) {
 
           MessageBox.Show("A Service Bus Connection with same name already exists", "Name Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);

@@ -39,7 +39,7 @@
             <Image Source="Images/Command-send-white.png"  Width="40" Height="40" Margin="10,4,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  />
 
             <Label Name="lbTitle" Margin="55,2,0,0" Height="40" VerticalAlignment="Top" Foreground="LightGray" FontFamily="Segoe UI Light" FontSize="20" >
-                Send Command
+            Send Command
             </Label>
             <Button
                 HorizontalAlignment="Right"
@@ -102,7 +102,7 @@
                 <Button.Template>
                     <ControlTemplate>
                         <Border Name="btnBorder" BorderBrush="#de6a5b" BorderThickness="0,0,0,0" Background="#007BFF" Margin="0,0,-6,0" >
-                            <TextBlock Name="btnText" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0">CANCEL</TextBlock>
+                                <TextBlock Name="btnText" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0">CANCEL</TextBlock>
                         </Border>
 
                         <ControlTemplate.Triggers>
@@ -147,7 +147,7 @@
             <Label x:Name="lblServer" Content="[Server Name]" Margin="209,0,213,43" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
             </Label>
             <Controls:SavedCommandsControl x:Name="savedCommands" HorizontalAlignment="Left" Margin="27,127,0,0" VerticalAlignment="Top" Height="78" Width="607" SavedCommandSelected="savedCommands_SavedCommandSelected" EnterEditMode="savedCommands_EnterEditMode" ExitEditMode="savedCommands_ExitEditMode"/>
-            <Label x:Name="lblRouterQueue" Content="Routing thru..." HorizontalAlignment="Right" Margin="0,0,136,18" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Width="381" Visibility="Hidden">
+            <Label x:Name="lblRouterQueue" Content="Routing thru..." HorizontalAlignment="Right" Margin="0,0,139,18" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Width="287" Visibility="Hidden">
             </Label>
             <Button Margin="0,0,136,48" Content="Change..." Cursor="Hand" Click="btnOpenConfig_Click" Tag="false" FontSize="14" Height="19" VerticalAlignment="Bottom" Grid.Row="1" HorizontalAlignment="Right" Width="67">
                 <Button.Template>

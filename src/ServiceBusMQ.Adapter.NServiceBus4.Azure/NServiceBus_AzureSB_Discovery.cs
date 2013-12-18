@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using ServiceBusMQ.Manager;
 
-namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
+namespace ServiceBusMQ.NServiceBus4.Azure {
   public class NServiceBus_AzureSB_Discovery : IServiceBusDiscovery {
 
     public string ServiceBusName {
@@ -37,17 +37,6 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
     public string[] AvailableMessageContentTypes {
       get { return new string[] { "XML", "JSON" }; }
-    }
-
-
-    static readonly ServiceBusFeature[] _features = new ServiceBusFeature[] {
-      //ServiceBusFeature.PurgeMessage, 
-      ServiceBusFeature.PurgeAllMessages, 
-      //ServiceBusFeature.MoveErrorMessageToOriginQueue, 
-      ServiceBusFeature.MoveAllErrorMessagesToOriginQueue 
-    };
-    public ServiceBusFeature[] Features {
-      get { return _features; }
     }
 
     public ServerConnectionParameter[] ServerConnectionParameters { 

@@ -21,8 +21,7 @@ using System.Text;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
-namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
-
+namespace ServiceBusMQ.NServiceBus4.Azure {
   public static class MessageSerializer {
 
 

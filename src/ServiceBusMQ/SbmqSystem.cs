@@ -23,7 +23,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using NLog;
 using ServiceBusMQ.Configuration;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
@@ -54,8 +53,6 @@ namespace ServiceBusMQ {
       }
     }
 
-    protected Logger _log = LogManager.GetCurrentClassLogger();
-    
     public static readonly int MAX_ITEMS_PER_QUEUE = 500;
 
     bool _isServiceBusStarted = false;
@@ -203,21 +200,9 @@ namespace ServiceBusMQ {
         _currentMonitor = null;
       }
     }
-    public void PauseMonitoring() {
-      if( _currentMonitor != null ) {
-        _currentMonitor.Paused = true;
-      }
-    }
-    public void ResumeMonitoring() {
-      if( _currentMonitor != null ) {
-        _currentMonitor.Paused = false;
-      }
-    }
-
 
     internal class ThreadState {
       public bool Executing { get; set; }
-      public bool Paused { get; set; }
 
       public bool Stopped { get; set; }
 
@@ -232,16 +217,13 @@ namespace ServiceBusMQ {
       try {
         while( state.Executing ) {
 
-          while( state.Paused )
-            Thread.Sleep(1000);
-
           OnStartedLoadingQueues();
-          try {
+          try { 
 
-            if( RefreshUnprocessedQueueItemList() )
+            if( RefreshUnprocessedQueueItemList() ) 
               OnItemsChanged(ItemChangeOrigin.Queue);
 
-          } finally {
+          } finally { 
             OnFinishedLoadingQueues();
           }
 
@@ -260,7 +242,6 @@ namespace ServiceBusMQ {
 
 
     public bool RefreshUnprocessedQueueItemList() {
-      _log.Debug("* Refresh Unprocessed Queue Items, " + DateTime.Now.ToString());
 
       if( !_monitorState.MonitorQueueType.Any(mq => mq) || _mgr.MonitorQueues.Length == 0 )
         return false;
@@ -277,22 +258,18 @@ namespace ServiceBusMQ {
       var monitorStatesWhenFetch = new SbmqmMonitorState(_monitorState.MonitorQueueType);
       List<string> unchangedQueues = new List<string>();
 
-      // Temp until we have a more proper way to Discover if Error queues are built-in with normal queues
-      if( !_monitorState.IsMonitoring(QueueType.Error) )
-        _unprocessedItemsCount[(int)QueueType.Error] = 0;
-
       // Removed as when changing QTs in UI this would change list and throw a modification exception in Manager.
       // Creating an array is not as resource efficient, but it works.
       //IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
       foreach( QueueType t in _queueTypeValues ) {
         if( _monitorState.IsMonitoring(t) ) {
           var r = _mgr.GetUnprocessedMessages(t, _items.ToArray());
-
-          if( r.Status == QueueFetchResultStatus.ConnectionFailed )
+          
+          if( r.Status == QueueFetchResultStatus.ConnectionFailed ) 
             break;
 
           if( r.Status == QueueFetchResultStatus.NotChanged ) {
-            unchangedQueues.AddRange(_mgr.MonitorQueues.Where(q => q.Type == t).Select(q => q.Name));
+            unchangedQueues.AddRange( _mgr.MonitorQueues.Where( q => q.Type == t ).Select( q => q.Name ) );
             continue;
           }
 
@@ -303,12 +280,6 @@ namespace ServiceBusMQ {
             changedItemsCount = true;
 
           _unprocessedItemsCount[typeIndex] = r.Count;
-
-          if( t != QueueType.Error && items.Any(i => i.Queue.Type == QueueType.Error) ) {
-            _unprocessedItemsCount[(int)QueueType.Error] += (uint)items.Where(i => i.Queue.Type == QueueType.Error).Count();
-            changedItemsCount = true;
-          }
-
         }
       }
 
@@ -327,7 +298,7 @@ namespace ServiceBusMQ {
           }
         }
         if( removedQueueTypes.Any() )
-          items = items.Where(i => !removedQueueTypes.Any(x => x == i.Queue.Type)).ToList();
+          items = items.Where(i => !removedQueueTypes.Any( x => x == i.Queue.Type ) ).ToList();
 
 
         // Add new items
@@ -523,17 +494,14 @@ namespace ServiceBusMQ {
         return Assembly.LoadFrom(fn);
       } else {
 
-        try {
-          var mgrFilePath = ServiceBusFactory.GetManagerFilePath(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
-          if( mgrFilePath.IsValid() ) {
-            string adapterPath = Path.GetDirectoryName(mgrFilePath);
+        var mgrFilePath = ServiceBusFactory.GetManagerFilePath(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
+        if( mgrFilePath.IsValid() ) {
+          string adapterPath = Path.GetDirectoryName(mgrFilePath);
 
-            fn = Path.Combine(adapterPath, asmName + ".dll");
-            if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
-              return Assembly.LoadFrom(fn);
+          fn = Path.Combine(adapterPath, asmName + ".dll");
+          if( File.Exists(fn) && ( !hasFullAsmName || AssemblyName.GetAssemblyName(fn).FullName == args.Name ) )
+            return Assembly.LoadFrom(fn);
 
-          }
-        } catch( NoMessageBusManagerFound ) {
         }
 
         string adaptersPath = root + "\\Adapters\\";
@@ -615,7 +583,7 @@ namespace ServiceBusMQ {
 
     public event EventHandler<ErrorArgs> ErrorOccured;
     public event EventHandler<WarningArgs> WarningOccured;
-
+    
     protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
         ErrorOccured(this, new ErrorArgs(message, exception, fatal));
@@ -642,13 +610,13 @@ namespace ServiceBusMQ {
       }
 
     }
-    protected void OnStartedLoadingQueues() {
+    protected void OnStartedLoadingQueues() { 
       if( _startedLoadingQueues != null )
         _startedLoadingQueues(this, EventArgs.Empty);
     }
 
     protected EventHandler<EventArgs> _finishedLoadingQueues;
-    public event EventHandler<EventArgs> FinishedLoadingQueues {
+    public event EventHandler<EventArgs> FinishedLoadingQueues { 
       [MethodImpl(MethodImplOptions.Synchronized)]
       add {
         _finishedLoadingQueues = (EventHandler<EventArgs>)Delegate.Combine(_finishedLoadingQueues, value);
@@ -691,10 +659,10 @@ namespace ServiceBusMQ {
 
       bw.DoWork += (sender, arg) => {
         ThreadState s = arg.Argument as ThreadState;
-        PauseMonitoring();
+        StopMonitoring();
         OnStartedLoadingQueues();
-
-        while( !s.Paused )
+        
+        while( !s.Stopped )
           Thread.Sleep(100);
 
         try {
@@ -702,12 +670,12 @@ namespace ServiceBusMQ {
 
         } finally {
           OnFinishedLoadingQueues();
-          ResumeMonitoring();
+          StartMonitoring();
         }
-
+      
       };
 
-      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
+      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => { 
         if( ev.Error != null )
           throw ev.Error;
       };
@@ -717,7 +685,7 @@ namespace ServiceBusMQ {
     public void PurgeErrorAllMessages() {
       if( _currentMonitor == null )
         return;
-
+      
       BackgroundWorker bw = new BackgroundWorker();
 
       bw.DoWork += (sender, arg) => {

@@ -20,15 +20,13 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 
-namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
+namespace ServiceBusMQ.NServiceBus4.Azure {
 
   public class Azure_ServiceBus_Manager : IServiceBusManager {
 
@@ -42,8 +40,9 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     public string ServiceBusVersion { get { return "2.2"; } }
     public string MessageQueueType { get { return "Service Bus"; } }
 
+    static readonly string CS_SERVER = "server";
     static readonly string CS_CONNECTION_STRING = "connectionStr";
-    static readonly string CS_MAX_MESSAGES = "msgLimit";
+
 
     public string CommandContentFormat { get; set; }
 
@@ -51,19 +50,6 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     public Queue[] MonitorQueues { get; private set; }
 
     protected Dictionary<string, object> _connectionSettings;
-
-    private int MessageCountLimit {
-      get {
-        int r = 0;
-        if( _connectionSettings.ContainsKey(CS_MAX_MESSAGES) && Int32.TryParse(_connectionSettings[CS_MAX_MESSAGES] as string, out r) )
-          return r;
-        else return SbmqSystem.MAX_ITEMS_PER_QUEUE;
-      }
-    }
-    private string ConnectionString {
-      get { return _connectionSettings[CS_CONNECTION_STRING] as string; }
-    }
-
     protected SbmqmMonitorState _monitorState;
     protected CommandDefinition _commandDef;
 
@@ -95,26 +81,17 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       _monitorQueues.Clear();
 
       foreach( var queue in MonitorQueues )
-        AddAzureQueue(ConnectionString, queue);
-
-      // Add Dead Letter (Error) Queues for all Normal Queues
-      foreach( var queue in MonitorQueues.Where(q => q.Type != QueueType.Error) ) {
-        if( !_monitorQueues.Any(q => q.Queue.Name == queue.Name && q.IsDeadLetterQueue) ) {
-          AddAzureQueue(ConnectionString, queue, true);
-        }
-      }
-
+        AddAzureQueue(_connectionSettings[CS_CONNECTION_STRING] as string, queue);
     }
 
-    private void AddAzureQueue(string connectionStr, Model.Queue queue, bool deadLetterQueue = false) {
+    private void AddAzureQueue(string _connectionStr, Model.Queue queue) {
       try {
 
         //var mgr = NamespaceManager.CreateFromConnectionString(_serverName);
         //var client = QueueClient.CreateFromConnectionString(_serverName, queue);
-        _monitorQueues.Add(new AzureMessageQueue(connectionStr, queue, deadLetterQueue));
-
+        _monitorQueues.Add(new AzureMessageQueue(_connectionStr, queue));
       } catch( Exception e ) {
-        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(connectionStr, queue.Name), e, false);
+        OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(_connectionStr, queue.Name), e, false);
       }
     }
 
@@ -261,7 +238,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       var result = new QueueFetchResult();
       result.Status = QueueFetchResultStatus.NotChanged;
 
-      IEnumerable<AzureMessageQueue> queues = type != QueueType.Error ? _monitorQueues.Where(q => q.Queue.Type == type) : _monitorQueues.Where( q => q.IsDeadLetterQueue || q.Queue.Type == QueueType.Error );
+      var queues = _monitorQueues.Where(q => q.Queue.Type == type);
 
       if( queues.Count() == 0 ) {
         result.Items = EMPTY_LIST;
@@ -279,15 +256,17 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
         try {
 
-          if( q.HasChanged() ) {
-
+          if( q.HasChanged ) {
             if( result.Status == QueueFetchResultStatus.NotChanged )
               result.Status = QueueFetchResultStatus.OK;
 
-            long msgCount = q.GetMessageCount();
+            q.LastPeek = DateTime.Now;
+            var countDetails = q.Info.MessageCountDetails;
 
+            // Get Messages
+            var msgCount = AzureMessageQueue.GetMessageCount(countDetails);
             if( msgCount > 0 ) {
-              var msgs = q.Main.PeekBatch(0, MessageCountLimit);
+              var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
               result.Count += (uint)msgCount;
 
               foreach( var msg in msgs ) {
@@ -305,6 +284,33 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
                   r.Insert(0, itm);
 
               }
+            }
+
+
+            // Get Dead Letter Messages
+            var deadLetters = AzureMessageQueue.GetDeadLetterMessageCount(countDetails);
+            if( deadLetters > 0 ) {
+              var msgs = q.DeadLetter.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
+
+              result.Count += (uint)deadLetters;
+
+              foreach( var msg in msgs ) {
+                QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.MessageId);
+
+                if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
+                  itm = CreateQueueItem(q.ErrorQueue, msg);
+
+                  // Load Message names and check if its not an infra-message
+                  if( !PrepareQueueItemForAdd(itm) )
+                    itm = null;
+                }
+
+                if( itm != null )
+                  r.Insert(0, itm);
+
+              }
+
+
             }
 
           }
@@ -403,36 +409,21 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     }
 
     public void PurgeMessage(Model.QueueItem itm) {
-      throw new NotImplementedException();
-      //QueueClient q = GetMessageQueue(itm);
+      QueueClient q = GetMessageQueue(itm);
 
-      //if( q != null ) {
+      if( q != null ) {
 
-      //  var msg = q.Receive((long)itm.MessageQueueItemId);
-      //  //if( msg != null )
-      //  //  msg.Complete();
+        var msg = q.Receive((long)itm.MessageQueueItemId);
+        //if( msg != null )
+        //  msg.Complete();
 
-      //  itm.Processed = true;
+        itm.Processed = true;
 
-      //  OnItemsChanged();
-      //}
+        OnItemsChanged();
+      }
     }
     public void PurgeAllMessages() {
-      List<Task> tasks = new List<Task>();
-
-      for( int i = 0; i < _monitorQueues.Count; i++ ) {
-
-        tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
-        Thread.Sleep(700);
-
-        if( ( i % 6 ) == 0 ) {
-          Task.WaitAll(tasks.ToArray());
-          tasks.Clear();
-        }
-      }
-
-      if( tasks.Count > 0 )
-        Task.WaitAll(tasks.ToArray());
+      _monitorQueues.ForEach(q => q.Purge());
 
       OnItemsChanged();
     }
@@ -460,22 +451,18 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       if( itm.Queue.Type != QueueType.Error )
         throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
 
-      var mgr = new ErrorManager(ConnectionString);
+      var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
+
+      // TODO:
+      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
 
       mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
     }
 
     public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
-      var mgr = new ErrorManager(ConnectionString);
+      var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
 
-      if( errorQueue.IsValid() )
-        mgr.ReturnAll(errorQueue);
-      else {
-
-        foreach( var queue in _monitorQueues.Where(q => q.Queue.Type == QueueType.Error) ) {
-          mgr.ReturnAll(queue.Queue.Name);
-        }
-      }
+      mgr.ReturnAll(errorQueue);
     }
 
 
@@ -483,7 +470,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     /* EVENTS */
 
     public event EventHandler<ErrorArgs> ErrorOccured;
-    public event EventHandler<WarningArgs> WarningOccured;  
+    public event EventHandler<WarningArgs> WarningOccured;
 
     protected void OnError(string message, Exception exception = null, bool fatal = false) {
       if( ErrorOccured != null )
