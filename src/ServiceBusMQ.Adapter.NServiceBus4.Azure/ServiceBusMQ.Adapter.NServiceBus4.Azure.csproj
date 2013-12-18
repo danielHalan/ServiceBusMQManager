@@ -88,7 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureMessageQueue.cs" />
-    <Compile Include="ErrorManager.cs" />
     <Compile Include="MessageSerializer.cs" />
     <Compile Include="NServiceBus_AzureSB_Discovery.cs" />
     <Compile Include="NServiceBus_AzureSB_Manager.cs" />

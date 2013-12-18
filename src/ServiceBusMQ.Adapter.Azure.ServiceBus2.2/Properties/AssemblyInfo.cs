@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #region File Information
 /********************************************************************
   Project: ServiceBusMQ.Adapter.Azure.ServiceBus2.2
@@ -15,9 +14,6 @@
 #endregion
 
 using System.Reflection;
-=======
-﻿using System.Reflection;
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

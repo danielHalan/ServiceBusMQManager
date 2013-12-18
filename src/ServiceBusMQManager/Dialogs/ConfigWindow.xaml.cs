@@ -653,11 +653,8 @@ namespace ServiceBusMQManager.Dialogs {
       queueEvents.IsEnabled = !_creatingServer && !_accessingServer;
       queueMessages.IsEnabled = !_creatingServer && !_accessingServer;
       queueErrors.IsEnabled = !_creatingServer && !_accessingServer;
-<<<<<<< HEAD
       
       btnOK.IsEnabled = !_creatingServer && !_accessingServer;
-=======
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
     }
     
     System.Windows.Visibility _prevServerActionVisibility;
@@ -717,7 +714,6 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
       _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
-<<<<<<< HEAD
       _config.MassTransitServiceSubscriptionQueue = tbSubscriptionServiceQueue.Text;
 
       SetStartOnWinStartupState(cStartOnWinStartup.IsChecked == true);
@@ -726,14 +722,6 @@ namespace ServiceBusMQManager.Dialogs {
 
     }
 
-=======
-      SetStartOnWinStartupState(cStartOnWinStartup.IsChecked == true);
-
-      _config.Save();
-
-    }
-
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
     private void frmConfig_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
       SbmqSystem.UIState.StoreWindowState(this);
     }

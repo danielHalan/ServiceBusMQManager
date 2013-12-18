@@ -154,19 +154,12 @@ namespace ServiceBusMQManager {
           _sys.ItemsChanged += sys_ItemsChanged;
           _sys.ErrorOccured += _sys_ErrorOccured;
           _sys.WarningOccured += _sys_WarningOccured;
-<<<<<<< HEAD
 
           _sys.StartedLoadingQueues += _sys_StartedLoadingQueues;
           _sys.FinishedLoadingQueues += _sys_FinishedLoadingQueues;
 
           _features = _sys.GetDiscoveryService().Features;
 
-=======
-          
-          _sys.StartedLoadingQueues += _sys_StartedLoadingQueues;
-          _sys.FinishedLoadingQueues += _sys_FinishedLoadingQueues;
-          
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
           _mgr = _sys.Manager;
 
         } catch( Exception ex ) {
@@ -187,11 +180,7 @@ namespace ServiceBusMQManager {
 
         lbItems.ItemsSource = _sys.Items;
         if( !lbItems.IsEnabled )
-<<<<<<< HEAD
           lbItems.IsEnabled = true;
-=======
-        lbItems.IsEnabled = true;
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 
         SetupContextMenu();
 
@@ -200,7 +189,7 @@ namespace ServiceBusMQManager {
         if( _sys.Config.StartCount == 1 ) {
           ShowConfigDialog();
 
-        } else if( _sys.Config.VersionCheck.Enabled  ) {
+        } else if( _sys.Config.VersionCheck.Enabled ) {
           if( _sys.Config.VersionCheck.LastCheck < DateTime.Now.AddDays(-14) )
             CheckIfLatestVersion(false);
         }
@@ -208,18 +197,13 @@ namespace ServiceBusMQManager {
         UpdateTitle();
 
         _sys.StartMonitoring();
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
         lbLoading.Visibility = System.Windows.Visibility.Hidden;
       };
 
       w.RunWorkerAsync();
     }
 
-<<<<<<< HEAD
     void _sys_StartedLoadingQueues(object sender, EventArgs e) {
       this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
           new Action(delegate() {
@@ -247,25 +231,6 @@ namespace ServiceBusMQManager {
     }
 
 
-=======
-    void _sys_FinishedLoadingQueues(object sender, EventArgs e) {
-
-      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
-          new Action(delegate() {
-        imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;
-      }));
-
-
-    }
-
-    void _sys_StartedLoadingQueues(object sender, EventArgs e) {
-      this.Dispatcher.BeginInvoke(DispatcherPriority.Send,
-          new Action(delegate() {
-        imgLoadingQueues.Visibility = System.Windows.Visibility.Visible;
-      }));
-    }
-
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 
     void _sys_ErrorOccured(object sender, ErrorArgs e) {
 
@@ -278,21 +243,12 @@ namespace ServiceBusMQManager {
     void _sys_WarningOccured(object sender, WarningArgs e) {
       Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
-<<<<<<< HEAD
         if( e.Type == WarningType.ConnectonFailed ) {
 
           DisableListView("Connection Failed: " + e.Message);
 
         } else MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
 
-=======
-        if( e.Type == WarningType.ConnectonFailed ) { 
-        
-          DisableListView("Connection Failed: " + e.Message);
-        
-        } else MessageDialog.Show(MessageType.Warn, e.Message, e.Content);
-
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
       }));
     }
 
@@ -320,7 +276,6 @@ namespace ServiceBusMQManager {
 
           btnSendCommand.IsEnabled = _sys.CanSendCommand;
           btnViewSubscriptions.IsEnabled = _sys.CanViewSubscriptions;
-<<<<<<< HEAD
 
           lbItems.ItemsSource = _sys.Items;
 
@@ -335,22 +290,6 @@ namespace ServiceBusMQManager {
 
         } else { // Restart needed
 
-=======
-
-          lbItems.ItemsSource = _sys.Items;
-          
-          if( !lbItems.IsEnabled )
-            lbItems.IsEnabled = true;
-
-          SetupContextMenu();
-
-          UpdateTitle();
-
-          _sys.StartMonitoring();
-
-        } else { // Restart needed
-
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
           System.Diagnostics.Process.Start(Application.ResourceAssembly.Location, "-f");
           Application.Current.Shutdown();
         }
@@ -606,26 +545,19 @@ namespace ServiceBusMQManager {
         UpdateButtonLabel(btnCmd);
         UpdateButtonLabel(btnEvent);
         UpdateButtonLabel(btnMsg);
-        UpdateButtonLabel(btnError);  
+        UpdateButtonLabel(btnError);
 
         // Update List View
         lock( _sys.ItemsLock ) {
           lbItems.ItemsSource = _sys.Items;
           lbItems.Items.Refresh();
 
-<<<<<<< HEAD
           if( !lbItems.IsEnabled )
             lbItems.IsEnabled = true;
 
         }
 
         SetupContextMenu();
-=======
-          if( !lbItems.IsEnabled ) 
-            lbItems.IsEnabled = true;
-
-        }
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
 
         if( e.Origin == ItemChangeOrigin.Queue )
           ShowActivityTrayIcon();
@@ -1187,7 +1119,6 @@ namespace ServiceBusMQManager {
 
     private void DisableListView(string message) {
       lbLoading.Content = message.CutEnd(60);
-<<<<<<< HEAD
 
       if( message.Length > 60 )
         lbLoading.ToolTip = message;
@@ -1202,20 +1133,6 @@ namespace ServiceBusMQManager {
 
       lbItems.IsEnabled = true;
       lbItems.Opacity = 1.0;
-=======
-      
-      if( message.Length > 60 )
-        lbLoading.ToolTip = message;
-      
-      lbLoading.Visibility = System.Windows.Visibility.Visible;
-
-      lbItems.IsEnabled = false;
-    }
-    private void EnableListView() {
-      lbLoading.Visibility = System.Windows.Visibility.Hidden;
-      
-      lbItems.IsEnabled = true;
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
     }
 
     private void btnShowProcessed_Click(object sender, RoutedEventArgs e) {

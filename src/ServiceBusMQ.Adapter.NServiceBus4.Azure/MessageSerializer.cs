@@ -19,11 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-<<<<<<< HEAD
 namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
-=======
-namespace ServiceBusMQ.NServiceBus4.Azure {
->>>>>>> 3dd34e76b2bd5c60a3431e8f5fa66de0154cca6c
   public static class MessageSerializer {
 
 
