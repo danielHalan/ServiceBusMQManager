@@ -147,7 +147,7 @@
             <Label x:Name="lblServer" Content="[Server Name]" Margin="209,0,213,43" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
             </Label>
             <Controls:SavedCommandsControl x:Name="savedCommands" HorizontalAlignment="Left" Margin="27,127,0,0" VerticalAlignment="Top" Height="78" Width="607" SavedCommandSelected="savedCommands_SavedCommandSelected" EnterEditMode="savedCommands_EnterEditMode" ExitEditMode="savedCommands_ExitEditMode"/>
-            <Label x:Name="lblRouterQueue" Content="Routing thru..." HorizontalAlignment="Right" Margin="0,0,139,18" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Width="287" Visibility="Hidden">
+            <Label x:Name="lblRouterQueue" Content="Routing thru..." HorizontalAlignment="Right" Margin="0,0,139,18" Height="30" VerticalAlignment="Bottom" Foreground="#FFC3C3C3" FontFamily="Segoe UI" FontSize="14" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Width="377" Visibility="Hidden">
             </Label>
             <Button Margin="0,0,136,48" Content="Change..." Cursor="Hand" Click="btnOpenConfig_Click" Tag="false" FontSize="14" Height="19" VerticalAlignment="Bottom" Grid.Row="1" HorizontalAlignment="Right" Width="67">
                 <Button.Template>

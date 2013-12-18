@@ -46,7 +46,7 @@ namespace ServiceBusMQ.MassTransit
       get { return "MassTransit"; }
     }
     public string ServiceBusVersion {
-      get { return string.Empty; }
+        get { return "3"; }
     }
     public string MessageQueueType {
       get { return "MSMQ"; }
@@ -943,8 +943,10 @@ namespace ServiceBusMQ.MassTransit
 
 			if (asmName.IsValid())
 			{
-
 				int iEnd = asmName.IndexOf(',');
+
+                if (iEnd < 0) return "";
+
 				int iStart = asmName.LastIndexOf('.', iEnd);
 
 				if (iEnd > -1 && iStart > -1)

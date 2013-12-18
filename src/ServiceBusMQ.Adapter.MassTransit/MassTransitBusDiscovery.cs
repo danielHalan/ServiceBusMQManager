@@ -30,7 +30,7 @@ namespace ServiceBusMQ.MassTransit
 			get { return "MassTransit"; }
 		}
     public string ServiceBusVersion {
-      get { return string.Empty; }
+        get { return "3"; }
     }
 
 
