@@ -70,14 +70,10 @@ namespace ServiceBusMQManager {
       // TEMP: Service Bus Specific Logic, TODO: Refactor
       var srv = _sys.Config.CurrentServer;
       if( srv.ServiceBus == "MassTransit" ) {
-        if( !string.IsNullOrEmpty(_sys.Config.MassTransitServiceSubscriptionQueue)) {
-
-            if (!srv.ConnectionSettings.ContainsKey("subscriptionQueueService"))
-                srv.ConnectionSettings.Add("subscriptionQueueService", "");
-            
-            srv.ConnectionSettings["subscriptionQueueService"] = _sys.Config.MassTransitServiceSubscriptionQueue;
+        if( srv.ConnectionSettings.HasValidValue("subscriptionQueueService")) {
+            cbQueue.Visibility = Visibility.Hidden;
            lblServer.Visibility = Visibility.Hidden;
-           lblRouterQueue.Content = "Subscription service: {0}".With(_sys.Config.MassTransitServiceSubscriptionQueue);
+           lblRouterQueue.Content = "Subscription service: {0}".With(srv.ConnectionSettings["subscriptionQueueService"]);
            lblRouterQueue.Visibility = Visibility.Visible;
          }
       }

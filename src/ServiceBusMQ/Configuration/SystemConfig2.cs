@@ -145,8 +145,6 @@ namespace ServiceBusMQ.Configuration {
     }
 
     public int StartCount { get; set; }
-
-    public string MassTransitServiceSubscriptionQueue { get; set; }
   }
 
 

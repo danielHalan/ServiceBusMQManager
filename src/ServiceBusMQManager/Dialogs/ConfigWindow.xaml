@@ -220,10 +220,6 @@
                             </TransformGroup>
                         </CheckBox.RenderTransform>
                     </CheckBox>
-                    <Label Content="(MT)Use subscription service queue" HorizontalAlignment="Left" Margin="119,129,0,0" VerticalAlignment="Top" Grid.Row="10" Height="28" Width="250" FontSize="16" Grid.Column="1"/>
-                    <TextBox x:Name="tbSubscriptionServiceQueue" HorizontalAlignment="Left" Height="27" Margin="125,155,0,0" VerticalAlignment="Top" Width="234" Grid.Row="10" Grid.Column="1" FontFamily="Calibri" FontSize="16" LostFocus="tbNamespace_LostFocus" />
-
-
                 </Grid>
             </ScrollViewer>
 
