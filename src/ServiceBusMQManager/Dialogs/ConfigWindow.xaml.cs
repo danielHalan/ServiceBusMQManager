@@ -93,7 +93,6 @@ namespace ServiceBusMQManager.Dialogs {
       cCheckForNewVer.IsChecked = _config.VersionCheck.Enabled;
       cStartOnWinStartup.IsChecked = GetStartOnWinStartupState();
 
-
       BindServers(_config.Servers);
 
       SelectServer(_config.MonitorServerName, false);
@@ -713,6 +712,7 @@ namespace ServiceBusMQManager.Dialogs {
 
       _config.ShowOnNewMessages = cShowOnNewMessages.IsChecked == true;
       _config.VersionCheck.Enabled = cCheckForNewVer.IsChecked == true;
+
       SetStartOnWinStartupState(cStartOnWinStartup.IsChecked == true);
 
       _config.Save();

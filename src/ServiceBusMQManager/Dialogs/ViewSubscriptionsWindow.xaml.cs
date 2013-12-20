@@ -109,7 +109,9 @@ namespace ServiceBusMQManager.Dialogs {
         _items.Clear();
         foreach( var ms in subs ) {
 
-          _allItems.Add(ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower(), ms);
+            var key = ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower();
+            if(!_allItems.ContainsKey(key))
+                _allItems.Add(key, ms);
 
           _items.Add(ms);
         }

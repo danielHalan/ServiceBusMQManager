@@ -220,7 +220,6 @@
                             </TransformGroup>
                         </CheckBox.RenderTransform>
                     </CheckBox>
-
                 </Grid>
             </ScrollViewer>
 

@@ -23,61 +23,65 @@ using System.Messaging;
 
 namespace ServiceBusMQ.MassTransit
 {
-	public class MassTransitBusDiscovery : IServiceBusDiscovery
-	{
-		public string ServiceBusName
-		{
-			get { return "MassTransit"; }
-		}
-    public string ServiceBusVersion {
-      get { return string.Empty; }
-    }
+    public class MassTransitBusDiscovery : IServiceBusDiscovery
+    {
+        public string ServiceBusName
+        {
+            get { return "MassTransit"; }
+        }
+        public string ServiceBusVersion
+        {
+            get { return "3"; }
+        }
 
-		public string MessageQueueType
-		{
-			get { return  "MSMQ"; }
-		}
+        public string MessageQueueType
+        {
+            get { return "MSMQ"; }
+        }
 
-		public string[] AvailableMessageContentTypes
-		{
-			get { return new string[] { "XML", "JSON" }; }
-		}
+        public string[] AvailableMessageContentTypes
+        {
+            get { return new string[] { "XML", "JSON" }; }
+        }
 
-    public ServiceBusFeature[] Features {
-      get { return ServiceBusFeatures.All; }
-    }
+        public ServiceBusFeature[] Features
+        {
+            get { return ServiceBusFeatures.All; }
+        }
 
-    public ServerConnectionParameter[] ServerConnectionParameters { 
-      get { 
-        return new ServerConnectionParameter[] { 
+        public ServerConnectionParameter[] ServerConnectionParameters
+        {
+            get
+            {
+                return new ServerConnectionParameter[] { 
           ServerConnectionParameter.Create("server", "Server Name"),
           ServerConnectionParameter.Create("subscriptionQueueService", "Subscription Queue Service", ParamType.String, null, true)
         };
-      }
+            }
+        }
+
+
+        public bool CanAccessServer(Dictionary<string, object> connectionSettings)
+        {
+            return true;
+        }
+
+        public bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName)
+        {
+            var queue = Msmq.Create(connectionSettings["server"] as string, queueName, QueueAccessMode.ReceiveAndAdmin);
+
+            return queue != null ? queue.CanRead : false;
+        }
+
+        public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings)
+        {
+            return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"] as string).Where(q => !IsIgnoredQueue(q.QueueName)).
+                Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
+        }
+
+        private bool IsIgnoredQueue(string queueName)
+        {
+            return (queueName.EndsWith("_retries") || queueName.EndsWith("_timeouts") || queueName.EndsWith("_timeoutsdispatcher"));
+        }
     }
-
-
-    public bool CanAccessServer(Dictionary<string, object> connectionSettings)
-		{
-			return true;
-		}
-
-    public bool CanAccessQueue(Dictionary<string, object> connectionSettings, string queueName)
-		{
-			var queue = Msmq.Create(connectionSettings["server"] as string, queueName, QueueAccessMode.ReceiveAndAdmin);
-
-			return queue != null ? queue.CanRead : false;
-		}
-
-		public string[] GetAllAvailableQueueNames(Dictionary<string, object> connectionSettings)
-		{
-			return MessageQueue.GetPrivateQueuesByMachine(connectionSettings["server"] as string).Where(q => !IsIgnoredQueue(q.QueueName)).
-				Select(q => q.QueueName.Replace("private$\\", "")).ToArray();
-		}
-
-		private bool IsIgnoredQueue(string queueName)
-		{
-			return (queueName.EndsWith("_retries") || queueName.EndsWith("_timeouts") || queueName.EndsWith("_timeoutsdispatcher"));
-		}
-	}
 }
