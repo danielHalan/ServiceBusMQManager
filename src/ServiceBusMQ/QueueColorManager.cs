@@ -20,7 +20,7 @@ using System.Drawing;
 namespace ServiceBusMQ {
   public static class QueueColorManager {
 
-    public static readonly int[] COLORS = new int[] { 0xffffff, 0xC9C9C9, // white & Gray
+    public static readonly int[] COLORS = new int[] { 0xC9C9C9, 0x828282, // white & Gray
                                       0xfef200, // yellow
                                       0xA200FF, // purple
                                       0xE671B8, // pink light 
