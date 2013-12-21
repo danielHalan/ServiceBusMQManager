@@ -36,8 +36,9 @@
     <Reference Include="Machine.Specifications.Clr4">
       <HintPath>..\packages\Machine.Specifications.0.5.10\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Profiler.Common">
-      <HintPath>..\packages\NServiceBus\NServiceBus.Profiler.Common.dll</HintPath>
+    <Reference Include="NServiceBus.Profiler.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=26b200bc7a810374, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\NServiceBus.Profiler.Common\NServiceBus.Profiler.Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
