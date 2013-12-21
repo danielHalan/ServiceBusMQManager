@@ -5,11 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.Adapter.NServi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQManager", "ServiceBusMQManager\ServiceBusMQManager.csproj", "{10452F03-D000-484F-A8CD-3FC5A10ABB84}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6C80E07F-DC36-4D01-94D8-8E2C76BD0C20}"
-	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQManager.Tests", "ServiceBusMQManager.Tests\ServiceBusMQManager.Tests.csproj", "{440319EF-B3CA-4E11-A76D-78F97B47C93A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.Adapter.MassTransit", "ServiceBusMQ.Adapter.MassTransit\ServiceBusMQ.Adapter.MassTransit.csproj", "{0B5C7307-0B10-4584-B483-C67756864D09}"
