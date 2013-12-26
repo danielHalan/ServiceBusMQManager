@@ -730,7 +730,6 @@ namespace ServiceBusMQManager.Dialogs {
 
     public static readonly DependencyProperty QueuesInfoHeightProperty = DependencyProperty.Register(
              "QueuesInfoHeight", typeof(double), typeof(ConfigWindow), new PropertyMetadata(0.0));
-    private ServerConfig3 _initializedServer;
 
     protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
       base.OnPropertyChanged(e);
