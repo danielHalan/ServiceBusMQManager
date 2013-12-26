@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -108,11 +109,11 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
 
 
-    public override Model.QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
+    public override Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
       var result = new QueueFetchResult();
       result.Status = QueueFetchResultStatus.NotChanged;
 
-      var queues = _monitorQueues.Where(q => q.Queue.Type == type);
+      var queues = _monitorQueues.Where(q => q.Queue.Type == req.Type);
 
       if( queues.Count() == 0 ) {
         result.Items = EMPTY_LIST;
@@ -130,7 +131,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
         try {
 
-          if( q.HasChanged() ) {
+          if( q.HasChanged(req.TotalCount) ) {
             
             if( result.Status == QueueFetchResultStatus.NotChanged )
               result.Status = QueueFetchResultStatus.OK;
@@ -143,7 +144,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
               foreach( var msg in msgs ) {
 
-                QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.MessageId);
+                QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.MessageId);
 
                 if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
                   itm = CreateQueueItem(q.Queue, msg);
@@ -298,13 +299,17 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       for(int i = 0; i < _monitorQueues.Count; i++) {
       
         tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
+        Thread.Sleep(2000);
 
-        if( (i % 4) == 0 ) {
+        if( ( (i+1) % 3 ) == 0 ) {
 
           Task.WaitAll(tasks.ToArray());
           tasks.Clear();
         }
       }
+      
+      if( tasks.Count > 0 )
+        Task.WaitAll(tasks.ToArray());
 
       OnItemsChanged();
     }

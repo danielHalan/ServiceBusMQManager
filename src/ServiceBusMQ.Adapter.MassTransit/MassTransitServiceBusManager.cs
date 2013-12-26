@@ -313,10 +313,10 @@ namespace ServiceBusMQ.MassTransit
         object _peekItemsLock = new object();
         List<QueueItem> _peekedItems = new List<QueueItem>();
 
-        public QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems)
+        public QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req)
         {
             var result = new QueueFetchResult();
-            var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == type);
+            var queues = _monitorMsmqQueues.Where(q => q.Queue.Type == req.Type);
 
             if (queues.Count() == 0)
             {
@@ -355,7 +355,7 @@ namespace ServiceBusMQ.MassTransit
                     foreach (var msg in msgs)
                     {
 
-                        QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
+                        QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.Id);
 
                         if (itm == null && !r.Any(i => i.Id == msg.Id))
                         {

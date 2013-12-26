@@ -286,7 +286,7 @@ namespace ServiceBusMQ {
       //IEnumerable<QueueItem> currentItems = _items.AsEnumerable<QueueItem>();
       foreach( QueueType t in _queueTypeValues ) {
         if( _monitorState.IsMonitoring(t) ) {
-          var r = _mgr.GetUnprocessedMessages(t, _items.ToArray());
+          var r = _mgr.GetUnprocessedMessages(new QueueFetchUnprocessedMessagesRequest(t, _items.ToArray(), GetUnprocessedItemsCount(t)));
 
           if( r.Status == QueueFetchResultStatus.ConnectionFailed )
             break;

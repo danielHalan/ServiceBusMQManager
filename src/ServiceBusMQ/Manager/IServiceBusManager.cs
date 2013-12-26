@@ -53,7 +53,7 @@ namespace ServiceBusMQ.Manager {
     /// <param name="type">Type of queues to scan</param>
     /// <param name="currentItems">Already fetched items, that should be reused in result if still not processed.</param>
     /// <returns></returns>
-    QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
+    QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req);
 
     /// <summary>
     /// Return new processed messages that are in queue(s) of specified type

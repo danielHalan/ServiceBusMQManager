@@ -122,7 +122,8 @@ namespace ServiceBusMQManager.Controls {
 
 
     public new event RoutedEventHandler LostFocus;
-    void OnLostFocus(RoutedEventArgs e) {
+
+    new void OnLostFocus(RoutedEventArgs e) {
       if( LostFocus != null )
         LostFocus(this, e);
     }

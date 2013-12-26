@@ -203,7 +203,7 @@ namespace ServiceBusMQ.NServiceBus {
     public bool MessagesHasMilliSecondPrecision { get { return false; } }
 
 
-    public abstract QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems);
+    public abstract QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req);
     public abstract QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems);
 
     public abstract void PurgeMessage(QueueItem itm);

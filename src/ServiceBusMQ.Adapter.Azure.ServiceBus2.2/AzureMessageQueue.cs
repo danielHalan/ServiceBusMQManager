@@ -87,7 +87,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     public bool HasUpdatedSince(DateTime dt) {
       return Info.UpdatedAt > dt;
     }
-    public bool HasChanged() {
+    public bool HasChanged(uint currentMsgCount) {
 
       try {
         NamespaceManager mgr = null;
@@ -99,7 +99,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
         Info = mgr.GetQueue(Queue.Name);
 
-        if( _checkSum != Info.MessageCount + Info.SizeInBytes ) { 
+        if( currentMsgCount != Info.MessageCount || (_checkSum != Info.MessageCount + Info.SizeInBytes) ) { 
           _log.Debug(" === " + Queue.Name + " - " + Info.UpdatedAt + " =======================");
           _log.Debug("++ Has Changed, MessageCount: " + Info.MessageCount + ", SizeInBytes: " + Info.SizeInBytes);
         } else {

@@ -214,9 +214,9 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public override QueueFetchResult GetUnprocessedMessages(QueueType type, IEnumerable<QueueItem> currentItems) {
+    public override QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {    
       var result = new QueueFetchResult();
-      var queues = _monitorQueues.Where(q => q.Queue.Type == type);
+      var queues = _monitorQueues.Where(q => q.Queue.Type == req.Type);
 
       if( queues.Count() == 0 ) {
         result.Items = EMPTY_LIST;
@@ -251,7 +251,7 @@ namespace ServiceBusMQ.NServiceBus4 {
 
           foreach( var msg in msgs ) {
 
-            QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
+            QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.Id);
 
             if( itm == null && !r.Any(i => i.Id == msg.Id) ) {
               itm = CreateQueueItem(q.Queue, msg);
@@ -718,28 +718,21 @@ namespace ServiceBusMQ.NServiceBus4 {
 
       }
 
-      if( CommandContentFormat == "XML" ) {
-
-        _bus = Configure.With(asms)
-                  .DefineEndpointName("SBMQM_NSB")
-                  .DefaultBuilder()
-            .DefiningCommandsAs(t => _commandDef.IsCommand(t))
-                  .XmlSerializer()
-                  .UseTransport<global::NServiceBus.Msmq>()
-                  .UnicastBus()
-              .SendOnly();
+      if( CommandContentFormat == "XML" ) {       
+        Configure.Serialization.Xml();
 
       } else if( CommandContentFormat == "JSON" ) {
+        Configure.Serialization.Json();
 
-        _bus = Configure.With(asms)
-                .DefineEndpointName("SBMQM_NSB")
-                .DefaultBuilder()
-          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
-                .JsonSerializer()
-                .UseTransport<global::NServiceBus.Msmq>()
-                .UnicastBus()
-            .SendOnly();
       }
+
+      _bus = Configure.With(asms)
+              .DefineEndpointName("SBMQM_NSB")
+              .DefaultBuilder()
+        .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+              .UseTransport<global::NServiceBus.Msmq>()
+              .UnicastBus()
+          .SendOnly();
 
     }
 
