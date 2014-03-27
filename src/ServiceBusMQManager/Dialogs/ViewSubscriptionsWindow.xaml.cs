@@ -109,9 +109,10 @@ namespace ServiceBusMQManager.Dialogs {
         _items.Clear();
         foreach( var ms in subs ) {
 
-            var key = ms.FullName.ToLower() + " " + ms.Publisher.ToLower() + " " + ms.Subscriber.ToLower();
+            var key = ms.FullName.ToLower() + ": " + ms.Publisher.ToLower() + " => " + ms.Subscriber.ToLower();
             if(!_allItems.ContainsKey(key))
                 _allItems.Add(key, ms);
+            else SetInfoText("Found a duplicate Pub/Sub, for message " + key);
 
           _items.Add(ms);
         }
