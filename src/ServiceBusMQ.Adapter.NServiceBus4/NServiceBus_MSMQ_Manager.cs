@@ -246,7 +246,7 @@ namespace ServiceBusMQ.NServiceBus4 {
         }
 
         try {
-          var msgs = q.Main.GetAllMessages();
+          var msgs = q.GetAllMessages();
           result.Count += (uint)msgs.Length;
 
           foreach( var msg in msgs ) {
