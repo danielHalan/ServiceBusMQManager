@@ -20,7 +20,7 @@ using System.Text;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
 
-namespace ServiceBusMQ.NServiceBus4 {
+namespace ServiceBusMQ.NServiceBus.MSMQ {
 
   public class MsmqMessageQueue : IMessageQueue {
 
@@ -117,11 +117,11 @@ namespace ServiceBusMQ.NServiceBus4 {
       throw new Exception("Failed to get messages from Queue {0}, maximum retries reached".With(Queue.Name));
     }
 
-    internal string GetDisplayName() {
+    public string GetDisplayName() {
       return Main.GetDisplayName();
     }
 
-    internal void Purge() {
+    public void Purge() {
       Main.Purge();
     }
 

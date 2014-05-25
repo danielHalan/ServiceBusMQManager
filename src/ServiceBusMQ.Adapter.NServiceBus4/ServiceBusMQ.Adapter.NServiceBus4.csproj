@@ -45,12 +45,13 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus">
-      <HintPath>..\packages\NServiceBus.Interfaces.4.4.2\lib\net40\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Core, Version=4.2.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=4.6.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NServiceBus.4.4.2\lib\net40\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Interfaces.4.6.1\lib\net40\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Core, Version=4.6.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NServiceBus.4.6.1\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -74,14 +75,15 @@
   <ItemGroup>
     <Compile Include="ErrorManager.cs" />
     <Compile Include="MessageSerializer.cs" />
-    <Compile Include="Msmq.cs" />
-    <Compile Include="MsmqExtensions.cs" />
-    <Compile Include="MsmqMessageQueue.cs" />
     <Compile Include="NServiceBus_MSMQ_Discovery.cs" />
     <Compile Include="NServiceBus_MSMQ_Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ServiceBusMQ.NServiceBus.MSMQ\ServiceBusMQ.NServiceBus.MSMQ.csproj">
+      <Project>{6ed21653-1b3b-4eed-a233-45f3b41a4288}</Project>
+      <Name>ServiceBusMQ.NServiceBus.MSMQ</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServiceBusMQ.NServiceBus\ServiceBusMQ.NServiceBus.csproj">
       <Project>{4de54781-be52-4961-99fb-05c48ae6f8e8}</Project>
       <Name>ServiceBusMQ.NServiceBus</Name>

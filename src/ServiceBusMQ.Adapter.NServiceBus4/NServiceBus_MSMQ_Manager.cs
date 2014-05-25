@@ -33,6 +33,7 @@ using Raven.Client.Document;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
+using ServiceBusMQ.NServiceBus.MSMQ;
 
 
 namespace ServiceBusMQ.NServiceBus4 {
@@ -473,7 +474,7 @@ namespace ServiceBusMQ.NServiceBus4 {
         // First check MSMQ
         if( msmqQ.Any(mq => mq.EndsWith(queueSubscr)) ) {
 
-          MessageQueue q = Msmq.Create(server, queueSubscr, QueueAccessMode.ReceiveAndAdmin);
+          MessageQueue q = ServiceBusMQ.NServiceBus.MSMQ.Msmq.Create(server, queueSubscr, QueueAccessMode.ReceiveAndAdmin);
 
           q.MessageReadPropertyFilter.Label = true;
           q.MessageReadPropertyFilter.Body = true;

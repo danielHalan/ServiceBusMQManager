@@ -15,7 +15,7 @@
 
 using System.Messaging;
 
-namespace ServiceBusMQ.NServiceBus {
+namespace ServiceBusMQ {
 
   public static class MsmqExtensions {
 
