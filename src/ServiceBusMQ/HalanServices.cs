@@ -34,6 +34,9 @@ namespace ServiceBusMQ {
       var client = HalanServices.CreateProductManager();
       try {
         resp = client.GetLatestVersion(req);
+      } catch { 
+        return null;
+
       } finally {
         client.Close();
       }

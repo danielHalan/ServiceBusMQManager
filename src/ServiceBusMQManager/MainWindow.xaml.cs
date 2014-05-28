@@ -73,7 +73,7 @@ namespace ServiceBusMQManager {
       InitializeComponent();
 
       var ver = App.Info.Version;
-      _titleStr = string.Format("Service Bus MQ Manager {0}.{1} - (C)2012-2013 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
+      _titleStr = string.Format("Service Bus MQ Manager {0}.{1} - (C)2012-2014 ITQ.COM, Daniel Halan", ver.Major, ver.Minor.ToString("D2"));
 
 
       imgLoadingQueues.Visibility = System.Windows.Visibility.Hidden;

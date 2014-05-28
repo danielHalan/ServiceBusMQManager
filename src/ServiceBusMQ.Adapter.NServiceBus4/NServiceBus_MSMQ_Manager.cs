@@ -605,24 +605,29 @@ namespace ServiceBusMQ.NServiceBus4 {
       if( itm.Queue.Type != QueueType.Error )
         throw new ArgumentException("Queue is not of type Error, " + itm.Queue.Type);
 
-      var mgr = new ErrorManager();
+      try {
+        var mgr = new ErrorManager();
 
-      // TODO:
-      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+        mgr.InputQueue = Address.Parse(itm.Queue.Name);
 
-      mgr.InputQueue = Address.Parse(itm.Queue.Name);
+        mgr.ReturnMessageToSourceQueue(itm.Id);
 
-      mgr.ReturnMessageToSourceQueue(itm.Id);
+      } catch( Exception e ) {
+        throw new Exception("Failed to Move Messages from Error Queue '{0}' to Origin".With(itm.Queue.Name), e);
+      }
     }
     public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
-      var mgr = new ErrorManager();
 
-      // TODO:
-      // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
+      try {
+        var mgr = new ErrorManager();
+        
+        mgr.InputQueue = Address.Parse(errorQueue);
+        
+        mgr.ReturnAll();
+      } catch( Exception e ) {
+        throw new Exception("Failed to Move Messages from Error Queue '{0}' to Origin".With(errorQueue), e);                
+      }
 
-      mgr.InputQueue = Address.Parse(errorQueue);
-
-      mgr.ReturnAll();
     }
 
 

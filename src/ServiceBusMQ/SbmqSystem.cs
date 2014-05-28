@@ -103,6 +103,30 @@ namespace ServiceBusMQ {
       Config.StartCount += 1;
       Config.Save();
 
+      // Check if we still have the ServiceBus Adapter available
+      var availMgrs = ServiceBusFactory.AvailableServiceBusManagers();
+      if( !availMgrs.Any(mgr => mgr.Name == Config.ServiceBus && mgr.Version == Config.ServiceBusVersion && mgr.QueueType == Config.ServiceBusQueueType) ) {
+        
+        // Check if we have any other versions available
+        var m = availMgrs.FirstOrDefault( mgr => mgr.Name == Config.ServiceBus && mgr.QueueType == Config.ServiceBusQueueType );
+
+        if( m != null )
+          Config.CurrentServer.ServiceBusVersion = m.Version;
+
+        else { // Check if we have this ServiceBus Type
+          m = availMgrs.FirstOrDefault(mgr => mgr.Name == Config.ServiceBus);
+
+          if( m != null ) {
+            Config.CurrentServer.ServiceBusQueueType = m.QueueType;
+            Config.CurrentServer.ServiceBusVersion = m.Version;
+          } else throw new NotSupportedException("Not Supported Service Bus type '{0}', Please re-install Service Bus MQ Manager.".With(Config.ServiceBus));
+
+
+        }
+
+
+      }
+
       CreateServiceBusManager(Config.ServiceBus, Config.ServiceBusVersion, Config.ServiceBusQueueType);
 
 

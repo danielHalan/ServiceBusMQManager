@@ -149,8 +149,9 @@ namespace ServiceBusMQ.Configuration {
 
       protected override void FillDefaulValues() {
 
-        if( Id == null )
+        if( Id == null ) { // New Installation
           Id = Guid.NewGuid().ToString();
+        }
 
         if( VersionCheck == null )
           VersionCheck = new VersionCheck();
