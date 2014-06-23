@@ -815,8 +815,7 @@ namespace ServiceBusMQManager {
           _mgr.MoveErrorMessageToOriginQueue(itm);
         }
       }
-    }
-
+    }  
 
     private void btnClearProcessed_Click(object sender, RoutedEventArgs e) {
 

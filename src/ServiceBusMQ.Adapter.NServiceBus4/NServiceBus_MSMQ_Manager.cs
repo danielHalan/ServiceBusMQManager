@@ -215,7 +215,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    public override QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {    
+    public override QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
       var result = new QueueFetchResult();
       var queues = _monitorQueues.Where(q => q.Queue.Type == req.Type);
 
@@ -617,15 +617,26 @@ namespace ServiceBusMQ.NServiceBus4 {
       }
     }
     public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      var mgr = new ErrorManager();
 
       try {
-        var mgr = new ErrorManager();
-        
-        mgr.InputQueue = Address.Parse(errorQueue);
-        
-        mgr.ReturnAll();
+
+        if( errorQueue != null ) {
+          mgr.InputQueue = Address.Parse(errorQueue);
+
+          mgr.ReturnAll();
+
+        } else { // Return All Error Queues
+
+          foreach( var queue in MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
+            mgr.InputQueue = Address.Parse(errorQueue = queue.Name);
+
+            mgr.ReturnAll();
+          }
+
+        }
       } catch( Exception e ) {
-        throw new Exception("Failed to Move Messages from Error Queue '{0}' to Origin".With(errorQueue), e);                
+        throw new Exception("Failed to Move Messages from Error Queue '{0}' to Origin".With(errorQueue), e);
       }
 
     }
@@ -724,7 +735,7 @@ namespace ServiceBusMQ.NServiceBus4 {
 
       }
 
-      if( CommandContentFormat == "XML" ) {       
+      if( CommandContentFormat == "XML" ) {
         Configure.Serialization.Xml();
 
       } else if( CommandContentFormat == "JSON" ) {

@@ -29,6 +29,15 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
 
   public class ErrorManager {
 
+    static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
+    MessageQueue _queue;
+
+    const string NonTransactionalQueueErrorMessageFormat = "Queue '{0}' must be transactional.";
+
+    readonly string NoMessageFoundErrorFormat =
+        string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
+
+
     public bool ClusteredQueue { get; set; }
 
     public virtual Address InputQueue {
@@ -40,7 +49,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
           throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
         }
 
-        queue = q;
+        _queue = q;
 
         var messageReadPropertyFilter = new MessagePropertyFilter {
           Body = true,
@@ -53,12 +62,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
           AppSpecific = true,
         };
 
-        queue.MessageReadPropertyFilter = messageReadPropertyFilter;
+        _queue.MessageReadPropertyFilter = messageReadPropertyFilter;
       }
     }
 
     public void ReturnAll() {
-      foreach( var m in queue.GetAllMessages() ) {
+      foreach( var m in _queue.GetAllMessages() ) {
         ReturnMessageToSourceQueue(m.Id);
       }
     }
@@ -70,7 +79,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
     public void ReturnMessageToSourceQueue(string messageId) {
       using( var scope = new TransactionScope() ) {
         try {
-          var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
+          var message = _queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
 
           var tm = MsmqUtilities.Convert(message);
           string failedQ = null;
@@ -93,7 +102,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
           if( ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout ) {
             Console.WriteLine(NoMessageFoundErrorFormat, messageId);
 
-            foreach( var m in queue.GetAllMessages() ) {
+            foreach( var m in _queue.GetAllMessages() ) {
               var tm = MsmqUtilities.Convert(m);
 
               string originalId = null;
@@ -119,7 +128,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
                   q.Send(m, MessageQueueTransactionType.Automatic);
                 }
 
-                queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
+                _queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
                     MessageQueueTransactionType.Automatic);
 
                 tx.Complete();
@@ -135,12 +144,5 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue {
       }
     }
 
-    const string NonTransactionalQueueErrorMessageFormat = "Queue '{0}' must be transactional.";
-
-    readonly string NoMessageFoundErrorFormat =
-        string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
-
-    static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
-    MessageQueue queue;
-  }
+   }
 }
