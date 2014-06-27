@@ -67,7 +67,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
     bool _terminated = false;
-
+    
     public NServiceBus_MSMQ_Manager() {
     }
 
@@ -197,6 +197,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     private void AddMsmqQueue(string serverName, Queue queue) {
       try {
         _monitorQueues.Add(new MsmqMessageQueue(serverName, queue));
+
       } catch( Exception e ) {
         OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverName, queue.Name), e, false);
       }
@@ -364,6 +365,10 @@ namespace ServiceBusMQ.NServiceBus4 {
         itm.Messages = GetMessageNames(itm.Content, false);
       }
       itm.DisplayName = MergeStringArray(itm.Messages).Default(itm.DisplayName).CutEnd(55);
+
+      if( itm.Queue.Type == QueueType.Error && itm.Headers.ContainsKey( global::NServiceBus.Faults.FaultsHeaderKeys.FailedQ )) {
+        itm.OriginQueueName = itm.Headers[global::NServiceBus.Faults.FaultsHeaderKeys.FailedQ];
+      }
 
       // Get process started time
       if( itm.Headers.ContainsKey("NServiceBus.ProcessingStarted") && itm.Headers.ContainsKey("NServiceBus.ProcessingEnded") ) {

@@ -35,18 +35,18 @@ namespace ServiceBusMQ.ViewModel {
       MapQueueItem(item);
 
       BindImage();
-      
-      if( ArrivedTime.Date == DateTime.Today.Date ) 
+
+      if( ArrivedTime.Date == DateTime.Today.Date )
         ArrivedTimeString = ArrivedTime.ToString("HH:mm:ss");
       else {
-        string year = ArrivedTime.Year != DateTime.Today.Year ? string.Concat(ArrivedTime.Year,' ') : string.Empty;
+        string year = ArrivedTime.Year != DateTime.Today.Year ? string.Concat(ArrivedTime.Year, ' ') : string.Empty;
 
-        ArrivedTimeString = "{1} {0} {3}- {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1], 
-                                                      ArrivedTime.Day, 
-                                                      ArrivedTime.ToString("HH:mm:ss"), 
+        ArrivedTimeString = "{1} {0} {3}- {2}".With(Tools.MONTH_NAMES_ABBR[ArrivedTime.Month - 1],
+                                                      ArrivedTime.Day,
+                                                      ArrivedTime.ToString("HH:mm:ss"),
                                                       year);
       }
-      
+
       if( showMilliSeconds )
         ArrivedTimeMSString = ArrivedTime.ToString(".fff");
 
@@ -66,7 +66,7 @@ namespace ServiceBusMQ.ViewModel {
 
     private string GetImageName() {
       StringBuilder sb = new StringBuilder(Queue.Type.ToString(), 50);
-      if( Processed ) 
+      if( Processed )
         sb.Append("-processed");
 
       if( Queue.Type != QueueType.Error && Error != null )
@@ -80,6 +80,7 @@ namespace ServiceBusMQ.ViewModel {
       MessageQueueItemId = item.MessageQueueItemId;
       DisplayName = item.DisplayName;
       Messages = item.Messages;
+      OriginQueueName = item.OriginQueueName;
 
       ArrivedTime = item.ArrivedTime;
       ProcessTime = item.ProcessTime;
@@ -112,8 +113,16 @@ namespace ServiceBusMQ.ViewModel {
     public string ImagePath { get; private set; }
     public string SelectedImagePath { get; private set; }
 
+    public string QueueDisplayName {
+      get {
+        if( Queue.Type == QueueType.Error && OriginQueueName.IsValid() )
+          return "{1} ({0})".With(OriginQueueName, Queue.DisplayName);
+
+        return Queue.DisplayName;
+      }
+    }
 
 
-  
+
   }
 }

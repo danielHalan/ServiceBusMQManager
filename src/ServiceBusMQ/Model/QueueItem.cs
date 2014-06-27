@@ -40,6 +40,7 @@ namespace ServiceBusMQ.Model {
     public MessageInfo[] Messages { get; set; }
 
     public Queue Queue { get; private set; }
+    public string OriginQueueName { get; set; }
 
     public DateTime ArrivedTime { get; set; }
     public int ProcessTime { get; set; }
