@@ -28,6 +28,7 @@ namespace ServiceBusMQ.Model {
     public uint Count { get; set; }
 
     public QueueFetchResultStatus Status { get; set; }
+    public string StatusMessage { get; set; }
 
     public QueueFetchResult() { 
       Status = Model.QueueFetchResultStatus.OK;

@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 //using NServiceBus;
 //using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
@@ -64,11 +65,11 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     public bool IsIgnoredQueue(string queueName) {
-      return ( queueName.EndsWith(".subscriptions") || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
+      return ( queueName.EndsWith(".subscriptions") ); // || queueName.EndsWith(".retries") || queueName.EndsWith(".timeouts") );
     }
 
     public abstract void MoveErrorMessageToOriginQueue(QueueItem itm);
-    public abstract void MoveAllErrorMessagesToOriginQueue(string errorQueue);
+    public abstract Task MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
     protected string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )

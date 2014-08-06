@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ServiceBusMQ.Model;
 
 namespace ServiceBusMQ.Manager {
@@ -75,7 +76,7 @@ namespace ServiceBusMQ.Manager {
     /// Move all Error messages to their Origin Queues
     /// </summary>
     /// <param name="errorQueue">What error queue to process</param>
-    void MoveAllErrorMessagesToOriginQueue(string errorQueue);
+    Task MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
     /// <summary>
     /// Purge message from Queue, removing the specified message.

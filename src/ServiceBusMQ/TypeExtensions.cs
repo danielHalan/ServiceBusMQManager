@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ServiceBusMQ {
+
   public static class TypeExtensions {
 
 

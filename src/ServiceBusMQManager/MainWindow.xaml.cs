@@ -607,9 +607,10 @@ namespace ServiceBusMQManager {
 
         // Return All error messages
         var mi = miReturnAllErr;
-        mi.Click += (sender, e) => {
+        mi.Click += async (sender, e) => {
           try {
-            _mgr.MoveAllErrorMessagesToOriginQueue(null);
+            _loadingText = "Processing...";
+            await _sys.MoveAllErrorMessagesToOriginQueue(null);
           } catch( Exception ex ) {
             _sys_ErrorOccured(this, new ErrorArgs("Failed to move messages to Orgin Queues", ex));
           }
@@ -617,7 +618,10 @@ namespace ServiceBusMQManager {
         mi.Items.Clear();
         foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
           var m2 = new MenuItem() { Header = q.Name };
-          m2.Click += (sender, e) => { _mgr.MoveAllErrorMessagesToOriginQueue(q.Name); };
+          m2.Click += async (sender, e) => {
+            _loadingText = "Processing...";
+            _sys.MoveAllErrorMessagesToOriginQueue(q.Name);
+          };
 
           mi.Items.Add(m2);
         }
@@ -627,7 +631,7 @@ namespace ServiceBusMQManager {
         mi.Items.Clear();
         foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
           var m2 = new MenuItem() { Header = q.Name };
-          m2.Click += (sender, e) => { _mgr.PurgeErrorMessages(q.Name); };
+          m2.Click += async (sender, e) => { _sys.PurgeErrorMessages(q.Name); };
 
           mi.Items.Add(m2);
         }
@@ -671,7 +675,7 @@ namespace ServiceBusMQManager {
       // Return Error Message to Origin
       _BindContextMenuItem(miReturnErrToOrgin, itm, qi => qi.Queue.Type == QueueType.Error && HasFeature(ServiceBusFeature.MoveErrorMessageToOriginQueue));
 
-#if DEBUG
+//#if DEBUG
       MenuItem mi = null;
       if( ( ( items[items.Count - 1] as MenuItem ).Header as string ) != "Headers" ) {
         mi = new MenuItem();
@@ -685,7 +689,7 @@ namespace ServiceBusMQManager {
       if( itm != null && itm.Headers != null )
         foreach( var head in itm.Headers )
           mi.Items.Add(new MenuItem() { Header = string.Concat(head.Key, '=', head.Value) });
-#endif
+//#endif
 
     }
 
@@ -812,7 +816,7 @@ namespace ServiceBusMQManager {
         }
 
         if( itm.Queue.Type == QueueType.Error ) { // Move back to origin
-          _mgr.MoveErrorMessageToOriginQueue(itm);
+          _sys.MoveErrorMessageToOriginQueue(itm);
         }
       }
     }  
@@ -1029,13 +1033,19 @@ namespace ServiceBusMQManager {
     private void miDeleteMessage_Click(object sender, RoutedEventArgs e) {
       QueueItem itm = ( (MenuItem)sender ).Tag as QueueItem;
 
-      _loadingText = "Processing...";
       _sys.PurgeMessage(itm);
     }
     private void miDeleteAllMessage_Click(object sender, RoutedEventArgs e) {
       _loadingText = "Processing...";
       _sys.PurgeAllMessages();
     }
+
+    private void miDeleteQueryMessage_Click(object sender, RoutedEventArgs e) {
+      _loadingText = "Processing...";
+      _sys.PurgeMessages(_sys.Items.Where( i => !i.Processed ));
+    }
+
+
     private void miDeleteAllErrorMessage_Click(object sender, RoutedEventArgs e) {
       _loadingText = "Processing...";
       _sys.PurgeErrorAllMessages();

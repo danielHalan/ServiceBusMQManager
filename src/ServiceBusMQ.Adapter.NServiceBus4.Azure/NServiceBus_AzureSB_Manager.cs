@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using NServiceBus;
+using ServiceBusMQ.Adapter.Azure.ServiceBus22;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
 
@@ -108,8 +109,23 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     }
 
 
+    // We Store what 'Azure' think they have, not the actual count, which may differ at times.
+    private Dictionary<string, uint> _queueItemsCount = new Dictionary<string,uint>();
+    private uint GetAzureQueueCount(string queueName) {
+      if( !_queueItemsCount.ContainsKey(queueName) )
+        _queueItemsCount.Add(queueName, 0);
+
+      return _queueItemsCount[queueName];
+    }
+    private void SetAzureQueueCount(string queueName, uint count) {
+      _queueItemsCount[queueName] = count;
+    }
 
     public override Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
+      return AzureServiceBusReciever.GetUnprocessedMessages(req, _monitorQueues.Where(q => q.Queue.Type == req.Type), x => PrepareQueueItemForAdd(x));
+      
+      /*
+        
       var result = new QueueFetchResult();
       result.Status = QueueFetchResultStatus.NotChanged;
 
@@ -124,23 +140,26 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       result.Items = r;
 
       foreach( var q in queues ) {
-        var azureQueue = q.Main;
+        //var azureQueue = q.Main;
 
         if( IsIgnoredQueue(q.Queue.Name) )
           continue;
 
-        try {
+        var queueItemsCount = GetAzureQueueCount(q.Queue.Name);
 
-          if( q.HasChanged(req.TotalCount) ) {
-            
+        try {
+          //queueItemsCount < SbmqSystem.MAX_ITEMS_PER_QUEUE && 
+          if( q.HasChanged(queueItemsCount) ) {  //q.HasChanged(req.TotalCount) ) {
+
             if( result.Status == QueueFetchResultStatus.NotChanged )
               result.Status = QueueFetchResultStatus.OK;
 
             long msgCount = q.GetMessageCount();
+            SetAzureQueueCount(q.Queue.Name, (uint)msgCount);
 
             if( msgCount > 0 ) {
-              var msgs = q.Main.PeekBatch(0, SbmqSystem.MAX_ITEMS_PER_QUEUE);
-              result.Count += (uint)msgCount;
+              var msgs = q.Main.PeekBatch(SbmqSystem.MAX_ITEMS_PER_QUEUE);
+              result.Count += (uint)msgs.Count(); // msgCount
 
               foreach( var msg in msgs ) {
 
@@ -179,7 +198,9 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       }
 
       return result;
+      */
     }
+
 
     /// <summary>
     /// Called when we know that we actually shall add the item, and here we can execute processes that takes extra time
@@ -247,21 +268,6 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       return true;
     }
 
-    private QueueItem CreateQueueItem(Queue queue, BrokeredMessage msg) {
-      var itm = new QueueItem(queue);
-      itm.DisplayName = msg.Label;
-      itm.MessageQueueItemId = msg.SequenceNumber;
-      itm.Id = msg.SequenceNumber.ToString(); //msg.MessageId;
-      itm.ArrivedTime = msg.EnqueuedTimeUtc;
-      itm.Content = ReadMessageStream(new System.IO.MemoryStream(msg.GetBody<byte[]>()));
-      //itm.Content = ReadMessageStream(msg.BodyStream);
-
-      itm.Headers = new Dictionary<string, string>();
-      if( msg.Properties.Count > 0 )
-        msg.Properties.ForEach(p => itm.Headers.Add(p.Key, p.Value.ToString()));
-
-      return itm;
-    }
 
 
 
@@ -342,10 +348,15 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       // TODO:
       // Check if Clustered Queue, due if Clustered && NonTransactional, then Error
 
-      mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
+      try {
+        mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
+      
+      } catch( Exception e ) {
+        OnError("Failed to Return message", e);
+      }
     }
 
-    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public override async Task MoveAllErrorMessagesToOriginQueue  (string errorQueue) {
       var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
 
       mgr.ReturnAll(errorQueue);

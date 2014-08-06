@@ -21,6 +21,7 @@ using System.Messaging;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using NLog;
 using NServiceBus;
@@ -39,7 +40,7 @@ using ServiceBusMQ.NServiceBus.MSMQ;
 namespace ServiceBusMQ.NServiceBus4 {
 
   //[PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
-  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue>, ISendCommand, IViewSubscriptions {
+  public class NServiceBus_MSMQ_Manager : NServiceBusManagerBase<MsmqMessageQueue4>, ISendCommand, IViewSubscriptions {
 
     protected Logger _log = LogManager.GetCurrentClassLogger();
 
@@ -196,7 +197,7 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
     private void AddMsmqQueue(string serverName, Queue queue) {
       try {
-        _monitorQueues.Add(new MsmqMessageQueue(serverName, queue));
+        _monitorQueues.Add(new MsmqMessageQueue4(serverName, queue));
 
       } catch( Exception e ) {
         OnError("Error occured when loading queue: '{0}\\{1}'\n\r".With(serverName, queue.Name), e, false);
@@ -227,14 +228,13 @@ namespace ServiceBusMQ.NServiceBus4 {
 
       List<QueueItem> r = new List<QueueItem>();
       result.Items = r;
-
+      uint totalCount = 0;
       foreach( var q in queues ) {
         var msmqQueue = q.Main;
 
         if( IsIgnoredQueue(q.Queue.Name) || !q.Main.CanRead )
           continue;
 
-        SetupMessageReadPropertyFilters(q.Main, q.Queue.Type);
 
         // Add peaked items
         if( IsPeekThreadsEnabled ) {
@@ -247,38 +247,71 @@ namespace ServiceBusMQ.NServiceBus4 {
           }
         }
 
-        try {
-          var msgs = q.GetAllMessages();
-          result.Count += (uint)msgs.Length;
 
-          foreach( var msg in msgs ) {
+        r.AddRange(GetMessagesFromQueue(q, q.Main, req.CurrentItems, ref totalCount));
 
-            QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.Id);
+        //var list = GetMessagesFromQueue(q, q.Retries, req.CurrentItems, ref totalCount);
+        //_log.Debug("{0} Retries: {1}".With(q.GetDisplayName(), list.Count()));
+        //foreach( var itm in list ) 
+        //  _log.Debug("Retry msg: " + itm.DisplayName);
+        
+        //r.AddRange(list);
 
-            if( itm == null && !r.Any(i => i.Id == msg.Id) ) {
-              itm = CreateQueueItem(q.Queue, msg);
+        //list = GetMessagesFromQueue(q, q.Timeouts, req.CurrentItems, ref totalCount);
+        //_log.Debug(q.GetDisplayName() + " Timeouts: " + list.Count());
+        //r.AddRange(list);
+        //foreach( var itm in list )
+        //  _log.Debug("Timeouts msg: " + itm.DisplayName);
 
-              // Load Message names and check if its not an infra-message
-              if( !PrepareQueueItemForAdd(itm) )
-                itm = null;
-            }
-
-            if( itm != null )
-              r.Insert(0, itm);
-
-            // Just fetch first 500
-            if( r.Count > SbmqSystem.MAX_ITEMS_PER_QUEUE )
-              break;
-          }
-
-        } catch( Exception e ) {
-          OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
-        }
+        //list = GetMessagesFromQueue(q, q.TimeoutsDispatcher, req.CurrentItems, ref totalCount);
+        //_log.Debug(q.GetDisplayName() + " TimeoutsDispatcher: " + list.Count());
+        //r.AddRange(list);
+        //foreach( var itm in list )
+        //  _log.Debug("TimeoutsDispatcher msg: " + itm.DisplayName);
 
       }
+      result.Count = totalCount;
 
       return result;
     }
+
+    private IEnumerable<QueueItem> GetMessagesFromQueue(MsmqMessageQueue4 q, MessageQueue mq, IEnumerable<QueueItem> currentItems, ref uint totalCount) {
+      List<QueueItem> r = new List<QueueItem>();
+
+      SetupMessageReadPropertyFilters(mq, q.Queue.Type);
+
+      try {
+        var msgs = q.GetAllMessages();
+        totalCount += (uint)msgs.Length;
+        //result.Count += (uint)msgs.Length;
+
+        foreach( var msg in msgs ) {
+
+          QueueItem itm = currentItems.FirstOrDefault(i => i.Id == msg.Id);
+
+          if( itm == null && !r.Any(i => i.Id == msg.Id) ) {
+            itm = CreateQueueItem(q.Queue, msg);
+
+            // Load Message names and check if its not an infra-message
+            if( !PrepareQueueItemForAdd(itm) )
+              itm = null;
+          }
+
+          if( itm != null )
+            r.Insert(0, itm);
+
+          // Just fetch first 500
+          if( r.Count > SbmqSystem.MAX_ITEMS_PER_QUEUE )
+            break;
+        }
+
+      } catch( Exception e ) {
+        OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
+      }
+
+      return r;
+    }
+
     public override QueueFetchResult GetProcessedMessages(QueueType type, DateTime since, IEnumerable<QueueItem> currentItems) {
       var result = new QueueFetchResult();
 
@@ -434,14 +467,14 @@ namespace ServiceBusMQ.NServiceBus4 {
     }
 
 
-    private MsmqMessageQueue GetMessageQueue(QueueItem itm) {
+    private MsmqMessageQueue4 GetMessageQueue(QueueItem itm) {
       return _monitorQueues.Single(i => i.Queue.Type == itm.Queue.Type && i.Queue.Name == itm.Queue.Name);
     }
 
     public override string LoadMessageContent(QueueItem itm) {
       if( itm.Content == null ) {
 
-        MsmqMessageQueue msmq = GetMessageQueue(itm);
+        MsmqMessageQueue4 msmq = GetMessageQueue(itm);
 
         msmq.LoadMessageContent(itm);
       }
@@ -621,7 +654,7 @@ namespace ServiceBusMQ.NServiceBus4 {
         throw new Exception("Failed to Move Messages from Error Queue '{0}' to Origin".With(itm.Queue.Name), e);
       }
     }
-    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public override async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager();
 
       try {

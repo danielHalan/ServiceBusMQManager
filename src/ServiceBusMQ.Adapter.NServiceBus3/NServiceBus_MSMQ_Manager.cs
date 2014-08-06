@@ -29,6 +29,7 @@ using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
 using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus.MSMQ;
+using System.Threading.Tasks;
 
 
 namespace ServiceBusMQ.NServiceBus {
@@ -49,7 +50,7 @@ namespace ServiceBusMQ.NServiceBus {
 
 
     class PeekThreadParam {
-      public Queue Queue { get; set; }
+      public Model.Queue Queue { get; set; }
       public MessageQueue MsmqQueue { get; set; }
     }
 
@@ -58,7 +59,7 @@ namespace ServiceBusMQ.NServiceBus {
     public NServiceBus_MSMQ_Manager() {
     }
 
-    public override void Initialize(Dictionary<string, object> connectionSettings, Queue[] monitorQueues, SbmqmMonitorState monitorState) {
+    public override void Initialize(Dictionary<string, object> connectionSettings, Model.Queue[] monitorQueues, SbmqmMonitorState monitorState) {
       base.Initialize(connectionSettings, monitorQueues, monitorState);
 
       LoadQueues();
@@ -152,7 +153,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     }
 
-    private bool TryAddItem(Message msg, Queue q) {
+    private bool TryAddItem(Message msg, Model.Queue q) {
 
       lock( _peekItemsLock ) {
 
@@ -180,7 +181,7 @@ namespace ServiceBusMQ.NServiceBus {
         AddMsmqQueue(_connectionSettings, queue);
 
     }
-    private void AddMsmqQueue(Dictionary<string, object> serverConnection, Queue queue) {
+    private void AddMsmqQueue(Dictionary<string, object> serverConnection, Model.Queue queue) {
       try {
         _monitorQueues.Add(new MsmqMessageQueue(serverConnection[CS_SERVER] as string, queue));
       } catch( Exception e ) {
@@ -391,7 +392,7 @@ namespace ServiceBusMQ.NServiceBus {
 
     private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
 
-    private QueueItem CreateQueueItem(Queue queue, Message msg) {
+    private QueueItem CreateQueueItem(Model.Queue queue, Message msg) {
       var itm = new QueueItem(queue);
       itm.DisplayName = msg.Label;
       itm.Id = msg.Id;
@@ -560,7 +561,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       mgr.ReturnMessageToSourceQueue(itm.Id);
     }
-    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public override async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager();
 
       // TODO:

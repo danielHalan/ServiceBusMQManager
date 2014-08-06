@@ -14,9 +14,11 @@
 #endregion
 
 
+
 namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
   using System;
+  using System.Linq;
   using System.Collections.Generic;
   using Microsoft.ServiceBus.Messaging;
   using ServiceBusMQ.Model;
@@ -65,31 +67,54 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     /// </summary>
     /// <param name="seqNumber"></param>
     public void ReturnMessageToSourceQueue(QueueClient queue, ServiceBusMQ.Model.QueueItem itm) {
-      try {
-        var message = queue.Receive((long)itm.MessageQueueItemId);
-        
-        string failedQ = null;
-        if( itm.Headers.ContainsKey(KEY_FailedQueue) ) {
-          failedQ = itm.Headers[KEY_FailedQueue];
-        }
+      //try {
 
-        if( string.IsNullOrEmpty(failedQ) ) {
-          Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
-          return;
-        }
 
-        var q = GetInputQueue(failedQ);
-        q.Send(message);
-        
 
-      } catch( Exception ex ) {
-      //} catch( MessageQueueException ex ) {
-        TryFindMessage(itm);
+      var message = FindMessage(queue, itm); //queue.Receive((long)itm.MessageQueueItemId);
+
+      string failedQ = null;
+      if( itm.Headers.ContainsKey(KEY_FailedQueue) ) {
+        failedQ = itm.Headers[KEY_FailedQueue];
       }
+
+      if( string.IsNullOrEmpty(failedQ) )
+        throw new Exception("Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue. " + itm.DisplayName);
+
+      var i = failedQ.IndexOf('@');
+
+      if( i > 0 )
+        failedQ = failedQ.Substring(0, i);
+
+
+      var q = GetInputQueue(failedQ);
+      q.Send(message);
+
+      message.Complete();
+
+      //} catch( Exception ex ) {
+      ////} catch( MessageQueueException ex ) {
+      //  TryFindMessage(itm);
+      //}
+    }
+
+    private BrokeredMessage FindMessage(QueueClient client, QueueItem msg) {
+
+      var items = client.PeekBatch(50);
+      while( items != null && items.Any() ) {
+        foreach( var itm in items ) {
+          if( itm.MessageId == msg.Id )
+            return itm;
+        }
+
+        items = client.PeekBatch(50);
+      }
+
+      return null;
     }
 
     private void TryFindMessage(ServiceBusMQ.Model.QueueItem itm) {
-      
+
       //if( ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout ) {
 
       //  foreach( var m in queue.GetAllMessages() ) {

@@ -36,6 +36,7 @@ using MassTransit;
 using IServiceBus = MassTransit.IServiceBus;
 using ServiceBusFactory = MassTransit.ServiceBusFactory;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace ServiceBusMQ.MassTransit
 {
@@ -562,7 +563,7 @@ namespace ServiceBusMQ.MassTransit
             get { return _monitorQueues; }
         }
 
-        public void MoveAllErrorMessagesToOriginQueue(string errorQueue)
+        public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue)
         {
             var mgr = new ErrorManager();
 
