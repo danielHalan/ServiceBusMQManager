@@ -41,7 +41,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
 
     static readonly ServiceBusFeature[] _features = new ServiceBusFeature[] {
-      ServiceBusFeature.PurgeMessage, 
+      //ServiceBusFeature.PurgeMessage, 
       ServiceBusFeature.PurgeAllMessages, 
       ServiceBusFeature.MoveErrorMessageToOriginQueue, 
       ServiceBusFeature.MoveAllErrorMessagesToOriginQueue 

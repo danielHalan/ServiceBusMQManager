@@ -110,7 +110,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
 
     // We Store what 'Azure' think they have, not the actual count, which may differ at times.
-    private Dictionary<string, uint> _queueItemsCount = new Dictionary<string,uint>();
+    private Dictionary<string, uint> _queueItemsCount = new Dictionary<string, uint>();
     private uint GetAzureQueueCount(string queueName) {
       if( !_queueItemsCount.ContainsKey(queueName) )
         _queueItemsCount.Add(queueName, 0);
@@ -123,82 +123,6 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
     public override Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
       return AzureServiceBusReciever.GetUnprocessedMessages(req, _monitorQueues.Where(q => q.Queue.Type == req.Type), x => PrepareQueueItemForAdd(x));
-      
-      /*
-        
-      var result = new QueueFetchResult();
-      result.Status = QueueFetchResultStatus.NotChanged;
-
-      var queues = _monitorQueues.Where(q => q.Queue.Type == req.Type);
-
-      if( queues.Count() == 0 ) {
-        result.Items = EMPTY_LIST;
-        return result;
-      }
-
-      List<QueueItem> r = new List<QueueItem>();
-      result.Items = r;
-
-      foreach( var q in queues ) {
-        //var azureQueue = q.Main;
-
-        if( IsIgnoredQueue(q.Queue.Name) )
-          continue;
-
-        var queueItemsCount = GetAzureQueueCount(q.Queue.Name);
-
-        try {
-          //queueItemsCount < SbmqSystem.MAX_ITEMS_PER_QUEUE && 
-          if( q.HasChanged(queueItemsCount) ) {  //q.HasChanged(req.TotalCount) ) {
-
-            if( result.Status == QueueFetchResultStatus.NotChanged )
-              result.Status = QueueFetchResultStatus.OK;
-
-            long msgCount = q.GetMessageCount();
-            SetAzureQueueCount(q.Queue.Name, (uint)msgCount);
-
-            if( msgCount > 0 ) {
-              var msgs = q.Main.PeekBatch(SbmqSystem.MAX_ITEMS_PER_QUEUE);
-              result.Count += (uint)msgs.Count(); // msgCount
-
-              foreach( var msg in msgs ) {
-
-                QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.MessageId);
-
-                if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
-                  itm = CreateQueueItem(q.Queue, msg);
-
-                  // Load Message names and check if its not an infra-message
-                  if( !PrepareQueueItemForAdd(itm) )
-                    itm = null;
-                }
-
-                if( itm != null )
-                  r.Insert(0, itm);
-
-              }
-            }
-          }
-
-        } catch( MessagingCommunicationException mce ) {
-          OnWarning(mce.Message, null, Manager.WarningType.ConnectonFailed);
-          result.Status = QueueFetchResultStatus.ConnectionFailed;
-          break;
-
-        } catch( SocketException se ) {
-          OnWarning(se.Message, null, Manager.WarningType.ConnectonFailed);
-          result.Status = QueueFetchResultStatus.ConnectionFailed;
-          break;
-
-        } catch( Exception e ) {
-          OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
-          result.Status = QueueFetchResultStatus.HasErrors;
-        }
-
-      }
-
-      return result;
-      */
     }
 
 
@@ -302,18 +226,17 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     public override void PurgeAllMessages() {
       List<Task> tasks = new List<Task>();
 
-      for(int i = 0; i < _monitorQueues.Count; i++) {
-      
+      for( int i = 0; i < _monitorQueues.Count; i++ ) {
+
         tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
-        Thread.Sleep(2000);
+        Thread.Sleep(200);
 
-        if( ( (i+1) % 3 ) == 0 ) {
-
+        if( ( ( i + 1 ) % 15 ) == 0 ) {
           Task.WaitAll(tasks.ToArray());
           tasks.Clear();
         }
       }
-      
+
       if( tasks.Count > 0 )
         Task.WaitAll(tasks.ToArray());
 
@@ -350,16 +273,21 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
 
       try {
         mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
-      
+
       } catch( Exception e ) {
         OnError("Failed to Return message", e);
       }
     }
 
-    public override async Task MoveAllErrorMessagesToOriginQueue  (string errorQueue) {
-      var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
+    public override async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      try {
+        var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
 
-      mgr.ReturnAll(errorQueue);
+        mgr.ReturnAll(errorQueue);
+
+      } catch( Exception e ) {
+        OnError("Failed to Return message", e);
+      }
     }
 
   }

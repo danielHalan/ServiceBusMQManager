@@ -80,7 +80,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
         message = queue.Receive((long)itm.MessageQueueItemId);
       }
 
-        message.Abandon();
+        //message.Abandon();
         queue.Send(message.Clone());
 
 

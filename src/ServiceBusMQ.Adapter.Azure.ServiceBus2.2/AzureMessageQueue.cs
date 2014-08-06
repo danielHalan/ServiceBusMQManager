@@ -50,9 +50,9 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
                   Info.MessageCountDetails.TransferDeadLetterMessageCount;
       else
         return Info.MessageCount;
-        //return Info.MessageCountDetails.ActiveMessageCount +
-        //              Info.MessageCountDetails.ScheduledMessageCount +
-        //              Info.MessageCountDetails.TransferMessageCount;
+      //return Info.MessageCountDetails.ActiveMessageCount +
+      //              Info.MessageCountDetails.ScheduledMessageCount +
+      //              Info.MessageCountDetails.TransferMessageCount;
 
     }
 
@@ -72,15 +72,20 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
 
     public void Purge() {
-      var q = Main; //QueueClient.CreateFromConnectionString(_connectionStr, Queue.Name, ReceiveMode.ReceiveAndDelete);
-      
-      int max = 0xFFFF;
+      try {
+        var q = QueueClient.CreateFromConnectionString(_connectionStr, Main.Path, ReceiveMode.ReceiveAndDelete);
 
-      // DH: Seems as the returned count varies on the size of the message content, returning usually around 150 msgs
-      IEnumerable<BrokeredMessage> msgs = null;
-      do {
-        msgs = q.ReceiveBatch(max);
-      } while( msgs.Count() > 0 );
+        int max = 0xFFFF;
+
+        // DH: Seems as the returned count varies on the size of the message content, returning usually around 150 msgs
+        IEnumerable<BrokeredMessage> msgs = null;
+        do {
+          msgs = q.ReceiveBatch(max);
+        } while( msgs.Count() > 0 );
+
+      } catch( Exception e ) {
+        _log.Trace("Failed to Purge messages from queue, " + Main.Path);
+      }
 
       //while( q.ReceiveBatch(max).Count() == max ) { }
     }
@@ -100,11 +105,11 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
         Info = mgr.GetQueue(Queue.Name);
 
-        if( currentMsgCount != Info.MessageCount || (_checkSum != Info.MessageCount + Info.SizeInBytes) ) { 
+        if( currentMsgCount != Info.MessageCount || ( _checkSum != Info.MessageCount + Info.SizeInBytes ) ) {
           _log.Debug(" === " + Queue.Name + " - " + Info.UpdatedAt + " =======================");
           _log.Debug("++ Has Changed, MessageCount: " + Info.MessageCount + ", SizeInBytes: " + Info.SizeInBytes);
           return true;
-        
+
         } else {
           _log.Debug("=== {0} = {1}:{2}b =======================".With(Queue.Name, Info.MessageCount, Info.SizeInBytes));
           return false;

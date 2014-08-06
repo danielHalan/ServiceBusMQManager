@@ -607,6 +607,7 @@ namespace ServiceBusMQManager {
 
         // Return All error messages
         var mi = miReturnAllErr;
+        /*
         mi.Click += async (sender, e) => {
           try {
             _loadingText = "Processing...";
@@ -615,6 +616,7 @@ namespace ServiceBusMQManager {
             _sys_ErrorOccured(this, new ErrorArgs("Failed to move messages to Orgin Queues", ex));
           }
         };
+        */
         mi.Items.Clear();
         foreach( var q in _mgr.MonitorQueues.Where(q => q.Type == QueueType.Error) ) {
           var m2 = new MenuItem() { Header = q.Name };

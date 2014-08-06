@@ -873,9 +873,10 @@ namespace ServiceBusMQ {
     }
 
     public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+      _log.Trace("MoveAllErrorMessagesToOriginQueue: " + errorQueue);
 
-      InvokeWhileMonitoringPaused(async () => {
-        await _mgr.MoveAllErrorMessagesToOriginQueue(errorQueue);
+      InvokeWhileMonitoringPaused(() => {
+        _mgr.MoveAllErrorMessagesToOriginQueue(errorQueue);
       });
 
     }

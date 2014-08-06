@@ -22,9 +22,11 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
   using System.Collections.Generic;
   using Microsoft.ServiceBus.Messaging;
   using ServiceBusMQ.Model;
+  using NLog;
 
   public class ErrorManager {
 
+    protected Logger _log = LogManager.GetCurrentClassLogger();
     public const string KEY_FailedQueue = "NServiceBus.FailedQ";
 
     public bool ClusteredQueue { get; set; }
@@ -35,23 +37,30 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       ConnectionString = connectionString;
     }
 
+    public virtual QueueClient GetInputQueue(string queueName, ReceiveMode mode) {
+      return QueueClient.CreateFromConnectionString(ConnectionString, queueName, mode);
+    }
     public virtual QueueClient GetInputQueue(string queueName) {
       return QueueClient.CreateFromConnectionString(ConnectionString, queueName);
     }
 
     public void ReturnAll(string fromQueueName) {
-      var queue = GetInputQueue(fromQueueName);
+      var queue = GetInputQueue(fromQueueName, ReceiveMode.ReceiveAndDelete);
 
       foreach( var msg in queue.ReceiveBatch(0xFFFF) ) {
 
-        var itm = new QueueItem(null);
-        itm.MessageQueueItemId = msg.SequenceNumber;
+        try {
+          string originQueueName = GetOriginQueue(msg);
 
-        itm.Headers = new Dictionary<string, string>();
-        if( msg.Properties.Count > 0 )
-          msg.Properties.ForEach(p => itm.Headers.Add(p.Key, p.Value.ToString()));
+          if( originQueueName.IsValid() ) {
+            var originQueue = GetInputQueue(originQueueName);
+            originQueue.Send(msg);
+          }
 
-        ReturnMessageToSourceQueue(queue, itm);
+        } catch( Exception ex ) {
+          _log.Trace(ex.Message);
+        }
+
       }
     }
 
@@ -67,35 +76,24 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     /// </summary>
     /// <param name="seqNumber"></param>
     public void ReturnMessageToSourceQueue(QueueClient queue, ServiceBusMQ.Model.QueueItem itm) {
-      //try {
+      try {
 
+        var msg = FindMessage(queue, itm); //queue.Receive((long)itm.MessageQueueItemId);
 
+        string originQueueName = GetOriginQueue(msg);
+        if( originQueueName.IsValid() ) {
+          var q = GetInputQueue(originQueueName);
+          q.Send(msg);
+          
+          msg.Complete();
+        } else _log.Trace("No valid origin Queue for Message, " + itm.Id);
 
-      var message = FindMessage(queue, itm); //queue.Receive((long)itm.MessageQueueItemId);
-
-      string failedQ = null;
-      if( itm.Headers.ContainsKey(KEY_FailedQueue) ) {
-        failedQ = itm.Headers[KEY_FailedQueue];
+      } catch( Exception ex ) {
+        _log.Trace(ex.ToString());
       }
+    }
 
-      if( string.IsNullOrEmpty(failedQ) )
-        throw new Exception("Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue. " + itm.DisplayName);
-
-      var i = failedQ.IndexOf('@');
-
-      if( i > 0 )
-        failedQ = failedQ.Substring(0, i);
-
-
-      var q = GetInputQueue(failedQ);
-      q.Send(message);
-
-      message.Complete();
-
-      //} catch( Exception ex ) {
-      ////} catch( MessageQueueException ex ) {
-      //  TryFindMessage(itm);
-      //}
+    internal void ReturnMessageToSourceQueue(QueueItem itm) {
     }
 
     private BrokeredMessage FindMessage(QueueClient client, QueueItem msg) {
@@ -151,12 +149,47 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       //}
     }
 
+
+    private string GetOriginQueue(BrokeredMessage msg) {
+      var name = string.Empty;
+
+      if( msg.Properties.ContainsKey(KEY_FailedQueue) )
+        name = msg.Properties[KEY_FailedQueue] as string;
+
+      if( !string.IsNullOrEmpty(name) ) {
+        var i = name.IndexOf('@');
+
+        if( i > 0 )
+          name = name.Substring(0, i);
+      }
+
+      return name;
+    }
+    private string GetOriginQueue(ServiceBusMQ.Model.QueueItem msg) {
+      var name = string.Empty;
+
+      if( msg.Headers.ContainsKey(KEY_FailedQueue) )
+        name = msg.Headers[KEY_FailedQueue] as string;
+
+      if( !string.IsNullOrEmpty(name) ) {
+        var i = name.IndexOf('@');
+
+        if( i > 0 )
+          name = name.Substring(0, i);
+      }
+
+      return name;
+    }
+
+
+
     //const string NonTransactionalQueueErrorMessageFormat = "Queue '{0}' must be transactional.";
 
     //readonly string NoMessageFoundErrorFormat =
     //    string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
 
     static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
+
 
   }
 }
