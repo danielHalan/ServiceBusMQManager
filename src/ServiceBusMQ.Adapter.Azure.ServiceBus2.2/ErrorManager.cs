@@ -68,16 +68,25 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     /// </summary>
     /// <param name="seqNumber"></param>
     public void ReturnMessageToSourceQueue(QueueClient queue, QueueClient deadLetterQueue, ServiceBusMQ.Model.QueueItem itm) {
+      //var rec = MessagingFactory.Create()
+      //rec.
+      
+      BrokeredMessage message;
       try {
-        var message = deadLetterQueue.Receive((long)itm.MessageQueueItemId);
+        
+        message = deadLetterQueue.Receive((long)itm.MessageQueueItemId);
+      } catch(Exception e) { 
+      
+        message = queue.Receive((long)itm.MessageQueueItemId);
+      }
 
         message.Abandon();
-        //queue.Send(message.Clone());
+        queue.Send(message.Clone());
 
 
-      } catch( Exception ex ) {
-        TryFindMessage(itm);
-      }
+      //} catch( Exception ex ) {
+      //  TryFindMessage(itm);
+      //}
     }
 
     private void TryFindMessage(ServiceBusMQ.Model.QueueItem itm) {

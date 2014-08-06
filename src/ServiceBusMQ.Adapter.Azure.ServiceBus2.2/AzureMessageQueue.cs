@@ -49,9 +49,10 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
         return Info.MessageCountDetails.DeadLetterMessageCount +
                   Info.MessageCountDetails.TransferDeadLetterMessageCount;
       else
-        return Info.MessageCountDetails.ActiveMessageCount +
-                      Info.MessageCountDetails.ScheduledMessageCount +
-                      Info.MessageCountDetails.TransferMessageCount;
+        return Info.MessageCount;
+        //return Info.MessageCountDetails.ActiveMessageCount +
+        //              Info.MessageCountDetails.ScheduledMessageCount +
+        //              Info.MessageCountDetails.TransferMessageCount;
 
     }
 
@@ -102,10 +103,12 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
         if( currentMsgCount != Info.MessageCount || (_checkSum != Info.MessageCount + Info.SizeInBytes) ) { 
           _log.Debug(" === " + Queue.Name + " - " + Info.UpdatedAt + " =======================");
           _log.Debug("++ Has Changed, MessageCount: " + Info.MessageCount + ", SizeInBytes: " + Info.SizeInBytes);
+          return true;
+        
         } else {
           _log.Debug("=== {0} = {1}:{2}b =======================".With(Queue.Name, Info.MessageCount, Info.SizeInBytes));
+          return false;
         }
-        return _checkSum != Info.MessageCount + Info.SizeInBytes;
 
       } finally {
         if( Info != null )

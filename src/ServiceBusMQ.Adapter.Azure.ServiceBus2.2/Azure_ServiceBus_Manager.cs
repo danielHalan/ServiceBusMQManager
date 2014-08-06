@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -258,6 +259,9 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
 
     public Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
+      return AzureServiceBusReciever.GetUnprocessedMessages(req, _monitorQueues.Where(q => q.Queue.Type == req.Type), x => PrepareQueueItemForAdd(x));
+
+      /*
       var result = new QueueFetchResult();
       result.Status = QueueFetchResultStatus.NotChanged;
 
@@ -327,6 +331,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       }
 
       return result;
+      */
     }
 
     /// <summary>
@@ -382,7 +387,17 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       itm.MessageQueueItemId = msg.SequenceNumber;
       itm.Id = msg.SequenceNumber.ToString(); //msg.MessageId;
       itm.ArrivedTime = msg.EnqueuedTimeUtc;
-      itm.Content = ReadMessageStream(new System.IO.MemoryStream(msg.GetBody<byte[]>()));
+      try {
+        itm.Content = ReadMessageStream(new System.IO.MemoryStream(msg.GetBody<byte[]>()));
+
+      } catch( SerializationException ex ) {
+        itm.Content = "** Failed to get message content, {0} ** \n\n{1}".With(ex.Message, ex.StackTrace);
+        //itm.Error = new QueueItemError() { 
+        //  Message = ex.Message,
+        //  StackTrace = ex.StackTrace,
+        //  State = QueueItemErrorState.Retry
+        //};
+      }
       //itm.Content = ReadMessageStream(msg.BodyStream);
 
       itm.Headers = new Dictionary<string, string>();
@@ -465,7 +480,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
     }
 
-    public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager(ConnectionString);
 
       if( errorQueue.IsValid() )
