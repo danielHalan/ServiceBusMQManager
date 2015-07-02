@@ -115,6 +115,7 @@
     <Compile Include="Model\HalanService\FailedToSendErrorReportException.cs" />
     <Compile Include="Model\MessageInfo.cs" />
     <Compile Include="Model\Queue.cs" />
+    <Compile Include="Model\QueueFetchResultType.cs" />
     <Compile Include="Model\QueueFetchUnprocessedMessagesRequest.cs" />
     <Compile Include="Model\QueueFetchResult.cs" />
     <Compile Include="Model\QueueItemError.cs" />
@@ -159,7 +160,9 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

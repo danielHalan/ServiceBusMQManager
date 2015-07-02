@@ -561,7 +561,7 @@ namespace ServiceBusMQ.NServiceBus {
 
       mgr.ReturnMessageToSourceQueue(itm.Id);
     }
-    public override async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager();
 
       // TODO:
@@ -574,84 +574,10 @@ namespace ServiceBusMQ.NServiceBus {
 
 
 
-
-    private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll", 
-                                                                  "\\MongoDB.Driver.dll", "\\MongoDB.Bson.dll", 
-                                                                  "\\NServiceBus.dll" };
-
     #region Send Command
 
 
-    public Type[] GetAvailableCommands(string[] asmPaths) {
-      return GetAvailableCommands(asmPaths, _commandDef, false);
-    }
-    public Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef, bool suppressErrors) {
-      List<Type> arr = new List<Type>();
-
-
-      List<string> nonExistingPaths = new List<string>();
-
-
-      foreach( var path in asmPaths ) {
-
-        if( Directory.Exists(path) ) {
-
-          foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
-
-            if( IGNORE_DLL.Any(a => dll.EndsWith(a)) )
-              continue;
-
-            try {
-              var asm = Assembly.LoadFrom(dll);
-              //var asm = Assembly.ReflectionOnlyLoadFrom(dll);
-
-              foreach( Type t in asm.GetTypes() ) {
-
-                if( commandDef.IsCommand(t) )
-                  arr.Add(t);
-
-              }
-
-            } catch( ReflectionTypeLoadException fte ) {
-
-              if( suppressErrors )
-                continue;
-
-              StringBuilder sb = new StringBuilder();
-              if( fte.LoaderExceptions != null ) {
-
-                if( fte.LoaderExceptions.All(a => a.Message.EndsWith("does not have an implementation.")) )
-                  continue;
-
-                string lastMsg = null;
-                foreach( var ex in fte.LoaderExceptions ) {
-                  if( ex.Message != lastMsg )
-                    sb.AppendFormat(" - {0}\n\n", lastMsg = ex.Message);
-                }
-
-                sb.Append("Try adding these libraries to your Assembly Folder");
-
-              }
-
-              OnWarning("Could not search for Commands in Assembly '{0}'".With(Path.GetFileName(dll)), sb.ToString());
-
-            } catch { }
-
-          }
-        } else nonExistingPaths.Add(path);
-      }
-
-      if( nonExistingPaths.Count > 0 )
-        OnError("The paths '{0}' doesn't exist, could not search for commands.".With(nonExistingPaths.Concat()));
-
-
-      return arr.ToArray();
-    }
-
-
-
     protected IBus _bus;
-
 
     public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings) {
       _commandDef = cmdDef;
@@ -659,7 +585,6 @@ namespace ServiceBusMQ.NServiceBus {
       List<Assembly> asms = new List<Assembly>();
 
       foreach( string path in assemblyPaths ) {
-
         foreach( string file in Directory.GetFiles(path, "*.dll") ) {
           try {
             asms.Add(Assembly.LoadFrom(file));

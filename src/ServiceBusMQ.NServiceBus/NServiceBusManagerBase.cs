@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,10 @@ using ServiceBusMQ.Model;
 namespace ServiceBusMQ.NServiceBus {
 
   public abstract class NServiceBusManagerBase<T> : IServiceBusManager where T : IMessageQueue {
+
+    private static readonly string[] IGNORE_DLL = new string[] { "\\Autofac.dll", "\\AutoMapper.dll", "\\log4net.dll", 
+                                                                  "\\MongoDB.Driver.dll", "\\MongoDB.Bson.dll", 
+                                                                  "\\NServiceBus.dll" };
 
     static readonly string JSON_START = "\"$type\":\"";
     static readonly string JSON_END = ",";
@@ -69,7 +74,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
     public abstract void MoveErrorMessageToOriginQueue(QueueItem itm);
-    public abstract Task MoveAllErrorMessagesToOriginQueue(string errorQueue);
+    public abstract void MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
     protected string ReadMessageStream(Stream s) {
       using( StreamReader r = new StreamReader(s, Encoding.Default) )
@@ -178,6 +183,8 @@ namespace ServiceBusMQ.NServiceBus {
       return sb.ToString();
     }
 
+
+
     protected MessageInfo[] ExtractEnclosedMessageTypeNames(string content, bool includeNamespace = false) {
       string[] types = content.Split(';');
       List<MessageInfo> r = new List<MessageInfo>(types.Length);
@@ -230,9 +237,7 @@ namespace ServiceBusMQ.NServiceBus {
     }
 
 
-
     protected EventHandler _itemsChanged;
-
     public event EventHandler ItemsChanged {
       [MethodImpl(MethodImplOptions.Synchronized)]
       add {
@@ -249,8 +254,72 @@ namespace ServiceBusMQ.NServiceBus {
         _itemsChanged(this, EventArgs.Empty);
     }
 
-
     public abstract void Terminate();
+
+
+    // ISendCommand
+    public Type[] GetAvailableCommands(string[] asmPaths, CommandDefinition commandDef, bool suppressErrors) {
+      List<Type> arr = new List<Type>();
+
+
+      List<string> nonExistingPaths = new List<string>();
+
+
+      foreach( var path in asmPaths ) {
+
+        if( Directory.Exists(path) ) {
+
+          foreach( var dll in Directory.GetFiles(path, "*.dll") ) {
+
+            if( IGNORE_DLL.Any(a => dll.EndsWith(a)) )
+              continue;
+
+            try {
+              var asm = Assembly.LoadFrom(dll);
+              //var asm = Assembly.ReflectionOnlyLoadFrom(dll);
+
+              foreach( Type t in asm.GetTypes() ) {
+
+                if( commandDef.IsCommand(t) )
+                  arr.Add(t);
+
+              }
+
+            } catch( ReflectionTypeLoadException fte ) {
+
+              if( suppressErrors )
+                continue;
+
+              StringBuilder sb = new StringBuilder();
+              if( fte.LoaderExceptions != null ) {
+
+                if( fte.LoaderExceptions.All(a => a.Message.EndsWith("does not have an implementation.")) )
+                  continue;
+
+                string lastMsg = null;
+                foreach( var ex in fte.LoaderExceptions ) {
+                  if( ex.Message != lastMsg )
+                    sb.AppendFormat(" - {0}\n\n", lastMsg = ex.Message);
+                }
+
+                sb.Append("Try adding these libraries to your Assembly Folder");
+              }
+
+              OnWarning("Could not search for Commands in Assembly '{0}'".With(Path.GetFileName(dll)), sb.ToString());
+
+            } catch { }
+
+          }
+        } else nonExistingPaths.Add(path);
+      }
+
+      if( nonExistingPaths.Count > 0 )
+        OnError("The paths '{0}' doesn't exist, could not search for commands.".With(nonExistingPaths.Concat()));
+
+
+      return arr.ToArray();
+    }
+
   }
 
 }

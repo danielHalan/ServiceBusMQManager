@@ -645,9 +645,11 @@ namespace ServiceBusMQManager {
 
 
       miPurgeMsg.IsEnabled = _features.Any(f => f == ServiceBusFeature.PurgeMessage);
+      miPurgeListedMsg.IsEnabled = _features.Any(f => f == ServiceBusFeature.PurgeListedMessages);
 
-      if( miReturnAllErr.IsEnabled )
+      if( miReturnAllErr.IsEnabled ) 
         miPurgeAllErr.IsEnabled = _features.Any(f => f == ServiceBusFeature.PurgeAllMessages);
+      
 
       miReturnErrToOrgin.IsEnabled = _features.Any(f => f == ServiceBusFeature.MoveErrorMessageToOriginQueue);
 
@@ -1138,12 +1140,21 @@ namespace ServiceBusMQManager {
 
       lbItems.IsEnabled = false;
       lbItems.Opacity = 0.5;
+
+      // Disable buttons that affects ListView
+      btnSettings.IsEnabled = false;
+      btnShowProcessed.IsEnabled = false;
+      btnClearProcessed.IsEnabled = false;
     }
     private void EnableListView() {
       lbLoading.Visibility = System.Windows.Visibility.Hidden;
 
       lbItems.IsEnabled = true;
       lbItems.Opacity = 1.0;
+
+      btnShowProcessed.IsEnabled = true;
+      btnSettings.IsEnabled = true;
+      btnClearProcessed.IsEnabled = true;
     }
 
     private void btnShowProcessed_Click(object sender, RoutedEventArgs e) {

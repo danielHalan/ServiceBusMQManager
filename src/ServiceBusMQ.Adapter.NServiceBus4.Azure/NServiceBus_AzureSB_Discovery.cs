@@ -44,7 +44,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       //ServiceBusFeature.PurgeMessage, 
       ServiceBusFeature.PurgeAllMessages, 
       ServiceBusFeature.MoveErrorMessageToOriginQueue, 
-      ServiceBusFeature.MoveAllErrorMessagesToOriginQueue 
+      ServiceBusFeature.MoveAllErrorMessagesToOriginQueue
     };
     public ServiceBusFeature[] Features {
       get { return _features; }

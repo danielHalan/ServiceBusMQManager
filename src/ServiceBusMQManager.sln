@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.Adapter.NServiceBus3", "ServiceBusMQ.Adapter.NServiceBus3\ServiceBusMQ.Adapter.NServiceBus3.csproj", "{621B324B-DD0A-4485-B98B-04F4B5AA40A5}"
 EndProject
@@ -39,6 +39,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMQ.NServiceBus.MSMQ", "ServiceBusMQ.NServiceBus.MSMQ\ServiceBusMQ.NServiceBus.MSMQ.csproj", "{6ED21653-1B3B-4EED-A233-45F3B41A4288}"
 EndProject
 Global
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = b16c7e50-5079-47e1-a9ea-7e7f1b0613ef
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

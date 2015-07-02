@@ -563,7 +563,7 @@ namespace ServiceBusMQ.MassTransit
             get { return _monitorQueues; }
         }
 
-        public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue)
+        public void MoveAllErrorMessagesToOriginQueue(string errorQueue)
         {
             var mgr = new ErrorManager();
 

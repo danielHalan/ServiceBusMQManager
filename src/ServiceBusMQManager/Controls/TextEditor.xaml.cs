@@ -50,6 +50,7 @@ namespace ServiceBusMQManager.Controls {
           text = Tools.FormatJson(text);
 
         presenter.FillInlines(text, t.Inlines);
+        //t.Inlines.Add(new Run(text)); // used when we need to skip coloring (temp)
         doc.Document.Blocks.Add(t);
       } 
     }

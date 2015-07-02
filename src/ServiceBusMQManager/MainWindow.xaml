@@ -275,7 +275,7 @@
                         <MenuItem x:Name="miResendCommand" Header="Resend Command..." Click="miResendCommand_Click" IsEnabled="False" />
                         <Separator />
                         <MenuItem x:Name="miPurgeMsg" Header="Purge Message" Click="miDeleteMessage_Click" IsEnabled="False" />
-                        <MenuItem Header="Purge Listed Messages" Click="miDeleteQueryMessage_Click" />
+                        <MenuItem x:Name="miPurgeListedMsg" Header="Purge Listed Messages" Click="miDeleteQueryMessage_Click" />
                         <MenuItem Header="Purge All Messages" Click="miDeleteAllMessage_Click" />
                         <MenuItem x:Name="miPurgeAllErr" Header="Purge All Error Messages" />
                         <Separator />

@@ -44,24 +44,36 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       return QueueClient.CreateFromConnectionString(ConnectionString, queueName);
     }
 
-    public void ReturnAll(string fromQueueName) {
+    public void ReturnAll(string fromQueueName, uint queueCount) {
       var queue = GetInputQueue(fromQueueName, ReceiveMode.ReceiveAndDelete);
 
-      foreach( var msg in queue.ReceiveBatch(0xFFFF) ) {
 
-        try {
-          string originQueueName = GetOriginQueue(msg);
+      int i = 0;
+      IEnumerable<BrokeredMessage> msgs;
+      while( ( msgs = queue.ReceiveBatch(0xFFFF) ).Any() ) {
+        _log.Trace("About to move {0} messages to origin queue", msgs.Count());
+        
+        foreach( var msg in msgs ) {
 
-          if( originQueueName.IsValid() ) {
-            var originQueue = GetInputQueue(originQueueName);
-            originQueue.Send(msg);
+          try {
+            string originQueueName = GetOriginQueue(msg);
+
+            if( originQueueName.IsValid() ) {
+              var originQueue = GetInputQueue(originQueueName);
+              originQueue.Send(msg);
+            }
+
+          } catch( Exception ex ) {
+            _log.Trace(ex.Message);
           }
 
-        } catch( Exception ex ) {
-          _log.Trace(ex.Message);
+          i++;
         }
 
-      }
+        if( i >= queueCount )
+          break;
+      };
+
     }
 
 
@@ -83,8 +95,8 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
         string originQueueName = GetOriginQueue(msg);
         if( originQueueName.IsValid() ) {
           var q = GetInputQueue(originQueueName);
-          q.Send(msg);
-          
+          q.Send(msg.Clone());
+
           msg.Complete();
         } else _log.Trace("No valid origin Queue for Message, " + itm.Id);
 

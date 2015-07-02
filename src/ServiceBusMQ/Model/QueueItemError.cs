@@ -29,5 +29,6 @@ namespace ServiceBusMQ.Model {
     public DateTime TimeOfFailure { get; set; }
     public int Retries { get; set; }
 
+    public string OriginQueue { get; set; }
   }
 }

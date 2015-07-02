@@ -23,7 +23,7 @@
   <Metadata>
     <MetadataFile FileName="ProductManager.wsdl" MetadataType="Wsdl" ID="2ba64936-9d37-4f1d-8b9c-c3cab775fcef" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?wsdl" />
     <MetadataFile FileName="ProductManager.xsd" MetadataType="Schema" ID="647c9ce8-a709-4410-a525-01b5c4f08b24" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd2" />
-    <MetadataFile FileName="ProductManager1.xsd" MetadataType="Schema" ID="85842e2b-6829-43ba-b35a-176a1073d0a6" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd3" />
+    <MetadataFile FileName="ProductManager1.xsd" MetadataType="Schema" ID="08e2bee0-c52a-4989-b48b-21284b477a00" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd3" />
     <MetadataFile FileName="ProductManager.disco" MetadataType="Disco" ID="8ff161d4-5db7-4ccd-904a-98a6c778bb51" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?disco" />
     <MetadataFile FileName="ProductManager2.xsd" MetadataType="Schema" ID="14b1953d-14f4-4c54-9022-04f41114b823" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd0" />
     <MetadataFile FileName="ProductManager3.xsd" MetadataType="Schema" ID="72eaf6ec-e917-4643-97db-4e40f029bdf4" SourceId="1" SourceUrl="http://www.halan.se/service/ProductManager.svc?xsd=xsd1" />

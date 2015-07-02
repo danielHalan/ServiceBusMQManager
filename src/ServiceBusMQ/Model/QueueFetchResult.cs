@@ -21,16 +21,24 @@ using System.Threading.Tasks;
 
 namespace ServiceBusMQ.Model {
   public enum QueueFetchResultStatus { OK=0, ConnectionFailed, NotChanged, HasErrors }
-  
+
   public class QueueFetchResult {
 
     public IEnumerable<Model.QueueItem> Items { get; set; }
     public uint Count { get; set; }
 
+    /// <summary>
+    /// QueueItem.Id of items that has been removed from Queue, only used with Cumulative
+    /// </summary>
+    public IEnumerable<string> RemovedItemIds { get; set; }
+
     public QueueFetchResultStatus Status { get; set; }
     public string StatusMessage { get; set; }
 
-    public QueueFetchResult() { 
+    public QueueFetchResultType Type { get; set; }
+
+    public QueueFetchResult(QueueFetchResultType type = QueueFetchResultType.Complete) { 
+      Type = type;
       Status = Model.QueueFetchResultStatus.OK;
     }
 

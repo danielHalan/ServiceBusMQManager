@@ -49,10 +49,9 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
         return Info.MessageCountDetails.DeadLetterMessageCount +
                   Info.MessageCountDetails.TransferDeadLetterMessageCount;
       else
-        return Info.MessageCount;
-      //return Info.MessageCountDetails.ActiveMessageCount +
-      //              Info.MessageCountDetails.ScheduledMessageCount +
-      //              Info.MessageCountDetails.TransferMessageCount;
+        return Info.MessageCountDetails.ActiveMessageCount +
+                      Info.MessageCountDetails.ScheduledMessageCount +
+                      Info.MessageCountDetails.TransferMessageCount;
 
     }
 
@@ -95,6 +94,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
     }
     public bool HasChanged(uint currentMsgCount) {
 
+      long msgCount = 0;
       try {
         NamespaceManager mgr = null;
 
@@ -103,9 +103,11 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
           _nsManagers.Add(_connectionStr, mgr);
         } else mgr = _nsManagers[_connectionStr];
 
+        // Update info
         Info = mgr.GetQueue(Queue.Name);
+        msgCount = GetMessageCount();
 
-        if( currentMsgCount != Info.MessageCount || ( _checkSum != Info.MessageCount + Info.SizeInBytes ) ) {
+        if( currentMsgCount != msgCount || ( _checkSum != msgCount + Info.SizeInBytes ) ) {
           _log.Debug(" === " + Queue.Name + " - " + Info.UpdatedAt + " =======================");
           _log.Debug("++ Has Changed, MessageCount: " + Info.MessageCount + ", SizeInBytes: " + Info.SizeInBytes);
           return true;
@@ -117,11 +119,12 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
       } finally {
         if( Info != null )
-          _checkSum = Info.MessageCount + Info.SizeInBytes;
+          _checkSum = msgCount + Info.SizeInBytes;
       }
     }
 
-
+    //public List<long> FetchedItems { get; set; }
+    //public long LastSequenceNumber { get; set; }
   }
 
 

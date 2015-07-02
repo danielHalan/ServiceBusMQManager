@@ -19,13 +19,14 @@ using System.Linq;
 using System.Text;
 
 namespace ServiceBusMQ.Manager {
-  public enum ServiceBusFeature { PurgeMessage, PurgeAllMessages, 
+  public enum ServiceBusFeature { PurgeMessage, PurgeListedMessages, PurgeAllMessages, 
                                     MoveErrorMessageToOriginQueue, MoveAllErrorMessagesToOriginQueue }
 
   public static class ServiceBusFeatures { 
   
     public static readonly ServiceBusFeature[] All = new ServiceBusFeature[] {
       ServiceBusFeature.PurgeMessage, 
+      ServiceBusFeature.PurgeListedMessages, 
       ServiceBusFeature.PurgeAllMessages, 
       ServiceBusFeature.MoveErrorMessageToOriginQueue, 
       ServiceBusFeature.MoveAllErrorMessagesToOriginQueue 

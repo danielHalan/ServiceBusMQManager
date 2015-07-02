@@ -259,79 +259,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
 
 
     public Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
-      return AzureServiceBusReciever.GetUnprocessedMessages(req, _monitorQueues.Where(q => q.Queue.Type == req.Type), x => PrepareQueueItemForAdd(x));
-
-      /*
-      var result = new QueueFetchResult();
-      result.Status = QueueFetchResultStatus.NotChanged;
-
-      IEnumerable<AzureMessageQueue> queues = req.Type != QueueType.Error ? _monitorQueues.Where(q => q.Queue.Type == req.Type) : _monitorQueues.Where( q => q.IsDeadLetterQueue || q.Queue.Type == QueueType.Error );
-
-      if( queues.Count() == 0 ) {
-        result.Items = EMPTY_LIST;
-        return result;
-      }
-
-      List<QueueItem> r = new List<QueueItem>();
-      result.Items = r;
-
-      foreach( var q in queues ) {
-        var azureQueue = q.Main;
-
-        //if( IsIgnoredQueue(q.Queue.Name) )
-        //  continue;
-
-        try {
-
-          if( q.HasChanged(req.TotalCount) ) {
-
-            if( result.Status == QueueFetchResultStatus.NotChanged )
-              result.Status = QueueFetchResultStatus.OK;
-
-            long msgCount = q.GetMessageCount();
-
-            if( msgCount > 0 ) {
-              var msgs = q.Main.PeekBatch(0, MessageCountLimit);
-              result.Count += (uint)msgCount;
-
-              foreach( var msg in msgs ) {
-                QueueItem itm = req.CurrentItems.FirstOrDefault(i => i.Id == msg.MessageId);
-
-                if( itm == null && !r.Any(i => i.Id == msg.MessageId) ) {
-                  itm = CreateQueueItem(q.Queue, msg);
-
-                  // Load Message names and check if its not an infra-message
-                  if( !PrepareQueueItemForAdd(itm) )
-                    itm = null;
-                }
-
-                if( itm != null )
-                  r.Insert(0, itm);
-
-              }
-            }
-
-          }
-
-        } catch( MessagingCommunicationException mce ) {
-          OnWarning(mce.Message, null, Manager.WarningType.ConnectonFailed);
-          result.Status = QueueFetchResultStatus.ConnectionFailed;
-          break;
-
-        } catch( SocketException se ) {
-          OnWarning(se.Message, null, Manager.WarningType.ConnectonFailed);
-          result.Status = QueueFetchResultStatus.ConnectionFailed;
-          break;
-
-        } catch( Exception e ) {
-          OnError("Error occured when processing queue " + q.Queue.Name + ", " + e.Message, e, false);
-          result.Status = QueueFetchResultStatus.HasErrors;
-        }
-
-      }
-
-      return result;
-      */
+      return AzureServiceBusReceiver.GetUnprocessedMessages(req, _monitorQueues, x => PrepareQueueItemForAdd(x));
     }
 
     /// <summary>
@@ -433,22 +361,8 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       //}
     }
     public void PurgeAllMessages() {
-      List<Task> tasks = new List<Task>();
-
-      for( int i = 0; i < _monitorQueues.Count; i++ ) {
-
-        tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
-        Thread.Sleep(2000);
-
-        if( ( ( i + 1 ) % 3 ) == 0 ) {
-          Task.WaitAll(tasks.ToArray());
-          tasks.Clear();
-        }
-      }
-
-      if( tasks.Count > 0 )
-        Task.WaitAll(tasks.ToArray());
-
+      AzureServiceBusHelper.PurgeAllMessages(_monitorQueues.Cast<AzureMessageQueue>());
+      
       OnItemsChanged();
     }
 
@@ -480,7 +394,7 @@ namespace ServiceBusMQ.Adapter.Azure.ServiceBus22 {
       mgr.ReturnMessageToSourceQueue(itm.Queue.Name, itm);
     }
 
-    public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       var mgr = new ErrorManager(ConnectionString);
 
       if( errorQueue.IsValid() )

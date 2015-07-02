@@ -87,8 +87,9 @@ namespace ServiceBusMQ {
 
 
     public static ProductManagerClient CreateProductManager() {
-
-      BasicHttpBinding wsd = new BasicHttpBinding();
+      
+      //BasicHttpBinding wsd = new BasicHttpBinding();
+      var wsd = new WSHttpBinding();
       wsd.Name = "WSHttpBinding_IProductManager";
 
       wsd.SendTimeout = new TimeSpan(0,5,0);
@@ -97,18 +98,18 @@ namespace ServiceBusMQ {
       wsd.BypassProxyOnLocal = false;
       wsd.HostNameComparisonMode = HostNameComparisonMode.StrongWildcard;
       wsd.TextEncoding = Encoding.UTF8;
-      wsd.TransferMode = TransferMode.Buffered;
+      //wsd.TransferMode = TransferMode.Buffered;
       wsd.UseDefaultWebProxy = true;
       wsd.MaxReceivedMessageSize = 1048576 * 30; // 30 mb
-      wsd.MaxBufferSize = 1048576 * 30;
-      wsd.Security.Mode = BasicHttpSecurityMode.None;
-      wsd.Security.Message.ClientCredentialType = BasicHttpMessageCredentialType.UserName;
+      //wsd.MaxBufferSize = 1048576 * 30;
+      wsd.Security.Mode = SecurityMode.None; // BasicHttpSecurityMode.None;
+      wsd.Security.Message.ClientCredentialType = MessageCredentialType.None; //BasicHttpMessageCredentialType.UserName;
       wsd.Security.Message.AlgorithmSuite = SecurityAlgorithmSuite.Default;
       wsd.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
       wsd.Security.Transport.ProxyCredentialType = HttpProxyCredentialType.None;
       wsd.Security.Transport.Realm = string.Empty;
 
-      Uri baseAddress = new Uri("http://www.halan.se/service/ProductManager.svc/mtom");
+      Uri baseAddress = new Uri("http://www.halan.se/service/ProductManager.svc/mtom"); // 
       EndpointAddress ea = new EndpointAddress(baseAddress); // EndpointIdentity.CreateDnsIdentity("localhost"));
 
 

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,11 +26,12 @@ using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using NServiceBus;
 using ServiceBusMQ.Adapter.Azure.ServiceBus22;
+using ServiceBusMQ.Manager;
 using ServiceBusMQ.Model;
 using ServiceBusMQ.NServiceBus;
 
 namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
-  public class NServiceBus_AzureSB_Manager : NServiceBusManagerBase<AzureMessageQueue> {
+  public class NServiceBus_AzureSB_Manager : NServiceBusManagerBase<AzureMessageQueue>, ISendCommand {
 
     protected List<QueueItem> EMPTY_LIST = new List<QueueItem>();
     private bool _terminated;
@@ -89,26 +91,6 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     }
 
 
-    public override string SerializeCommand(object cmd) {
-      try {
-        return MessageSerializer.SerializeMessage(cmd, CommandContentFormat);
-
-      } catch( Exception e ) {
-        OnError("Failed to Serialize Command to " + CommandContentFormat, e);
-        return null;
-      }
-    }
-    public override object DeserializeCommand(string cmd, Type cmdType) {
-      try {
-        return MessageSerializer.DeserializeMessage(cmd, cmdType, CommandContentFormat);
-
-      } catch( Exception e ) {
-        OnError("Failed to Parse Command string as " + CommandContentFormat, e);
-        return null;
-      }
-    }
-
-
     // We Store what 'Azure' think they have, not the actual count, which may differ at times.
     private Dictionary<string, uint> _queueItemsCount = new Dictionary<string, uint>();
     private uint GetAzureQueueCount(string queueName) {
@@ -122,7 +104,7 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
     }
 
     public override Model.QueueFetchResult GetUnprocessedMessages(QueueFetchUnprocessedMessagesRequest req) {
-      return AzureServiceBusReciever.GetUnprocessedMessages(req, _monitorQueues.Where(q => q.Queue.Type == req.Type), x => PrepareQueueItemForAdd(x));
+      return AzureServiceBusReceiver.GetUnprocessedMessages(req, _monitorQueues, x => PrepareQueueItemForAdd(x));
     }
 
 
@@ -175,6 +157,9 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
           itm.Error.State = itm.Queue.Type == QueueType.Error ? QueueItemErrorState.ErrorQueue : QueueItemErrorState.Retry;
           itm.Error.Message = itm.Headers["NServiceBus.ExceptionInfo.Message"];
 
+          if( itm.Headers.ContainsKey("NServiceBus.FailedQ") )
+            itm.Error.OriginQueue = itm.Headers["NServiceBus.FailedQ"];
+
           if( itm.Headers.ContainsKey("NServiceBus.ExceptionInfo.StackTrace") )
             itm.Error.StackTrace = itm.Headers["NServiceBus.ExceptionInfo.StackTrace"];
 
@@ -224,21 +209,27 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       //}
     }
     public override void PurgeAllMessages() {
-      List<Task> tasks = new List<Task>();
 
-      for( int i = 0; i < _monitorQueues.Count; i++ ) {
+      AzureServiceBusHelper.PurgeAllMessages(_monitorQueues.Cast<AzureMessageQueue>());
 
-        tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
-        Thread.Sleep(200);
+      //List<Task> tasks = new List<Task>();
 
-        if( ( ( i + 1 ) % 15 ) == 0 ) {
-          Task.WaitAll(tasks.ToArray());
-          tasks.Clear();
-        }
-      }
+      //for( int i = 0; i < _monitorQueues.Count; i++ ) {
 
-      if( tasks.Count > 0 )
-        Task.WaitAll(tasks.ToArray());
+      //  if( AzureServiceBusReceiver.GetAzureQueueCount(_monitorQueues[i].Queue.Name ) > 0 ) {
+      //    tasks.Add(Task.Factory.StartNew(() => _monitorQueues[i].Purge()));
+      //    Thread.Sleep(200);
+      //  }
+
+
+      //  if( ( ( tasks.Count ) % 15 ) == 0 ) {
+      //    Task.WaitAll(tasks.ToArray());
+      //    tasks.Clear();
+      //  }
+      //}
+
+      //if( tasks.Count > 0 )
+      //  Task.WaitAll(tasks.ToArray());
 
       OnItemsChanged();
     }
@@ -279,16 +270,94 @@ namespace ServiceBusMQ.Adapter.NServiceBus4.Azure.SB22 {
       }
     }
 
-    public override async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
+    public override void MoveAllErrorMessagesToOriginQueue(string errorQueue) {
       try {
         var mgr = new ErrorManager(_connectionSettings[CS_CONNECTION_STRING] as string);
 
-        mgr.ReturnAll(errorQueue);
+        mgr.ReturnAll(errorQueue, AzureServiceBusReceiver.GetAzureQueueCount(errorQueue));
 
       } catch( Exception e ) {
         OnError("Failed to Return message", e);
       }
     }
 
+
+    // ISendCommand
+    protected IBus _bus;
+
+    public void SetupServiceBus(string[] assemblyPaths, CommandDefinition cmdDef, Dictionary<string, object> connectionSettings) {
+      _commandDef = cmdDef;
+
+      List<Assembly> asms = new List<Assembly>();
+
+      foreach( string path in assemblyPaths ) {
+        foreach( string file in Directory.GetFiles(path, "*.dll") ) {
+          try {
+            asms.Add(Assembly.LoadFrom(file));
+          } catch { }
+        }
+      }
+
+      
+      asms.Add(
+        Assembly.LoadFile(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + @"\Adapters\NServiceBus4\NServiceBus.Azure.Transports.WindowsAzureServiceBus.dll"));
+
+
+      if( CommandContentFormat == "XML" ) {
+
+        _bus = Configure.With(asms)
+                  .DefineEndpointName("SBMQM_NSB")
+                  .DefaultBuilder()
+            .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+                  .XmlSerializer()
+                  .UseTransport<AzureServiceBus>( () => (string)connectionSettings["connectionStr"])
+                  .UnicastBus()
+              .SendOnly();
+
+      } else if( CommandContentFormat == "JSON" ) {
+
+        _bus = Configure.With(asms)
+                .DefineEndpointName("SBMQM_NSB")
+                .DefaultBuilder()
+          .DefiningCommandsAs(t => _commandDef.IsCommand(t))
+                .JsonSerializer()
+                .UseTransport<AzureServiceBus>( () => (string)connectionSettings["connectionStr"])
+                .UnicastBus()
+            .SendOnly();
+      }
+
+    }
+
+
+    public override string SerializeCommand(object cmd) {
+      try {
+        return MessageSerializer.SerializeMessage(cmd, CommandContentFormat);
+
+      } catch( Exception e ) {
+        OnError("Failed to Serialize Command to " + CommandContentFormat, e);
+        return null;
+      }
+    }
+    public override object DeserializeCommand(string cmd, Type cmdType) {
+      try {
+        return MessageSerializer.DeserializeMessage(cmd, cmdType, CommandContentFormat);
+
+      } catch( Exception e ) {
+        OnError("Failed to Parse Command string as " + CommandContentFormat, e);
+        return null;
+      }
+    }  
+    public void SendCommand(Dictionary<string, object> connectionSettings, string destinationQueue, object message) {
+
+      if( _bus == null ) {
+        OnWarning("Service Bus not properly intitialized.", "Please restart Application");
+        return;
+      }
+
+      if( message != null )
+        _bus.Send(destinationQueue, message);
+      else OnError("Can not send an incomplete message");
+
+    }
   }
 }

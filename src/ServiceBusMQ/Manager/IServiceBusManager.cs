@@ -76,7 +76,7 @@ namespace ServiceBusMQ.Manager {
     /// Move all Error messages to their Origin Queues
     /// </summary>
     /// <param name="errorQueue">What error queue to process</param>
-    Task MoveAllErrorMessagesToOriginQueue(string errorQueue);
+    void MoveAllErrorMessagesToOriginQueue(string errorQueue);
 
     /// <summary>
     /// Purge message from Queue, removing the specified message.

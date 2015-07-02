@@ -241,11 +241,14 @@ namespace ServiceBusMQ {
       enum State { Stopped = 0, Executing, Paused }
 
       State _state;
+      long _ticks = 0;
 
       public bool Executing { get { return _state == State.Executing; } }
       public bool Paused { get { return _state == State.Paused; } }
 
       public bool Stopped { get { return _state == State.Stopped; } }
+
+      public bool IsFirstCycle { get {  return _ticks <= 1; } }
 
       internal ThreadState() {
         _state = State.Executing;
@@ -261,12 +264,17 @@ namespace ServiceBusMQ {
       }
       public void Resume() {
         _state = State.Executing;
+        _shouldPause = false;
       }
       public void Stop() {
         _state = State.Stopped;
+        _shouldPause = false;
+        _ticks = 0;
       }
 
       public void Tick() {
+        _ticks++;
+
         if( _shouldPause ) {
           _state = State.Paused;
         }
@@ -284,14 +292,16 @@ namespace ServiceBusMQ {
           while( state.Paused )
             Thread.Sleep(1000);
 
-          OnStartedLoadingQueues();
+          if( state.IsFirstCycle )
+            OnStartedLoadingQueues();
           try {
 
             if( RefreshUnprocessedQueueItemList() )
               OnItemsChanged(ItemChangeOrigin.Queue);
 
           } finally {
-            OnFinishedLoadingQueues();
+            if( state.IsFirstCycle )
+              OnFinishedLoadingQueues();
           }
 
           Thread.Sleep(Config.MonitorInterval);
@@ -381,27 +391,60 @@ namespace ServiceBusMQ {
 
         // Add new items
         foreach( var itm in items ) {
-          var existingItem = _items.SingleOrDefault(i => i.Id == itm.Id);
+          var existingItems = _items.Where(i => i.Id == itm.Id).ToArray();
 
-          if( existingItem == null ) {
+          if( !existingItems.Any() ) {
 
             _items.Insert(0, new QueueItemViewModel(itm, _mgr.MessagesHasMilliSecondPrecision));
 
             if( !changed )
               changed = true;
 
-          } else if( existingItem.Processed ) {
+          } else {
 
-            // It has been retried, move to top
-            _items.Remove(existingItem);
-            existingItem.Processed = false;
+            foreach( var existingItem in existingItems ) {
 
-            _items.Insert(0, existingItem);
+              if( itm.Queue.Name != existingItem.Queue.Name /*&& !existingItem.Processed*/ ) { // Moved queue
 
-            if( !changed )
-              changed = true;
+                if( !_items.Any(i => i.MessageQueueItemId == itm.MessageQueueItemId) ) {
+                  existingItem.Processed = true;
+
+                  _items.Insert(0, new QueueItemViewModel(itm, _mgr.MessagesHasMilliSecondPrecision));
+
+                  if( !changed )
+                    changed = true;
+                }
+
+              } else if( itm.Queue.Name == existingItem.Queue.Name && existingItem.Processed ) {
+
+                // It has been retried, move to top
+                _items.Remove(existingItem);
+                existingItem.Processed = false;
+
+                _items.Insert(0, existingItem);
+
+                if( !changed )
+                  changed = true;
+              
+              } else if( itm.Queue.Name == existingItem.Queue.Name && !existingItem.Processed ) {
+                
+                // Processed, but not yet been marked as processed
+                _items.Remove(existingItem);
+                _items.Insert(0, existingItem);
+
+                if( !changed )
+                  changed = true;
+
+              } else {
+                _log.Trace(" **** Unhandled new item state, " + itm.Id);
+              }
+
+
+            }
+
+
           }
-
+            
         }
 
         // Mark removed as deleted messages
@@ -730,18 +773,21 @@ namespace ServiceBusMQ {
 
 
     private void InvokeWhileMonitoringPaused(Action a) {
-      if( _currentMonitor == null )
+      if( _currentMonitor == null ) {
+        _log.Trace("Not monitoring yet, skipping");
         return;
+      }
 
       BackgroundWorker bw = new BackgroundWorker();
 
       bw.DoWork += (sender, arg) => {
         ThreadState s = arg.Argument as ThreadState;
         PauseMonitoring();
-        OnStartedLoadingQueues();
 
         while( !s.Paused )
           Thread.Sleep(100);
+
+        OnStartedLoadingQueues();
 
         try {
           a();
@@ -762,103 +808,33 @@ namespace ServiceBusMQ {
     }
 
     public async Task PurgeAllMessages() {
-      if( _currentMonitor == null )
-        return;
+      _log.Trace("Purge All Messages...");
 
-      BackgroundWorker bw = new BackgroundWorker();
-
-      bw.DoWork += (sender, arg) => {
-        ThreadState s = arg.Argument as ThreadState;
-        PauseMonitoring();
-        OnStartedLoadingQueues();
-
-        while( !s.Paused )
-          Thread.Sleep(100);
-
-        try {
+      InvokeWhileMonitoringPaused(() => {
           _mgr.PurgeAllMessages();
+      });
 
-        } finally {
-          OnFinishedLoadingQueues();
-          ResumeMonitoring();
-        }
-
-      };
-
-      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
-        if( ev.Error != null )
-          throw ev.Error;
-      };
-
-      bw.RunWorkerAsync(_currentMonitor);
     }
     public async Task PurgeMessages(IEnumerable<QueueItem> itms) {
-      if( _currentMonitor == null )
-        return;
-
-      BackgroundWorker bw = new BackgroundWorker();
-
-      bw.DoWork += (sender, arg) => {
-        ThreadState s = arg.Argument as ThreadState;
-        PauseMonitoring();
-        OnStartedLoadingQueues();
-
-        while( !s.Paused )
-          Thread.Sleep(100);
-
-        try {
-          foreach( var itm in itms )
-            _mgr.PurgeMessage(itm);
-
-        } finally {
-          OnFinishedLoadingQueues();
-          ResumeMonitoring();
-        }
-
-      };
-
-      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
-        if( ev.Error != null )
-          throw ev.Error;
-      };
-
-      bw.RunWorkerAsync(_currentMonitor);
+      _log.Trace("Purge Messages...");
+      
+      InvokeWhileMonitoringPaused(() => {
+        foreach( var itm in itms )
+          _mgr.PurgeMessage(itm);    
+      });     
     }
 
     public async Task PurgeErrorAllMessages() {
-      if( _currentMonitor == null )
-        return;
+      _log.Trace("Purge Error All Messages...");
 
-      BackgroundWorker bw = new BackgroundWorker();
-
-      bw.DoWork += (sender, arg) => {
-        ThreadState s = arg.Argument as ThreadState;
-        StopMonitoring();
-        OnStartedLoadingQueues();
-
-        while( !s.Stopped )
-          Thread.Sleep(100);
-
-        try {
-          _mgr.PurgeErrorAllMessages();
-
-        } finally {
-          OnFinishedLoadingQueues();
-          StartMonitoring();
-        }
-
-      };
-
-      bw.RunWorkerCompleted += (object s, RunWorkerCompletedEventArgs ev) => {
-        if( ev.Error != null )
-          throw ev.Error;
-      };
-
-      bw.RunWorkerAsync(_currentMonitor);
+      InvokeWhileMonitoringPaused(() => {
+        _mgr.PurgeErrorAllMessages();
+      });
 
     }
 
     public void PurgeMessage(QueueItem itm) {
+      _log.Trace("Purge Message...");
 
       InvokeWhileMonitoringPaused(() => {
         _mgr.PurgeMessage(itm);
@@ -867,13 +843,15 @@ namespace ServiceBusMQ {
     }
 
     public async Task PurgeErrorMessages(string queueName) {
+      _log.Trace("Purge Error Messages in " + queueName);
+      
       InvokeWhileMonitoringPaused(() => {
         _mgr.PurgeErrorMessages(queueName);
       });
     }
 
     public async Task MoveAllErrorMessagesToOriginQueue(string errorQueue) {
-      _log.Trace("MoveAllErrorMessagesToOriginQueue: " + errorQueue);
+      _log.Trace("Move AllErrorMessages To OriginQueue, from " + errorQueue);
 
       InvokeWhileMonitoringPaused(() => {
         _mgr.MoveAllErrorMessagesToOriginQueue(errorQueue);

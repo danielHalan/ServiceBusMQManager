@@ -67,7 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureMessageQueue.cs" />
-    <Compile Include="AzureServiceBusReciever.cs" />
+    <Compile Include="AzureServiceBusHelper.cs" />
+    <Compile Include="AzureServiceBusReceiver.cs" />
     <Compile Include="Azure_ServiceBus_Discovery.cs" />
     <Compile Include="Azure_ServiceBus_Manager.cs" />
     <Compile Include="ErrorManager.cs" />
