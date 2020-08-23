@@ -56,7 +56,7 @@ namespace ServiceBusMQManager.Controls {
       Type t = ( _type.Name.StartsWith("Nullable") ) ? Nullable.GetUnderlyingType(_type) : _type;
       
       try {
-        return Enum.ToObject(t, cb.SelectedIndex);
+        return Enum.Parse(t, (cb.SelectedValue as string).Replace(' ', '_') );
       } catch { 
         return cb.SelectedIndex; 
       }
