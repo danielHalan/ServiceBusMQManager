@@ -193,11 +193,15 @@ namespace ServiceBusMQ.NServiceBus {
 
         int start = 0;
         int end = type.IndexOf(',', start);
-
-        if( !includeNamespace ) {
-          start = type.LastIndexOf('.', end) + 1;
+        if( end < 0 ) {
+          r.Add(new MessageInfo(type));
         }
-        r.Add(new MessageInfo(type.Substring(start, end - start), type));
+        else {
+          if( !includeNamespace ) {
+            start = type.LastIndexOf('.', end) + 1;
+          }
+          r.Add(new MessageInfo(type.Substring(start, end - start), type));
+        }
       }
 
       return r.ToArray();
