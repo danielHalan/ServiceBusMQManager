@@ -1,5 +1,7 @@
 Service Bus MQ Manager - v4.xx
 ======================================================================
+
+[![Join the chat at https://gitter.im/danielHalan/ServiceBusMQManager](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/danielHalan/ServiceBusMQManager?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 An application to view and manage Service Bus messages.
 
 ## Overview
